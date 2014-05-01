@@ -8,6 +8,7 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 
 ## Features of the library
 
+* Fully object-oriented library. Inhiritence is using everywhere inside the lib;
 * Working with HTML5 data objects (ArrayBuffer, Uint8Array etc.);
 * Working with all ASN.1:2008 types;
 * Working with [BER][] encoded data;
@@ -66,7 +67,6 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
         ]
     });
     // #endregion 
-
 ```
 
 ```
