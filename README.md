@@ -4,7 +4,7 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 
 ## Introduction
 
-[ASN1js][] library is a first [BER][] encoding/decoding library. [BER][] is basic [ASN.1][] rules, [DER][] is the only set of resctictions for [BER][]. The [ASN1js][] library was tested against [freely available ASN.1:2008 test suite], with some limitations related to JavaScript language. 
+[ASN1js][] library is the first [BER][] encoding/decoding library in Javascript. [BER][] is the basic encoding rules for [ASN.1][] rules, [DER][] is a subset of [BER][]. The [ASN1js][] library was tested against [freely available ASN.1:2008 test suite], with some limitations related to JavaScript language. 
 
 ## Features of the library
 
@@ -22,8 +22,8 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
   * REPEATED 
 * User can name any block inside ASN.1 schema and easily get information by name;
 * Using of native JavaScript types as an input and output for all ASN.1 stings and time types;
-* All types inside library are dynamic types;
-* All types can be initialized via static or dynamic way;
+* All types inside library are dynamic;
+* All types can be initialized in static or dynamic ways.
 
 ## Examples
 
