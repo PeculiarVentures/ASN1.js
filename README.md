@@ -4,7 +4,7 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 
 ## Introduction
 
-[ASN1js][] library is the first [BER][] encoding/decoding library in Javascript. [BER][] is the basic encoding rules for [ASN.1][] that all others are based on, [DER][] is the encoding rules used by PKI applications - it is a subset of [BER][]. The [ASN1js][] library was tested against [freely available ASN.1:2008 test suite], with some limitations related to JavaScript language. 
+[ASN1js][] library is the first [BER][] encoding/decoding library in Javascript designed for browser use. [BER][] is the basic encoding rules for [ASN.1][] that all others are based on, [DER][] is the encoding rules used by PKI applications - it is a subset of [BER][]. The [ASN1js][] library was tested against [freely available ASN.1:2008 test suite], with some limitations related to JavaScript language. 
 
 ## Features of the library
 
