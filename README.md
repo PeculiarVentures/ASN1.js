@@ -84,6 +84,10 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
         ]
     });
     // #endregion
+
+    var variant1 = org.pkijs.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
+    var variant1_verified = variant1.verified;
+    var variant1_result = variant1.result; // Verified decoded data with all block names inside
 ```
 
 More examples could be found in "examples" directory or inside [PKIjs][] library.
