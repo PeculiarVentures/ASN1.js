@@ -101,7 +101,7 @@ More examples could be found in "examples" directory or inside [PKIjs][] library
 Copyright (c) 2014, GMO GlobalSign
 All rights reserved.
 
-Author 2014, Yury Strozhevsky <www.strozhevsky.com>.
+Author 2014, [Yury Strozhevsky](http://www.strozhevsky.com).
 
 Redistribution and use in source and binary forms, with or without modification, 
 are permitted provided that the following conditions are met:
