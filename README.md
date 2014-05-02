@@ -93,9 +93,6 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 
 More examples could be found in "examples" directory or inside [PKIjs][] library.
 
-## Future extensions for the library
-
-* Add support for ASN.1 REAL type
 
 ## License
 
