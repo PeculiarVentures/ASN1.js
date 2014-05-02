@@ -102,7 +102,7 @@ function(in_window)
 
         for(var i = 1; i < 8; i++)
         {
-            if(value <= biggest)
+            if(value < biggest)
             {
                 var ret_buf;
 
