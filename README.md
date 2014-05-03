@@ -93,6 +93,11 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 
 More examples could be found in "examples" directory or inside [PKIjs][] library.
 
+## Related source code
+
+* [C++ ASN1:2008 BER coder/decoder](https://github.com/YuryStrozhevsky/C-plus-plus-ASN.1-2008-coder-decoder) - the "father" of [ASN1js][] project;
+* [Freely available ASN.1:2008 test suite](https://github.com/YuryStrozhevsky/ASN1-2008-free-test-suite) - the suite which can help you to validate (and better understand) any ASN.1 coder/decoder;
+
 ## Suitability
 At this time this library should be considered suitable for research and experimentation, futher code and security review is needed before utilization in a production application.
 
