@@ -27,7 +27,7 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 
 ## Examples
 
-```
+```javascript
     // #region How to create new ASN. structures 
     var sequence = new org.pkijs.asn1.SEQUENCE();
     sequence.value_block.value.push(new org.pkijs.asn1.INTEGER({ value: 1 }));
@@ -56,7 +56,7 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
     // #endregion 
 ```
 
-```
+```javascript
     // #region How to create new ASN.1 structures by calling constuctors with parameters 
     var sequence2 = new org.pkijs.asn1.SEQUENCE({
         value: [
@@ -70,7 +70,7 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
     // #endregion 
 ```
 
-```
+```javascript
     // #region How to validate ASN.1 against pre-defined schema 
     var asn1_schema = new org.pkijs.asn1.SEQUENCE({
         name: "block1",
