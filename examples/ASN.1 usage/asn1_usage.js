@@ -216,7 +216,7 @@ function test()
     // #endregion 
 
     // #region How to use "internal schemas" for primitevely encoded data types 
-    var primitive_octetstring = new org.pkijs.asn1.OCTETSTRING({ value_hex: encoded_sequence }); // Create a primetively encoded OCTETSTRING where internal data is an encoded SEQUENCE
+    var primitive_octetstring = new org.pkijs.asn1.OCTETSTRING({ value_hex: encoded_sequence }); // Create a primitively encoded OCTETSTRING where internal data is an encoded SEQUENCE
 
     var asn1_schema_internal = new org.pkijs.asn1.OCTETSTRING({
         name: "outer_block",
