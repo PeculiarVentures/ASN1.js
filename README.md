@@ -23,6 +23,7 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
   * CHOICE
   * REPEATED 
 * User can name any block inside ASN.1 schema and easily get information by name;
+* Ability to parse internal data inside a primitively encoded data types and automatically validate it against special schema;
 * All types inside library are dynamic;
 * All types can be initialized in static or dynamic ways.
 
