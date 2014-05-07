@@ -1007,6 +1007,9 @@ function(in_window)
         {
             this.name = arguments[0].name || "";
             this.optional = arguments[0].optional || false;
+
+            if("primitive_schema" in arguments[0])
+                this.primitive_schema = arguments[0].primitive_schema;
         }
 
         this.id_block = new local.identification_block(arguments[0]);
@@ -1188,12 +1191,6 @@ function(in_window)
 
         this.id_block.is_constructed = false;
         this.value_block = new local.ASN1_PRIMITIVE_value_block(arguments[0]);
-
-        if(arguments[0] instanceof Object)
-        {
-            if("primitive_schema" in arguments[0])
-                this.primitive_schema = arguments[0].primitive_schema;
-        }
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.ASN1_PRIMITIVE.prototype = new in_window.org.pkijs.asn1.ASN1_block();

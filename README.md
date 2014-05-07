@@ -92,6 +92,29 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
     var variant1_result = variant1.result; // Verified decoded data with all block names inside
 ```
 
+```javascript
+    // #region How to use "internal schemas" for primitevely encoded data types 
+    var primitive_octetstring = new org.pkijs.asn1.OCTETSTRING({ value_hex: encoded_sequence }); // Create a primetively encoded OCTETSTRING where internal data is an encoded SEQUENCE
+
+    var asn1_schema_internal = new org.pkijs.asn1.OCTETSTRING({
+        name: "outer_block",
+        primitive_schema: new org.pkijs.asn1.SEQUENCE({
+            name: "block1",
+            value: [
+                    new org.pkijs.asn1.NULL({
+                        name: "block2"
+                    })
+            ]
+        })
+    });
+
+    var variant6 = org.pkijs.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
+    var variant6_verified = variant4.verified;
+    var variant6_block1_tag_num = variant6.result.block1.id_block.tag_number;
+    var variant6_block2_tag_num = variant6.result.block2.id_block.tag_number;
+    // #endregion 
+```
+
 More examples could be found in "examples" directory or inside [PKIjs][] library.
 
 ## Related source code
