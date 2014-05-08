@@ -17,6 +17,7 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 * Any sub-block may have unlimited length, as it described in ASN.1 standard (even "tag block");
 * Ability to work with ASN.1 string date types (intcluding all "international" strings like UniversalString, BMPString, UTF8String) by passing native JavaScript strings into constuctors. And vice versa - all initially parsed data of ASN.1 string types right after decoding automatically converts into native JavaScript strings;
 * Same with ASN.1 date-time types: for major types like UTCTime and GeneralizedTime there are automatic convertion between "JS date type - ASN.1 date-time type" + vice versa;
+* Same with ASN.1 OBJECT-IDENTIFIER (OID) data-type: you can initialize OID by JavaScript string and can get string representation via calling "oid.value_block.toString()";
 * Working with "easy-to-understand" ASN.1 schemas (pre-defined or built by user);
 * Has special types to work with ASN.1 schemas:
   * ANY
