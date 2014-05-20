@@ -487,22 +487,23 @@ function(in_window)
 
         local.hex_block.call(this, arguments[0]);
 
+        this.tag_class = (-1);
+        this.tag_number = (-1);
+        this.is_constructed = false;
+
         if(arguments[0] instanceof Object)
         {
-            // #region Properties from hex_block class 
-            this.is_hex_only = arguments[0].id_block_is_hex_only || false;
-            this.value_hex = arguments[0].id_block_value_hex || (new ArrayBuffer(0));
-            // #endregion   
+            if("id_block" in arguments[0])
+            {
+                // #region Properties from hex_block class 
+                this.is_hex_only = arguments[0].id_block.is_hex_only || false;
+                this.value_hex = arguments[0].id_block.value_hex || (new ArrayBuffer(0));
+                // #endregion   
 
-            this.tag_class = in_window.org.pkijs.getValue(arguments[0], "id_block_tag_class", (-1));
-            this.tag_number = in_window.org.pkijs.getValue(arguments[0], "id_block_tag_number", (-1));
-            this.is_constructed = in_window.org.pkijs.getValue(arguments[0], "id_block_is_constructed", false);
-        }
-        else
-        {
-            this.tag_class = (-1);
-            this.tag_number = (-1);
-            this.is_constructed = false;
+                this.tag_class = arguments[0].id_block.tag_class || (-1);
+                this.tag_number = arguments[0].id_block.tag_number || (-1);
+                this.is_constructed = arguments[0].id_block.is_constructed || false;
+            }
         }
     }
     //**************************************************************************************
@@ -782,17 +783,18 @@ function(in_window)
 
         local.base_block.call(this, arguments[0]);
 
+        this.is_indefinite_form = false;
+        this.long_form_used = false;
+        this.length = (0);
+
         if(arguments[0] instanceof Object)
         {
-            this.is_indefinite_form = arguments[0].len_block_is_indefinite_form || false;
-            this.long_form_used = arguments[0].len_block_long_form_used || false;
-            this.length = arguments[0].len_block_length || (0);
-        }
-        else
-        {
-            this.is_indefinite_form = false;
-            this.long_form_used = false;
-            this.length = (0);
+            if("len_block" in arguments[0])
+            {
+                this.is_indefinite_form = arguments[0].len_block.is_indefinite_form || false;
+                this.long_form_used = arguments[0].len_block.long_form_used || false;
+                this.length = arguments[0].len_block.length || (0);
+            }
         }
     }
     //**************************************************************************************
