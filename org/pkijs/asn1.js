@@ -236,6 +236,9 @@ function(in_window)
         /// <summary>Creating a copy of input ArrayBuffer</summary>
         /// <param name="input_buffer" type="ArrayBuffer">ArrayBuffer for coping</param>
 
+        if(check_buffer_params(input_buffer, 0, input_buffer.byteLength) === false)
+            return (new ArrayBuffer(0));
+
         var input_view = new Uint8Array(input_buffer);
 
         var ret_buf = new ArrayBuffer(input_buffer.byteLength);
@@ -252,7 +255,7 @@ function(in_window)
         /// <summary>Creating a copy of input ArrayBuffer</summary>
         /// <param name="input_buffer" type="ArrayBuffer">ArrayBuffer for coping</param>
 
-        if(input_length === 0)
+        if(check_buffer_params(input_buffer, input_offset, input_length) === false)
             return (new ArrayBuffer(0));
 
         var input_view = new Uint8Array(input_buffer, input_offset, input_length);
@@ -385,7 +388,7 @@ function(in_window)
 
         if(arguments[0] instanceof Object)
         {
-            this.is_hex_only = arguments[0].is_hex_only || false;
+            this.is_hex_only = in_window.org.pkijs.getValue(arguments[0], "is_hex_only", false);
             if("value_hex" in arguments[0])
                 this.value_hex = util_copybuf(arguments[0].value_hex);
             else
@@ -496,13 +499,13 @@ function(in_window)
             if("id_block" in arguments[0])
             {
                 // #region Properties from hex_block class 
-                this.is_hex_only = arguments[0].id_block.is_hex_only || false;
-                this.value_hex = arguments[0].id_block.value_hex || (new ArrayBuffer(0));
+                this.is_hex_only = in_window.org.pkijs.getValue(arguments[0].id_block, "is_hex_only", false);
+                this.value_hex = in_window.org.pkijs.getValue(arguments[0].id_block, "value_hex", new ArrayBuffer(0));
                 // #endregion   
 
-                this.tag_class = arguments[0].id_block.tag_class || (-1);
-                this.tag_number = arguments[0].id_block.tag_number || (-1);
-                this.is_constructed = arguments[0].id_block.is_constructed || false;
+                this.tag_class = in_window.org.pkijs.getValue(arguments[0].id_block, "tag_class", (-1));
+                this.tag_number = in_window.org.pkijs.getValue(arguments[0].id_block, "tag_number", (-1));
+                this.is_constructed = in_window.org.pkijs.getValue(arguments[0].id_block, "is_constructed", false);
             }
         }
     }
@@ -791,9 +794,9 @@ function(in_window)
         {
             if("len_block" in arguments[0])
             {
-                this.is_indefinite_form = arguments[0].len_block.is_indefinite_form || false;
-                this.long_form_used = arguments[0].len_block.long_form_used || false;
-                this.length = arguments[0].len_block.length || (0);
+                this.is_indefinite_form = in_window.org.pkijs.getValue(arguments[0].len_block, "is_indefinite_form", false);
+                this.long_form_used = in_window.org.pkijs.getValue(arguments[0].len_block, "long_form_used", false);
+                this.length = in_window.org.pkijs.getValue(arguments[0].len_block, "length", 0);
             }
         }
     }
@@ -1007,8 +1010,8 @@ function(in_window)
 
         if(arguments[0] instanceof Object)
         {
-            this.name = arguments[0].name || "";
-            this.optional = arguments[0].optional || false;
+            this.name = in_window.org.pkijs.getValue(arguments[0], "name", "");
+            this.optional = in_window.org.pkijs.getValue(arguments[0], "optional", false);
 
             if("primitive_schema" in arguments[0])
                 this.primitive_schema = arguments[0].primitive_schema;
@@ -1122,7 +1125,7 @@ function(in_window)
             else
                 this.value_hex = new ArrayBuffer(0);
 
-            this.is_hex_only = arguments[0].is_hex_only || true;
+            this.is_hex_only = in_window.org.pkijs.getValue(arguments[0], "is_hex_only", true);
             // #endregion 
         }
         else
@@ -1219,8 +1222,8 @@ function(in_window)
 
         if(arguments[0] instanceof Object)
         {
-            this.value = arguments[0].value || (new Array());
-            this.is_indefinite_form = arguments[0].is_indefinite_form || false;
+            this.value = in_window.org.pkijs.getValue(arguments[0], "value", new Array());
+            this.is_indefinite_form = in_window.org.pkijs.getValue(arguments[0], "is_indefinite_form", false);
         }
         else
         {
@@ -1449,10 +1452,10 @@ function(in_window)
 
         if(arguments[0] instanceof Object)
         {
-            this.value = arguments[0].value || false;
+            this.value = in_window.org.pkijs.getValue(arguments[0], "value", false);
 
             // #region Variables from hex_block class 
-            this.is_hex_only = arguments[0].is_hex_only || false;
+            this.is_hex_only = in_window.org.pkijs.getValue(arguments[0], "is_hex_only", false);
             if("value_hex" in arguments[0])
                 this.value_hex = util_copybuf(arguments[0].value_hex);
             else
@@ -1682,10 +1685,10 @@ function(in_window)
 
         if(arguments[0] instanceof Object)
         {
-            this.is_constructed = arguments[0].is_constructed || false;
+            this.is_constructed = in_window.org.pkijs.getValue(arguments[0], "is_constructed", false);
 
             // #region Variables from hex_block type 
-            this.is_hex_only = arguments[0].is_hex_only || false;
+            this.is_hex_only = in_window.org.pkijs.getValue(arguments[0], "is_hex_only", false);
             if("value_hex" in arguments[0])
                 this.value_hex = util_copybuf(arguments[0].value_hex);
             else
@@ -1836,11 +1839,11 @@ function(in_window)
 
         if(arguments[0] instanceof Object)
         {
-            this.unused_bits = arguments[0].unused_bits || 0;
-            this.is_constructed = arguments[0].is_constructed || false;
+            this.unused_bits = in_window.org.pkijs.getValue(arguments[0], "unused_bits", 0);
+            this.is_constructed = in_window.org.pkijs.getValue(arguments[0], "is_constructed", false);
 
             // #region Variables from hex_block type 
-            this.is_hex_only = arguments[0].is_hex_only || false;
+            this.is_hex_only = in_window.org.pkijs.getValue(arguments[0], "is_hex_only", false);
 
             if("value_hex" in arguments[0])
                 this.value_hex = util_copybuf(arguments[0].value_hex);
@@ -2051,19 +2054,21 @@ function(in_window)
 
         if(arguments[0] instanceof Object)
         {
-            this.value_dec = arguments[0].value || 0;
+            this.value_dec = in_window.org.pkijs.getValue(arguments[0], "value", 0);
 
             // #region Variables from hex_block type 
-            this.is_hex_only = arguments[0].is_hex_only || false;
+            this.is_hex_only = in_window.org.pkijs.getValue(arguments[0], "is_hex_only", false);
             if("value_hex" in arguments[0])
             {
                 this.value_hex = util_copybuf(arguments[0].value_hex);
 
                 if(this.value_hex.byteLength >= 4) // Dummy's protection
                     this.is_hex_only = true;
+                else
+                    this.value_dec = util_decode_tc.call(this);
             }
             else
-                this.value_hex = new ArrayBuffer(0);
+                this.value_hex = util_encode_tc(this.value_dec);
             // #endregion 
         }
         else
@@ -2209,8 +2214,8 @@ function(in_window)
 
         if(arguments[0] instanceof Object)
         {
-            this.value_dec = arguments[0].value_dec || (-1);
-            this.is_first_sid = arguments[0].is_first_sid || false;
+            this.value_dec = in_window.org.pkijs.getValue(arguments[0], "value_dec", -1);
+            this.is_first_sid = in_window.org.pkijs.getValue(arguments[0], "is_first_sid", false);
         }
         else
         {
@@ -2386,7 +2391,7 @@ function(in_window)
         this.value = new Array();
 
         if(arguments[0] instanceof Object)
-            this.fromString(arguments[0].value || "");
+            this.fromString(in_window.org.pkijs.getValue(arguments[0], "value", ""));
     }
     //**************************************************************************************
     local.OID_value_block.prototype = new local.value_block();
@@ -3518,8 +3523,8 @@ function(in_window)
     {
         if(arguments[0] instanceof Object)
         {
-            this.value = arguments[0].value || (new Array()); // Array of ASN.1 types for make a choice from
-            this.optional = arguments[0].optional || false;
+            this.value = in_window.org.pkijs.getValue(arguments[0], "value", new Array()); // Array of ASN.1 types for make a choice from
+            this.optional = in_window.org.pkijs.getValue(arguments[0], "optional", false);
         }
     }
     //**************************************************************************************
@@ -3532,8 +3537,8 @@ function(in_window)
     {
         if(arguments[0] instanceof Object)
         {
-            this.name = arguments[0].name || "";
-            this.optional = arguments[0].optional || false;
+            this.name = in_window.org.pkijs.getValue(arguments[0], "name", "");
+            this.optional = in_window.org.pkijs.getValue(arguments[0], "optional", false);
         }
     }
     //**************************************************************************************
@@ -3546,10 +3551,10 @@ function(in_window)
     {
         if(arguments[0] instanceof Object)
         {
-            this.name = arguments[0].name || "";
-            this.optional = arguments[0].optional || false;
-            this.value = arguments[0].value || (new in_window.org.pkijs.asn1.ANY());
-            this.local = arguments[0].local || false; // Could local or global array to store elements
+            this.name = in_window.org.pkijs.getValue(arguments[0], "name", "");
+            this.optional = in_window.org.pkijs.getValue(arguments[0], "optional", false);
+            this.value = in_window.org.pkijs.getValue(arguments[0], "value", new in_window.org.pkijs.asn1.ANY());
+            this.local = in_window.org.pkijs.getValue(arguments[0], "local", false); // Could local or global array to store elements
         }
     }
     //**************************************************************************************
@@ -4110,6 +4115,34 @@ function(in_window)
                     verified: true,
                     result: root
                 };
+            // #endregion 
+
+            // #region Special case when "input_asn1_data" has no values and "input_asn1_schema" has all optional values
+            if((input_asn1_data.value_block.value.length === 0) && 
+               (input_asn1_schema.value_block.value.length !== 0))
+            {
+                var _optional = true;
+
+                for(var i = 0; i < input_asn1_schema.value_block.value.length; i++)
+                    _optional = _optional && input_asn1_schema.value_block.value[i].optional;
+
+                if(_optional === true)
+                {
+                    return {
+                        verified: true,
+                        result: root
+                    };
+                }
+                else
+                {
+                    root.error = "Inconsistent object length";
+
+                    return {
+                        verified: true,
+                        result: root
+                    };
+                }
+            }
             // #endregion 
 
             for(var i = 0; i < max_length; i++)
