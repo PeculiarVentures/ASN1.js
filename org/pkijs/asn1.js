@@ -2738,7 +2738,9 @@ function(in_window)
     {
         /// <param name="input_buffer" type="ArrayBuffer">Array with encoded string</param>
 
-        var value_view = new Uint8Array(this.value_block.value_hex);
+        var copy_buffer = in_window.org.pkijs.copyBuffer(input_buffer);
+
+        var value_view = new Uint8Array(copy_buffer);
 
         for(var i = 0; i < value_view.length; i = i + 2)
         {
@@ -2748,7 +2750,7 @@ function(in_window)
             value_view[i + 1] = temp;
         }
 
-        this.value_block.value = String.fromCharCode.apply(null, new Uint16Array(this.value_block.value_hex));
+        this.value_block.value = String.fromCharCode.apply(null, new Uint16Array(copy_buffer));
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.BMPSTRING.prototype.fromString =
@@ -2850,7 +2852,9 @@ function(in_window)
     {
         /// <param name="input_buffer" type="ArrayBuffer">Array with encoded string</param>
 
-        var value_view = new Uint8Array(input_buffer);
+        var copy_buffer = in_window.org.pkijs.copyBuffer(input_buffer);
+
+        var value_view = new Uint8Array(copy_buffer);
 
         for(var i = 0; i < value_view.length; i = i + 4)
         {
@@ -2860,7 +2864,7 @@ function(in_window)
             value_view[i + 3] = 0x00;
         }
 
-        this.value_block.value = String.fromCharCode.apply(null, new Uint32Array(input_buffer));
+        this.value_block.value = String.fromCharCode.apply(null, new Uint32Array(copy_buffer));
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.UNIVERSALSTRING.prototype.fromString =
