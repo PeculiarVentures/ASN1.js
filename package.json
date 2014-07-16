@@ -1,0 +1,17 @@
+﻿{
+    "author": "Yury Strozhevsky <yury@strozhevsky.com>",
+    "contributors": [
+      "Ryan Hurst <rmh@unmitigatedrisk.com>"
+    ],
+    "name": "asn1js",
+    "description": "ASN1js is a pure JavaScript library implementing this standard. ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web",
+    "version": "1.0.1",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/GlobalSign/ASN1.js.git"
+    },
+  "main": "org/pkijs/asn1.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {}
+}
