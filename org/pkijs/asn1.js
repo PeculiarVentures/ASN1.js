@@ -148,8 +148,6 @@ function(in_window)
         {
             if( mod_value <= big_int )
             {
-                var j = 0;
-
                 if( value < 0 )
                 {
                     var small_int = big_int - mod_value;
