@@ -83,7 +83,7 @@ function(in_window)
         var result = 0; 
 
         for(var i = (input_buffer.length - 1); i >= 0; i-- )
-            result += input_buffer[(input_buffer.length - 1) - i] << (input_base * i);
+            result += input_buffer[(input_buffer.length - 1) - i] * Math.pow(2, input_base * i);
 
         return result;
     }
@@ -98,7 +98,7 @@ function(in_window)
         reserved = reserved || (-1);
 
         var result = 0;
-        var biggest = 1 << base;
+        var biggest = Math.pow(2, base);
 
         for(var i = 1; i < 8; i++)
         {
@@ -125,14 +125,16 @@ function(in_window)
 
                 for(var j = ( i - 1 ); j >= 0; j-- )
                 {
-                    ret_view[ result - j - 1 ] = ( value >> ( j * base ) );
-                    value -= ( ret_view[ result - j - 1 ] ) << ( j * base );
+                    var basis = Math.pow(2, j * base);
+
+                    ret_view[ result - j - 1 ] = Math.floor( value / basis );
+                    value -= ( ret_view[ result - j - 1 ] ) * basis;
                 }
 
                 return ret_buf;
             }
 
-            biggest <<= base;
+            biggest *= Math.pow(2, base);
         }
     }
     //**************************************************************************************
@@ -144,7 +146,7 @@ function(in_window)
         var mod_value = (value < 0) ? (value * (-1)) : value;
         var big_int = 128;
 
-        for(var i = 1; i < 4; i++) // In JavaScript we can effectively work with 32-bit integers only
+        for(var i = 1; i < 8; i++) 
         {
             if( mod_value <= big_int )
             {
@@ -182,7 +184,7 @@ function(in_window)
                 }
             }
 
-            big_int <<= 8;
+            big_int *= Math.pow(2, 8);
         }
 
         return (new ArrayBuffer(0));
