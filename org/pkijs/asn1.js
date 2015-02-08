@@ -360,11 +360,24 @@ function(in_window)
     {
         /// <summary>General class of all ASN.1 blocks</summary>
 
-        this.block_length = 0;
-        this.error = new String();
-        this.warnings = new Array();
-        /// <field>Copy of the value of incoming ArrayBuffer done before decoding</field>
-        this.value_before_decode = new ArrayBuffer(0);
+        if(arguments[0] instanceof Object)
+        {
+            this.block_length = in_window.org.pkijs.getValue(arguments[0], "block_length", 0);
+            this.error = in_window.org.pkijs.getValue(arguments[0], "error", new String());
+            this.warnings = in_window.org.pkijs.getValue(arguments[0], "warnings", new Array());
+            if("value_before_decode" in arguments[0])
+                this.value_before_decode = util_copybuf(arguments[0].value_before_decode);
+            else
+                this.value_before_decode = new ArrayBuffer(0);
+        }
+        else
+        {
+            this.block_length = 0;
+            this.error = new String();
+            this.warnings = new Array();
+            /// <field>Copy of the value of incoming ArrayBuffer done before decoding</field>
+            this.value_before_decode = new ArrayBuffer(0);
+        }
     }
     //**************************************************************************************
     local.base_block.prototype.block_name =
@@ -372,7 +385,21 @@ function(in_window)
     {
         /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
 
-        return "identification_block";
+        return "base_block";
+    }
+    //**************************************************************************************
+    local.base_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        return {
+            block_name: local.base_block.prototype.block_name.call(this),
+            block_length: this.block_length,
+            error: this.error,
+            warnings: this.warnings,
+            value_before_decode: in_window.org.pkijs.bufferToHexCodes(this.value_before_decode, 0, this.value_before_decode.byteLength)
+        };
     }
     //**************************************************************************************
     // #endregion 
@@ -477,6 +504,20 @@ function(in_window)
             ret_view[i] = cur_view[i];
 
         return ret_buf;
+    }
+    //**************************************************************************************
+    local.hex_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.base_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.hex_block.prototype.block_name.call(this);
+        _object.is_hex_only = this.is_hex_only;
+        _object.value_hex = in_window.org.pkijs.bufferToHexCodes(this.value_hex, 0, this.value_hex.byteLength)
+
+        return _object;
     }
     //**************************************************************************************
     // #endregion 
@@ -775,6 +816,21 @@ function(in_window)
         return ( input_offset + this.block_length ); // Return current offset in input buffer
     }
     //**************************************************************************************
+    local.identification_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.hex_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.identification_block.prototype.block_name.call(this);
+        _object.tag_class = this.tag_class;
+        _object.tag_number = this.tag_number;
+        _object.is_constructed = this.is_constructed;
+
+        return _object;
+    }
+    //**************************************************************************************
     // #endregion 
     //**************************************************************************************
     // #region Declaration of length block class 
@@ -975,6 +1031,21 @@ function(in_window)
         return (new ArrayBuffer(0));
     }
     //**************************************************************************************
+    local.length_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.base_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.length_block.prototype.block_name.call(this);
+        _object.is_indefinite_form = this.is_indefinite_form;
+        _object.long_form_used = this.long_form_used;
+        _object.length = this.length;
+
+        return _object;
+    }
+    //**************************************************************************************
     // #endregion 
     //**************************************************************************************
     // #region Declaration of value block class 
@@ -995,6 +1066,18 @@ function(in_window)
         /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
 
         return "value_block";
+    }
+    //**************************************************************************************
+    local.value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.base_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.value_block.prototype.block_name.call(this);
+
+        return _object;
     }
     //**************************************************************************************
     // #endregion 
@@ -1106,6 +1189,28 @@ function(in_window)
         return ret_buf;
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.base_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.ASN1_block.prototype.block_name.call(this);
+        _object.id_block = this.id_block.toJSON();
+        _object.len_block = this.len_block.toJSON();
+        _object.value_block = this.value_block.toJSON();
+
+        if("name" in this)
+            _object.name = this.name;
+        if("optional" in this)
+            _object.optional = this.optional;
+        if("primitive_schema" in this)
+            _object.primitive_schema = this.primitive_schema.toJSON();
+
+        return _object;
+    }
+    //**************************************************************************************
     // #endregion 
     //**************************************************************************************
     // #region Declaration of basic block for all PRIMITIVE types 
@@ -1187,6 +1292,28 @@ function(in_window)
         return util_copybuf(this.value_hex);
     }
     //**************************************************************************************
+    local.ASN1_PRIMITIVE_value_block.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "ASN1_PRIMITIVE_value_block";
+    }
+    //**************************************************************************************
+    local.ASN1_PRIMITIVE_value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.value_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.ASN1_PRIMITIVE_value_block.prototype.block_name.call(this);
+        _object.value_hex = in_window.org.pkijs.bufferToHexCodes(this.value_hex, 0, this.value_hex.byteLength);
+        _object.is_hex_only = this.is_hex_only;
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.ASN1_PRIMITIVE =
     function()
     {
@@ -1207,6 +1334,18 @@ function(in_window)
         /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
 
         return "PRIMITIVE";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.ASN1_PRIMITIVE.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.ASN1_PRIMITIVE.prototype.block_name.call(this);
+
+        return _object;
     }
     //**************************************************************************************
     // #endregion 
@@ -1333,6 +1472,30 @@ function(in_window)
         return ret_buf;
     }
     //**************************************************************************************
+    local.ASN1_CONSTRUCTED_value_block.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "ASN1_CONSTRUCTED_value_block";
+    }
+    //**************************************************************************************
+    local.ASN1_CONSTRUCTED_value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.value_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.ASN1_CONSTRUCTED_value_block.prototype.block_name.call(this);
+        _object.is_indefinite_form = this.is_indefinite_form;
+        _object.value = new Array();
+        for(var i = 0; i < this.value.length; i++)
+            _object.value.push(this.value[i].toJSON());
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.ASN1_CONSTRUCTED =
     function()
     {
@@ -1384,6 +1547,18 @@ function(in_window)
         return result_offset;
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.ASN1_CONSTRUCTED.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.ASN1_CONSTRUCTED.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     // #endregion 
     //**************************************************************************************
     // #region Declaration of ASN.1 EOC type class
@@ -1419,6 +1594,26 @@ function(in_window)
         return (new ArrayBuffer(0));
     }
     //**************************************************************************************
+    local.EOC_value_block.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "EOC_value_block";
+    }
+    //**************************************************************************************
+    local.EOC_value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.value_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.EOC_value_block.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.EOC =
     function()
     {
@@ -1439,6 +1634,18 @@ function(in_window)
         /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
 
         return "END_OF_CONTENT";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.EOC.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.EOC.prototype.block_name.call(this);
+
+        return _object;
     }
     //**************************************************************************************
     // #endregion 
@@ -1535,6 +1742,29 @@ function(in_window)
         return this.value_hex;
     }
     //**************************************************************************************
+    local.BOOLEAN_value_block.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "BOOLEAN_value_block";
+    }
+    //**************************************************************************************
+    local.BOOLEAN_value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.value_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.BOOLEAN_value_block.prototype.block_name.call(this);
+        _object.value = this.value;
+        _object.is_hex_only = this.is_hex_only;
+        _object.value_hex = in_window.org.pkijs.bufferToHexCodes(this.value_hex, 0, this.value_hex.byteLength)
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.BOOLEAN =
     function()
     {
@@ -1555,6 +1785,18 @@ function(in_window)
         /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
 
         return "BOOLEAN";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.BOOLEAN.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.BOOLEAN.prototype.block_name.call(this);
+
+        return _object;
     }
     //**************************************************************************************
     // #endregion 
@@ -1581,6 +1823,18 @@ function(in_window)
         return "SEQUENCE";
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.SEQUENCE.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_CONSTRUCTED.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.SEQUENCE.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.SET =
     function()
     {
@@ -1599,6 +1853,18 @@ function(in_window)
         /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
 
         return "SET";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.SET.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_CONSTRUCTED.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.SET.prototype.block_name.call(this);
+
+        return _object;
     }
     //**************************************************************************************
     // #endregion 
@@ -1666,6 +1932,18 @@ function(in_window)
         ret_view[1] = 0x00;
 
         return ret_buf;
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.NULL.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.NULL.prototype.block_name.call(this);
+
+        return _object;
     }
     //**************************************************************************************
     // #endregion 
@@ -1789,6 +2067,29 @@ function(in_window)
         return (new ArrayBuffer(0));
     }
     //**************************************************************************************
+    local.OCTETSTRING_value_block.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "OCTETSTRING_value_block";
+    }
+    //**************************************************************************************
+    local.OCTETSTRING_value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.ASN1_CONSTRUCTED_value_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.OCTETSTRING_value_block.prototype.block_name.call(this);
+        _object.is_constructed = this.is_constructed;
+        _object.is_hex_only = this.is_hex_only;
+        _object.value_hex = in_window.org.pkijs.bufferToHexCodes(this.value_hex, 0, this.value_hex.byteLength)
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.OCTETSTRING =
     function()
     {
@@ -1826,6 +2127,18 @@ function(in_window)
     function()
     {
         return "OCTETSTRING";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.OCTETSTRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.OCTETSTRING.prototype.block_name.call(this);
+
+        return _object;
     }
     //**************************************************************************************
     // #endregion 
@@ -2002,6 +2315,30 @@ function(in_window)
         return (new ArrayBuffer(0));
     }
     //**************************************************************************************
+    local.BITSTRING_value_block.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "BITSTRING_value_block";
+    }
+    //**************************************************************************************
+    local.BITSTRING_value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.ASN1_CONSTRUCTED_value_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.BITSTRING_value_block.prototype.block_name.call(this);
+        _object.unused_bits = this.unused_bits;
+        _object.is_constructed = this.is_constructed;
+        _object.is_hex_only = this.is_hex_only;
+        _object.value_hex = in_window.org.pkijs.bufferToHexCodes(this.value_hex, 0, this.value_hex.byteLength)
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.BITSTRING =
     function()
     {
@@ -2041,6 +2378,18 @@ function(in_window)
         this.value_block.is_indefinite_form = this.len_block.is_indefinite_form;
 
         return in_window.org.pkijs.asn1.ASN1_block.prototype.fromBER.call(this, input_buffer, input_offset, input_length);
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.BITSTRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.BITSTRING.prototype.block_name.call(this);
+
+        return _object;
     }
     //**************************************************************************************
     // #endregion 
@@ -2136,6 +2485,29 @@ function(in_window)
         return (new ArrayBuffer(0));
     }
     //**************************************************************************************
+    local.INTEGER_value_block.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "INTEGER_value_block";
+    }
+    //**************************************************************************************
+    local.INTEGER_value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.value_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.INTEGER_value_block.prototype.block_name.call(this);
+        _object.value_dec = this.value_dec;
+        _object.is_hex_only = this.is_hex_only;
+        _object.value_hex = in_window.org.pkijs.bufferToHexCodes(this.value_hex, 0, this.value_hex.byteLength)
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.INTEGER =
     function()
     {
@@ -2187,6 +2559,18 @@ function(in_window)
         return false;
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.INTEGER.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.INTEGER.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     // #endregion 
     //**************************************************************************************
     // #region Declaration of ASN.1 ENUMERATED type class 
@@ -2202,6 +2586,26 @@ function(in_window)
     //**************************************************************************************
     in_window.org.pkijs.asn1.ENUMERATED.prototype = new in_window.org.pkijs.asn1.INTEGER();
     in_window.org.pkijs.asn1.ENUMERATED.constructor = in_window.org.pkijs.asn1.ENUMERATED;
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.ENUMERATED.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "ENUMERATED";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.ENUMERATED.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.INTEGER.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.ENUMERATED.prototype.block_name.call(this);
+
+        return _object;
+    }
     //**************************************************************************************
     // #endregion 
     //**************************************************************************************
@@ -2383,6 +2787,20 @@ function(in_window)
         return result;
     }
     //**************************************************************************************
+    local.SID_value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.hex_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.SID_value_block.prototype.block_name.call(this);
+        _object.value_dec = this.value_dec;
+        _object.is_first_sid = this.is_first_sid;
+
+        return _object;
+    }
+    //**************************************************************************************
     local.OID_value_block =
     function()
     {
@@ -2553,6 +2971,30 @@ function(in_window)
         return result;
     }
     //**************************************************************************************
+    local.OID_value_block.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "OID_value_block";
+    }
+    //**************************************************************************************
+    local.OID_value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.value_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.OID_value_block.prototype.block_name.call(this);
+        _object.value = local.OID_value_block.prototype.toString.call(this);
+        _object.sid_array = new Array();
+        for(var i = 0; i < this.value.length; i++)
+            _object.sid_array.push(this.value[i].toJSON());
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.OID =
     function()
     {
@@ -2566,6 +3008,26 @@ function(in_window)
     //**************************************************************************************
     in_window.org.pkijs.asn1.OID.prototype = new in_window.org.pkijs.asn1.ASN1_block();
     in_window.org.pkijs.asn1.OID.constructor = in_window.org.pkijs.asn1.OID;
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.OID.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "OID";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.OID.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.OID.prototype.block_name.call(this);
+
+        return _object;
+    }
     //**************************************************************************************
     // #endregion   
     //**************************************************************************************
@@ -2582,6 +3044,27 @@ function(in_window)
     //**************************************************************************************
     local.UTF8STRING_value_block.prototype = new local.hex_block();
     local.UTF8STRING_value_block.constructor = local.UTF8STRING_value_block;
+    //**************************************************************************************
+    local.UTF8STRING_value_block.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "UTF8STRING_value_block";
+    }
+    //**************************************************************************************
+    local.UTF8STRING_value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.hex_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.UTF8STRING_value_block.prototype.block_name.call(this);
+        _object.value = this.value;
+
+        return _object;
+    }
     //**************************************************************************************
     in_window.org.pkijs.asn1.UTF8STRING =
     function()
@@ -2644,8 +3127,16 @@ function(in_window)
     function(input_buffer)
     {
         /// <param name="input_buffer" type="ArrayBuffer">Array with encoded string</param>
+        this.value_block.value = String.fromCharCode.apply(null, new Uint8Array(input_buffer));
 
-        this.value_block.value = decodeURIComponent(escape(String.fromCharCode.apply(null, new Uint8Array(input_buffer))));
+        try
+        {
+            this.value_block.value = decodeURIComponent(escape(this.value_block.value));
+        }
+        catch(ex)
+        {
+            this.warnings.push("Error during \"decodeURIComponent\": " + ex + ", using raw string");
+        }
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.UTF8STRING.prototype.fromString =
@@ -2665,16 +3156,50 @@ function(in_window)
         this.value_block.value = input_string;
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.UTF8STRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.UTF8STRING.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     local.BMPSTRING_value_block =
     function()
     {
         local.hex_block.call(this, arguments[0]);
 
         this.is_hex_only = true;
+        this.value = "";
     }
     //**************************************************************************************
     local.BMPSTRING_value_block.prototype = new local.hex_block();
     local.BMPSTRING_value_block.constructor = local.BMPSTRING_value_block;
+    //**************************************************************************************
+    local.BMPSTRING_value_block.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "BMPSTRING_value_block";
+    }
+    //**************************************************************************************
+    local.BMPSTRING_value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.hex_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.BMPSTRING_value_block.prototype.block_name.call(this);
+        _object.value = this.value;
+
+        return _object;
+    }
     //**************************************************************************************
     in_window.org.pkijs.asn1.BMPSTRING =
     function()
@@ -2779,16 +3304,50 @@ function(in_window)
         this.value_block.value = input_string;
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.BMPSTRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.BMPSTRING.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     local.UNIVERSALSTRING_value_block =
     function()
     {
         local.hex_block.call(this, arguments[0]);
 
         this.is_hex_only = true;
+        this.value = "";
     }
     //**************************************************************************************
     local.UNIVERSALSTRING_value_block.prototype = new local.hex_block();
     local.UNIVERSALSTRING_value_block.constructor = local.UNIVERSALSTRING_value_block;
+    //**************************************************************************************
+    local.UNIVERSALSTRING_value_block.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "UNIVERSALSTRING_value_block";
+    }
+    //**************************************************************************************
+    local.UNIVERSALSTRING_value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.hex_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.UNIVERSALSTRING_value_block.prototype.block_name.call(this);
+        _object.value = this.value;
+
+        return _object;
+    }
     //**************************************************************************************
     in_window.org.pkijs.asn1.UNIVERSALSTRING =
     function()
@@ -2893,6 +3452,18 @@ function(in_window)
         this.value_block.value = input_string;
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.UNIVERSALSTRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.UNIVERSALSTRING.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     local.SIMPLESTRING_value_block =
     function()
     {
@@ -2905,6 +3476,27 @@ function(in_window)
     //**************************************************************************************
     local.SIMPLESTRING_value_block.prototype = new local.hex_block();
     local.SIMPLESTRING_value_block.constructor = local.SIMPLESTRING_value_block;
+    //**************************************************************************************
+    local.SIMPLESTRING_value_block.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "SIMPLESTRING_value_block";
+    }
+    //**************************************************************************************
+    local.SIMPLESTRING_value_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.hex_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.SIMPLESTRING_value_block.prototype.block_name.call(this);
+        _object.value = this.value;
+
+        return _object;
+    }
     //**************************************************************************************
     local.SIMPLESTRING_block =
     function()
@@ -2983,6 +3575,19 @@ function(in_window)
         this.value_block.value = input_string;
     }
     //**************************************************************************************
+    local.SIMPLESTRING_block.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
+
+        _object.block_name = local.SIMPLESTRING_block.prototype.block_name.call(this);
+        _object.block_name = local.value_block.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.NUMERICSTRING =
     function()
     {
@@ -3001,6 +3606,18 @@ function(in_window)
         /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
 
         return "NUMERICSTRING";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.NUMERICSTRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.SIMPLESTRING_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.NUMERICSTRING.prototype.block_name.call(this);
+
+        return _object;
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.PRINTABLESTRING =
@@ -3023,6 +3640,18 @@ function(in_window)
         return "PRINTABLESTRING";
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.PRINTABLESTRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.SIMPLESTRING_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.PRINTABLESTRING.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.TELETEXSTRING =
     function()
     {
@@ -3041,6 +3670,18 @@ function(in_window)
         /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
 
         return "TELETEXSTRING";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.TELETEXSTRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.SIMPLESTRING_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.TELETEXSTRING.prototype.block_name.call(this);
+
+        return _object;
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.VIDEOTEXSTRING =
@@ -3063,6 +3704,18 @@ function(in_window)
         return "VIDEOTEXSTRING";
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.VIDEOTEXSTRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.SIMPLESTRING_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.VIDEOTEXSTRING.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.IA5STRING =
     function()
     {
@@ -3081,6 +3734,18 @@ function(in_window)
         /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
 
         return "IA5STRING";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.IA5STRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.SIMPLESTRING_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.IA5STRING.prototype.block_name.call(this);
+
+        return _object;
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.GRAPHICSTRING =
@@ -3103,6 +3768,18 @@ function(in_window)
         return "GRAPHICSTRING";
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.GRAPHICSTRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.SIMPLESTRING_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.GRAPHICSTRING.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.VISIBLESTRING =
     function()
     {
@@ -3121,6 +3798,18 @@ function(in_window)
         /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
 
         return "VISIBLESTRING";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.VISIBLESTRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.SIMPLESTRING_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.VISIBLESTRING.prototype.block_name.call(this);
+
+        return _object;
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.GENERALSTRING =
@@ -3143,6 +3832,18 @@ function(in_window)
         return "GENERALSTRING";
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.GENERALSTRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.SIMPLESTRING_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.GENERALSTRING.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.CHARACTERSTRING =
     function()
     {
@@ -3161,6 +3862,18 @@ function(in_window)
         /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
 
         return "CHARACTERSTRING";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.CHARACTERSTRING.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = local.SIMPLESTRING_block.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.CHARACTERSTRING.prototype.block_name.call(this);
+
+        return _object;
     }
     //**************************************************************************************
     // #endregion 
@@ -3320,6 +4033,32 @@ function(in_window)
         return output_array.join('');
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.UTCTIME.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "UTCTIME";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.UTCTIME.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.VISIBLESTRING.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.UTCTIME.prototype.block_name.call(this);
+        _object.year = this.year;
+        _object.month = this.month;
+        _object.day = this.day;
+        _object.hour = this.hour;
+        _object.minute = this.minute;
+        _object.second = this.second;
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.GENERALIZEDTIME =
     function()
     {
@@ -3464,6 +4203,32 @@ function(in_window)
         return output_array.join('');
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.GENERALIZEDTIME.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "GENERALIZEDTIME";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.GENERALIZEDTIME.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.VISIBLESTRING.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.GENERALIZEDTIME.prototype.block_name.call(this);
+        _object.year = this.year;
+        _object.month = this.month;
+        _object.day = this.day;
+        _object.hour = this.hour;
+        _object.minute = this.minute;
+        _object.second = this.second;
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.DATE =
     function()
     {
@@ -3476,6 +4241,26 @@ function(in_window)
     in_window.org.pkijs.asn1.DATE.prototype = new in_window.org.pkijs.asn1.UTF8STRING();
     in_window.org.pkijs.asn1.DATE.constructor = in_window.org.pkijs.asn1.DATE;
     //**************************************************************************************
+    in_window.org.pkijs.asn1.DATE.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "DATE";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.DATE.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.UTF8STRING.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.DATE.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.TIMEOFDAY =
     function()
     {
@@ -3484,6 +4269,26 @@ function(in_window)
     //**************************************************************************************
     in_window.org.pkijs.asn1.TIMEOFDAY.prototype = new in_window.org.pkijs.asn1.UTF8STRING();
     in_window.org.pkijs.asn1.TIMEOFDAY.constructor = in_window.org.pkijs.asn1.TIMEOFDAY;
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.TIMEOFDAY.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "TIMEOFDAY";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.DATE.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.UTF8STRING.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.TIMEOFDAY.prototype.block_name.call(this);
+
+        return _object;
+    }
     //**************************************************************************************
     in_window.org.pkijs.asn1.DATETIME =
     function()
@@ -3497,6 +4302,26 @@ function(in_window)
     in_window.org.pkijs.asn1.DATETIME.prototype = new in_window.org.pkijs.asn1.UTF8STRING();
     in_window.org.pkijs.asn1.DATETIME.constructor = in_window.org.pkijs.asn1.DATETIME;
     //**************************************************************************************
+    in_window.org.pkijs.asn1.DATETIME.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "DATETIME";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.DATETIME.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.UTF8STRING.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.DATETIME.prototype.block_name.call(this);
+
+        return _object;
+    }
+    //**************************************************************************************
     in_window.org.pkijs.asn1.DURATION =
     function()
     {
@@ -3505,6 +4330,26 @@ function(in_window)
     //**************************************************************************************
     in_window.org.pkijs.asn1.DURATION.prototype = new in_window.org.pkijs.asn1.UTF8STRING();
     in_window.org.pkijs.asn1.DURATION.constructor = in_window.org.pkijs.asn1.DURATION;
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.DURATION.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "DURATION";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.DURATION.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.UTF8STRING.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.DURATION.prototype.block_name.call(this);
+
+        return _object;
+    }
     //**************************************************************************************
     in_window.org.pkijs.asn1.TIME =
     function()
@@ -3517,6 +4362,26 @@ function(in_window)
     //**************************************************************************************
     in_window.org.pkijs.asn1.TIME.prototype = new in_window.org.pkijs.asn1.UTF8STRING();
     in_window.org.pkijs.asn1.TIME.constructor = in_window.org.pkijs.asn1.TIME;
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.TIME.prototype.block_name =
+    function()
+    {
+        /// <summary>Aux function, need to get a block name. Need to have it here for inhiritence</summary>
+
+        return "TIME";
+    }
+    //**************************************************************************************
+    in_window.org.pkijs.asn1.TIME.prototype.toJSON =
+    function()
+    {
+        /// <summary>Convertion for the block to JSON object</summary>
+
+        var _object = in_window.org.pkijs.asn1.UTF8STRING.prototype.toJSON.call(this);
+
+        _object.block_name = in_window.org.pkijs.asn1.TIME.prototype.block_name.call(this);
+
+        return _object;
+    }
     //**************************************************************************************
     // #endregion 
     //**************************************************************************************
@@ -4270,6 +5135,17 @@ function(in_window)
         // #region Compare ASN.1 struct with input schema 
         return in_window.org.pkijs.compareSchema(asn1.result, asn1.result, input_schema);
         // #endregion 
+    }
+    //**************************************************************************************
+    // #endregion 
+    //**************************************************************************************
+    // #region Major function converting JSON to ASN.1 objects 
+    //**************************************************************************************
+    in_window.org.pkijs.fromJSON = 
+    function(json)
+    {
+        /// <summary>Converting from JSON to ASN.1 objects</summary>
+        /// <param name="json" type="String|Object">JSON string or object to convert to ASN.1 objects</param>
     }
     //**************************************************************************************
     // #endregion 
