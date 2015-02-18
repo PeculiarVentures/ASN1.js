@@ -127,6 +127,46 @@ More examples could be found in "examples" directory or inside [PKIjs][] library
 ## Suitability
 At this time this library should be considered suitable for research and experimentation, futher code and security review is needed before utilization in a production application.
 
+## How to use ASN1js and PKIjs with Node.js
+
+!!! WARNING !!! 
+Currently there is no "polyfill" of WebCrypto in Node.js. Thus you will not be able to use signature / verification features of PKIjs in Node.js programs.
+
+In order to use PKIjs you will also need [ASN1js][] plus [node.extend](https://www.npmjs.com/package/node.extend) package.
+```javascript
+    var merge = require("node.extend");
+
+    var common = require("asn1js/org/pkijs/common");
+    var _asn1js = require("asn1js");
+    var _pkijs = require("pkijs");
+    var _x509schema = require("pkijs/org/pkijs/x509_schema");
+
+    // #region Merging function/object declarations for ASN1js and PKIjs 
+    var asn1js = merge(true, _asn1js, common);
+
+    var x509schema = merge(true, _x509schema, asn1js);
+
+    var pkijs_1 = merge(true, _pkijs, asn1js);
+    var pkijs = merge(true, pkijs_1, x509schema);
+    // #endregion 
+```
+
+After that you will ba able to use ASN1js and PKIjs via common way:
+```javascript
+        // #region Decode and parse X.509 cert 
+        var asn1 = pkijs.org.pkijs.fromBER(certBuffer);
+        var cert;
+        try
+        {
+            cert = new pkijs.org.pkijs.simpl.CERT({ schema: asn1.result });
+        }
+        catch(ex)
+        {
+            return;
+        }
+        // #endregion 
+```
+
 ## License
 
 Copyright (c) 2014, [GMO GlobalSign](http://www.globalsign.com/)
