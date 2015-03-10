@@ -2260,12 +2260,6 @@ function(in_window)
                 return (-1);
             }
 
-            if(int_buffer.length == 1)
-            {
-                this.error = "End of input reached before message was fully decoded";
-                return (-1);
-            }
-
             // #region Copy input buffer to internal buffer 
             this.value_hex = new ArrayBuffer(int_buffer.length - 1);
             var view = new Uint8Array(this.value_hex);
@@ -4993,7 +4987,7 @@ function(in_window)
                 var _optional = true;
 
                 for(var i = 0; i < input_asn1_schema.value_block.value.length; i++)
-                    _optional = _optional && input_asn1_schema.value_block.value[i].optional;
+                    _optional = _optional && (input_asn1_schema.value_block.value[i].optional || false);
 
                 if(_optional === true)
                 {
@@ -5004,10 +4998,19 @@ function(in_window)
                 }
                 else
                 {
+                    // #region Delete early added name of block 
+                    if(input_asn1_schema.hasOwnProperty('name'))
+                    {
+                        input_asn1_schema.name = input_asn1_schema.name.replace(/^\s+|\s+$/g, '');
+                        if(input_asn1_schema.name !== "")
+                            delete root[input_asn1_schema.name];
+                    }
+                    // #endregion 
+
                     root.error = "Inconsistent object length";
 
                     return {
-                        verified: true,
+                        verified: false,
                         result: root
                     };
                 }
@@ -5022,6 +5025,15 @@ function(in_window)
                     if(input_asn1_schema.value_block.value[i].optional === false)
                     {
                         root.error = "Inconsistent length between ASN.1 data and schema";
+
+                        // #region Delete early added name of block 
+                        if(input_asn1_schema.hasOwnProperty('name'))
+                        {
+                            input_asn1_schema.name = input_asn1_schema.name.replace(/^\s+|\s+$/g, '');
+                            if(input_asn1_schema.name !== "")
+                                delete root[input_asn1_schema.name];
+                        }
+                        // #endregion 
 
                         return {
                             verified: false,
@@ -5041,7 +5053,18 @@ function(in_window)
                             if(input_asn1_schema.value_block.value[0].optional === true)
                                 admission++;
                             else
+                            {
+                                // #region Delete early added name of block 
+                                if(input_asn1_schema.hasOwnProperty('name'))
+                                {
+                                    input_asn1_schema.name = input_asn1_schema.name.replace(/^\s+|\s+$/g, '');
+                                    if(input_asn1_schema.name !== "")
+                                        delete root[input_asn1_schema.name];
+                                }
+                                // #endregion 
+
                                 return result;
+                            }
                         }
 
                         if(("name" in input_asn1_schema.value_block.value[0]) && (input_asn1_schema.value_block.value[0].name.length > 0))
@@ -5068,17 +5091,39 @@ function(in_window)
                             if(input_asn1_schema.value_block.value[i].optional === true)
                                 admission++;
                             else
+                            {
+                                // #region Delete early added name of block 
+                                if(input_asn1_schema.hasOwnProperty('name'))
+                                {
+                                    input_asn1_schema.name = input_asn1_schema.name.replace(/^\s+|\s+$/g, '');
+                                    if(input_asn1_schema.name !== "")
+                                        delete root[input_asn1_schema.name];
+                                }
+                                // #endregion 
+
                                 return result;
+                            }
                         }
                     }
                 }
             }
 
             if(result.verified === false) // The situation may take place if last element is "optional" and verification failed
+            {
+                // #region Delete early added name of block 
+                if(input_asn1_schema.hasOwnProperty('name'))
+                {
+                    input_asn1_schema.name = input_asn1_schema.name.replace(/^\s+|\s+$/g, '');
+                    if(input_asn1_schema.name !== "")
+                        delete root[input_asn1_schema.name];
+                }
+                // #endregion 
+
                 return {
                     verified: false,
                     result: root
                 };
+            }
 
             return {
                 verified: true,
@@ -5095,10 +5140,21 @@ function(in_window)
                 // #region Decoding of raw ASN.1 data 
                 var asn1 = in_window.org.pkijs.fromBER(input_asn1_data.value_block.value_hex);
                 if(asn1.offset === (-1))
+                {
+                    // #region Delete early added name of block 
+                    if(input_asn1_schema.hasOwnProperty('name'))
+                    {
+                        input_asn1_schema.name = input_asn1_schema.name.replace(/^\s+|\s+$/g, '');
+                        if(input_asn1_schema.name !== "")
+                            delete root[input_asn1_schema.name];
+                    }
+                    // #endregion 
+
                     return {
                         verified: false,
                         result: asn1.result
                     };
+                }
                 // #endregion 
 
                 return in_window.org.pkijs.compareSchema(root, asn1.result, input_asn1_schema.primitive_schema);
