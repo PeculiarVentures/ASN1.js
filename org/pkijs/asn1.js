@@ -292,21 +292,27 @@ function(in_window)
     //**************************************************************************************
     function check_buffer_params(input_buffer, input_offset, input_length)
     {
+        if((input_buffer instanceof ArrayBuffer) === false)
+        {
+            this.error = "Wrong parameter: input_buffer must be \"ArrayBuffer\"";
+            return false;
+        }
+
         if(input_buffer.byteLength === 0)
         {
-            this.error = "Wrong parameter: input_buffer";
+            this.error = "Wrong parameter: input_buffer has zero length";
             return false;
         }
 
         if(input_offset < 0)
         {
-            this.error = "Wrong parameter: input_offset";
+            this.error = "Wrong parameter: input_offset less than zero";
             return false;
         }
 
         if(input_length < 0)
         {
-            this.error = "Wrong parameter: input_length";
+            this.error = "Wrong parameter: input_length less than zero";
             return false;
         }
 
