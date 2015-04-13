@@ -8,6 +8,7 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 
 ## Features of the library
 
+* [ASN1js][] is a "base layer" for full-featured JS library [PKIjs][], which is using Web Cryptography API and has all classes, neccessary to work with PKI-related data;
 * Fully object-oriented library. Inhiritence is using everywhere inside the lib;
 * Working with HTML5 data objects (ArrayBuffer, Uint8Array etc.);
 * Working with all ASN.1:2008 types;
@@ -129,10 +130,10 @@ At this time this library should be considered suitable for research and experim
 
 ## How to use ASN1js and PKIjs with Node.js
 
-!!! WARNING !!! 
-Currently there is no "polyfill" of WebCrypto in Node.js. Thus you will not be able to use signature / verification features of PKIjs in Node.js programs.
+**!!! WARNING !!! **
+**Currently there is no "polyfill" of WebCrypto in Node.js. Thus you will not be able to use signature / verification features of PKIjs in Node.js programs.**
 
-In order to use PKIjs you will also need [ASN1js][] plus [node.extend](https://www.npmjs.com/package/node.extend) package.
+In order to use [PKIjs][] you will also need [ASN1js][] plus [node.extend](https://www.npmjs.com/package/node.extend) package.
 ```javascript
     var merge = require("node.extend");
 
@@ -170,9 +171,10 @@ After that you will ba able to use ASN1js and PKIjs via common way:
 ## License
 
 Copyright (c) 2014, [GMO GlobalSign](http://www.globalsign.com/)
+Copyright (c) 2015, [Peculiar Ventures](http://peculiarventures.com/)
 All rights reserved.
 
-Author 2014, [Yury Strozhevsky](http://www.strozhevsky.com/).
+Author 2014-2015, [Yury Strozhevsky](http://www.strozhevsky.com/).
 
 Redistribution and use in source and binary forms, with or without modification, 
 are permitted provided that the following conditions are met:

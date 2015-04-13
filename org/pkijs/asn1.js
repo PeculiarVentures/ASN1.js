@@ -1,8 +1,9 @@
 ﻿/*
  * Copyright (c) 2014, GMO GlobalSign
+ * Copyright (c) 2015, Peculiar Ventures
  * All rights reserved.
  *
- * Author 2014, Yury Strozhevsky <www.strozhevsky.com>.
+ * Author 2014-2015, Yury Strozhevsky <www.strozhevsky.com>.
  *
  * Redistribution and use in source and binary forms, with or without modification, 
  * are permitted provided that the following conditions are met:
@@ -4795,10 +4796,19 @@ function(in_window)
             }
 
             if(choice_result === false)
-                return {
+            {
+                var _result = {
                     verified: false,
-                    result: { error: "Wrong values for CHOICE type" }
+                    result: {
+                        error: "Wrong values for CHOICE type"
+                    }
                 };
+
+                if(input_asn1_schema.hasOwnProperty('name'))
+                    _result.name = input_asn1_schema.name;
+
+                return _result;
+            }
         }
         // #endregion 
 
@@ -5030,6 +5040,11 @@ function(in_window)
                 {
                     if(input_asn1_schema.value_block.value[i].optional === false)
                     {
+                        var _result = {
+                            verified: false,
+                            result: root
+                        };
+
                         root.error = "Inconsistent length between ASN.1 data and schema";
 
                         // #region Delete early added name of block 
@@ -5037,14 +5052,14 @@ function(in_window)
                         {
                             input_asn1_schema.name = input_asn1_schema.name.replace(/^\s+|\s+$/g, '');
                             if(input_asn1_schema.name !== "")
+                            {
                                 delete root[input_asn1_schema.name];
+                                _result.name = input_asn1_schema.name;
+                            }
                         }
                         // #endregion 
 
-                        return {
-                            verified: false,
-                            result: root
-                        };
+                        return _result;
                     }
                 }
                     // #endregion 
@@ -5116,19 +5131,24 @@ function(in_window)
 
             if(result.verified === false) // The situation may take place if last element is "optional" and verification failed
             {
+                var _result = {
+                    verified: false,
+                    result: root
+                };
+
                 // #region Delete early added name of block 
                 if(input_asn1_schema.hasOwnProperty('name'))
                 {
                     input_asn1_schema.name = input_asn1_schema.name.replace(/^\s+|\s+$/g, '');
                     if(input_asn1_schema.name !== "")
+                    {
                         delete root[input_asn1_schema.name];
+                        _result.name = input_asn1_schema.name;
+                    }
                 }
                 // #endregion 
 
-                return {
-                    verified: false,
-                    result: root
-                };
+                return _result;
             }
 
             return {
@@ -5147,19 +5167,24 @@ function(in_window)
                 var asn1 = in_window.org.pkijs.fromBER(input_asn1_data.value_block.value_hex);
                 if(asn1.offset === (-1))
                 {
+                    var _result = {
+                        verified: false,
+                        result: asn1.result
+                    };
+
                     // #region Delete early added name of block 
                     if(input_asn1_schema.hasOwnProperty('name'))
                     {
                         input_asn1_schema.name = input_asn1_schema.name.replace(/^\s+|\s+$/g, '');
                         if(input_asn1_schema.name !== "")
+                        {
                             delete root[input_asn1_schema.name];
+                            _result.name = input_asn1_schema.name;
+                        }
                     }
                     // #endregion 
 
-                    return {
-                        verified: false,
-                        result: asn1.result
-                    };
+                    return _result;
                 }
                 // #endregion 
 
