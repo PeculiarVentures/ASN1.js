@@ -2142,6 +2142,25 @@ function(in_window)
         return _object;
     }
     //**************************************************************************************
+    in_window.org.pkijs.asn1.OCTETSTRING.prototype.isEqual =
+    function(octetString)
+    {
+        /// <summaryChecking that two OCTETSTRINGs are equal></summary>
+        /// <param name="octetString" type="in_window.org.pkijs.asn1.OCTETSTRING">The OCTETSTRING to compare with</param>
+
+        // #region Check input type 
+        if((octetString instanceof in_window.org.pkijs.asn1.OCTETSTRING) == false)
+            return false;
+        // #endregion 
+
+        // #region Compare two JSON strings 
+        if(JSON.stringify(this) != JSON.stringify(octetString))
+            return false;
+        // #endregion 
+
+        return true;
+    }
+    //**************************************************************************************
     // #endregion 
     //**************************************************************************************
     // #region Declaration of ASN.1 BITSTRING type class
@@ -3974,18 +3993,18 @@ function(in_window)
     {
         /// <summary>Create "UTCTime" ASN.1 type from JavaScript "Date" type</summary>
 
-        this.year = input_date.getFullYear();
-        this.month = input_date.getMonth() + 1;
-        this.day = input_date.getDate();
-        this.hour = input_date.getHours();
-        this.minute = input_date.getMinutes();
-        this.second = input_date.getSeconds();
+        this.year = input_date.getUTCFullYear();
+        this.month = input_date.getUTCMonth() + 1;
+        this.day = input_date.getUTCDate();
+        this.hour = input_date.getUTCHours();
+        this.minute = input_date.getUTCMinutes();
+        this.second = input_date.getUTCSeconds();
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.UTCTIME.prototype.toDate =
     function()
     {
-        return (new Date(this.year, this.month - 1, this.day, this.hour, this.minute, this.second));
+        return (new Date(Date.UTC(this.year, this.month - 1, this.day, this.hour, this.minute, this.second)));
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.UTCTIME.prototype.fromString =
@@ -4071,6 +4090,7 @@ function(in_window)
         this.hour = 0;
         this.minute = 0;
         this.second = 0;
+        this.millisecond = 0;
 
         // #region Create GeneralizedTime from ASN.1 string value 
         if((arguments[0] instanceof Object) && ("value" in arguments[0]))
@@ -4153,18 +4173,18 @@ function(in_window)
     {
         /// <summary>Create "GeneralizedTime" ASN.1 type from JavaScript "Date" type</summary>
 
-        this.year = input_date.getFullYear();
-        this.month = input_date.getMonth() + 1;
-        this.day = input_date.getDate();
-        this.hour = input_date.getHours();
-        this.minute = input_date.getMinutes();
-        this.second = input_date.getSeconds();
+        this.year = input_date.getUTCFullYear();
+        this.month = input_date.getUTCMonth();
+        this.day = input_date.getUTCDate();
+        this.hour = input_date.getUTCHours();
+        this.minute = input_date.getUTCMinutes();
+        this.second = input_date.getUTCSeconds();
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.GENERALIZEDTIME.prototype.toDate =
     function()
     {
-        return (new Date(this.year, this.month - 1, this.day, this.hour, this.minute, this.second));
+        return (new Date(Date.UTC(this.year, this.month, this.day, this.hour, this.minute, this.second)));
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.GENERALIZEDTIME.prototype.fromString =
@@ -4172,34 +4192,227 @@ function(in_window)
     {
         /// <summary>Create "GeneralizedTime" ASN.1 type from JavaScript "String" type</summary>
 
-        var parser = /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/ig;
-        var parser_array = parser.exec(input_string);
-        if(parser_array === null)
-        {
-            this.error = "Wrong input string for convertion";
-            return;
-        }
+        // #region Initial variables 
+        var isUTC = false;
 
-        this.year = parseInt(parser_array[1], 10);
-        this.month = parseInt(parser_array[2], 10);
-        this.day = parseInt(parser_array[3], 10);
-        this.hour = parseInt(parser_array[4], 10);
-        this.minute = parseInt(parser_array[5], 10);
-        this.second = parseInt(parser_array[6], 10);
+        var timeString = "";
+        var dateTimeString = "";
+        var fractionPart = 0;
+
+        var parser;
+
+        var hourDifference = 0;
+        var minuteDifference = 0;
+        // #endregion 
+
+        // #region Convert as UTC time 
+        if(input_string[input_string.length - 1] == "Z")
+        {
+            timeString = input_string.substr(0, input_string.length - 1);
+
+            isUTC = true;
+        }
+            // #endregion 
+            // #region Convert as local time 
+        else
+        {
+            var number = new Number(input_string[input_string - 1]);
+
+            if(Number.isNaN(number.valueOf()))
+                throw new Error("Wrong input string for convertion");
+
+            timeString = input_string;
+        }
+        // #endregion 
+
+        // #region Check that we do not have a "+" and "-" symbols inside UTC time 
+        if(isUTC)
+        {
+            if(timeString.indexOf("+") != (-1))
+                throw new Error("Wrong input string for convertion");
+
+            if(timeString.indexOf("-") != (-1))
+                throw new Error("Wrong input string for convertion");
+        }
+            // #endregion 
+            // #region Get "UTC time difference" in case of local time
+        else
+        {
+            var multiplier = 1;
+            var differencePosition = timeString.indexOf("+");
+            var differenceString = "";
+
+            if(differencePosition == (-1))
+            {
+                differencePosition = timeString.indexOf("-");
+                multiplier = (-1);
+            }
+
+            if(differencePosition != (-1))
+            {
+                differenceString = timeString.substr(differencePosition + 1);
+                timeString = timeString.substr(0, differencePosition);
+
+                if((differenceString.length != 2) && (differenceString.length != 4))
+                    throw new Error("Wrong input string for convertion");
+
+                var number = new Number(differenceString.substr(0, 2));
+
+                if(Number.isNaN(number.valueOf()))
+                    throw new Error("Wrong input string for convertion");
+
+                hourDifference = multiplier * number;
+
+                if(differenceString.length == 4)
+                {
+                    number = new Number(differenceString.substr(2, 2));
+
+                    if(Number.isNaN(number.valueOf()))
+                        throw new Error("Wrong input string for convertion");
+
+                    minuteDifference = multiplier * number;
+                }
+            }
+        }
+        // #endregion 
+
+        // #region Get position of fraction point 
+        var fractionPointPosition = timeString.indexOf("."); // Check for "full stop" symbol
+        if(fractionPointPosition == (-1))
+            fractionPointPosition = timeString.indexOf(","); // Check for "comma" symbol
+        // #endregion 
+
+        // #region Get fraction part 
+        if(fractionPointPosition != (-1))
+        {
+            var fractionPartCheck = new Number("0" + timeString.substr(fractionPointPosition));
+
+            if(Number.isNaN(fractionPartCheck.valueOf()))
+                throw new Error("Wrong input string for convertion");
+
+            fractionPart = fractionPartCheck.valueOf();
+
+            dateTimeString = timeString.substr(0, fractionPointPosition);
+        }
+        else
+            dateTimeString = timeString;
+        // #endregion 
+
+        // #region Parse internal date 
+        switch(true)
+        {
+            case (dateTimeString.length == 8): // "YYYYMMDD"
+                parser = /(\d{4})(\d{2})(\d{2})/ig;
+                if(fractionPointPosition !== (-1))
+                    throw new Error("Wrong input string for convertion"); // Here we should not have a "fraction point"
+                break;
+            case (dateTimeString.length == 10): // "YYYYMMDDHH"
+                parser = /(\d{4})(\d{2})(\d{2})(\d{2})/ig;
+
+                if(fractionPointPosition !== (-1))
+                {
+                    var fractionResult = 60 * fractionPart;
+                    this.minute = Math.floor(fractionResult);
+
+                    fractionResult = 60 * (fractionResult - minute);
+                    this.second = Math.floor(fractionResult);
+
+                    fractionResult = 1000 * (fractionResult - second);
+                    this.millisecond = Math.floor(fractionResult);
+                }
+                break;
+            case (dateTimeString.length == 12): // "YYYYMMDDHHMM"
+                parser = /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/ig;
+
+                if(fractionPointPosition !== (-1))
+                {
+                    var fractionResult = 60 * fractionPart;
+                    this.second = Math.floor(fractionResult);
+
+                    fractionResult = 1000 * (fractionResult - second);
+                    this.millisecond = Math.floor(fractionResult);
+                }
+                break;
+            case (dateTimeString.length == 14): // "YYYYMMDDHHMMSS"
+                parser = /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/ig;
+
+                if(fractionPointPosition !== (-1))
+                {
+                    var fractionResult = 1000 * fractionPart;
+                    this.millisecond = Math.floor(fractionResult);
+                }
+                break;
+            default:
+                throw new Error("Wrong input string for convertion");
+        }
+        // #endregion 
+
+        // #region Put parsed values at right places 
+        var parser_array = parser.exec(dateTimeString);
+        if(parser_array == null)
+            throw new Error("Wrong input string for convertion");
+
+        for(var j = 1; j < parser_array.length; j++)
+        {
+            switch(j)
+            {
+                case 1:
+                    this.year = parseInt(parser_array[j], 10);
+                    break;
+                case 2:
+                    this.month = parseInt(parser_array[j], 10) - 1; // In JavaScript we have month range as "0 - 11"
+                    break;
+                case 3:
+                    this.day = parseInt(parser_array[j], 10);
+                    break;
+                case 4:
+                    this.hour = parseInt(parser_array[j], 10) + hourDifference;
+                    break;
+                case 5:
+                    this.minute = parseInt(parser_array[j], 10) + minuteDifference;
+                    break;
+                case 6:
+                    this.second = parseInt(parser_array[j], 10);
+                    break;
+                default:
+                    throw new Error("Wrong input string for convertion");
+            }
+        }
+        // #endregion 
+
+        // #region Get final date 
+        if(isUTC == false)
+        {
+            var tempDate = new Date(this.year, this.month, this.day, this.hour, this.minute, this.second, this.millisecond);
+
+            this.year = tempDate.getUTCFullYear();
+            this.month = tempDate.getUTCMonth();
+            this.day = tempDate.getUTCDay();
+            this.hour = tempDate.getUTCHours();
+            this.minute = tempDate.getUTCMinutes();
+            this.second = tempDate.getUTCSeconds();
+            this.millisecond = tempDate.getUTCMilliseconds();
+        }
+        // #endregion 
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.GENERALIZEDTIME.prototype.toString =
     function()
     {
-        var output_array = new Array(7);
+        var output_array = new Array();
 
-        output_array[0] = in_window.org.pkijs.padNumber(this.year, 4);
-        output_array[1] = in_window.org.pkijs.padNumber(this.month, 2);
-        output_array[2] = in_window.org.pkijs.padNumber(this.day, 2);
-        output_array[3] = in_window.org.pkijs.padNumber(this.hour, 2);
-        output_array[4] = in_window.org.pkijs.padNumber(this.minute, 2);
-        output_array[5] = in_window.org.pkijs.padNumber(this.second, 2);
-        output_array[6] = "Z";
+        output_array.push(in_window.org.pkijs.padNumber(this.year, 4));
+        output_array.push(in_window.org.pkijs.padNumber(this.month, 2));
+        output_array.push(in_window.org.pkijs.padNumber(this.day, 2));
+        output_array.push(in_window.org.pkijs.padNumber(this.hour, 2));
+        output_array.push(in_window.org.pkijs.padNumber(this.minute, 2));
+        output_array.push(in_window.org.pkijs.padNumber(this.second, 2));
+        if(this.millisecond != 0)
+        {
+            output_array.push(".");
+            output_array.push(in_window.org.pkijs.padNumber(this.millisecond, 3));
+        }
+        output_array.push("Z");
 
         return output_array.join('');
     }
@@ -4767,7 +4980,10 @@ function(in_window)
             var result = new in_window.org.pkijs.asn1.ASN1_block();
             result.error = "Input buffer has zero length";
 
-            return result;
+            return {
+                offset: (-1),
+                result: result
+            };
         }
 
         return fromBER_raw(input_buffer, 0, input_buffer.byteLength);
@@ -5205,7 +5421,7 @@ function(in_window)
         // #region Initial check 
         if((input_schema instanceof Object) === false)
             return {
-                varified: false,
+                verified: false,
                 result: { error: "Wrong ASN.1 schema type" }
             };
         // #endregion 
