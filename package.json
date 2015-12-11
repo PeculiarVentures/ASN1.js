@@ -5,11 +5,26 @@
     ],
     "name": "asn1js",
     "description": "ASN1js is a pure JavaScript library implementing this standard. ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web",
-    "version": "1.2.3",
+    "version": "1.2.4",
     "repository": {
         "type": "git",
         "url": "git://github.com/GlobalSign/ASN1.js.git"
     },
+  "keywords": [
+	"asn1",
+	"asn.1",
+	"ber",
+	"der",
+	"sequence",
+	"set",
+	"bitstring",
+	"octetstring",
+	"utctime",
+	"utf8string",
+	"bmpstring",
+	"universalstring",
+	"generalizedtime"
+  ],
   "main": "org/pkijs/asn1.js",
   "dependencies": {},
   "devDependencies": {},
