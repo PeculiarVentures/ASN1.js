@@ -2932,7 +2932,7 @@ function(in_window)
                 }
 
                 var parsedSID = parseInt(sid, 10);
-                if(Number.isNaN(parsedSID))
+                if(isNaN(parsedSID))
                     return true;
 
                 sid_block.value_dec = parsedSID + plus;
@@ -2943,7 +2943,7 @@ function(in_window)
             {
                 var sid_block = new local.SID_value_block();
                 sid_block.value_dec = parseInt(sid, 10);
-                if(Number.isNaN(sid_block.value_dec))
+                if(isNaN(sid_block.value_dec))
                     return true;
 
                 if(this.value.length === 0)
@@ -4218,7 +4218,7 @@ function(in_window)
         {
             var number = new Number(input_string[input_string - 1]);
 
-            if(Number.isNaN(number.valueOf()))
+            if(isNaN(number.valueOf()))
                 throw new Error("Wrong input string for convertion");
 
             timeString = input_string;
@@ -4258,7 +4258,7 @@ function(in_window)
 
                 var number = new Number(differenceString.substr(0, 2));
 
-                if(Number.isNaN(number.valueOf()))
+                if(isNaN(number.valueOf()))
                     throw new Error("Wrong input string for convertion");
 
                 hourDifference = multiplier * number;
@@ -4267,7 +4267,7 @@ function(in_window)
                 {
                     number = new Number(differenceString.substr(2, 2));
 
-                    if(Number.isNaN(number.valueOf()))
+                    if(isNaN(number.valueOf()))
                         throw new Error("Wrong input string for convertion");
 
                     minuteDifference = multiplier * number;
@@ -4287,7 +4287,7 @@ function(in_window)
         {
             var fractionPartCheck = new Number("0" + timeString.substr(fractionPointPosition));
 
-            if(Number.isNaN(fractionPartCheck.valueOf()))
+            if(isNaN(fractionPartCheck.valueOf()))
                 throw new Error("Wrong input string for convertion");
 
             fractionPart = fractionPartCheck.valueOf();
