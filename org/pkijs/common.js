@@ -63,6 +63,19 @@ function(in_window)
     //**************************************************************************************
     // #endregion 
     //**************************************************************************************
+    var CalculatorMixin = Base => class extends Base
+    {
+        calc() { }
+    };
+
+    var RandomizerMixin = Base => class extends Base
+    {
+        randomize() { }
+    };
+
+    class Foo { }
+    class Bar extends CalculatorMixin(RandomizerMixin(Foo)) { }
+    //**************************************************************************************
     // #region Settings for "crypto engine" 
     //**************************************************************************************
     local.engine = {
@@ -112,8 +125,6 @@ function(in_window)
     in_window.org.pkijs.getEngine =
     function()
     {
-        /// <summary>Getting information about the global "crypto engine"</summary>
-
         return local.engine;
     }
     //**************************************************************************************
@@ -150,7 +161,7 @@ function(in_window)
     in_window.org.pkijs.inheriteObjectFields =
     function(from)
     {
-        for(i in from.prototype)
+        for(var i in from.prototype)
         {
             if(typeof from.prototype[i] === "function")
                 continue;

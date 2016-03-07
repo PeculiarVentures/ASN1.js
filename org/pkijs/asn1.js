@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2014, GMO GlobalSign
  * Copyright (c) 2015, Peculiar Ventures
  * All rights reserved.
@@ -3920,7 +3920,7 @@ function(in_window)
             this.value_block.value_hex = new ArrayBuffer(arguments[0].value.length);
             var view = new Uint8Array(this.value_block.value_hex);
 
-            for(var i = 0; i < str.length; i++)
+            for(var i = 0; i < arguments[0].value.length; i++)
                 view[i] = arguments[0].value.charCodeAt(i);
         }
         // #endregion 
@@ -4212,11 +4212,11 @@ function(in_window)
 
             isUTC = true;
         }
-            // #endregion 
-            // #region Convert as local time 
+        // #endregion 
+        // #region Convert as local time 
         else
         {
-            var number = new Number(input_string[input_string - 1]);
+            var number = new Number(input_string[input_string.length - 1]);
 
             if(isNaN(number.valueOf()))
                 throw new Error("Wrong input string for convertion");
@@ -4234,8 +4234,8 @@ function(in_window)
             if(timeString.indexOf("-") != (-1))
                 throw new Error("Wrong input string for convertion");
         }
-            // #endregion 
-            // #region Get "UTC time difference" in case of local time
+        // #endregion 
+        // #region Get "UTC time difference" in case of local time
         else
         {
             var multiplier = 1;
@@ -4479,6 +4479,9 @@ function(in_window)
     function()
     {
         in_window.org.pkijs.asn1.UTF8STRING.call(this, arguments[0]);
+
+        this.id_block.tag_class = 1; // UNIVERSAL
+        this.id_block.tag_number = 32; // TIMEOFDAY
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.TIMEOFDAY.prototype = new in_window.org.pkijs.asn1.UTF8STRING();
@@ -4540,6 +4543,9 @@ function(in_window)
     function()
     {
         in_window.org.pkijs.asn1.UTF8STRING.call(this, arguments[0]);
+
+        this.id_block.tag_class = 1; // UNIVERSAL
+        this.id_block.tag_number = 34; // DURATION
     }
     //**************************************************************************************
     in_window.org.pkijs.asn1.DURATION.prototype = new in_window.org.pkijs.asn1.UTF8STRING();
@@ -4912,9 +4918,19 @@ function(in_window)
                         new_asn1_type = in_window.org.pkijs.asn1.DATE;
                         break;
                     // #endregion 
+                    // #region TIMEOFDAY type 
+                    case 32:
+                        new_asn1_type = in_window.org.pkijs.asn1.TIMEOFDAY;
+                        break;
+                    // #endregion 
                     // #region DATE-TIME type 
                     case 33:
                         new_asn1_type = in_window.org.pkijs.asn1.DATETIME;
+                        break;
+                    // #endregion 
+                    // #region DURATION type 
+                    case 34:
+                        new_asn1_type = in_window.org.pkijs.asn1.DURATION;
                         break;
                     // #endregion 
                     // #region default 
