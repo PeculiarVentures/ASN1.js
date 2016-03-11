@@ -107,13 +107,13 @@ function(in_window)
             crypto: crypto,
             subtle: subtle
         };
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.getEngine =
     function()
     {
         return local.engine;
-    }
+    };
     //**************************************************************************************
     // #endregion 
     //**************************************************************************************
@@ -130,7 +130,7 @@ function(in_window)
         {
             return {};
         };
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.getNames =
     function(arg)
@@ -143,7 +143,7 @@ function(in_window)
             names = (arg.names || {});
 
         return names;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.inheriteObjectFields =
     function(from)
@@ -155,7 +155,7 @@ function(in_window)
 
             this[i] = from.prototype[i];
         }
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.getUTCDate =
     function(date)
@@ -165,7 +165,7 @@ function(in_window)
 
         var current_date = date;
         return new Date(current_date.getTime() + (current_date.getTimezoneOffset() * 60000));
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.padNumber =
     function(input_number, full_length)
@@ -180,7 +180,7 @@ function(in_window)
         var padding_string = padding.join('');
 
         return padding_string.concat(str);
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.getValue =
     function(args, item, default_value)
@@ -189,7 +189,7 @@ function(in_window)
             return args[item];
         else
             return default_value;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.isEqual_view =
     function(input_view1, input_view2)
@@ -208,7 +208,7 @@ function(in_window)
         }
 
         return true;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.isEqual_buffer =
     function(input_buffer1, input_buffer2)
@@ -224,7 +224,7 @@ function(in_window)
         var view2 = new Uint8Array(input_buffer2);
 
         return in_window.org.pkijs.isEqual_view(view1, view2);
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.concat_buffers =
     function(input_buf1, input_buf2)
@@ -246,7 +246,7 @@ function(in_window)
             ret_view[input_buf1.byteLength + j] = input_view2[j];
 
         return ret_buf;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.copyBuffer =
     function(input_buffer)
@@ -260,7 +260,7 @@ function(in_window)
             resultView[i] = inputView[i];
 
         return result;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.getCrypto =
     function()
@@ -271,7 +271,7 @@ function(in_window)
             crypto_temp = local.engine.subtle;
 
         return crypto_temp;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.stringPrep =
     function(input_string)
@@ -285,7 +285,7 @@ function(in_window)
         result = result.toLowerCase();
 
         return result;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.bufferToHexCodes =
     function(input_buffer, input_offset, input_lenght)
@@ -301,7 +301,7 @@ function(in_window)
         }
 
         return result;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.bufferFromHexCodes =
     function(hexString)
@@ -360,7 +360,7 @@ function(in_window)
         // #endregion 
 
         return resultBuffer;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.getRandomValues =
     function(view)
@@ -371,7 +371,7 @@ function(in_window)
             return local.engine.crypto.getRandomValues(view);
         else
             throw new Error("No support for Web Cryptography API");
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.getAlgorithmParameters =
     function(algorithmName, operation)
@@ -397,7 +397,7 @@ function(in_window)
                                 publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
                                 hash: {
                                     name: "SHA-256"
-                                },
+                                }
                             },
                             usages: ["sign", "verify"]
                         };
@@ -410,7 +410,7 @@ function(in_window)
                                 name: "RSASSA-PKCS1-v1_5",
                                 hash: {
                                     name: "SHA-256"
-                                },
+                                }
                             },
                             usages: ["verify"] // For importKey("pkcs8") usage must be "sign" only
                         };
@@ -460,7 +460,7 @@ function(in_window)
                                 name: "RSA-PSS",
                                 hash: {
                                     name: "SHA-1"
-                                },
+                                }
                             },
                             usages: ["verify"] // For importKey("pkcs8") usage must be "sign" only
                         };
@@ -482,7 +482,7 @@ function(in_window)
                     case "decrypt":
                         result = {
                             algorithm: {
-                                name: "RSA-OAEP",
+                                name: "RSA-OAEP"
                             },
                             usages: ["encrypt", "decrypt"]
                         };
@@ -622,6 +622,7 @@ function(in_window)
                             },
                             usages: ["encrypt", "decrypt", "wrapKey", "unwrapKey"]
                         };
+                        break;
                     default:
                         return {
                             algorithm: {
@@ -654,6 +655,7 @@ function(in_window)
                             },
                             usages: ["encrypt", "decrypt", "wrapKey", "unwrapKey"]
                         };
+                        break;
                     default:
                         return {
                             algorithm: {
@@ -686,6 +688,7 @@ function(in_window)
                             },
                             usages: ["encrypt", "decrypt", "wrapKey", "unwrapKey"]
                         };
+                        break;
                     default:
                         return {
                             algorithm: {
@@ -727,7 +730,7 @@ function(in_window)
                     case "verify":
                         result = {
                             algorithm: {
-                                name: "HMAC",
+                                name: "HMAC"
                             },
                             usages: ["sign", "verify"]
                         };
@@ -806,7 +809,7 @@ function(in_window)
         }
 
         return result;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.getOIDByAlgorithm =
     function(algorithm)
@@ -997,7 +1000,7 @@ function(in_window)
         }
 
         return result;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.getAlgorithmByOID =
     function(oid)
@@ -1262,7 +1265,7 @@ function(in_window)
         }
 
         return result;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.getHashAlgorithm =
     function(signatureAlgorithm)
@@ -1317,7 +1320,7 @@ function(in_window)
         }
 
         return result;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.createCMSECDSASignature =
     function(signatureBuffer)
@@ -1408,7 +1411,7 @@ function(in_window)
         // #endregion   
 
         return asn1.toBER(false);
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.createECDSASignatureFromCMS =
     function(cmsSignature)
@@ -1458,7 +1461,7 @@ function(in_window)
         // #endregion 
 
         return result;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.getEncryptionAlgorithm =
     function(algorithm)
@@ -1504,7 +1507,7 @@ function(in_window)
         }
 
         return result;
-    }
+    };
     //**************************************************************************************
     in_window.org.pkijs.getAlgorithmByEncryptionOID =
     function(oid)
@@ -1530,7 +1533,7 @@ function(in_window)
         }
 
         return result;
-    }
+    };
     //**************************************************************************************
     // #endregion 
     //**************************************************************************************
