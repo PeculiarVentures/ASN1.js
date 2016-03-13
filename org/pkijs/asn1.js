@@ -2553,7 +2553,7 @@ function(in_window)
         else
         {
             if(arguments[0] instanceof ArrayBuffer)
-                return in_window.org.pkijs.isEqual_buffer(this.value_block.value_hex, arguments[0].value_block.value_hex);
+                return in_window.org.pkijs.isEqual_buffer(this.value_block.value_hex, arguments[0]);
             else
                 return false;
         }
@@ -2722,33 +2722,37 @@ function(in_window)
             var ret_buf = new ArrayBuffer(this.block_length);
             var ret_view = new Uint8Array(ret_buf);
 
-            for(var i = 0; i < ( this.block_length - 1 ); i++ )
+            for(var i = 0; i < (this.block_length - 1) ; i++)
                 ret_view[i] = cur_view[i] | 0x80;
 
             ret_view[this.block_length - 1] = cur_view[this.block_length - 1];
-        }
 
-        var encoded_buf = util_tobase(this.value_dec, 7);
-        if(encoded_buf.byteLength === 0)
+            return ret_buf;
+        }
+        else
         {
-            this.error = "Error during encoding SID value";
-            return (new ArrayBuffer(0));
+            var encoded_buf = util_tobase(this.value_dec, 7);
+            if(encoded_buf.byteLength === 0)
+            {
+                this.error = "Error during encoding SID value";
+                return (new ArrayBuffer(0));
+            }
+
+            var ret_buf = new ArrayBuffer(encoded_buf.byteLength);
+
+            if(size_only === false)
+            {
+                var encoded_view = new Uint8Array(encoded_buf);
+                var ret_view = new Uint8Array(ret_buf);
+
+                for(var i = 0; i < (encoded_buf.byteLength - 1) ; i++)
+                    ret_view[i] = encoded_view[i] | 0x80;
+
+                ret_view[encoded_buf.byteLength - 1] = encoded_view[encoded_buf.byteLength - 1];
+            }
+
+            return ret_buf;
         }
-
-        var ret_buf = new ArrayBuffer(encoded_buf.byteLength);
-
-        if(size_only === false)
-        {
-            var encoded_view = new Uint8Array(encoded_buf);
-            var ret_view = new Uint8Array(ret_buf);
-
-            for(var i = 0; i < (encoded_buf.byteLength - 1) ; i++)
-                ret_view[i] = encoded_view[i] | 0x80;
-
-            ret_view[encoded_buf.byteLength - 1] = encoded_view[encoded_buf.byteLength - 1];
-        }
-
-        return ret_buf;
     };
     //**************************************************************************************
     local.SID_value_block.prototype.toString =
@@ -3591,7 +3595,6 @@ function(in_window)
         var _object = in_window.org.pkijs.asn1.ASN1_block.prototype.toJSON.call(this);
 
         _object.block_name = local.SIMPLESTRING_block.prototype.block_name.call(this);
-        _object.block_name = local.value_block.prototype.block_name.call(this);
 
         return _object;
     };
@@ -4167,12 +4170,13 @@ function(in_window)
         this.hour = input_date.getUTCHours();
         this.minute = input_date.getUTCMinutes();
         this.second = input_date.getUTCSeconds();
+        this.millisecond = input_date.getUTCMilliseconds();
     };
     //**************************************************************************************
     in_window.org.pkijs.asn1.GENERALIZEDTIME.prototype.toDate =
     function()
     {
-        return (new Date(Date.UTC(this.year, this.month, this.day, this.hour, this.minute, this.second)));
+        return (new Date(Date.UTC(this.year, this.month - 1, this.day, this.hour, this.minute, this.second, this.millisecond)));
     };
     //**************************************************************************************
     in_window.org.pkijs.asn1.GENERALIZEDTIME.prototype.fromString =
@@ -4302,10 +4306,10 @@ function(in_window)
                     var fractionResult = 60 * fractionPart;
                     this.minute = Math.floor(fractionResult);
 
-                    fractionResult = 60 * (fractionResult - minute);
+                    fractionResult = 60 * (fractionResult - this.minute);
                     this.second = Math.floor(fractionResult);
 
-                    fractionResult = 1000 * (fractionResult - second);
+                    fractionResult = 1000 * (fractionResult - this.second);
                     this.millisecond = Math.floor(fractionResult);
                 }
                 break;
@@ -4317,7 +4321,7 @@ function(in_window)
                     var fractionResult = 60 * fractionPart;
                     this.second = Math.floor(fractionResult);
 
-                    fractionResult = 1000 * (fractionResult - second);
+                    fractionResult = 1000 * (fractionResult - this.second);
                     this.millisecond = Math.floor(fractionResult);
                 }
                 break;
@@ -4427,6 +4431,7 @@ function(in_window)
         _object.hour = this.hour;
         _object.minute = this.minute;
         _object.second = this.second;
+        _object.millisecond = this.millisecond;
 
         return _object;
     };
@@ -4483,7 +4488,7 @@ function(in_window)
         return "TIMEOFDAY";
     };
     //**************************************************************************************
-    in_window.org.pkijs.asn1.DATE.prototype.toJSON =
+    in_window.org.pkijs.asn1.TIMEOFDAY.prototype.toJSON =
     function()
     {
         /// <summary>Convertion for the block to JSON object</summary>
