@@ -4165,7 +4165,7 @@ function(in_window)
         /// <summary>Create "GeneralizedTime" ASN.1 type from JavaScript "Date" type</summary>
 
         this.year = input_date.getUTCFullYear();
-        this.month = input_date.getUTCMonth();
+        this.month = input_date.getUTCMonth() + 1;
         this.day = input_date.getUTCDate();
         this.hour = input_date.getUTCHours();
         this.minute = input_date.getUTCMinutes();
@@ -4352,7 +4352,7 @@ function(in_window)
                     this.year = parseInt(parser_array[j], 10);
                     break;
                 case 2:
-                    this.month = parseInt(parser_array[j], 10) - 1; // In JavaScript we have month range as "0 - 11"
+                    this.month = parseInt(parser_array[j], 10); 
                     break;
                 case 3:
                     this.day = parseInt(parser_array[j], 10);
