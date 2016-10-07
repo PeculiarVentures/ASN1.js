@@ -101,7 +101,7 @@ function(in_window)
         var result = 0;
         var biggest = Math.pow(2, base);
 
-        for(var i = 1; i < 8; i++)
+        for(var i = 1; i <= 8; i++)
         {
             if(value < biggest)
             {
@@ -147,7 +147,7 @@ function(in_window)
         var mod_value = (value < 0) ? (value * (-1)) : value;
         var big_int = 128;
 
-        for(var i = 1; i < 8; i++) 
+        for(var i = 1; i <= 8; i++) 
         {
             if( mod_value <= big_int )
             {
