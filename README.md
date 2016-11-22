@@ -1,7 +1,7 @@
 ## ASN1js
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://raw.githubusercontent.com/PeculiarVentures/ASN1.js/master/LICENSE)
-[![NPM version](https://badge.fury.io/js/ASN1js.png)](http://badge.fury.io/js/ASN1js)
+[![NPM version](https://badge.fury.io/js/asn1js.png)](http://badge.fury.io/js/asn1js)
 
 [![NPM](https://nodei.co/npm-dl/asn1js.png?months=3&height=2)](https://nodei.co/npm/ASN1js/)
 
