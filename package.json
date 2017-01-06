@@ -10,7 +10,7 @@
         }
     ],
     "dependencies": {
-      "pvutils": "^1.0.0",
+      "pvutils": "latest",
       "babel-cli": "latest",
       "babel-preset-es2015": "latest"
     },
