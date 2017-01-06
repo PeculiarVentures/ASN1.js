@@ -7,12 +7,16 @@
 
 Abstract Syntax Notation One (ASN.1) is a standard and notation that describes rules and structures for representing, encoding, transmitting, and decoding data in telecommunications and computer networking. [ASN1js][] is a pure JavaScript library implementing this standard.  ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web.
 
+## Important Information for ASN1.js V1 Users
+ASN1.js V2 (ES2015 version) is **incompactible** with ASN1.js V1 code.
+
 ## Introduction
 
 [ASN1js][] is the first library for [BER][] encoding/decoding in Javascript designed for browser use. [BER][] is the basic encoding rules for [ASN.1][] that all others are based on, [DER][] is the encoding rules used by PKI applications - it is a subset of [BER][]. The [ASN1js][] library was tested against [freely available ASN.1:2008 test suite], with some limitations related to JavaScript language. 
 
 ## Features of the library
 
+* Based on latest features of JavaScipt language from ES2015 standard;
 * [ASN1js][] is a "base layer" for full-featured JS library [PKIjs][], which is using Web Cryptography API and has all classes, neccessary to work with PKI-related data;
 * Fully object-oriented library. Inhiritence is using everywhere inside the lib;
 * Working with HTML5 data objects (ArrayBuffer, Uint8Array etc.);
@@ -23,12 +27,12 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 * Any sub-block may have unlimited length, as it described in ASN.1 standard (even "tag block");
 * Ability to work with ASN.1 string date types (intcluding all "international" strings like UniversalString, BMPString, UTF8String) by passing native JavaScript strings into constuctors. And vice versa - all initially parsed data of ASN.1 string types right after decoding automatically converts into native JavaScript strings;
 * Same with ASN.1 date-time types: for major types like UTCTime and GeneralizedTime there are automatic convertion between "JS date type - ASN.1 date-time type" + vice versa;
-* Same with ASN.1 OBJECT-IDENTIFIER (OID) data-type: you can initialize OID by JavaScript string and can get string representation via calling "oid.value_block.toString()";
+* Same with ASN.1 OBJECT-IDENTIFIER (OID) data-type: you can initialize OID by JavaScript string and can get string representation via calling "oid.valueBlock.toString()";
 * Working with "easy-to-understand" ASN.1 schemas (pre-defined or built by user);
 * Has special types to work with ASN.1 schemas:
-  * ANY
-  * CHOICE
-  * REPEATED 
+  * Any
+  * Choice
+  * Repeated 
 * User can name any block inside ASN.1 schema and easily get information by name;
 * Ability to parse internal data inside a primitively encoded data types and automatically validate it against special schema;
 * All types inside library are dynamic;
@@ -38,8 +42,8 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 
 ```javascript
     // #region How to create new ASN. structures 
-    var sequence = new org.pkijs.asn1.SEQUENCE();
-    sequence.value_block.value.push(new org.pkijs.asn1.INTEGER({ value: 1 }));
+    var sequence = new asn1js.Sequence();
+    sequence.valueBlock.value.push(new asn1js.Integer({ value: 1 }));
 
     var sequence_buffer = sequence.toBER(false); // Encode current sequence to BER (in ArrayBuffer)
     var current_size = sequence_buffer.byteLength;
@@ -55,10 +59,10 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
     integer_view[6] = 0x01;
     integer_view[7] = 0x01;
 
-    sequence.value_block.value.push(new org.pkijs.asn1.INTEGER({
-        is_hex_only: true,
-        value_hex: integer_data
-    })); // Put too long for decoding INTEGER value
+    sequence.valueBlock.value.push(new asn1js.Integer({
+        isHexOnly: true,
+        valueHex: integer_data
+    })); // Put too long for decoding Integer value
 
     sequence_buffer = sequence.toBER(false);
     current_size = sequence_buffer.byteLength;
@@ -67,12 +71,12 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 
 ```javascript
     // #region How to create new ASN.1 structures by calling constuctors with parameters 
-    var sequence2 = new org.pkijs.asn1.SEQUENCE({
+    var sequence2 = new asn1js.Sequence({
         value: [
-            new org.pkijs.asn1.INTEGER({ value: 1 }),
-            new org.pkijs.asn1.INTEGER({
-                is_hex_only: true,
-                value_hex: integer_data
+            new asn1js.Integer({ value: 1 }),
+            new asn1js.Integer({
+                isHexOnly: true,
+                valueHex: integer_data
             }),
         ]
     });
@@ -81,13 +85,13 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 
 ```javascript
     // #region How to validate ASN.1 against pre-defined schema 
-    var asn1_schema = new org.pkijs.asn1.SEQUENCE({
+    var asn1_schema = new asn1js.Sequence({
         name: "block1",
         value: [
-            new org.pkijs.asn1.NULL({
+            new asn1js.Null({
                 name: "block2"
             }),
-            new org.pkijs.asn1.INTEGER({
+            new asn1js.Integer({
                 name: "block3",
                 optional: true // This block is absent inside data, but it's "optional". Hence verification against the schema will be passed.
             })
@@ -102,14 +106,14 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 
 ```javascript
     // #region How to use "internal schemas" for primitevely encoded data types 
-    var primitive_octetstring = new org.pkijs.asn1.OCTETSTRING({ value_hex: encoded_sequence }); // Create a primitively encoded OCTETSTRING where internal data is an encoded SEQUENCE
+    var primitive_octetstring = new asn1js.OctetString({ valueHex: encoded_sequence }); // Create a primitively encoded OctetString where internal data is an encoded Sequence
 
-    var asn1_schema_internal = new org.pkijs.asn1.OCTETSTRING({
+    var asn1_schema_internal = new asn1js.OctetString({
         name: "outer_block",
-        primitive_schema: new org.pkijs.asn1.SEQUENCE({
+        primitiveSchema: new asn1js.Sequence({
             name: "block1",
             value: [
-                    new org.pkijs.asn1.NULL({
+                    new asn1js.Null({
                         name: "block2"
                     })
             ]
@@ -118,8 +122,8 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 
     var variant6 = org.pkijs.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
     var variant6_verified = variant4.verified;
-    var variant6_block1_tag_num = variant6.result.block1.id_block.tag_number;
-    var variant6_block2_tag_num = variant6.result.block2.id_block.tag_number;
+    var variant6_block1_tag_num = variant6.result.block1.idBlock.tagNumber;
+    var variant6_block2_tag_num = variant6.result.block2.idBlock.tagNumber;
     // #endregion 
 ```
 
@@ -131,55 +135,15 @@ More examples could be found in "examples" directory or inside [PKIjs][] library
 * [Freely available ASN.1:2008 test suite](https://github.com/YuryStrozhevsky/ASN1-2008-free-test-suite) - the suite which can help you to validate (and better understand) any ASN.1 coder/decoder;
 
 ## Suitability
-At this time this library should be considered suitable for research and experimentation, futher code and security review is needed before utilization in a production application.
-
-## How to use ASN1js and PKIjs with Node.js
-
-**!!! WARNING !!! **
-**Currently there is no "polyfill" of WebCrypto in Node.js. Thus you will not be able to use signature / verification features of PKIjs in Node.js programs.**
-
-In order to use [PKIjs][] you will also need [ASN1js][] plus [node.extend](https://www.npmjs.com/package/node.extend) package.
-```javascript
-    var merge = require("node.extend");
-
-    var common = require("asn1js/org/pkijs/common");
-    var _asn1js = require("asn1js");
-    var _pkijs = require("pkijs");
-    var _x509schema = require("pkijs/org/pkijs/x509_schema");
-
-    // #region Merging function/object declarations for ASN1js and PKIjs 
-    var asn1js = merge(true, _asn1js, common);
-
-    var x509schema = merge(true, _x509schema, asn1js);
-
-    var pkijs_1 = merge(true, _pkijs, asn1js);
-    var pkijs = merge(true, pkijs_1, x509schema);
-    // #endregion 
-```
-
-After that you will ba able to use ASN1js and PKIjs via common way:
-```javascript
-        // #region Decode and parse X.509 cert 
-        var asn1 = pkijs.org.pkijs.fromBER(certBuffer);
-        var cert;
-        try
-        {
-            cert = new pkijs.org.pkijs.simpl.CERT({ schema: asn1.result });
-        }
-        catch(ex)
-        {
-            return;
-        }
-        // #endregion 
-```
+There are several commercial products, enterprise solitions as well as open source project based on versions of ASN1js. You should, however, do your own code and security review before utilization in a production application before utilizing any open source library to ensure it will meet your needs.
 
 ## License
 
 Copyright (c) 2014, [GMO GlobalSign](http://www.globalsign.com/)
-Copyright (c) 2015, [Peculiar Ventures](http://peculiarventures.com/)
+Copyright (c) 2015-2017, [Peculiar Ventures](http://peculiarventures.com/)
 All rights reserved.
 
-Author 2014-2015, [Yury Strozhevsky](http://www.strozhevsky.com/).
+Author 2014-2017, [Yury Strozhevsky](http://www.strozhevsky.com/).
 
 Redistribution and use in source and binary forms, with or without modification, 
 are permitted provided that the following conditions are met:

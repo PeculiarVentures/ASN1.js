@@ -1,32 +1,42 @@
 {
-    "author": "Yury Strozhevsky <yury@strozhevsky.com>",
-    "contributors": [
-      "Ryan Hurst <rmh@unmitigatedrisk.com>"
-    ],
-    "name": "asn1js",
-    "description": "ASN1js is a pure JavaScript library implementing this standard. ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web",
-    "version": "1.2.12",
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/GlobalSign/ASN1.js.git"
+    "author": {
+        "email": "yury@strozhevsky.com",
+        "name": "Yury Strozhevsky"
     },
-  "keywords": [
-	"asn1",
-	"asn.1",
-	"ber",
-	"der",
-	"sequence",
-	"set",
-	"bitstring",
-	"octetstring",
-	"utctime",
-	"utf8string",
-	"bmpstring",
-	"universalstring",
-	"generalizedtime"
-  ],
-  "main": "org/pkijs/asn1.js",
-  "dependencies": {},
-  "devDependencies": {},
-  "scripts": {}
+    "contributors": [
+        {
+            "email": "rmh@unmitigatedrisk.com",
+            "name": "Ryan Hurst"
+        }
+    ],
+    "dependencies": {
+      "pvutils": "^1.0.0",
+      "babel-cli": "latest",
+      "babel-preset-es2015": "latest"
+    },
+    "description": "asn1js is a pure JavaScript library implementing this standard. ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web",
+    "keywords": [
+	    "asn1",
+	    "asn.1",
+	    "ber",
+	    "der",
+	    "sequence",
+	    "set",
+	    "bitstring",
+	    "octetstring",
+	    "utctime",
+	    "utf8string",
+	    "bmpstring",
+	    "universalstring",
+	    "generalizedtime"
+    ],
+    "jsnext:main": "./src/asn1.js",
+    "main": "./build/asn1.js",
+    "name": "asn1js",
+    "scripts": {
+      "build": "babel src --compact=false --out-dir build --source-maps",
+      "watch": "babel src --compact=false --out-dir build --source-maps --watch",
+      "postinstall": "npm run build"
+    },
+    "version": "2.0.10"
 }
