@@ -799,11 +799,6 @@ class LocalValueBlock extends LocalBaseBlock
 	 */
 	constructor(parameters = {})
 	{
-		//region Do not let a user to create abstract class
-		if(new.target === LocalValueBlock)
-			throw TypeError("new of abstract class \"LocalValueBlock\"");
-		//endregion
-
 		super(parameters);
 	}
 	//**********************************************************************************
