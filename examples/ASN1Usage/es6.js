@@ -1,9 +1,9 @@
 ﻿/*
  * Copyright (c) 2014, GMO GlobalSign
- * Copyright (c) 2015, Peculiar Ventures
+ * Copyright (c) 2015-2017, Peculiar Ventures
  * All rights reserved.
  *
- * Author 2014-2015, Yury Strozhevsky <www.strozhevsky.com>.
+ * Author 2014-2017, Yury Strozhevsky <www.strozhevsky.com>.
  *
  * Redistribution and use in source and binary forms, with or without modification, 
  * are permitted provided that the following conditions are met:
@@ -32,11 +32,13 @@
  *
  */
 //**************************************************************************************
+import * as asn1js from "../../src/asn1";
+//**************************************************************************************
 function test()
 {
     // #region How to create new ASN. structures 
-    var sequence = new org.pkijs.asn1.SEQUENCE();
-    sequence.value_block.value.push(new org.pkijs.asn1.INTEGER({ value: 1 }));
+    var sequence = new asn1js.Sequence();
+    sequence.valueBlock.value.push(new asn1js.Integer({ value: 1 }));
 
     var sequence_buffer = sequence.toBER(false); // Encode current sequence to BER (in ArrayBuffer)
     var current_size = sequence_buffer.byteLength;
@@ -52,22 +54,22 @@ function test()
     integer_view[6] = 0x01;
     integer_view[7] = 0x01;
 
-    sequence.value_block.value.push(new org.pkijs.asn1.INTEGER({
-        is_hex_only: true,
-        value_hex: integer_data
-    })); // Put too long for decoding INTEGER value
+    sequence.valueBlock.value.push(new asn1js.Integer({
+        isHexOnly: true,
+        valueHex: integer_data
+    })); // Put too long for decoding Integer value
 
     sequence_buffer = sequence.toBER(false);
     current_size = sequence_buffer.byteLength;
     // #endregion 
 
     // #region How to create new ASN.1 structures by calling constuctors with parameters 
-    var sequence2 = new org.pkijs.asn1.SEQUENCE({
+    var sequence2 = new asn1js.Sequence({
         value: [
-            new org.pkijs.asn1.INTEGER({ value: 1 }),
-            new org.pkijs.asn1.INTEGER({
-                is_hex_only: true,
-                value_hex: integer_data
+            new asn1js.Integer({ value: 1 }),
+            new asn1js.Integer({
+                isHexOnly: true,
+                valueHex: integer_data
             }),
         ]
     });
@@ -76,15 +78,15 @@ function test()
     // #region How to check that decoded value is too big 
     var big_integer_value;
 
-    var big_integer = new org.pkijs.asn1.INTEGER({
-        is_hex_only: true,
-        value_hex: integer_data
+    var big_integer = new asn1js.Integer({
+        isHexOnly: true,
+        valueHex: integer_data
     });
 
-    if(big_integer.value_block.is_hex_only === false)
-        big_integer_value = big_integer.value_block.value_dec; // Native integer value
+    if(big_integer.valueBlock.isHexOnly === false)
+        big_integer_value = big_integer.valueBlock.valueDec; // Native integer value
     else
-        big_integer_value = big_integer.value_block.value_hex; // ArrayBuffer
+        big_integer_value = big_integer.valueBlock.valueHex; // ArrayBuffer
     // #endregion 
 
     // #region How to get ASN.1 structures from raw data (ASN.1 decoding)
@@ -95,14 +97,14 @@ function test()
     encoded_sequence_view[2] = 0x05;
     encoded_sequence_view[3] = 0x00;
 
-    var decoded_asn1 = org.pkijs.fromBER(encoded_sequence);
+    var decoded_asn1 = asn1js.fromBER(encoded_sequence);
     if(decoded_asn1.offset === (-1))
         return; // Error during decoding
 
     var decoded_sequence = decoded_asn1.result;
 
-    var internal_value = decoded_sequence.value_block.value[0];
-    var internal_value_tag_number = internal_value.id_block.tag_number; // Value of "5" equal to ASN.1 NULL type
+    var internal_value = decoded_sequence.valueBlock.value[0];
+    var internal_value_tagNumber = internal_value.idBlock.tagNumber; // Value of "5" equal to ASN.1 Null type
     // #endregion 
 
     // #region How to work with ASN.1 strings 
@@ -125,84 +127,84 @@ function test()
     bmp_string_view[14] = 0x04;
     bmp_string_view[15] = 0x32;
 
-    var bmp_string_decoded = org.pkijs.fromBER(bmp_string_encoded);
+    var bmp_string_decoded = asn1js.fromBER(bmp_string_encoded);
     if(bmp_string_decoded.offset === (-1))
         return; // Error during decoding
 
-    var javascript_string1 = bmp_string_decoded.result.value_block.value;
+    var javascript_string1 = bmp_string_decoded.result.valueBlock.value;
 
-    var bmp_string = new org.pkijs.asn1.BMPSTRING({ value: "abc_абв" }); // Same with initialization by static JavaScript string
-    var javascript_string2 = bmp_string.value_block.value;
+    var bmp_string = new asn1js.BmpString({ value: "abc_абв" }); // Same with initialization by static JavaScript string
+    var javascript_string2 = bmp_string.valueBlock.value;
     // #endregion 
 
     // #region How to validate ASN.1 against pre-defined schema 
-    var asn1_schema = new org.pkijs.asn1.SEQUENCE({
+    var asn1_schema = new asn1js.Sequence({
         name: "block1",
         value: [
-            new org.pkijs.asn1.NULL({
+            new asn1js.Null({
                 name: "block2"
             }),
-            new org.pkijs.asn1.INTEGER({
+            new asn1js.Integer({
                 name: "block3",
                 optional: true // This block is absent inside data, but it's "optional". Hence verification against the schema will be passed.
             })
         ]
     });
 
-    var variant1 = org.pkijs.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
+    var variant1 = asn1js.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
     var variant1_verified = variant1.verified;
     var variant1_result = variant1.result; // Verified decoded data with all block names inside
 
     var variant1_block1 = variant1_result.block1;
     var variant1_block2 = variant1_result.block2;
 
-    var variant2 = org.pkijs.compareSchema(decoded_sequence, decoded_sequence, asn1_schema); // Compare already decoded ASN.1 against pre-defined schema
+    var variant2 = asn1js.compareSchema(decoded_sequence, decoded_sequence, asn1_schema); // Compare already decoded ASN.1 against pre-defined schema
     var variant2_verified = variant2.verified;
     var variant2_result = variant2.result; // Verified decoded data with all block names inside
 
     var variant2_block1 = variant2_result.block1;
     var variant2_block2 = variant2_result.block2;
 
-    var asn1_schema_any = new org.pkijs.asn1.SEQUENCE({
+    var asn1_schema_any = new asn1js.Sequence({
         name: "block1",
         value: [
-            new org.pkijs.asn1.ANY({ // Special type, for ASN.1 schemas only - will validate schema against any ASN.1 type
+            new asn1js.Any({ // Special type, for ASN.1 schemas only - will validate schema against any ASN.1 type
                 name: "block2"
             })
         ]
     });
 
-    decoded_sequence = org.pkijs.fromBER(encoded_sequence).result; // Re-setting "decoded_sequence"
+    decoded_sequence = asn1js.fromBER(encoded_sequence).result; // Re-setting "decoded_sequence"
 
-    var variant3 = org.pkijs.compareSchema(decoded_sequence, decoded_sequence, asn1_schema_any);
+    var variant3 = asn1js.compareSchema(decoded_sequence, decoded_sequence, asn1_schema_any);
     var variant3_verified = variant3.verified;
 
-    var asn1_schema_repeated = new org.pkijs.asn1.SEQUENCE({
+    var asn1_schema_repeated = new asn1js.Sequence({
         name: "block1",
         value: [
-            new org.pkijs.asn1.REPEATED({ // Special type, for ASN.1 schemas only - will check that inside decoded data there are sequence of values with one type only
+            new asn1js.Repeated({ // Special type, for ASN.1 schemas only - will check that inside decoded data there are sequence of values with one type only
                 name: "block2_array",
-                value: new org.pkijs.asn1.NULL()
+                value: new asn1js.Null()
             })
         ]
     });
 
-    decoded_sequence = org.pkijs.fromBER(encoded_sequence).result; // Re-setting "decoded_sequence"
+    decoded_sequence = asn1js.fromBER(encoded_sequence).result; // Re-setting "decoded_sequence"
 
-    var variant4 = org.pkijs.compareSchema(decoded_sequence, decoded_sequence, asn1_schema_repeated);
+    var variant4 = asn1js.compareSchema(decoded_sequence, decoded_sequence, asn1_schema_repeated);
     var variant4_verified = variant4.verified;
 
     var variant4_array = variant4.block2_array; // Array of internal blocks
 
-    var asn1_schema_choice = new org.pkijs.asn1.SEQUENCE({
+    var asn1_schema_choice = new asn1js.Sequence({
         name: "block1",
         value: [
-            new org.pkijs.asn1.CHOICE({ // Special type, for ASN.1 schemas only - will check ASN.1 data has one of type
+            new asn1js.Choice({ // Special type, for ASN.1 schemas only - will check ASN.1 data has one of type
                 value: [
-                    new org.pkijs.asn1.NULL({
+                    new asn1js.Null({
                         name: "block2"
                     }),
-                    new org.pkijs.asn1.INTEGER({
+                    new asn1js.Integer({
                         name: "block2"
                     }),
                 ]
@@ -210,31 +212,47 @@ function test()
         ]
     });
 
-    decoded_sequence = org.pkijs.fromBER(encoded_sequence).result; // Re-setting "decoded_sequence"
+    decoded_sequence = asn1js.fromBER(encoded_sequence).result; // Re-setting "decoded_sequence"
 
-    var variant5 = org.pkijs.compareSchema(decoded_sequence, decoded_sequence, asn1_schema_choice);
+    var variant5 = asn1js.compareSchema(decoded_sequence, decoded_sequence, asn1_schema_choice);
     var variant5_verified = variant4.verified;
     // #endregion 
 
     // #region How to use "internal schemas" for primitevely encoded data types 
-    var primitive_octetstring = new org.pkijs.asn1.OCTETSTRING({ value_hex: encoded_sequence }); // Create a primitively encoded OCTETSTRING where internal data is an encoded SEQUENCE
+    var primitive_octetstring = new asn1js.OctetString({ valueHex: encoded_sequence }); // Create a primitively encoded OctetString where internal data is an encoded Sequence
 
-    var asn1_schema_internal = new org.pkijs.asn1.OCTETSTRING({
+    var asn1_schema_internal = new asn1js.OctetString({
         name: "outer_block",
-        primitive_schema: new org.pkijs.asn1.SEQUENCE({
+        primitiveSchema: new asn1js.Sequence({
             name: "block1",
             value: [
-                    new org.pkijs.asn1.NULL({
+                    new asn1js.Null({
                         name: "block2"
                     })
             ]
         })
     });
 
-    var variant6 = org.pkijs.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
+    var variant6 = asn1js.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
     var variant6_verified = variant4.verified;
-    var variant6_block1_tag_num = variant6.result.block1.id_block.tag_number;
-    var variant6_block2_tag_num = variant6.result.block2.id_block.tag_number;
+    var variant6_block1_tag_num = variant6.result.block1.idBlock.tagNumber;
+    var variant6_block2_tag_num = variant6.result.block2.idBlock.tagNumber;
     // #endregion 
 }
 //**************************************************************************************
+context("Hack for Rollup.js", () =>
+{
+	return;
+
+	test();
+	setEngine();
+});
+//*********************************************************************************
+context("ASN1js usage", () =>
+{
+	it("ASN1js usage", () =>
+	{
+		test();
+	});
+});
+//*********************************************************************************

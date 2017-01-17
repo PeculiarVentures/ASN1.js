@@ -1,42 +1,57 @@
 {
-    "author": {
-        "email": "yury@strozhevsky.com",
-        "name": "Yury Strozhevsky"
-    },
-    "contributors": [
-        {
-            "email": "rmh@unmitigatedrisk.com",
-            "name": "Ryan Hurst"
-        }
-    ],
-    "dependencies": {
-      "pvutils": "latest",
-      "babel-cli": "latest",
-      "babel-preset-es2015": "latest"
-    },
-    "description": "asn1js is a pure JavaScript library implementing this standard. ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web",
-    "keywords": [
-	    "asn1",
-	    "asn.1",
-	    "ber",
-	    "der",
-	    "sequence",
-	    "set",
-	    "bitstring",
-	    "octetstring",
-	    "utctime",
-	    "utf8string",
-	    "bmpstring",
-	    "universalstring",
-	    "generalizedtime"
-    ],
-    "jsnext:main": "./src/asn1.js",
-    "main": "./build/asn1.js",
-    "name": "asn1js",
-    "scripts": {
-      "build": "babel src --compact=false --out-dir build --source-maps",
-      "watch": "babel src --compact=false --out-dir build --source-maps --watch",
-      "postinstall": "npm run build"
-    },
-    "version": "2.0.10"
+  "author": {
+    "email": "yury@strozhevsky.com",
+    "name": "Yury Strozhevsky"
+  },
+  "contributors": [
+    {
+      "email": "rmh@unmitigatedrisk.com",
+      "name": "Ryan Hurst"
+    }
+  ],
+  "devDependencies": {
+    "mocha": "^3.0.2",
+    "rollup": "0.34.7",
+    "rollup-plugin-node-resolve": "^1.7.1",
+    "node-webcrypto-ossl": "latest",
+    "rollem": "git+https://github.com/PeculiarVentures/rollem.git"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/PeculiarVenturess/ASN1.js.git"
+  },
+  "dependencies": {
+    "pvutils": "latest",
+    "babel-cli": "latest",
+    "babel-preset-es2015": "latest"
+  },
+  "description": "asn1js is a pure JavaScript library implementing this standard. ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web",
+  "keywords": [
+    "asn1",
+    "asn.1",
+    "ber",
+    "der",
+    "sequence",
+    "set",
+    "bitstring",
+    "octetstring",
+    "utctime",
+    "utf8string",
+    "bmpstring",
+    "universalstring",
+    "generalizedtime"
+  ],
+  "jsnext:main": "./src/asn1.js",
+  "main": "./build/asn1.js",
+  "name": "asn1js",
+  "scripts": {
+    "build": "babel src --compact=false --out-dir build --source-maps",
+    "watch": "babel src --compact=false --out-dir build --source-maps --watch",
+    "ex1": "cd examples/ASN1Usage && rollem -c && cd ../..",
+    "build:examples": "npm run ex1;",
+    "build:tests": "npm run build:examples",
+    "test": "mocha",
+    "postinstall": "npm run build"
+  },
+  "version": "2.0.12"
 }
