@@ -4684,9 +4684,9 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 	//endregion
 
 	//region Basic check for parameters
-	if(checkBufferParams(new LocalBaseBlock(), inputBuffer, inputOffset, inputLength) === false)
+	if(checkBufferParams(var n = new LocalBaseBlock(), inputBuffer, inputOffset, inputLength) === false)
 	{
-		returnObject.error = "Wrong input parameters";
+		returnObject.error = n.error;
 		return {
 			offset: (-1),
 			result: returnObject
