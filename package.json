@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/PeculiarVentures/asn1.js"
+    "url": "git://github.com/PeculiarVentures/asn1.js.git"
   },
   "dependencies": {
     "pvutils": "latest",
