@@ -2401,7 +2401,7 @@ export class Integer extends BaseBlock
 	 */
 	convertFromDER()
 	{
-		const expectedLength = Math.pow(2, nearestPowerOf2(this.valueBlock.valueHex.byteLength));
+		const expectedLength = (this.valueBlock.valueHex.byteLength % 2) ? (this.valueBlock.valueHex.byteLength + 1) : this.valueBlock.valueHex.byteLength;
 		const integer = new Integer({ valueHex: this.valueBlock.valueHex });
 		integer.valueBlock.fromDER(integer.valueBlock.valueHex, 0, integer.valueBlock.valueHex.byteLength, expectedLength);
 		
