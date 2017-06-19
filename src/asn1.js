@@ -31,7 +31,16 @@
  *
  */
 //**************************************************************************************
-import { getParametersValue, padNumber, isEqualBuffer, bufferToHexCodes, checkBufferParams, utilToBase, utilFromBase, utilEncodeTC, utilDecodeTC, utilConcatBuf, nearestPowerOf2 } from "pvutils";
+import { getParametersValue, padNumber, isEqualBuffer, bufferToHexCodes, checkBufferParams, utilToBase, utilFromBase, utilEncodeTC, utilDecodeTC, utilConcatBuf, utilConcatView, nearestPowerOf2 } from "pvutils";
+//**************************************************************************************
+//region Declaration of global variables
+//**************************************************************************************
+const zero = new Uint8Array([0x00]);
+
+const powers2 = [new Uint8Array([1])];
+const digitsString = "0123456789";
+//**************************************************************************************
+//endregion
 //**************************************************************************************
 //region Declaration for "LocalBaseBlock" class
 //**************************************************************************************
@@ -2330,6 +2339,202 @@ class LocalIntegerValueBlock extends LocalHexBlock(LocalValueBlock)
 		object.valueDec = this.valueDec;
 
 		return object;
+	}
+	//**********************************************************************************
+	/**
+	 * Convert current value to decimal string representation
+	 */
+	toString()
+	{
+		//region Aux functions
+		function viewAdd(first, second)
+		{
+			//region Initial variables
+			const c = new Uint8Array([0]);
+			
+			let firstView = new Uint8Array(first);
+			let secondView = new Uint8Array(second);
+			
+			let firstViewCopy = firstView.slice(0);
+			const firstViewCopyLength = firstViewCopy.length - 1;
+			let secondViewCopy = secondView.slice(0);
+			const secondViewCopyLength = secondViewCopy.length - 1;
+			
+			let value = 0;
+			
+			const max = (secondViewCopyLength < firstViewCopyLength) ? firstViewCopyLength : secondViewCopyLength;
+			
+			let counter = 0;
+			//endregion
+			
+			for(let i = max; i >= 0; i--, counter++)
+			{
+				switch(true)
+				{
+					case (counter < secondViewCopy.length):
+						value = firstViewCopy[firstViewCopyLength - counter] + secondViewCopy[secondViewCopyLength - counter] + c[0];
+						break;
+					default:
+						value = firstViewCopy[firstViewCopyLength - counter] + c[0];
+				}
+				
+				c[0] = value / 10;
+				
+				switch(true)
+				{
+					case (counter >= firstViewCopy.length):
+						firstViewCopy = utilConcatView(new Uint8Array([value % 10]), firstViewCopy);
+						break;
+					default:
+						firstViewCopy[firstViewCopyLength - counter] = value % 10;
+				}
+			}
+			
+			if(c[0] > 0)
+				firstViewCopy = utilConcatView(c, firstViewCopy);
+			
+			return firstViewCopy.slice(0);
+		}
+		
+		function power2(n)
+		{
+			if(n >= powers2.length)
+			{
+				for(let p = powers2.length; p <= n; p++)
+				{
+					const c = new Uint8Array([0]);
+					let digits = (powers2[p - 1]).slice(0);
+					
+					for(let i = (digits.length - 1); i >=0; i--)
+					{
+						const newValue = new Uint8Array([(digits[i] << 1) + c[0]]);
+						c[0] = newValue[0] / 10;
+						digits[i] = newValue[0] % 10;
+					}
+					
+					if (c[0] > 0)
+						digits = utilConcatView(c, digits);
+					
+					powers2.push(digits);
+				}
+			}
+			
+			return powers2[n];
+		}
+		
+		function viewSub(first, second)
+		{
+			//region Initial variables
+			let b = 0;
+			
+			let firstView = new Uint8Array(first);
+			let secondView = new Uint8Array(second);
+			
+			let firstViewCopy = firstView.slice(0);
+			const firstViewCopyLength = firstViewCopy.length - 1;
+			let secondViewCopy = secondView.slice(0);
+			const secondViewCopyLength = secondViewCopy.length - 1;
+			
+			let value;
+			
+			let counter = 0;
+			//endregion
+			
+			for(let i = secondViewCopyLength; i >= 0; i--, counter++)
+			{
+				value = firstViewCopy[firstViewCopyLength - counter] - secondViewCopy[secondViewCopyLength - counter] - b;
+				
+				switch(true)
+				{
+					case (value < 0):
+						b = 1;
+						firstViewCopy[firstViewCopyLength - counter] = value + 10;
+						break;
+					default:
+						b = 0;
+						firstViewCopy[firstViewCopyLength - counter] = value;
+				}
+			}
+			
+			if(b > 0)
+			{
+				for(let i = (firstViewCopyLength - secondViewCopyLength + 1); i >= 0; i--, counter++)
+				{
+					value = firstViewCopy[firstViewCopyLength - counter] - b;
+					
+					if(value < 0)
+					{
+						b = 1;
+						firstViewCopy[firstViewCopyLength - counter] = value + 10;
+					}
+					else
+					{
+						b = 0;
+						firstViewCopy[firstViewCopyLength - counter] = value;
+						break;
+					}
+				}
+			}
+			
+			return firstViewCopy.slice();
+		}
+		//endregion
+		
+		//region Initial variables
+		const firstBit = (this._valueHex.byteLength * 8) - 1;
+		
+		let digits = new Uint8Array((this._valueHex.byteLength * 8) / 3);
+		let bitNumber = 0;
+		let currentByte;
+		
+		const asn1View = new Uint8Array(this._valueHex);
+		
+		let result = "";
+		
+		let flag = false;
+		//endregion
+		
+		//region Calculate number
+		for(let byteNumber = (this._valueHex.byteLength - 1); byteNumber >= 0; byteNumber--)
+		{
+			currentByte = asn1View[byteNumber];
+			
+			for(let i = 0; i < 8; i++)
+			{
+				if((currentByte & 1) === 1)
+				{
+					switch(bitNumber)
+					{
+						case firstBit:
+							digits = viewSub(power2(bitNumber), digits);
+							result = "-";
+							break;
+						default:
+							digits = viewAdd(digits, power2(bitNumber));
+					}
+				}
+				
+				bitNumber++;
+				currentByte >>= 1;
+			}
+		}
+		//endregion
+		
+		//region Print number
+		for(let i = 0; i < digits.length; i++)
+		{
+			if(digits[i])
+				flag = true;
+			
+			if(flag)
+				result += digitsString.charAt(digits[i]);
+		}
+		
+		if(flag === false)
+			result += digitsString.charAt(0);
+		//endregion
+		
+		return result;
 	}
 	//**********************************************************************************
 }
