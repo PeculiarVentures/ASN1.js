@@ -1,9 +1,9 @@
 ﻿/*
  * Copyright (c) 2014, GMO GlobalSign
- * Copyright (c) 2015-2017, Peculiar Ventures
+ * Copyright (c) 2015-2018, Peculiar Ventures
  * All rights reserved.
  *
- * Author 2014-2017, Yury Strozhevsky <www.strozhevsky.com>.
+ * Author 2014-2018, Yury Strozhevsky <www.strozhevsky.com>.
  *
  * Redistribution and use in source and binary forms, with or without modification, 
  * are permitted provided that the following conditions are met:
@@ -36,15 +36,15 @@ import * as asn1js from "../../src/asn1";
 //**************************************************************************************
 function test()
 {
-    // #region How to create new ASN. structures 
-    var sequence = new asn1js.Sequence();
+    //region How to create new ASN. structures 
+    let sequence = new asn1js.Sequence();
     sequence.valueBlock.value.push(new asn1js.Integer({ value: 1 }));
 
-    var sequence_buffer = sequence.toBER(false); // Encode current sequence to BER (in ArrayBuffer)
-    var current_size = sequence_buffer.byteLength;
+    let sequence_buffer = sequence.toBER(false); // Encode current sequence to BER (in ArrayBuffer)
+    let current_size = sequence_buffer.byteLength;
 
-    var integer_data = new ArrayBuffer(8);
-    var integer_view = new Uint8Array(integer_data);
+    let integer_data = new ArrayBuffer(8);
+    let integer_view = new Uint8Array(integer_data);
     integer_view[0] = 0x01;
     integer_view[1] = 0x01;
     integer_view[2] = 0x01;
@@ -61,10 +61,10 @@ function test()
 
     sequence_buffer = sequence.toBER(false);
     current_size = sequence_buffer.byteLength;
-    // #endregion 
+    //endregion 
 
-    // #region How to create new ASN.1 structures by calling constuctors with parameters 
-    var sequence2 = new asn1js.Sequence({
+    //region How to create new ASN.1 structures by calling constuctors with parameters 
+    let sequence2 = new asn1js.Sequence({
         value: [
             new asn1js.Integer({ value: 1 }),
             new asn1js.Integer({
@@ -73,12 +73,12 @@ function test()
             }),
         ]
     });
-    // #endregion 
+    //endregion 
 
-    // #region How to check that decoded value is too big 
-    var big_integer_value;
+    //region How to check that decoded value is too big 
+    let big_integer_value;
 
-    var big_integer = new asn1js.Integer({
+    let big_integer = new asn1js.Integer({
         isHexOnly: true,
         valueHex: integer_data
     });
@@ -87,29 +87,29 @@ function test()
         big_integer_value = big_integer.valueBlock.valueDec; // Native integer value
     else
         big_integer_value = big_integer.valueBlock.valueHex; // ArrayBuffer
-    // #endregion 
+    //endregion 
 
-    // #region How to get ASN.1 structures from raw data (ASN.1 decoding)
-    var encoded_sequence = new ArrayBuffer(4);
-    var encoded_sequence_view = new Uint8Array(encoded_sequence);
+    //region How to get ASN.1 structures from raw data (ASN.1 decoding)
+    let encoded_sequence = new ArrayBuffer(4);
+    let encoded_sequence_view = new Uint8Array(encoded_sequence);
     encoded_sequence_view[0] = 0x30;
     encoded_sequence_view[1] = 0x02;
     encoded_sequence_view[2] = 0x05;
     encoded_sequence_view[3] = 0x00;
 
-    var decoded_asn1 = asn1js.fromBER(encoded_sequence);
+    let decoded_asn1 = asn1js.fromBER(encoded_sequence);
     if(decoded_asn1.offset === (-1))
         return; // Error during decoding
 
-    var decoded_sequence = decoded_asn1.result;
+    let decoded_sequence = decoded_asn1.result;
 
-    var internal_value = decoded_sequence.valueBlock.value[0];
-    var internal_value_tagNumber = internal_value.idBlock.tagNumber; // Value of "5" equal to ASN.1 Null type
-    // #endregion 
+    let internal_value = decoded_sequence.valueBlock.value[0];
+    let internal_value_tagNumber = internal_value.idBlock.tagNumber; // Value of "5" equal to ASN.1 Null type
+    //endregion 
 
-    // #region How to work with ASN.1 strings 
-    var bmp_string_encoded = new ArrayBuffer(16); // This ArrayBuffer consinsts of encoded ASN.1 BMPString with "abc_" + three first chars from Russian alphabet
-    var bmp_string_view = new Uint8Array(bmp_string_encoded);
+    //region How to work with ASN.1 strings 
+    let bmp_string_encoded = new ArrayBuffer(16); // This ArrayBuffer consinsts of encoded ASN.1 BMPString with "abc_" + three first chars from Russian alphabet
+    let bmp_string_view = new Uint8Array(bmp_string_encoded);
     bmp_string_view[0] = 0x1E;
     bmp_string_view[1] = 0x0E;
     bmp_string_view[2] = 0x00;
@@ -127,18 +127,18 @@ function test()
     bmp_string_view[14] = 0x04;
     bmp_string_view[15] = 0x32;
 
-    var bmp_string_decoded = asn1js.fromBER(bmp_string_encoded);
+    let bmp_string_decoded = asn1js.fromBER(bmp_string_encoded);
     if(bmp_string_decoded.offset === (-1))
         return; // Error during decoding
 
-    var javascript_string1 = bmp_string_decoded.result.valueBlock.value;
+    let javascript_string1 = bmp_string_decoded.result.valueBlock.value;
 
-    var bmp_string = new asn1js.BmpString({ value: "abc_абв" }); // Same with initialization by static JavaScript string
-    var javascript_string2 = bmp_string.valueBlock.value;
-    // #endregion 
+    let bmp_string = new asn1js.BmpString({ value: "abc_абв" }); // Same with initialization by static JavaScript string
+    let javascript_string2 = bmp_string.valueBlock.value;
+    //endregion 
 
-    // #region How to validate ASN.1 against pre-defined schema 
-    var asn1_schema = new asn1js.Sequence({
+    //region How to validate ASN.1 against pre-defined schema 
+    let asn1_schema = new asn1js.Sequence({
         name: "block1",
         value: [
             new asn1js.Null({
@@ -151,21 +151,21 @@ function test()
         ]
     });
 
-    var variant1 = asn1js.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
-    var variant1_verified = variant1.verified;
-    var variant1_result = variant1.result; // Verified decoded data with all block names inside
+    let variant1 = asn1js.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
+    let variant1_verified = variant1.verified;
+    let variant1_result = variant1.result; // Verified decoded data with all block names inside
 
-    var variant1_block1 = variant1_result.block1;
-    var variant1_block2 = variant1_result.block2;
+    let variant1_block1 = variant1_result.block1;
+    let variant1_block2 = variant1_result.block2;
 
-    var variant2 = asn1js.compareSchema(decoded_sequence, decoded_sequence, asn1_schema); // Compare already decoded ASN.1 against pre-defined schema
-    var variant2_verified = variant2.verified;
-    var variant2_result = variant2.result; // Verified decoded data with all block names inside
+    let variant2 = asn1js.compareSchema(decoded_sequence, decoded_sequence, asn1_schema); // Compare already decoded ASN.1 against pre-defined schema
+    let variant2_verified = variant2.verified;
+    let variant2_result = variant2.result; // Verified decoded data with all block names inside
 
-    var variant2_block1 = variant2_result.block1;
-    var variant2_block2 = variant2_result.block2;
+    let variant2_block1 = variant2_result.block1;
+    let variant2_block2 = variant2_result.block2;
 
-    var asn1_schema_any = new asn1js.Sequence({
+    let asn1_schema_any = new asn1js.Sequence({
         name: "block1",
         value: [
             new asn1js.Any({ // Special type, for ASN.1 schemas only - will validate schema against any ASN.1 type
@@ -176,10 +176,10 @@ function test()
 
     decoded_sequence = asn1js.fromBER(encoded_sequence).result; // Re-setting "decoded_sequence"
 
-    var variant3 = asn1js.compareSchema(decoded_sequence, decoded_sequence, asn1_schema_any);
-    var variant3_verified = variant3.verified;
+    let variant3 = asn1js.compareSchema(decoded_sequence, decoded_sequence, asn1_schema_any);
+    let variant3_verified = variant3.verified;
 
-    var asn1_schema_repeated = new asn1js.Sequence({
+    let asn1_schema_repeated = new asn1js.Sequence({
         name: "block1",
         value: [
             new asn1js.Repeated({ // Special type, for ASN.1 schemas only - will check that inside decoded data there are sequence of values with one type only
@@ -191,12 +191,12 @@ function test()
 
     decoded_sequence = asn1js.fromBER(encoded_sequence).result; // Re-setting "decoded_sequence"
 
-    var variant4 = asn1js.compareSchema(decoded_sequence, decoded_sequence, asn1_schema_repeated);
-    var variant4_verified = variant4.verified;
+    let variant4 = asn1js.compareSchema(decoded_sequence, decoded_sequence, asn1_schema_repeated);
+    let variant4_verified = variant4.verified;
 
-    var variant4_array = variant4.block2_array; // Array of internal blocks
+    let variant4_array = variant4.block2_array; // Array of internal blocks
 
-    var asn1_schema_choice = new asn1js.Sequence({
+    let asn1_schema_choice = new asn1js.Sequence({
         name: "block1",
         value: [
             new asn1js.Choice({ // Special type, for ASN.1 schemas only - will check ASN.1 data has one of type
@@ -214,14 +214,14 @@ function test()
 
     decoded_sequence = asn1js.fromBER(encoded_sequence).result; // Re-setting "decoded_sequence"
 
-    var variant5 = asn1js.compareSchema(decoded_sequence, decoded_sequence, asn1_schema_choice);
-    var variant5_verified = variant4.verified;
-    // #endregion 
+    let variant5 = asn1js.compareSchema(decoded_sequence, decoded_sequence, asn1_schema_choice);
+    let variant5_verified = variant4.verified;
+    //endregion 
 
-    // #region How to use "internal schemas" for primitevely encoded data types 
-    var primitive_octetstring = new asn1js.OctetString({ valueHex: encoded_sequence }); // Create a primitively encoded OctetString where internal data is an encoded Sequence
+    //region How to use "internal schemas" for primitevely encoded data types 
+    let primitive_octetstring = new asn1js.OctetString({ valueHex: encoded_sequence }); // Create a primitively encoded OctetString where internal data is an encoded Sequence
 
-    var asn1_schema_internal = new asn1js.OctetString({
+    let asn1_schema_internal = new asn1js.OctetString({
         name: "outer_block",
         primitiveSchema: new asn1js.Sequence({
             name: "block1",
@@ -233,11 +233,11 @@ function test()
         })
     });
 
-    var variant6 = asn1js.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
-    var variant6_verified = variant4.verified;
-    var variant6_block1_tag_num = variant6.result.block1.idBlock.tagNumber;
-    var variant6_block2_tag_num = variant6.result.block2.idBlock.tagNumber;
-    // #endregion 
+    let variant6 = asn1js.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
+    let variant6_verified = variant4.verified;
+    let variant6_block1_tag_num = variant6.result.block1.idBlock.tagNumber;
+    let variant6_block2_tag_num = variant6.result.block2.idBlock.tagNumber;
+    //endregion 
 }
 //**************************************************************************************
 context("Hack for Rollup.js", () =>
