@@ -41,7 +41,7 @@ ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
 ## Examples
 
 ```javascript
-    // #region How to create new ASN. structures 
+    //region How to create new ASN. structures 
     var sequence = new asn1js.Sequence();
     sequence.valueBlock.value.push(new asn1js.Integer({ value: 1 }));
 
@@ -66,11 +66,11 @@ ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
 
     sequence_buffer = sequence.toBER(false);
     current_size = sequence_buffer.byteLength;
-    // #endregion 
+    //endregion 
 ```
 
 ```javascript
-    // #region How to create new ASN.1 structures by calling constuctors with parameters 
+    //region How to create new ASN.1 structures by calling constuctors with parameters 
     var sequence2 = new asn1js.Sequence({
         value: [
             new asn1js.Integer({ value: 1 }),
@@ -80,11 +80,11 @@ ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
             }),
         ]
     });
-    // #endregion 
+    //endregion 
 ```
 
 ```javascript
-    // #region How to validate ASN.1 against pre-defined schema 
+    //region How to validate ASN.1 against pre-defined schema 
     var asn1_schema = new asn1js.Sequence({
         name: "block1",
         value: [
@@ -97,7 +97,7 @@ ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
             })
         ]
     });
-    // #endregion
+    //endregion
 
     var variant1 = org.pkijs.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
     var variant1_verified = variant1.verified;
@@ -105,7 +105,7 @@ ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
 ```
 
 ```javascript
-    // #region How to use "internal schemas" for primitevely encoded data types 
+    //region How to use "internal schemas" for primitevely encoded data types 
     var primitive_octetstring = new asn1js.OctetString({ valueHex: encoded_sequence }); // Create a primitively encoded OctetString where internal data is an encoded Sequence
 
     var asn1_schema_internal = new asn1js.OctetString({
@@ -124,7 +124,7 @@ ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
     var variant6_verified = variant4.verified;
     var variant6_block1_tag_num = variant6.result.block1.idBlock.tagNumber;
     var variant6_block2_tag_num = variant6.result.block2.idBlock.tagNumber;
-    // #endregion 
+    //endregion 
 ```
 
 More examples could be found in "examples" directory or inside [PKIjs][] library.
@@ -140,10 +140,10 @@ There are several commercial products, enterprise solitions as well as open sour
 ## License
 
 Copyright (c) 2014, [GMO GlobalSign](http://www.globalsign.com/)
-Copyright (c) 2015-2017, [Peculiar Ventures](http://peculiarventures.com/)
+Copyright (c) 2015-2018, [Peculiar Ventures](http://peculiarventures.com/)
 All rights reserved.
 
-Author 2014-2017, [Yury Strozhevsky](http://www.strozhevsky.com/).
+Author 2014-2018, [Yury Strozhevsky](http://www.strozhevsky.com/).
 
 Redistribution and use in source and binary forms, with or without modification, 
 are permitted provided that the following conditions are met:

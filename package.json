@@ -10,24 +10,24 @@
     }
   ],
   "devDependencies": {
+    "babel-cli": "latest",
+    "babel-preset-es2017": "latest",
     "mocha": "^3.0.2",
-    "rollup": "0.34.7",
-    "rollup-plugin-node-resolve": "^1.7.1",
     "node-webcrypto-ossl": "latest",
-    "rollem": "git+https://github.com/PeculiarVentures/rollem.git"
+    "rollup": "^0.56.0",
+    "rollup-plugin-node-resolve": "^1.7.1"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/PeculiarVentures/asn1.js.git"
   },
   "dependencies": {
-    "pvutils": "latest",
-    "babel-cli": "latest",
-    "babel-preset-es2015": "latest"
+    "pvutils": "latest"
   },
   "description": "asn1js is a pure JavaScript library implementing this standard. ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web",
   "keywords": [
     "asn1",
+    "parser",
     "asn.1",
     "ber",
     "der",
@@ -47,11 +47,11 @@
   "scripts": {
     "build": "babel src --compact=false --out-dir build --source-maps",
     "watch": "babel src --compact=false --out-dir build --source-maps --watch",
-    "ex1": "cd examples/ASN1Usage && rollem -c && cd ../..",
+    "ex1": "cd examples/ASN1Usage && rollup -c && cd ../..",
     "build:examples": "npm run ex1;",
     "build:tests": "npm run build:examples",
     "test": "mocha",
-    "postinstall": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "version": "2.0.16"
 }
