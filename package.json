@@ -53,5 +53,6 @@
     "test": "mocha",
     "prepublishOnly": "npm run build"
   },
-  "version": "2.0.17"
+  "version": "2.0.18",
+  "license": "MIT"
 }
