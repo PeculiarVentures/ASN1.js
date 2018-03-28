@@ -36,6 +36,7 @@ ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
 * Ability to parse internal data inside a primitively encoded data types and automatically validate it against special schema;
 * All types inside library are dynamic;
 * All types can be initialized in static or dynamic ways.
+* [ASN1js][] fully tested against [ASN.1:2008 TestSuite][].
 
 ## Examples
 
@@ -132,6 +133,7 @@ More examples could be found in "examples" directory or inside [PKIjs][] library
 
 * [C++ ASN1:2008 BER coder/decoder](https://github.com/YuryStrozhevsky/C-plus-plus-ASN.1-2008-coder-decoder) - the "father" of [ASN1js][] project;
 * [Freely available ASN.1:2008 test suite](https://github.com/YuryStrozhevsky/ASN1-2008-free-test-suite) - the suite which can help you to validate (and better understand) any ASN.1 coder/decoder;
+* [NPM package for ASN.1:2008 test suite](https://github.com/YuryStrozhevsky/asn1-test-suite)
 
 ## Suitability
 There are several commercial products, enterprise solitions as well as open source project based on versions of ASN1js. You should, however, do your own code and security review before utilization in a production application before utilizing any open source library to ensure it will meet your needs.
@@ -176,3 +178,4 @@ OF SUCH DAMAGE.
 [BER]: http://en.wikipedia.org/wiki/X.690#BER_encoding
 [DER]: http://en.wikipedia.org/wiki/X.690#DER_encoding
 [freely available ASN.1:2008 test suite]: http://www.strozhevsky.com/free_docs/free_asn1_testsuite_descr.pdf
+[ASN.1:2008 TestSuite]: https://github.com/YuryStrozhevsky/asn1-test-suite
