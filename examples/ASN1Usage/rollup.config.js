@@ -15,11 +15,6 @@ window.test = test;
 function context(name, func) {}`
 		},
 		{
-			file: "../../test/asn1UsageExample.js",
-			format: "es",
-			outro: `const assert = require("assert");`
-		},
-		{
 			file: "../../test/browser/asn1UsageExample.js",
 			format: "es",
 		},

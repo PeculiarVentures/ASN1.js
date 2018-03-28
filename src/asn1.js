@@ -1465,8 +1465,6 @@ class LocalBooleanValueBlock extends LocalValueBlock
 		if(inputLength > 1)
 			this.warnings.push("Boolean value encoded in more then 1 octet");
 
-		this.value = intBuffer[0] !== 0x00;
-
 		this.isHexOnly = true;
 
 		//region Copy input buffer to internal array
@@ -1476,6 +1474,11 @@ class LocalBooleanValueBlock extends LocalValueBlock
 		for(let i = 0; i < intBuffer.length; i++)
 			view[i] = intBuffer[i];
 		//endregion
+		
+		if(utilDecodeTC.call(this) !== 0 )
+			this.value = true;
+		else
+			this.value = false;
 
 		this.blockLength = inputLength;
 
@@ -1655,9 +1658,15 @@ export class Null extends BaseBlock
 
 		if(this.lenBlock.error.length === 0)
 			this.blockLength += this.lenBlock.blockLength;
-
+		
 		this.blockLength += inputLength;
-
+		
+		if((inputOffset + inputLength) > inputBuffer.byteLength)
+		{
+			this.error = "End of input reached before message was fully decoded (inconsistent offset and length values)";
+			return (-1);
+		}
+		
 		return (inputOffset + inputLength);
 	}
 	//**********************************************************************************
@@ -1898,7 +1907,7 @@ class LocalBitStringValueBlock extends LocalHexBlock(LocalConstructedValueBlock)
 
 		this.unusedBits = getParametersValue(parameters, "unusedBits", 0);
 		this.isConstructed = getParametersValue(parameters, "isConstructed", false);
-		this.blockLength = this.valueHex.byteLength + 1; // "+1" for "unusedBits"
+		this.blockLength = this.valueHex.byteLength;
 	}
 	//**********************************************************************************
 	/**
@@ -1945,13 +1954,13 @@ class LocalBitStringValueBlock extends LocalHexBlock(LocalConstructedValueBlock)
 					return (-1);
 				}
 
-				if((this.unusedBits > 0) && (this.value[i].unusedBits > 0))
+				if((this.unusedBits > 0) && (this.value[i].valueBlock.unusedBits > 0))
 				{
 					this.error = "Usign of \"unused bits\" inside constructive BIT STRING allowed for least one only";
 					return (-1);
 				}
 
-				this.unusedBits = this.value[i].unusedBits;
+				this.unusedBits = this.value[i].valueBlock.unusedBits;
 				if(this.unusedBits > 7)
 				{
 					this.error = "Unused bits for BitString must be in range 0-7";
@@ -1972,6 +1981,7 @@ class LocalBitStringValueBlock extends LocalHexBlock(LocalConstructedValueBlock)
 		const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
 
 		this.unusedBits = intBuffer[0];
+		
 		if(this.unusedBits > 7)
 		{
 			this.error = "Unused bits for BitString must be in range 0-7";

@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c && cp \"./es6.js\" \"../../test/asn1UsageExample.js\" && sed -i \"s/\\\"..\\\/..\\\/src/\\\"..\\\/src/g\" \"../../test/asn1UsageExample.js\""
   }
 }

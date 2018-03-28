@@ -1,16 +1,22 @@
 machine:
+  environment:
+    COVERALLS_REPO_TOKEN: R36fd3HhyEEZ6hn5Mg6ysnP1XaSy4UcpL
   node:
-    version: 6.9.1
+    version: 8.7.0
 
 dependencies:
   pre:
-    - npm install -g typescript rollup@0.34.7 https://github.com/PeculiarVentures/rollem.git
+    - npm install -g typescript rollup nyc coveralls
   post:
     - npm install rollup-plugin-node-resolve
 
 test:
   pre:
     - npm run build:tests
+  post:
+    - cat ./coverage/lcov.info | coveralls
+    - mkdir $CIRCLE_ARTIFACTS/coverage
+    - mv ./coverage/lcov.info $CIRCLE_ARTIFACTS/coverage
 
 general:
   branches:
