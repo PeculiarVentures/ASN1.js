@@ -5,3 +5,6 @@ circle.yml
 .nycrc
 .nyc_output
 coverage
+.babelrc
+.gitattributes
+.eslintrc.js

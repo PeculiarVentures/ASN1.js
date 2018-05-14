@@ -1,8 +1,9 @@
+/* eslint-disable indent */
 /*
- * Copyright (c) 2016, Peculiar Ventures
+ * Copyright (c) 2016-2018, Peculiar Ventures
  * All rights reserved.
  *
- * Author 2016, Yury Strozhevsky <www.strozhevsky.com>.
+ * Author 2016-2018, Yury Strozhevsky <www.strozhevsky.com>.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,12 +32,10 @@
  *
  */
 //**************************************************************************************
-import { getParametersValue, padNumber, isEqualBuffer, bufferToHexCodes, checkBufferParams, utilToBase, utilFromBase, utilEncodeTC, utilDecodeTC, utilConcatBuf, utilConcatView, nearestPowerOf2 } from "pvutils";
+import { getParametersValue, padNumber, isEqualBuffer, bufferToHexCodes, checkBufferParams, utilToBase, utilFromBase, utilEncodeTC, utilDecodeTC, utilConcatBuf, utilConcatView } from "pvutils";
 //**************************************************************************************
 //region Declaration of global variables
 //**************************************************************************************
-const zero = new Uint8Array([0x00]);
-
 const powers2 = [new Uint8Array([1])];
 const digitsString = "0123456789";
 //**************************************************************************************
@@ -1437,7 +1436,7 @@ class LocalBooleanValueBlock extends LocalValueBlock
 			this.valueHex = new ArrayBuffer(1);
 			if(this.value === true)
 			{
-				var view = new Uint8Array(this.valueHex);
+				const view = new Uint8Array(this.valueHex);
 				view[0] = 0xFF;
 			}
 		}
@@ -2835,7 +2834,7 @@ class LocalSidValueBlock extends LocalHexBlock(LocalBaseBlock)
 					}
 				}
 
-				result = result + sidValue.toString();
+				result += sidValue.toString();
 			}
 			else
 				result = this.valueDec.toString();
@@ -3042,10 +3041,10 @@ class LocalObjectIdentifierValueBlock extends LocalValueBlock
 				if(this.value[i].isFirstSid)
 					result = `2.{${sidStr} - 80}`;
 				else
-					result = result + sidStr;
+					result += sidStr;
 			}
 			else
-				result = result + sidStr;
+				result += sidStr;
 		}
 
 		return result;
@@ -3245,7 +3244,7 @@ export class Utf8String extends BaseBlock
 		}
 		catch(ex)
 		{
-			this.warnings.push(`Error during \"decodeURIComponent\": ${ex}, using raw string`);
+			this.warnings.push(`Error during "decodeURIComponent": ${ex}, using raw string`);
 		}
 	}
 	//**********************************************************************************
@@ -3392,7 +3391,7 @@ export class BmpString extends BaseBlock
 		const copyBuffer = inputBuffer.slice(0);
 		const valueView = new Uint8Array(copyBuffer);
 
-		for(let i = 0; i < valueView.length; i = i + 2)
+		for(let i = 0; i < valueView.length; i += 2)
 		{
 			const temp = valueView[i];
 
@@ -3550,7 +3549,7 @@ export class UniversalString extends BaseBlock
 		const copyBuffer = inputBuffer.slice(0);
 		const valueView = new Uint8Array(copyBuffer);
 
-		for(let i = 0; i < valueView.length; i = i + 4)
+		for(let i = 0; i < valueView.length; i += 4)
 		{
 			valueView[i] = valueView[i + 3];
 			valueView[i + 1] = valueView[i + 2];
@@ -4848,6 +4847,7 @@ export class RawData
 	fromBER(inputBuffer, inputOffset, inputLength)
 	{
 		this.data = inputBuffer.slice(inputOffset, inputLength);
+		return (inputOffset + inputLength);
 	}
 	//**********************************************************************************
 	/**
