@@ -9,6 +9,9 @@
       "name": "Ryan Hurst"
     }
   ],
+  "engines": {
+    "node": ">=6.0.0"
+  },
   "devDependencies": {
     "babel-cli": "latest",
     "babel-preset-env": "latest",
@@ -53,9 +56,9 @@
     "ex1": "cd examples/ASN1Usage && npm run build && cd ../..",
     "build:examples": "npm run ex1",
     "build:tests": "npm run build:examples",
-    "test": "cross-env NODE_ENV=test nyc mocha --require babel-register --require babel-polyfill",
+    "test": "cross-env NODE_ENV=test nyc mocha --require babel-register",
     "prepublishOnly": "npm run build"
   },
-  "version": "2.0.20",
+  "version": "2.0.21",
   "license": "MIT"
 }
