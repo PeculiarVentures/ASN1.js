@@ -60,5 +60,5 @@
     "prepublishOnly": "npm run build"
   },
   "version": "2.0.21",
-  "license": "MIT"
+  "license": "BSD-3-Clause"
 }
