@@ -520,6 +520,7 @@ class LocalIdentificationBlock extends LocalHexBlock(LocalBaseBlock)
 				case 5:  // Null
 				case 6:  // OBJECT IDENTIFIER
 				case 9:  // REAL
+				case 13: // RELATIVE OBJECT IDENTIFIER
 				case 14: // Time
 				case 23:
 				case 24:
@@ -3269,6 +3270,389 @@ export class Utf8String extends BaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
+//region Declaration of ASN.1 RelativeObjectIdentifier type class
+//**************************************************************************************
+class LocalRelativeSidValueBlock extends LocalHexBlock(LocalBaseBlock)
+{
+	//**********************************************************************************
+	/**
+	 * Constructor for "LocalRelativeSidValueBlock" class
+	 * @param {Object} [parameters={}]
+	 * @property {number} [valueDec]
+	 */
+	constructor(parameters = {})
+	{
+		super(parameters);
+
+		this.valueDec = getParametersValue(parameters, "valueDec", -1);
+	}
+	//**********************************************************************************
+	/**
+	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * @returns {string}
+	 */
+	static blockName()
+	{
+		return "relativeSidBlock";
+	}
+	//**********************************************************************************
+	/**
+	 * Base function for converting block from BER encoded array of bytes
+	 * @param {!ArrayBuffer} inputBuffer ASN.1 BER encoded array
+	 * @param {!number} inputOffset Offset in ASN.1 BER encoded array where decoding should be started
+	 * @param {!number} inputLength Maximum length of array of bytes which can be using in this function
+	 * @returns {number} Offset after least decoded byte
+	 */
+	fromBER(inputBuffer, inputOffset, inputLength)
+	{
+		if (inputLength === 0)
+			return inputOffset;
+
+		//region Basic check for parameters
+		//noinspection JSCheckFunctionSignatures
+		if (checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
+			return (-1);
+		//endregion
+
+		const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
+
+		this.valueHex = new ArrayBuffer(inputLength);
+		let view = new Uint8Array(this.valueHex);
+
+		for (let i = 0; i < inputLength; i++)
+		{
+			view[i] = intBuffer[i] & 0x7F;
+
+			this.blockLength++;
+
+			if ((intBuffer[i] & 0x80) === 0x00)
+				break;
+		}
+
+		//region Ajust size of valueHex buffer
+		const tempValueHex = new ArrayBuffer(this.blockLength);
+		const tempView = new Uint8Array(tempValueHex);
+
+		for (let i = 0; i < this.blockLength; i++)
+			tempView[i] = view[i];
+
+		//noinspection JSCheckFunctionSignatures
+		this.valueHex = tempValueHex.slice(0);
+		view = new Uint8Array(this.valueHex);
+		//endregion
+
+		if ((intBuffer[this.blockLength - 1] & 0x80) !== 0x00)
+		{
+			this.error = "End of input reached before message was fully decoded";
+			return (-1);
+		}
+
+		if (view[0] === 0x00)
+			this.warnings.push("Needlessly long format of SID encoding");
+
+		if (this.blockLength <= 8)
+			this.valueDec = utilFromBase(view, 7);
+		else
+		{
+			this.isHexOnly = true;
+			this.warnings.push("Too big SID for decoding, hex only");
+		}
+
+		return (inputOffset + this.blockLength);
+	}
+	//**********************************************************************************
+	/**
+	 * Encoding of current ASN.1 block into ASN.1 encoded array (BER rules)
+	 * @param {boolean} [sizeOnly=false] Flag that we need only a size of encoding, not a real array of bytes
+	 * @returns {ArrayBuffer}
+	 */
+	toBER(sizeOnly = false)
+	{
+		//region Initial variables
+		let retBuf;
+		let retView;
+		//endregion
+
+		if (this.isHexOnly)
+		{
+			if (sizeOnly === true)
+				return (new ArrayBuffer(this.valueHex.byteLength));
+
+			const curView = new Uint8Array(this.valueHex);
+
+			retBuf = new ArrayBuffer(this.blockLength);
+			retView = new Uint8Array(retBuf);
+
+			for (let i = 0; i < (this.blockLength - 1); i++)
+				retView[i] = curView[i] | 0x80;
+
+			retView[this.blockLength - 1] = curView[this.blockLength - 1];
+
+			return retBuf;
+		}
+
+		const encodedBuf = utilToBase(this.valueDec, 7);
+		if (encodedBuf.byteLength === 0)
+		{
+			this.error = "Error during encoding SID value";
+			return (new ArrayBuffer(0));
+		}
+
+		retBuf = new ArrayBuffer(encodedBuf.byteLength);
+
+		if (sizeOnly === false)
+		{
+			const encodedView = new Uint8Array(encodedBuf);
+			retView = new Uint8Array(retBuf);
+
+			for (let i = 0; i < (encodedBuf.byteLength - 1); i++)
+				retView[i] = encodedView[i] | 0x80;
+
+			retView[encodedBuf.byteLength - 1] = encodedView[encodedBuf.byteLength - 1];
+		}
+
+		return retBuf;
+	}
+	//**********************************************************************************
+	/**
+	 * Create string representation of current SID block
+	 * @returns {string}
+	 */
+	toString()
+	{
+		let result = "";
+
+		if (this.isHexOnly === true)
+			result = bufferToHexCodes(this.valueHex, 0, this.valueHex.byteLength);
+		else {
+			result = this.valueDec.toString();
+		}
+
+		return result;
+	}
+	//**********************************************************************************
+	//noinspection JSUnusedGlobalSymbols
+	/**
+	 * Convertion for the block to JSON object
+	 * @returns {Object}
+	 */
+	toJSON()
+	{
+		let object = {};
+
+		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		try {
+			object = super.toJSON();
+		} catch (ex) {}
+		//endregion
+
+		object.valueDec = this.valueDec;
+
+		return object;
+	}
+	//**********************************************************************************
+}
+//**************************************************************************************
+class LocalRelativeObjectIdentifierValueBlock extends LocalValueBlock {
+	//**********************************************************************************
+	/**
+	 * Constructor for "LocalRelativeObjectIdentifierValueBlock" class
+	 * @param {Object} [parameters={}]
+	 * @property {ArrayBuffer} [valueHex]
+	 */
+	constructor(parameters = {})
+	{
+		super(parameters);
+
+		this.fromString(getParametersValue(parameters, "value", ""));
+	}
+	//**********************************************************************************
+	/**
+	 * Base function for converting block from BER encoded array of bytes
+	 * @param {!ArrayBuffer} inputBuffer ASN.1 BER encoded array
+	 * @param {!number} inputOffset Offset in ASN.1 BER encoded array where decoding should be started
+	 * @param {!number} inputLength Maximum length of array of bytes which can be using in this function
+	 * @returns {number} Offset after least decoded byte
+	 */
+	fromBER(inputBuffer, inputOffset, inputLength)
+	{
+		let resultOffset = inputOffset;
+
+		while (inputLength > 0)
+		{
+			const sidBlock = new LocalRelativeSidValueBlock();
+			resultOffset = sidBlock.fromBER(inputBuffer, resultOffset, inputLength);
+			if (resultOffset === (-1))
+			{
+				this.blockLength = 0;
+				this.error = sidBlock.error;
+				return resultOffset;
+			}
+
+			this.blockLength += sidBlock.blockLength;
+			inputLength -= sidBlock.blockLength;
+
+			this.value.push(sidBlock);
+		}
+
+		return resultOffset;
+	}
+	//**********************************************************************************
+	/**
+	 * Encoding of current ASN.1 block into ASN.1 encoded array (BER rules)
+	 * @param {boolean} [sizeOnly=false] Flag that we need only a size of encoding, not a real array of bytes
+	 * @returns {ArrayBuffer}
+	 */
+	toBER(sizeOnly = false)
+	{
+		let retBuf = new ArrayBuffer(0);
+
+		for (let i = 0; i < this.value.length; i++)
+		{
+			const valueBuf = this.value[i].toBER(sizeOnly);
+			if (valueBuf.byteLength === 0)
+			{
+				this.error = this.value[i].error;
+				return (new ArrayBuffer(0));
+			}
+
+			retBuf = utilConcatBuf(retBuf, valueBuf);
+		}
+
+		return retBuf;
+	}
+	//**********************************************************************************
+	/**
+	 * Create "LocalRelativeObjectIdentifierValueBlock" class from string
+	 * @param {string} string Input string to convert from
+	 * @returns {boolean}
+	 */
+	fromString(string)
+	{
+		this.value = []; // Clear existing SID values
+
+		let pos1 = 0;
+		let pos2 = 0;
+
+		let sid = "";
+
+		do
+		{
+			pos2 = string.indexOf(".", pos1);
+			if (pos2 === (-1))
+				sid = string.substr(pos1);
+			else
+				sid = string.substr(pos1, pos2 - pos1);
+
+			pos1 = pos2 + 1;
+
+			const sidBlock = new LocalRelativeSidValueBlock();
+			sidBlock.valueDec = parseInt(sid, 10);
+			if (isNaN(sidBlock.valueDec))
+				return true;
+
+			this.value.push(sidBlock);
+
+		} while (pos2 !== (-1));
+
+		return true;
+	}
+	//**********************************************************************************
+	/**
+	 * Converts "LocalRelativeObjectIdentifierValueBlock" class to string
+	 * @returns {string}
+	 */
+	toString()
+	{
+		let result = "";
+		let isHexOnly = false;
+
+		for (let i = 0; i < this.value.length; i++)
+		{
+			isHexOnly = this.value[i].isHexOnly;
+
+			let sidStr = this.value[i].toString();
+
+			if (i !== 0)
+				result = `${result}.`;
+
+			if (isHexOnly)
+			{
+				sidStr = `{${sidStr}}`;
+				result += sidStr;
+			} else
+				result += sidStr;
+		}
+
+		return result;
+	}
+	//**********************************************************************************
+	/**
+	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * @returns {string}
+	 */
+	static blockName()
+	{
+		return "RelativeObjectIdentifierValueBlock";
+	}
+	//**********************************************************************************
+	/**
+	 * Convertion for the block to JSON object
+	 * @returns {Object}
+	 */
+	toJSON()
+	{
+		let object = {};
+
+		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		try
+		{
+			object = super.toJSON();
+		} catch (ex) {}
+		//endregion
+
+		object.value = this.toString();
+		object.sidArray = [];
+		for (let i = 0; i < this.value.length; i++)
+			object.sidArray.push(this.value[i].toJSON());
+
+		return object;
+	}
+	//**********************************************************************************
+}
+//**************************************************************************************
+/**
+ * @extends BaseBlock
+ */
+export class RelativeObjectIdentifier extends BaseBlock
+{
+	//**********************************************************************************
+	/**
+	 * Constructor for "RelativeObjectIdentifier" class
+	 * @param {Object} [parameters={}]
+	 * @property {ArrayBuffer} [valueHex]
+	 */
+	constructor(parameters = {})
+	{
+		super(parameters, LocalRelativeObjectIdentifierValueBlock);
+
+		this.idBlock.tagClass = 1; // UNIVERSAL
+		this.idBlock.tagNumber = 13; // RELATIVE OBJECT IDENTIFIER
+	}
+	//**********************************************************************************
+	/**
+	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * @returns {string}
+	 */
+	static blockName()
+	{
+		return "RelativeObjectIdentifier";
+	}
+	//**********************************************************************************
+}
+//**************************************************************************************
+//endregion
+//**************************************************************************************
 /**
  * @extends LocalBaseBlock
  * @extends LocalHexBlock
@@ -5048,6 +5432,11 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 					break;
 				//endregion
 				//region Time type
+				//region RELATIVE OBJECT IDENTIFIER type
+				case 13:
+					newASN1Type = RelativeObjectIdentifier;
+					break;
+				//endregion
 				case 14:
 					newASN1Type = TIME;
 					break;
