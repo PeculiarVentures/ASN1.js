@@ -112,12 +112,12 @@ class LocalBaseBlock
 //**************************************************************************************
 //endregion
 //**************************************************************************************
-//region Description for "LocalHexBlock" class
+//region Description for "HexBlock" class
 //**************************************************************************************
 /**
  * Class used as a base block for all remaining ASN.1 classes
  * @extends LocalBaseBlock
- * @typedef LocalHexBlock
+ * @typedef HexBlock
  * @property {number} blockLength
  * @property {string} error
  * @property {Array.<string>} warnings
@@ -126,12 +126,12 @@ class LocalBaseBlock
  * @property {ArrayBuffer} valueHex
  */
 //noinspection JSUnusedLocalSymbols
-const LocalHexBlock = BaseClass => class LocalHexBlockMixin extends BaseClass
+export const HexBlock = BaseClass => class LocalHexBlockMixin extends BaseClass
 {
 	//**********************************************************************************
 	//noinspection JSUnusedGlobalSymbols
 	/**
-	 * Constructor for "LocalHexBlock" class
+	 * Constructor for "HexBlock" class
 	 * @param {Object} [parameters={}]
 	 * @property {ArrayBuffer} [valueHex]
 	 */
@@ -246,7 +246,7 @@ const LocalHexBlock = BaseClass => class LocalHexBlockMixin extends BaseClass
 //**************************************************************************************
 //region Declaration of identification block class
 //**************************************************************************************
-class LocalIdentificationBlock extends LocalHexBlock(LocalBaseBlock)
+class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 {
 	//**********************************************************************************
 	/**
@@ -798,11 +798,11 @@ class LocalLengthBlock extends LocalBaseBlock
 //**************************************************************************************
 //region Declaration of value block class
 //**************************************************************************************
-class LocalValueBlock extends LocalBaseBlock
+export class ValueBlock extends LocalBaseBlock
 {
 	//**********************************************************************************
 	/**
-	 * Constructor for "LocalValueBlock" class
+	 * Constructor for "ValueBlock" class
 	 * @param {Object} [parameters={}]
 	 */
 	constructor(parameters = {})
@@ -830,7 +830,7 @@ class LocalValueBlock extends LocalBaseBlock
 	fromBER(inputBuffer, inputOffset, inputLength)
 	{
 		//region Throw an exception for a function which needs to be specified in extended classes
-		throw TypeError("User need to make a specific function in a class which extends \"LocalValueBlock\"");
+		throw TypeError("User need to make a specific function in a class which extends \"ValueBlock\"");
 		//endregion
 	}
 	//**********************************************************************************
@@ -843,7 +843,7 @@ class LocalValueBlock extends LocalBaseBlock
 	toBER(sizeOnly = false)
 	{
 		//region Throw an exception for a function which needs to be specified in extended classes
-		throw TypeError("User need to make a specific function in a class which extends \"LocalValueBlock\"");
+		throw TypeError("User need to make a specific function in a class which extends \"ValueBlock\"");
 		//endregion
 	}
 	//**********************************************************************************
@@ -864,7 +864,7 @@ export class BaseBlock extends LocalBaseBlock
 	 * @property {boolean} [optional]
 	 * @param valueBlockType Type of value block
 	 */
-	constructor(parameters = {}, valueBlockType = LocalValueBlock)
+	constructor(parameters = {}, valueBlockType = ValueBlock)
 	{
 		super(parameters);
 
@@ -997,7 +997,7 @@ export class BaseBlock extends LocalBaseBlock
 //**************************************************************************************
 //region Declaration of basic block for all PRIMITIVE types
 //**************************************************************************************
-class LocalPrimitiveValueBlock extends LocalValueBlock
+class LocalPrimitiveValueBlock extends ValueBlock
 {
 	//**********************************************************************************
 	/**
@@ -1133,7 +1133,7 @@ export class Primitive extends BaseBlock
 //**************************************************************************************
 //region Declaration of basic block for all CONSTRUCTED types
 //**************************************************************************************
-class LocalConstructedValueBlock extends LocalValueBlock
+class LocalConstructedValueBlock extends ValueBlock
 {
 	//**********************************************************************************
 	/**
@@ -1340,7 +1340,7 @@ export class Constructed extends BaseBlock
 //**************************************************************************************
 //region Declaration of ASN.1 EndOfContent type class
 //**************************************************************************************
-class LocalEndOfContentValueBlock extends LocalValueBlock
+class LocalEndOfContentValueBlock extends ValueBlock
 {
 	//**********************************************************************************
 	/**
@@ -1415,7 +1415,7 @@ export class EndOfContent extends BaseBlock
 //**************************************************************************************
 //region Declaration of ASN.1 Boolean type class
 //**************************************************************************************
-class LocalBooleanValueBlock extends LocalValueBlock
+class LocalBooleanValueBlock extends ValueBlock
 {
 	//**********************************************************************************
 	/**
@@ -1694,7 +1694,7 @@ export class Null extends BaseBlock
 //**************************************************************************************
 //region Declaration of ASN.1 OctetString type class
 //**************************************************************************************
-class LocalOctetStringValueBlock extends LocalHexBlock(LocalConstructedValueBlock)
+class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 {
 	//**********************************************************************************
 	/**
@@ -1892,7 +1892,7 @@ export class OctetString extends BaseBlock
 //**************************************************************************************
 //region Declaration of ASN.1 BitString type class
 //**************************************************************************************
-class LocalBitStringValueBlock extends LocalHexBlock(LocalConstructedValueBlock)
+class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 {
 	//**********************************************************************************
 	/**
@@ -2134,9 +2134,9 @@ export class BitString extends BaseBlock
 //region Declaration of ASN.1 Integer type class
 //**************************************************************************************
 /**
- * @extends LocalValueBlock
+ * @extends ValueBlock
  */
-class LocalIntegerValueBlock extends LocalHexBlock(LocalValueBlock)
+class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 {
 	//**********************************************************************************
 	/**
@@ -2658,7 +2658,7 @@ export class Enumerated extends Integer
 //**************************************************************************************
 //region Declaration of ASN.1 ObjectIdentifier type class
 //**************************************************************************************
-class LocalSidValueBlock extends LocalHexBlock(LocalBaseBlock)
+class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 {
 	//**********************************************************************************
 	/**
@@ -2868,7 +2868,7 @@ class LocalSidValueBlock extends LocalHexBlock(LocalBaseBlock)
 	//**********************************************************************************
 }
 //**************************************************************************************
-class LocalObjectIdentifierValueBlock extends LocalValueBlock
+class LocalObjectIdentifierValueBlock extends ValueBlock
 {
 	//**********************************************************************************
 	/**
@@ -3119,7 +3119,7 @@ export class ObjectIdentifier extends BaseBlock
 //**************************************************************************************
 //region Declaration of all string's classes
 //**************************************************************************************
-class LocalUtf8StringValueBlock extends LocalHexBlock(LocalBaseBlock)
+class LocalUtf8StringValueBlock extends HexBlock(LocalBaseBlock)
 {
 	//**********************************************************************************
 	//noinspection JSUnusedGlobalSymbols
@@ -3271,9 +3271,9 @@ export class Utf8String extends BaseBlock
 //**************************************************************************************
 /**
  * @extends LocalBaseBlock
- * @extends LocalHexBlock
+ * @extends HexBlock
  */
-class LocalBmpStringValueBlock extends LocalHexBlock(LocalBaseBlock)
+class LocalBmpStringValueBlock extends HexBlock(LocalBaseBlock)
 {
 	//**********************************************************************************
 	/**
@@ -3431,7 +3431,7 @@ export class BmpString extends BaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-class LocalUniversalStringValueBlock extends LocalHexBlock(LocalBaseBlock)
+class LocalUniversalStringValueBlock extends HexBlock(LocalBaseBlock)
 {
 	//**********************************************************************************
 	/**
@@ -3589,7 +3589,7 @@ export class UniversalString extends BaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-class LocalSimpleStringValueBlock extends LocalHexBlock(LocalBaseBlock)
+class LocalSimpleStringValueBlock extends HexBlock(LocalBaseBlock)
 {
 	//**********************************************************************************
 	/**
