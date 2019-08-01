@@ -13,11 +13,13 @@
     "node": ">=6.0.0"
   },
   "devDependencies": {
-    "babel-cli": "latest",
-    "babel-preset-env": "latest",
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "babel-plugin-istanbul": "latest",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/register": "^7.0.0",
     "mocha": "latest",
     "rollup": "latest",
-    "babel-plugin-istanbul": "latest",
     "nyc": "latest",
     "cross-env": "latest",
     "rollup-plugin-node-resolve": "latest",
@@ -56,9 +58,9 @@
     "ex1": "cd examples/ASN1Usage && npm run build && cd ../..",
     "build:examples": "npm run ex1",
     "build:tests": "npm run build:examples",
-    "test": "cross-env NODE_ENV=test nyc mocha --require babel-register",
+    "test": "cross-env NODE_ENV=test nyc mocha --require @babel/register",
     "prepublishOnly": "npm run build"
   },
-  "version": "2.0.25",
+  "version": "2.0.26",
   "license": "BSD-3-Clause"
 }

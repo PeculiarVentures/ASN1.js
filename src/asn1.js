@@ -3272,7 +3272,7 @@ export class Utf8String extends BaseBlock
 //**************************************************************************************
 //region Declaration of ASN.1 RelativeObjectIdentifier type class
 //**************************************************************************************
-class LocalRelativeSidValueBlock extends LocalHexBlock(LocalBaseBlock)
+class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 {
 	//**********************************************************************************
 	/**
@@ -3453,7 +3453,7 @@ class LocalRelativeSidValueBlock extends LocalHexBlock(LocalBaseBlock)
 	//**********************************************************************************
 }
 //**************************************************************************************
-class LocalRelativeObjectIdentifierValueBlock extends LocalValueBlock {
+class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
 	//**********************************************************************************
 	/**
 	 * Constructor for "LocalRelativeObjectIdentifierValueBlock" class
