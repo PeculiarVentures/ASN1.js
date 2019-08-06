@@ -5560,8 +5560,6 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 						newObject.warnings = returnObject.warnings;
 
 						returnObject = newObject;
-
-						resultOffset = returnObject.fromBER(inputBuffer, inputOffset, inputLength);
 					}
 				//endregion
 			}
