@@ -5301,7 +5301,7 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 	//region Initial checks
 	if(intBuffer.length === 0)
 	{
-		this.error = "Zero buffer length";
+		returnObject.error = "Zero buffer length";
 		return {
 			offset: (-1),
 			result: returnObject
@@ -5560,8 +5560,6 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 						newObject.warnings = returnObject.warnings;
 
 						returnObject = newObject;
-
-						resultOffset = returnObject.fromBER(inputBuffer, inputOffset, inputLength);
 					}
 				//endregion
 			}
