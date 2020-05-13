@@ -4915,7 +4915,7 @@ export class GeneralizedTime extends VisibleString
 		//region Get final date
 		if(isUTC === false)
 		{
-			const tempDate = new Date(this.year, this.month, this.day, this.hour, this.minute, this.second, this.millisecond);
+			const tempDate = new Date(this.year, this.month - 1, this.day, this.hour, this.minute, this.second, this.millisecond);
 
 			this.year = tempDate.getUTCFullYear();
 			this.month = tempDate.getUTCMonth();
