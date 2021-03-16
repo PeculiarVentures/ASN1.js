@@ -49,9 +49,16 @@
     "universalstring",
     "generalizedtime"
   ],
-  "jsnext:main": "./src/asn1.js",
   "main": "./build/asn1.js",
+  "jsnext:main": "./src/asn1.js",
+  "module": "./src/asn1.js",
   "name": "asn1js",
+  "files": [
+    "build",
+    "src",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "build": "babel src --compact=false --out-dir build --source-maps",
     "watch": "babel src --compact=false --out-dir build --source-maps --watch",
