@@ -23,7 +23,6 @@ context("ASN.1:2008 TestSuite Tests", () =>
 	it("Test Case #1", () =>
 	{
 		const asn1 = asn1js.fromBER(getCorrectBuffer(fs.readFileSync(path.join(testDir, "tc1.ber"))));
-
 		assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
 		assert.equal(asn1.result.idBlock.tagNumber, -1, "Tag number must be set to default value (-1)");
 		assert.equal(asn1.result.idBlock.valueHex.byteLength, 10, "Hexadecimal representation of ID block must has 10 in length");
@@ -70,7 +69,7 @@ context("ASN.1:2008 TestSuite Tests", () =>
 		assert.equal(asn1.result.lenBlock.length, 1, "Length must be equal to 1");
 		assert.equal(asn1.result.lenBlock.longFormUsed, true, "Long form of length encoding must be detected");
 		assert.equal(asn1.result.lenBlock.warnings.length, 1, "Should just one warning in length block");
-		assert.equal(asn1.result.lenBlock.warnings[0], "Unneccesary usage of long length form", "Text of the warning in length block does not match");
+		assert.equal(asn1.result.lenBlock.warnings[0], "Unnecessary usage of long length form", "Text of the warning in length block does not match");
 	});
 	
 	it("Test Case #6", () =>
@@ -348,9 +347,9 @@ context("ASN.1:2008 TestSuite Tests", () =>
 		
 		assert.equal(asn1.offset, -1, "Initial ASN.1 should be parsed with error");
 		assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
-		assert.equal(asn1.result.error, "Usign of \"unused bits\" inside constructive BIT STRING allowed for least one only", "Error message does not match");
+		assert.equal(asn1.result.error, "Using of \"unused bits\" inside constructive BIT STRING allowed for least one only", "Error message does not match");
 		assert.equal("error" in asn1.result.valueBlock, true, "Error information must exists inside ASN.1 value block");
-		assert.equal(asn1.result.valueBlock.error, "Usign of \"unused bits\" inside constructive BIT STRING allowed for least one only", "Error message inside value block does not match");
+		assert.equal(asn1.result.valueBlock.error, "Using of \"unused bits\" inside constructive BIT STRING allowed for least one only", "Error message inside value block does not match");
 	});
 	
 	it("Test Case #37", () =>

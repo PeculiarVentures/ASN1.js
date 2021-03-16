@@ -695,7 +695,7 @@ class LocalLengthBlock extends LocalBaseBlock
 		this.length = utilFromBase(lengthBufferView, 8);
 
 		if(this.longFormUsed && (this.length <= 127))
-			this.warnings.push("Unneccesary usage of long length form");
+			this.warnings.push("Unnecessary usage of long length form");
 
 		this.blockLength = count + 1;
 		//endregion
@@ -990,6 +990,10 @@ export class BaseBlock extends LocalBaseBlock
 			object.primitiveSchema = this.primitiveSchema.toJSON();
 
 		return object;
+	}
+	//**********************************************************************************
+	toString() {
+		return `${this.constructor.blockName()} : ${bufferToHexCodes(this.valueBlock.valueHex)}`;
 	}
 	//**********************************************************************************
 }
@@ -1335,6 +1339,19 @@ export class Constructed extends BaseBlock
 		return resultOffset;
 	}
 	//**********************************************************************************
+	toString() {
+		const values = [];
+		for (const value of this.valueBlock.value) {
+			values.push(value.toString().split("\n").map(o => `  ${o}`).join("\n"));
+		}
+		const blockName = this.idBlock.tagClass === 3
+			? `[${this.idBlock.tagNumber}]`
+			: this.constructor.blockName();
+		return values.length 
+			? `${blockName} :\n${values.join("\n")}` // items
+			: `${blockName} :`; // empty
+	}
+	//**********************************************************************************
 }
 //**************************************************************************************
 //endregion
@@ -1551,7 +1568,11 @@ export class Boolean extends BaseBlock
 	 */
 	static blockName()
 	{
-		return "Boolean";
+		return "BOOLEAN";
+	}
+	//**********************************************************************************
+	toString() {
+		return `${this.constructor.blockName()} : ${this.valueBlock.value}`;
 	}
 	//**********************************************************************************
 }
@@ -1581,7 +1602,7 @@ export class Sequence extends Constructed
 	 */
 	static blockName()
 	{
-		return "Sequence";
+		return "SEQUENCE";
 	}
 	//**********************************************************************************
 }
@@ -1607,7 +1628,7 @@ export class Set extends Constructed
 	 */
 	static blockName()
 	{
-		return "Set";
+		return "SET";
 	}
 	//**********************************************************************************
 }
@@ -1637,7 +1658,7 @@ export class Null extends BaseBlock
 	 */
 	static blockName()
 	{
-		return "Null";
+		return "NULL";
 	}
 	//**********************************************************************************
 	//noinspection JSUnusedLocalSymbols
@@ -1687,6 +1708,10 @@ export class Null extends BaseBlock
 		retView[1] = 0x00;
 
 		return retBuf;
+	}
+	//**********************************************************************************
+	toString() {
+		return `${this.constructor.blockName()}`;
 	}
 	//**********************************************************************************
 }
@@ -1855,6 +1880,14 @@ export class OctetString extends BaseBlock
 		}
 		//endregion
 
+		if (!this.valueBlock.isConstructed) {
+			const buf = inputBuffer.slice(inputOffset, inputOffset + inputLength);
+			const asn = fromBER(buf);
+			if (asn.offset !== -1 && asn.offset === inputLength) {
+				this.valueBlock.value = [asn.result];
+			}
+		}
+
 		return super.fromBER(inputBuffer, inputOffset, inputLength);
 	}
 	//**********************************************************************************
@@ -1864,7 +1897,7 @@ export class OctetString extends BaseBlock
 	 */
 	static blockName()
 	{
-		return "OctetString";
+		return "OCTET STRING";
 	}
 	//**********************************************************************************
 	//noinspection JSUnusedGlobalSymbols
@@ -1885,6 +1918,14 @@ export class OctetString extends BaseBlock
 		//endregion
 
 		return true;
+	}
+	//**********************************************************************************
+	toString() {
+		if (this.valueBlock.isConstructed || (this.valueBlock.value && this.valueBlock.value.length)) {
+			return Constructed.prototype.toString.call(this);
+		} else {
+			return `${this.constructor.blockName()} : ${bufferToHexCodes(this.valueBlock.valueHex)}`;
+		}
 	}
 	//**********************************************************************************
 }
@@ -1956,7 +1997,7 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 
 				if((this.unusedBits > 0) && (this.value[i].valueBlock.unusedBits > 0))
 				{
-					this.error = "Usign of \"unused bits\" inside constructive BIT STRING allowed for least one only";
+					this.error = "Using of \"unused bits\" inside constructive BIT STRING allowed for least one only";
 					return (-1);
 				}
 
@@ -1986,6 +2027,14 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 		{
 			this.error = "Unused bits for BitString must be in range 0-7";
 			return (-1);
+		}
+
+		if (!this.unusedBits) {
+			const buf = inputBuffer.slice(inputOffset + 1, inputOffset + inputLength);
+			const asn = fromBER(buf);
+			if (asn.offset !== -1 && asn.offset === (inputLength - 1)) {
+				this.value = [asn.result];
+			}
 		}
 
 		//region Copy input buffer to internal buffer
@@ -2086,7 +2135,7 @@ export class BitString extends BaseBlock
 	 */
 	static blockName()
 	{
-		return "BitString";
+		return "BIT STRING";
 	}
 	//**********************************************************************************
 	/**
@@ -2126,6 +2175,20 @@ export class BitString extends BaseBlock
 		//endregion
 
 		return true;
+	}
+	//**********************************************************************************
+	toString() {
+		if (this.valueBlock.isConstructed || (this.valueBlock.value && this.valueBlock.value.length)) {
+			return Constructed.prototype.toString.call(this);
+		} else {
+			// convert bytes to bits
+			const bits = [];
+			const valueHex = new Uint8Array(this.valueBlock.valueHex);
+			for (const byte of valueHex) {
+				bits.push(byte.toString(2).padStart(8, "0"));
+			}
+			return `${this.constructor.blockName()} : ${bits.join("")}`;
+		}
 	}
 	//**********************************************************************************
 }
@@ -2570,7 +2633,7 @@ export class Integer extends BaseBlock
 	 */
 	static blockName()
 	{
-		return "Integer";
+		return "INTEGER";
 	}
 	//**********************************************************************************
 	//noinspection JSUnusedGlobalSymbols
@@ -2623,6 +2686,11 @@ export class Integer extends BaseBlock
 		return integer;
 	}
 	//**********************************************************************************
+	toString() {
+		const hex = bufferToHexCodes(this.valueBlock.valueHex);
+		const bigInt = BigInt(`0x${hex}`);
+		return `${this.constructor.blockName()} : ${bigInt.toString()}`;
+	}
 }
 //**************************************************************************************
 //endregion
@@ -2650,7 +2718,7 @@ export class Enumerated extends Integer
 	 */
 	static blockName()
 	{
-		return "Enumerated";
+		return "ENUMERATED";
 	}
 	//**********************************************************************************
 }
@@ -3111,7 +3179,11 @@ export class ObjectIdentifier extends BaseBlock
 	 */
 	static blockName()
 	{
-		return "ObjectIdentifier";
+		return "OBJECT IDENTIFIER";
+	}
+	//**********************************************************************************
+	toString() {
+		return `${this.constructor.blockName()} : ${this.valueBlock.toString()}`;
 	}
 	//**********************************************************************************
 }
@@ -3197,7 +3269,7 @@ export class Utf8String extends BaseBlock
 	 */
 	static blockName()
 	{
-		return "Utf8String";
+		return "UTF8String";
 	}
 	//**********************************************************************************
 	/**
@@ -3266,6 +3338,10 @@ export class Utf8String extends BaseBlock
 			view[i] = str.charCodeAt(i);
 
 		this.valueBlock.value = inputString;
+	}
+	//**********************************************************************************
+	toString() {
+		return `${this.constructor.blockName()} : ${this.valueBlock.value}`;
 	}
 	//**********************************************************************************
 }
@@ -3732,7 +3808,7 @@ export class BmpString extends BaseBlock
 	 */
 	static blockName()
 	{
-		return "BmpString";
+		return "BMPString";
 	}
 	//**********************************************************************************
 	/**
@@ -3811,6 +3887,10 @@ export class BmpString extends BaseBlock
 		}
 
 		this.valueBlock.value = inputString;
+	}
+	//**********************************************************************************
+	toString() {
+		return `${this.constructor.blockName()} : ${this.valueBlock.value}`;
 	}
 	//**********************************************************************************
 }
@@ -3971,6 +4051,10 @@ export class UniversalString extends BaseBlock
 		this.valueBlock.value = inputString;
 	}
 	//**********************************************************************************
+	toString() {
+		return `${this.constructor.blockName()} : ${this.valueBlock.value}`;
+	}
+	//**********************************************************************************
 }
 //**************************************************************************************
 class LocalSimpleStringValueBlock extends HexBlock(LocalBaseBlock)
@@ -4102,6 +4186,10 @@ class LocalSimpleStringBlock extends BaseBlock
 			view[i] = inputString.charCodeAt(i);
 
 		this.valueBlock.value = inputString;
+	}
+	//**********************************************************************************
+	toString() {
+		return `${this.constructor.blockName()} : ${this.valueBlock.value}`;
 	}
 	//**********************************************************************************
 }
