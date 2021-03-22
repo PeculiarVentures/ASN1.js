@@ -1882,9 +1882,13 @@ export class OctetString extends BaseBlock
 
 		if (!this.valueBlock.isConstructed) {
 			const buf = inputBuffer.slice(inputOffset, inputOffset + inputLength);
-			const asn = fromBER(buf);
-			if (asn.offset !== -1 && asn.offset === inputLength) {
-				this.valueBlock.value = [asn.result];
+			try {
+				const asn = fromBER(buf);
+				if (asn.offset !== -1 && asn.offset === inputLength) {
+					this.valueBlock.value = [asn.result];
+				}
+			} catch (e) {
+				// nothing
 			}
 		}
 
@@ -2031,9 +2035,13 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 
 		if (!this.unusedBits) {
 			const buf = inputBuffer.slice(inputOffset + 1, inputOffset + inputLength);
-			const asn = fromBER(buf);
-			if (asn.offset !== -1 && asn.offset === (inputLength - 1)) {
-				this.value = [asn.result];
+			try {
+				const asn = fromBER(buf);
+				if (asn.offset !== -1 && asn.offset === (inputLength - 1)) {
+					this.value = [asn.result];
+				}
+			} catch(e) {
+				// nothing
 			}
 		}
 
