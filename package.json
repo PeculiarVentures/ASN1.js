@@ -68,6 +68,6 @@
     "test": "cross-env NODE_ENV=test nyc mocha --require @babel/register",
     "prepublishOnly": "npm run build"
   },
-  "version": "2.1.0",
+  "version": "2.1.1",
   "license": "BSD-3-Clause"
 }
