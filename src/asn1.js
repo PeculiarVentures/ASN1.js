@@ -2825,7 +2825,22 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 
 		return (inputOffset + this.blockLength);
 	}
-	//**********************************************************************************
+//**********************************************************************************
+	/**
+   * Save a BigInt value immediately as an array of octects.
+   */
+ set valueBigInt(value) {
+	let bits = BigInt(value).toString(2);
+	while (bits.length % 7) {
+		bits = '0' + bits
+	}
+	const bytes = new Uint8Array(bits.length / 7)
+	for (let i = 0; i < bytes.length; i++) {
+		bytes[i] = parseInt(bits.slice(i*7, i*7 + 7), 2) + (i + 1 < bytes.length ? 0x80 : 0)
+	}
+	this.fromBER(bytes.buffer, 0, bytes.length)
+}
+//**********************************************************************************
 	/**
 	 * Encoding of current ASN.1 block into ASN.1 encoded array (BER rules)
 	 * @param {boolean} [sizeOnly=false] Flag that we need only a size of encoding, not a real array of bytes
@@ -3076,9 +3091,13 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 			else
 			{
 				const sidBlock = new LocalSidValueBlock();
-				sidBlock.valueDec = parseInt(sid, 10);
-				if(isNaN(sidBlock.valueDec))
-					return true;
+        let sidValue = BigInt(sid)
+        if (sidValue > Number.MAX_SAFE_INTEGER) {
+          sidBlock.valueBigInt = sidValue
+        } else {
+          sidBlock.valueDec = parseInt(sid, 10);
+          if (isNaN(sidBlock.valueDec)) return true;  
+        }
 
 				if(this.value.length === 0)
 				{
