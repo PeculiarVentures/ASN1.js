@@ -2705,6 +2705,7 @@ export class Integer extends BaseBlock
 	}
 	//**********************************************************************************
 	toString() {
+		assertBigInt();
 		const hex = bufferToHexCodes(this.valueBlock.valueHex);
 		const bigInt = BigInt(`0x${hex}`);
 		return `${this.constructor.blockName()} : ${bigInt.toString()}`;
@@ -3104,7 +3105,8 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 			else
 			{
 				const sidBlock = new LocalSidValueBlock();
-        let sidValue = BigInt(sid)
+				assertBigInt();
+				const sidValue = BigInt(sid);
         if (sidValue > Number.MAX_SAFE_INTEGER) {
           sidBlock.valueBigInt = sidValue
         } else {
