@@ -34,6 +34,16 @@
 //**************************************************************************************
 import { getParametersValue, padNumber, isEqualBuffer, bufferToHexCodes, checkBufferParams, utilToBase, utilFromBase, utilEncodeTC, utilDecodeTC, utilConcatBuf, utilConcatView } from "pvutils";
 //**************************************************************************************
+//region Other utility functions
+//**************************************************************************************
+function assertBigInt() {
+  if (typeof BigInt === "undefined") {
+    throw new Error("BigInt is not defined. Your environment doesn't implement BigInt.")
+  }
+}
+//**************************************************************************************
+//endregion
+//**************************************************************************************
 //region Declaration of global variables
 //**************************************************************************************
 const powers2 = [new Uint8Array([1])];
@@ -2827,9 +2837,12 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 	}
 //**********************************************************************************
 	/**
-   * Save a BigInt value immediately as an array of octects.
-   */
+	 * Save a BigInt value immediately as an array of octects.
+	 */
  set valueBigInt(value) {
+
+	assertBigInt();
+
 	let bits = BigInt(value).toString(2);
 	while (bits.length % 7) {
 		bits = '0' + bits
