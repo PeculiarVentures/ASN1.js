@@ -3105,9 +3105,9 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 			else
 			{
 				const sidBlock = new LocalSidValueBlock();
-				assertBigInt();
-				const sidValue = BigInt(sid);
-        if (sidValue > Number.MAX_SAFE_INTEGER) {
+        if (sid > Number.MAX_SAFE_INTEGER) {
+					assertBigInt();
+					const sidValue = BigInt(sid);
           sidBlock.valueBigInt = sidValue
         } else {
           sidBlock.valueDec = parseInt(sid, 10);
