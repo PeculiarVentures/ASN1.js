@@ -52,6 +52,7 @@
   "main": "./build/asn1.js",
   "jsnext:main": "./src/asn1.js",
   "module": "./src/asn1.js",
+  "types": "index.d.ts",
   "name": "asn1js",
   "files": [
     "build",
