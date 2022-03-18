@@ -58,7 +58,8 @@
     "build",
     "src",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "index.d.ts"
   ],
   "scripts": {
     "build": "babel src --compact=false --out-dir build --source-maps",
