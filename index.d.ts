@@ -30,7 +30,7 @@ declare class LocalBaseBlock {
 
   constructor(params?: LocalBaseBlockParams);
   /**
-   * Aux function, need to get a block name. Need to have it here for inhiritence
+   * Aux function, need to get a block name. Need to have it here for inheritance
    *
    * @static
    * @returns
@@ -39,7 +39,7 @@ declare class LocalBaseBlock {
    */
   static blockName(): string;
   /**
-   * Convertion for the block to JSON object
+   * Conversion for the block to JSON object
    *
    * @returns
    *
@@ -77,7 +77,7 @@ interface ILocalHexBlock {
    */
   toBER(sizeOnly?: boolean): ArrayBuffer;
   /**
-   * Convertion for the block to JSON object
+   * Conversion for the block to JSON object
    * @returns
    */
   toJSON(): any;
@@ -88,7 +88,7 @@ declare class LocalHexBlock implements ILocalHexBlock {
   valueHex: ArrayBuffer;
   constructor(params: any);
   /**
-   * Aux function, need to get a block name. Need to have it here for inhiritence
+   * Aux function, need to get a block name. Need to have it here for inheritance
    *
    * @static
    * @returns
@@ -117,7 +117,7 @@ declare class LocalHexBlock implements ILocalHexBlock {
    */
   toBER(sizeOnly?: boolean): ArrayBuffer;
   /**
-   * Convertion for the block to JSON object
+   * Conversion for the block to JSON object
    * @returns
    */
   toJSON(): any;
@@ -293,7 +293,7 @@ interface OctetStringParams extends LocalOctetStringValueBlockParams {
 declare class OctetString extends BaseBlock<LocalOctetStringValueBlock> {
   constructor(params?: OctetStringParams);
   /**
-   * Checking that two OCTETSTRINGs are equal
+   * Checking that two OCTET STRINGs are equal
    * @param octetString
    */
   isEqual(octetString: OctetString): boolean;
@@ -322,7 +322,7 @@ interface BitStringParams extends LocalBitStringValueBlockParams {
 declare class BitString extends BaseBlock<LocalBitStringValueBlock> {
   constructor(params?: BitStringParams);
   /**
-   * Checking that two BITSTRINGs are equal
+   * Checking that two BIT STRINGs are equal
    * @param bitString
    */
   isEqual(bitString: BitString): boolean;
@@ -697,7 +697,7 @@ declare class RawData {
 }
 
 /**
-* Major function for decoding ASN.1 BER array into internal library structuries
+* Major function for decoding ASN.1 BER array into internal library structures
 *
 * @param inputBuffer ASN.1 BER encoded array of bytes
 * @returns
@@ -708,7 +708,7 @@ declare function fromBER(inputBuffer: ArrayBuffer): { offset: number; result: an
 * Converting from JSON to ASN.1 objects
 * @param json JSON string or object to convert to ASN.1 objects
 */
-declare function fromJSON(json: string | object);
+declare function fromJSON(json: string | object): any;
 
 /**
 * Compare of two ASN.1 object trees
