@@ -3067,9 +3067,9 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 		{
 			pos2 = string.indexOf(".", pos1);
 			if(pos2 === (-1))
-				sid = string.substr(pos1);
+				sid = string.slice(pos1);
 			else
-				sid = string.substr(pos1, pos2 - pos1);
+				sid = string.slice(pos1, pos2);
 
 			pos1 = pos2 + 1;
 
@@ -3658,9 +3658,9 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
 		{
 			pos2 = string.indexOf(".", pos1);
 			if (pos2 === (-1))
-				sid = string.substr(pos1);
+				sid = string.slice(pos1);
 			else
-				sid = string.substr(pos1, pos2 - pos1);
+				sid = string.slice(pos1, pos2);
 
 			pos1 = pos2 + 1;
 
@@ -4866,7 +4866,7 @@ export class GeneralizedTime extends VisibleString
 		//region Convert as UTC time
 		if(inputString[inputString.length - 1] === "Z")
 		{
-			timeString = inputString.substr(0, inputString.length - 1);
+			timeString = inputString.slice(0, -1);
 
 			isUTC = true;
 		}
@@ -4909,14 +4909,14 @@ export class GeneralizedTime extends VisibleString
 
 			if(differencePosition !== (-1))
 			{
-				differenceString = timeString.substr(differencePosition + 1);
-				timeString = timeString.substr(0, differencePosition);
+				differenceString = timeString.slice(differencePosition + 1);
+				timeString = timeString.slice(0, differencePosition);
 
 				if((differenceString.length !== 2) && (differenceString.length !== 4))
 					throw new Error("Wrong input string for convertion");
 
 				//noinspection JSPrimitiveTypeWrapperUsage
-				let number = new Number(differenceString.substr(0, 2));
+				let number = new Number(differenceString.slice(0, 2));
 
 				if(isNaN(number.valueOf()))
 					throw new Error("Wrong input string for convertion");
@@ -4926,7 +4926,7 @@ export class GeneralizedTime extends VisibleString
 				if(differenceString.length === 4)
 				{
 					//noinspection JSPrimitiveTypeWrapperUsage
-					number = new Number(differenceString.substr(2, 2));
+					number = new Number(differenceString.slice(2, 4));
 
 					if(isNaN(number.valueOf()))
 						throw new Error("Wrong input string for convertion");
@@ -4947,14 +4947,14 @@ export class GeneralizedTime extends VisibleString
 		if(fractionPointPosition !== (-1))
 		{
 			//noinspection JSPrimitiveTypeWrapperUsage
-			const fractionPartCheck = new Number(`0${timeString.substr(fractionPointPosition)}`);
+			const fractionPartCheck = new Number(`0${timeString.slice(fractionPointPosition)}`);
 
 			if(isNaN(fractionPartCheck.valueOf()))
 				throw new Error("Wrong input string for convertion");
 
 			fractionPart = fractionPartCheck.valueOf();
 
-			dateTimeString = timeString.substr(0, fractionPointPosition);
+			dateTimeString = timeString.slice(0, fractionPointPosition);
 		}
 		else
 			dateTimeString = timeString;
