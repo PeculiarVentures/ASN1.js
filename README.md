@@ -38,6 +38,31 @@ ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
 * All types can be initialized in static or dynamic ways.
 * [ASN1js][] fully tested against [ASN.1:2008 TestSuite][].
 
+## Installation
+
+### Node
+
+`npm install --save asn1js`
+
+```javascript
+// ESM
+import { fromBER, /* ... */ } from "asn1js";
+
+// CommonJS
+const asn1js = require("asn1js");
+```
+
+### Browser
+
+Import one of the following files using cdn or manual inclusion
+
+* `src/asn1.js`: ESM with remote dependency of pvutils
+* `build/asn1.bundle.mjs`: ESM with bundled pvutils
+
+### Deno
+
+Import `build/asn1.bundle.mjs` using you favorite method
+
 ## Examples
 
 ```javascript

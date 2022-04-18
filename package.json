@@ -15,15 +15,16 @@
   "devDependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
-    "babel-plugin-istanbul": "latest",
     "@babel/preset-env": "^7.0.0",
     "@babel/register": "^7.0.0",
-    "mocha": "latest",
-    "rollup": "latest",
-    "nyc": "latest",
+    "@rollup/plugin-node-resolve": "^13.2.1",
+    "asn1-test-suite": "latest",
+    "babel-plugin-istanbul": "latest",
     "cross-env": "latest",
-    "rollup-plugin-node-resolve": "latest",
-    "asn1-test-suite": "latest"
+    "mocha": "latest",
+    "nyc": "latest",
+    "rollup": "latest",
+    "rollup-plugin-node-resolve": "latest"
   },
   "repository": {
     "type": "git",
@@ -62,7 +63,7 @@
     "index.d.ts"
   ],
   "scripts": {
-    "build": "babel src --compact=false --out-dir build --source-maps",
+    "build": "babel src --compact=false --out-dir build --source-maps && rollup -c ./rollup.config.js",
     "watch": "babel src --compact=false --out-dir build --source-maps --watch",
     "ex1": "cd examples/ASN1Usage && npm run build && cd ../..",
     "build:examples": "npm run ex1",
