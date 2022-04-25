@@ -38,7 +38,7 @@ import { getParametersValue, padNumber, isEqualBuffer, bufferToHexCodes, checkBu
 //**************************************************************************************
 function assertBigInt() {
   if (typeof BigInt === "undefined") {
-    throw new Error("BigInt is not defined. Your environment doesn't implement BigInt.")
+    throw new Error("BigInt is not defined. Your environment doesn't implement BigInt.");
   }
 }
 //**************************************************************************************
@@ -95,7 +95,7 @@ class LocalBaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -104,7 +104,7 @@ class LocalBaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {{blockName: string, blockLength: number, error: string, warnings: Array.<string>, valueBeforeDecode: string}}
 	 */
 	toJSON()
@@ -163,7 +163,7 @@ export const HexBlock = BaseClass => class LocalHexBlockMixin extends BaseClass
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -228,7 +228,7 @@ export const HexBlock = BaseClass => class LocalHexBlockMixin extends BaseClass
 	}
 	//**********************************************************************************
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {Object}
 	 */
 	toJSON()
@@ -288,7 +288,7 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -549,7 +549,7 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {{blockName: string,
 	 *  tagClass: number,
 	 *  tagNumber: number,
@@ -613,7 +613,7 @@ class LocalLengthBlock extends LocalBaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -780,7 +780,7 @@ class LocalLengthBlock extends LocalBaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {{blockName, blockLength, error, warnings, valueBeforeDecode}|{blockName: string, blockLength: number, error: string, warnings: Array.<string>, valueBeforeDecode: string}}
 	 */
 	toJSON()
@@ -822,7 +822,7 @@ export class ValueBlock extends LocalBaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -892,7 +892,7 @@ export class BaseBlock extends LocalBaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -973,7 +973,7 @@ export class BaseBlock extends LocalBaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {{blockName, blockLength, error, warnings, valueBeforeDecode}|{blockName: string, blockLength: number, error: string, warnings: Array.<string>, valueBeforeDecode: string}}
 	 */
 	toJSON()
@@ -1086,7 +1086,7 @@ class LocalPrimitiveValueBlock extends ValueBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -1095,7 +1095,7 @@ class LocalPrimitiveValueBlock extends ValueBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {{blockName, blockLength, error, warnings, valueBeforeDecode}|{blockName: string, blockLength: number, error: string, warnings: Array.<string>, valueBeforeDecode: string}}
 	 */
 	toJSON()
@@ -1134,7 +1134,7 @@ export class Primitive extends BaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -1250,7 +1250,7 @@ class LocalConstructedValueBlock extends ValueBlock
 	 */
 	toBER(sizeOnly = false)
 	{
-		const retBufs = []
+		const retBufs = [];
 
 		for(let i = 0; i < this.value.length; i++)
 		{
@@ -1262,7 +1262,7 @@ class LocalConstructedValueBlock extends ValueBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -1271,7 +1271,7 @@ class LocalConstructedValueBlock extends ValueBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {{blockName, blockLength, error, warnings, valueBeforeDecode}|{blockName: string, blockLength: number, error: string, warnings: Array.<string>, valueBeforeDecode: string}}
 	 */
 	toJSON()
@@ -1311,7 +1311,7 @@ export class Constructed extends BaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -1407,7 +1407,7 @@ class LocalEndOfContentValueBlock extends ValueBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -1420,16 +1420,16 @@ class LocalEndOfContentValueBlock extends ValueBlock
 export class EndOfContent extends BaseBlock
 {
 	//**********************************************************************************
-	constructor(paramaters = {})
+	constructor(parameters = {})
 	{
-		super(paramaters, LocalEndOfContentValueBlock);
+		super(parameters, LocalEndOfContentValueBlock);
 
 		this.idBlock.tagClass = 1; // UNIVERSAL
 		this.idBlock.tagNumber = 0; // EndOfContent
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -1524,7 +1524,7 @@ class LocalBooleanValueBlock extends ValueBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -1533,7 +1533,7 @@ class LocalBooleanValueBlock extends ValueBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {{blockName, blockLength, error, warnings, valueBeforeDecode}|{blockName: string, blockLength: number, error: string, warnings: Array.<string>, valueBeforeDecode: string}}
 	 */
 	toJSON()
@@ -1573,7 +1573,7 @@ export class Boolean extends BaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -1607,7 +1607,7 @@ export class Sequence extends Constructed
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -1633,7 +1633,7 @@ export class Set extends Constructed
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -1663,7 +1663,7 @@ export class Null extends BaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -1821,7 +1821,7 @@ class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -1906,7 +1906,7 @@ export class OctetString extends BaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -2098,7 +2098,7 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -2107,7 +2107,7 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {{blockName, blockLength, error, warnings, valueBeforeDecode}|{blockName: string, blockLength: number, error: string, warnings: Array.<string>, valueBeforeDecode: string}}
 	 */
 	toJSON()
@@ -2148,7 +2148,7 @@ export class BitString extends BaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -2402,7 +2402,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -2412,7 +2412,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 	//**********************************************************************************
 	//noinspection JSUnusedGlobalSymbols
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {Object}
 	 */
 	toJSON()
@@ -2646,7 +2646,7 @@ export class Integer extends BaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -2732,7 +2732,7 @@ export class Enumerated extends Integer
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -2764,7 +2764,7 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -2805,7 +2805,7 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 				break;
 		}
 
-		//region Ajust size of valueHex buffer
+		//region Adjust size of valueHex buffer
 		const tempValueHex = new ArrayBuffer(this.blockLength);
 		const tempView = new Uint8Array(tempValueHex);
 
@@ -2846,13 +2846,13 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 
 	let bits = BigInt(value).toString(2);
 	while (bits.length % 7) {
-		bits = '0' + bits
+		bits = "0" + bits;
 	}
-	const bytes = new Uint8Array(bits.length / 7)
+	const bytes = new Uint8Array(bits.length / 7);
 	for (let i = 0; i < bytes.length; i++) {
-		bytes[i] = parseInt(bits.slice(i*7, i*7 + 7), 2) + (i + 1 < bytes.length ? 0x80 : 0)
+		bytes[i] = parseInt(bits.slice(i*7, i*7 + 7), 2) + (i + 1 < bytes.length ? 0x80 : 0);
 	}
-	this.fromBER(bytes.buffer, 0, bytes.length)
+	this.fromBER(bytes.buffer, 0, bytes.length);
 }
 //**********************************************************************************
 	/**
@@ -2951,7 +2951,7 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 	//**********************************************************************************
 	//noinspection JSUnusedGlobalSymbols
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {Object}
 	 */
 	toJSON()
@@ -3108,7 +3108,7 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
         if (sid > Number.MAX_SAFE_INTEGER) {
 					assertBigInt();
 					const sidValue = BigInt(sid);
-          sidBlock.valueBigInt = sidValue
+          sidBlock.valueBigInt = sidValue;
         } else {
           sidBlock.valueDec = parseInt(sid, 10);
           if (isNaN(sidBlock.valueDec)) return true;  
@@ -3162,7 +3162,7 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -3171,7 +3171,7 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {Object}
 	 */
 	toJSON()
@@ -3216,7 +3216,7 @@ export class ObjectIdentifier extends BaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -3251,7 +3251,7 @@ class LocalUtf8StringValueBlock extends HexBlock(LocalBaseBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -3261,7 +3261,7 @@ class LocalUtf8StringValueBlock extends HexBlock(LocalBaseBlock)
 	//**********************************************************************************
 	//noinspection JSUnusedGlobalSymbols
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {Object}
 	 */
 	toJSON()
@@ -3306,7 +3306,7 @@ export class Utf8String extends BaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -3406,7 +3406,7 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -3447,7 +3447,7 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 				break;
 		}
 
-		//region Ajust size of valueHex buffer
+		//region Adjust size of valueHex buffer
 		const tempValueHex = new ArrayBuffer(this.blockLength);
 		const tempView = new Uint8Array(tempValueHex);
 
@@ -3551,7 +3551,7 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 	//**********************************************************************************
 	//noinspection JSUnusedGlobalSymbols
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {Object}
 	 */
 	toJSON()
@@ -3706,7 +3706,7 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -3715,7 +3715,7 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
 	}
 	//**********************************************************************************
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {Object}
 	 */
 	toJSON()
@@ -3759,7 +3759,7 @@ export class RelativeObjectIdentifier extends BaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -3791,7 +3791,7 @@ class LocalBmpStringValueBlock extends HexBlock(LocalBaseBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -3801,7 +3801,7 @@ class LocalBmpStringValueBlock extends HexBlock(LocalBaseBlock)
 	//**********************************************************************************
 	//noinspection JSUnusedGlobalSymbols
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {Object}
 	 */
 	toJSON()
@@ -3845,7 +3845,7 @@ export class BmpString extends BaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -3953,7 +3953,7 @@ class LocalUniversalStringValueBlock extends HexBlock(LocalBaseBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -3963,7 +3963,7 @@ class LocalUniversalStringValueBlock extends HexBlock(LocalBaseBlock)
 	//**********************************************************************************
 	//noinspection JSUnusedGlobalSymbols
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {Object}
 	 */
 	toJSON()
@@ -4007,7 +4007,7 @@ export class UniversalString extends BaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -4115,7 +4115,7 @@ class LocalSimpleStringValueBlock extends HexBlock(LocalBaseBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -4125,7 +4125,7 @@ class LocalSimpleStringValueBlock extends HexBlock(LocalBaseBlock)
 	//**********************************************************************************
 	//noinspection JSUnusedGlobalSymbols
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {Object}
 	 */
 	toJSON()
@@ -4166,7 +4166,7 @@ class LocalSimpleStringBlock extends BaseBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -4255,7 +4255,7 @@ export class NumericString extends LocalSimpleStringBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -4284,7 +4284,7 @@ export class PrintableString extends LocalSimpleStringBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -4313,7 +4313,7 @@ export class TeletexString extends LocalSimpleStringBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -4342,7 +4342,7 @@ export class VideotexString extends LocalSimpleStringBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -4371,7 +4371,7 @@ export class IA5String extends LocalSimpleStringBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -4400,7 +4400,7 @@ export class GraphicString extends LocalSimpleStringBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -4429,7 +4429,7 @@ export class VisibleString extends LocalSimpleStringBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -4458,7 +4458,7 @@ export class GeneralString extends LocalSimpleStringBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -4487,7 +4487,7 @@ export class CharacterString extends LocalSimpleStringBlock
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -4639,7 +4639,7 @@ export class UTCTime extends VisibleString
 		const parserArray = parser.exec(inputString);
 		if(parserArray === null)
 		{
-			this.error = "Wrong input string for convertion";
+			this.error = "Wrong input string for conversion";
 			return;
 		}
 		//endregion
@@ -4679,7 +4679,7 @@ export class UTCTime extends VisibleString
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -4688,7 +4688,7 @@ export class UTCTime extends VisibleString
 	}
 	//**********************************************************************************
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {Object}
 	 */
 	toJSON()
@@ -4878,7 +4878,7 @@ export class GeneralizedTime extends VisibleString
 			const number = new Number(inputString[inputString.length - 1]);
 
 			if(isNaN(number.valueOf()))
-				throw new Error("Wrong input string for convertion");
+				throw new Error("Wrong input string for conversion");
 
 			timeString = inputString;
 		}
@@ -4888,10 +4888,10 @@ export class GeneralizedTime extends VisibleString
 		if(isUTC)
 		{
 			if(timeString.indexOf("+") !== (-1))
-				throw new Error("Wrong input string for convertion");
+				throw new Error("Wrong input string for conversion");
 
 			if(timeString.indexOf("-") !== (-1))
-				throw new Error("Wrong input string for convertion");
+				throw new Error("Wrong input string for conversion");
 		}
 		//endregion
 		//region Get "UTC time difference" in case of local time
@@ -4913,13 +4913,13 @@ export class GeneralizedTime extends VisibleString
 				timeString = timeString.substr(0, differencePosition);
 
 				if((differenceString.length !== 2) && (differenceString.length !== 4))
-					throw new Error("Wrong input string for convertion");
+					throw new Error("Wrong input string for conversion");
 
 				//noinspection JSPrimitiveTypeWrapperUsage
 				let number = new Number(differenceString.substr(0, 2));
 
 				if(isNaN(number.valueOf()))
-					throw new Error("Wrong input string for convertion");
+					throw new Error("Wrong input string for conversion");
 
 				hourDifference = multiplier * number;
 
@@ -4929,7 +4929,7 @@ export class GeneralizedTime extends VisibleString
 					number = new Number(differenceString.substr(2, 2));
 
 					if(isNaN(number.valueOf()))
-						throw new Error("Wrong input string for convertion");
+						throw new Error("Wrong input string for conversion");
 
 					minuteDifference = multiplier * number;
 				}
@@ -4950,7 +4950,7 @@ export class GeneralizedTime extends VisibleString
 			const fractionPartCheck = new Number(`0${timeString.substr(fractionPointPosition)}`);
 
 			if(isNaN(fractionPartCheck.valueOf()))
-				throw new Error("Wrong input string for convertion");
+				throw new Error("Wrong input string for conversion");
 
 			fractionPart = fractionPartCheck.valueOf();
 
@@ -4966,7 +4966,7 @@ export class GeneralizedTime extends VisibleString
 			case (dateTimeString.length === 8): // "YYYYMMDD"
 				parser = /(\d{4})(\d{2})(\d{2})/ig;
 				if(fractionPointPosition !== (-1))
-					throw new Error("Wrong input string for convertion"); // Here we should not have a "fraction point"
+					throw new Error("Wrong input string for conversion"); // Here we should not have a "fraction point"
 				break;
 			case (dateTimeString.length === 10): // "YYYYMMDDHH"
 				parser = /(\d{4})(\d{2})(\d{2})(\d{2})/ig;
@@ -5005,14 +5005,14 @@ export class GeneralizedTime extends VisibleString
 				}
 				break;
 			default:
-				throw new Error("Wrong input string for convertion");
+				throw new Error("Wrong input string for conversion");
 		}
 		//endregion
 
 		//region Put parsed values at right places
 		const parserArray = parser.exec(dateTimeString);
 		if(parserArray === null)
-			throw new Error("Wrong input string for convertion");
+			throw new Error("Wrong input string for conversion");
 
 		for(let j = 1; j < parserArray.length; j++)
 		{
@@ -5037,7 +5037,7 @@ export class GeneralizedTime extends VisibleString
 					this.second = parseInt(parserArray[j], 10);
 					break;
 				default:
-					throw new Error("Wrong input string for convertion");
+					throw new Error("Wrong input string for conversion");
 			}
 		}
 		//endregion
@@ -5083,7 +5083,7 @@ export class GeneralizedTime extends VisibleString
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -5092,7 +5092,7 @@ export class GeneralizedTime extends VisibleString
 	}
 	//**********************************************************************************
 	/**
-	 * Convertion for the block to JSON object
+	 * Conversion for the block to JSON object
 	 * @returns {Object}
 	 */
 	toJSON()
@@ -5139,7 +5139,7 @@ export class DATE extends Utf8String
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -5168,7 +5168,7 @@ export class TimeOfDay extends Utf8String
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -5197,7 +5197,7 @@ export class DateTime extends Utf8String
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -5226,7 +5226,7 @@ export class Duration extends Utf8String
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -5255,7 +5255,7 @@ export class TIME extends Utf8String
 	}
 	//**********************************************************************************
 	/**
-	 * Aux function, need to get a block name. Need to have it here for inhiritence
+	 * Aux function, need to get a block name. Need to have it here for inheritance
 	 * @returns {string}
 	 */
 	static blockName()
@@ -5439,7 +5439,7 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 	}
 	//endregion
 
-	//region Decode indentifcation block of ASN.1 BER structure
+	//region Decode identification block of ASN.1 BER structure
 	let resultOffset = returnObject.idBlock.fromBER(inputBuffer, inputOffset, inputLength);
 	returnObject.warnings.concat(returnObject.idBlock.warnings);
 	if(resultOffset === (-1))
@@ -5471,7 +5471,7 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 	inputLength -= returnObject.lenBlock.blockLength;
 	//endregion
 
-	//region Check for usign indefinite length form in encoding for primitive types
+	//region Check for using indefinite length form in encoding for primitive types
 	if((returnObject.idBlock.isConstructed === false) &&
 		(returnObject.lenBlock.isIndefiniteForm === true))
 	{
@@ -5726,7 +5726,7 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 }
 //**************************************************************************************
 /**
- * Major function for decoding ASN.1 BER array into internal library structuries
+ * Major function for decoding ASN.1 BER array into internal library structures
  * @param {!ArrayBuffer} inputBuffer ASN.1 BER encoded array of bytes
  */
 export function fromBER(inputBuffer)
@@ -5843,7 +5843,7 @@ export function compareSchema(root, inputData, inputSchema)
 
 	//region Comparing idBlock properties in ASN.1 data and ASN.1 schema
 	//region Encode and decode ASN.1 schema idBlock
-	/// <remarks>This encoding/decoding is neccessary because could be an errors in schema definition</remarks>
+	/// <remarks>This encoding/decoding is necessary because could be an errors in schema definition</remarks>
 	if(("fromBER" in inputSchema.idBlock) === false)
 	{
 		return {
@@ -5931,7 +5931,7 @@ export function compareSchema(root, inputData, inputSchema)
 	}
 	//endregion
 	//region isHexOnly
-	if(("isHexOnly" in inputSchema.idBlock) === false) // Since 'isHexOnly' is an inhirited property
+	if(("isHexOnly" in inputSchema.idBlock) === false) // Since 'isHexOnly' is an inherited property
 	{
 		return {
 			verified: false,
@@ -5950,7 +5950,7 @@ export function compareSchema(root, inputData, inputSchema)
 	//region valueHex
 	if(inputSchema.idBlock.isHexOnly === true)
 	{
-		if(("valueHex" in inputSchema.idBlock) === false) // Since 'valueHex' is an inhirited property
+		if(("valueHex" in inputSchema.idBlock) === false) // Since 'valueHex' is an inherited property
 		{
 			return {
 				verified: false,
@@ -5992,7 +5992,7 @@ export function compareSchema(root, inputData, inputSchema)
 	}
 	//endregion
 
-	//region Getting next ASN.1 block for comparition
+	//region Getting next ASN.1 block for comparison
 	if(inputSchema.idBlock.isConstructed === true)
 	{
 		let admission = 0;
