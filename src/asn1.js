@@ -935,7 +935,7 @@ export class BaseBlock extends LocalBaseBlock
 	 */
 	toBER(sizeOnly = false)
 	{
-		let retBuf;
+		const retBufs = [];
 
 		const idBlockBuf = this.idBlock.toBER(sizeOnly);
 		const valueBlockSizeBuf = this.valueBlock.toBER(true);
@@ -943,7 +943,7 @@ export class BaseBlock extends LocalBaseBlock
 		this.lenBlock.length = valueBlockSizeBuf.byteLength;
 		const lenBlockBuf = this.lenBlock.toBER(sizeOnly);
 
-		retBuf = utilConcatBuf(idBlockBuf, lenBlockBuf);
+		retBufs.push(idBlockBuf, lenBlockBuf);
 
 		let valueBlockBuf;
 
@@ -952,12 +952,12 @@ export class BaseBlock extends LocalBaseBlock
 		else
 			valueBlockBuf = new ArrayBuffer(this.lenBlock.length);
 
-		retBuf = utilConcatBuf(retBuf, valueBlockBuf);
+			retBufs.push(valueBlockBuf);
 
-		if(this.lenBlock.isIndefiniteForm === true)
-		{
+			if(this.lenBlock.isIndefiniteForm === true)
+			{
 			const indefBuf = new ArrayBuffer(2);
-
+			
 			if(sizeOnly === false)
 			{
 				const indefView = new Uint8Array(indefBuf);
@@ -965,11 +965,11 @@ export class BaseBlock extends LocalBaseBlock
 				indefView[0] = 0x00;
 				indefView[1] = 0x00;
 			}
-
-			retBuf = utilConcatBuf(retBuf, indefBuf);
+			
+			retBufs.push(indefBuf);
 		}
-
-		return retBuf;
+		
+		return utilConcatBuf(...retBufs);
 	}
 	//**********************************************************************************
 	/**
@@ -1250,15 +1250,15 @@ class LocalConstructedValueBlock extends ValueBlock
 	 */
 	toBER(sizeOnly = false)
 	{
-		let retBuf = new ArrayBuffer(0);
+		const retBufs = []
 
 		for(let i = 0; i < this.value.length; i++)
 		{
 			const valueBuf = this.value[i].toBER(sizeOnly);
-			retBuf = utilConcatBuf(retBuf, valueBuf);
+			retBufs.push(valueBuf);
 		}
 
-		return retBuf;
+		return utilConcatBuf(...retBufs);
 	}
 	//**********************************************************************************
 	/**
@@ -3030,7 +3030,7 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 	 */
 	toBER(sizeOnly = false)
 	{
-		let retBuf = new ArrayBuffer(0);
+		const retBufs = [];
 
 		for(let i = 0; i < this.value.length; i++)
 		{
@@ -3041,10 +3041,10 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 				return (new ArrayBuffer(0));
 			}
 
-			retBuf = utilConcatBuf(retBuf, valueBuf);
+			retBufs.push(valueBuf);
 		}
-
-		return retBuf;
+		
+		return utilConcatBuf(...retBufs);
 	}
 	//**********************************************************************************
 	/**
@@ -3623,7 +3623,7 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
 	 */
 	toBER(sizeOnly = false)
 	{
-		let retBuf = new ArrayBuffer(0);
+		let retBufs = new ArrayBuffer(0);
 
 		for (let i = 0; i < this.value.length; i++)
 		{
@@ -3634,10 +3634,10 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
 				return (new ArrayBuffer(0));
 			}
 
-			retBuf = utilConcatBuf(retBuf, valueBuf);
+			retBufs.push(valueBuf);
 		}
-
-		return retBuf;
+		
+		return utilConcatBuf(...retBufs);
 	}
 	//**********************************************************************************
 	/**
