@@ -32,14 +32,70 @@
  *
  */
 //**************************************************************************************
-import { getParametersValue, padNumber, isEqualBuffer, bufferToHexCodes, checkBufferParams, utilToBase, utilFromBase, utilEncodeTC, utilDecodeTC, utilConcatBuf, utilConcatView } from "pvutils";
+import { getParametersValue, padNumber, isEqualBuffer, bufferToHexCodes, checkBufferParams, utilToBase, utilFromBase, utilEncodeTC, utilDecodeTC, utilConcatView } from "pvutils";
 //**************************************************************************************
 //region Other utility functions
 //**************************************************************************************
-function assertBigInt() {
-  if (typeof BigInt === "undefined") {
-    throw new Error("BigInt is not defined. Your environment doesn't implement BigInt.");
-  }
+function assertBigInt()
+{
+	if(typeof BigInt === "undefined")
+	{
+		throw new Error("BigInt is not defined. Your environment doesn't implement BigInt.");
+	}
+}
+
+/**
+ * Recursive function which checks and enables isIndefiniteForm flag for constructed blocks if any child has that flag enabled
+ * @param {BaseBlock} baseBlock Base ASN.1 block
+ * @returns Returns `true` if incoming block is `indefinite form`
+ */
+function prepareIndefiniteForm(baseBlock)
+{
+	if(baseBlock.idBlock.isConstructed)
+	{
+		for(let i = 0; i < baseBlock.valueBlock.value.length; i++)
+		{
+			if(prepareIndefiniteForm(baseBlock.valueBlock.value[i]))
+			{
+				baseBlock.lenBlock.isIndefiniteForm = true;
+			}
+		}
+	}
+
+	return !!baseBlock.lenBlock.isIndefiniteForm;
+}
+
+/**
+ * Concatenates buffers from the list
+ * @param {Array.<ArrayBuffer>} buffers List of buffers
+ * @returns Concatenated buffer
+ */
+function concat(buffers) 
+{
+	//#region Initial variables
+	let outputLength = 0;
+	let prevLength = 0;
+	//#endregion
+
+	//#region Calculate output length
+	for(let i = 0; i < buffers.length; i++)
+	{
+		const buffer = buffers[i];
+		outputLength += buffer.byteLength;
+	}
+	//#endregion
+
+	const retBuf = new ArrayBuffer(outputLength);
+	const retView = new Uint8Array(retBuf);
+
+	for(let i = 0; i < buffers.length; i++)
+	{
+		const buffer = buffers[i];
+		retView.set(new Uint8Array(buffer), prevLength);
+		prevLength += buffer.byteLength;
+	}
+
+	return retBuf;
 }
 //**************************************************************************************
 //endregion
@@ -48,6 +104,39 @@ function assertBigInt() {
 //**************************************************************************************
 const powers2 = [new Uint8Array([1])];
 const digitsString = "0123456789";
+//**************************************************************************************
+//endregion
+//**************************************************************************************
+//region Declaration for "ViewWriter"
+//**************************************************************************************
+class ViewWriter
+{
+	constructor()
+	{
+		/**
+		 * @type {Array.<ArrayBuffer>}
+		 */
+		this.items = [];
+	}
+
+	/**
+	 * Writes buffer
+	 * @param {ArrayBuffer} buf 
+	 */
+	write(buf)
+	{
+		this.items.push(buf);
+	}
+
+	/**
+	 * Concatenates all buffers
+	 * @returns {ArrayBuffer}
+	 */
+	final()
+	{
+		return concat(this.items);
+	}
+}
 //**************************************************************************************
 //endregion
 //**************************************************************************************
@@ -234,13 +323,13 @@ export const HexBlock = BaseClass => class LocalHexBlockMixin extends BaseClass
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.blockName = this.constructor.blockName();
@@ -563,13 +652,13 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.blockName = this.constructor.blockName();
@@ -786,13 +875,13 @@ class LocalLengthBlock extends LocalBaseBlock
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.blockName = this.constructor.blockName();
@@ -933,43 +1022,46 @@ export class BaseBlock extends LocalBaseBlock
 	 * @param {boolean} [sizeOnly=false] Flag that we need only a size of encoding, not a real array of bytes
 	 * @returns {ArrayBuffer}
 	 */
-	toBER(sizeOnly = false)
+	toBER(sizeOnly = false, writer)
 	{
-		const retBufs = [];
+		const _writer = writer || new ViewWriter();
+
+		if(!writer)
+		{
+			prepareIndefiniteForm(this);
+		}
 
 		const idBlockBuf = this.idBlock.toBER(sizeOnly);
-		const valueBlockSizeBuf = this.valueBlock.toBER(true);
 
-		this.lenBlock.length = valueBlockSizeBuf.byteLength;
-		const lenBlockBuf = this.lenBlock.toBER(sizeOnly);
+		_writer.write(idBlockBuf);
 
-		retBufs.push(idBlockBuf, lenBlockBuf);
+		if(this.lenBlock.isIndefiniteForm)
+		{
+			_writer.write(new Uint8Array([0x80]).buffer);
 
-		let valueBlockBuf;
+			this.valueBlock.toBER(sizeOnly, _writer);
 
-		if(sizeOnly === false)
-			valueBlockBuf = this.valueBlock.toBER(sizeOnly);
-		else
-			valueBlockBuf = new ArrayBuffer(this.lenBlock.length);
-
-			retBufs.push(valueBlockBuf);
-
-			if(this.lenBlock.isIndefiniteForm === true)
-			{
-			const indefBuf = new ArrayBuffer(2);
-			
-			if(sizeOnly === false)
-			{
-				const indefView = new Uint8Array(indefBuf);
-
-				indefView[0] = 0x00;
-				indefView[1] = 0x00;
-			}
-			
-			retBufs.push(indefBuf);
+			_writer.write(new ArrayBuffer(2));
 		}
-		
-		return utilConcatBuf(...retBufs);
+		else
+		{
+			const valueBlockSizeBuf = this.valueBlock.toBER(true);
+			this.lenBlock.length = valueBlockSizeBuf.byteLength;
+			const lenBlockBuf = this.lenBlock.toBER(sizeOnly);
+
+			_writer.write(lenBlockBuf);
+
+			const valueBlockBuf = sizeOnly
+				? new ArrayBuffer(this.lenBlock.length)
+				: this.valueBlock.toBER(sizeOnly);
+
+			_writer.write(valueBlockBuf, _writer);
+		}
+
+		if(!writer)
+		{
+			return _writer.final();
+		}
 	}
 	//**********************************************************************************
 	/**
@@ -979,13 +1071,13 @@ export class BaseBlock extends LocalBaseBlock
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.idBlock = this.idBlock.toJSON();
@@ -1002,7 +1094,8 @@ export class BaseBlock extends LocalBaseBlock
 		return object;
 	}
 	//**********************************************************************************
-	toString() {
+	toString()
+	{
 		return `${this.constructor.blockName()} : ${bufferToHexCodes(this.valueBlock.valueHex)}`;
 	}
 	//**********************************************************************************
@@ -1101,13 +1194,13 @@ class LocalPrimitiveValueBlock extends ValueBlock
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.valueHex = bufferToHexCodes(this.valueHex, 0, this.valueHex.byteLength);
@@ -1248,17 +1341,19 @@ class LocalConstructedValueBlock extends ValueBlock
 	 * @param {boolean} [sizeOnly=false] Flag that we need only a size of encoding, not a real array of bytes
 	 * @returns {ArrayBuffer}
 	 */
-	toBER(sizeOnly = false)
+	toBER(sizeOnly = false, writer)
 	{
-		const retBufs = [];
+		const _writer = writer || new ViewWriter();
 
 		for(let i = 0; i < this.value.length; i++)
 		{
-			const valueBuf = this.value[i].toBER(sizeOnly);
-			retBufs.push(valueBuf);
+			this.value[i].toBER(sizeOnly, _writer);
 		}
 
-		return utilConcatBuf(...retBufs);
+		if(!writer)
+		{
+			return _writer.final();
+		}
 	}
 	//**********************************************************************************
 	/**
@@ -1277,13 +1372,13 @@ class LocalConstructedValueBlock extends ValueBlock
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.isIndefiniteForm = this.isIndefiniteForm;
@@ -1349,15 +1444,17 @@ export class Constructed extends BaseBlock
 		return resultOffset;
 	}
 	//**********************************************************************************
-	toString() {
+	toString()
+	{
 		const values = [];
-		for (const value of this.valueBlock.value) {
+		for(const value of this.valueBlock.value)
+		{
 			values.push(value.toString().split("\n").map(o => `  ${o}`).join("\n"));
 		}
 		const blockName = this.idBlock.tagClass === 3
 			? `[${this.idBlock.tagNumber}]`
 			: this.constructor.blockName();
-		return values.length 
+		return values.length
 			? `${blockName} :\n${values.join("\n")}` // items
 			: `${blockName} :`; // empty
 	}
@@ -1453,10 +1550,10 @@ class LocalBooleanValueBlock extends ValueBlock
 	constructor(parameters = {})
 	{
 		super(parameters);
-		
+
 		this.value = getParametersValue(parameters, "value", false);
 		this.isHexOnly = getParametersValue(parameters, "isHexOnly", false);
-		
+
 		if("valueHex" in parameters)
 			this.valueHex = parameters.valueHex.slice(0);
 		else
@@ -1501,8 +1598,8 @@ class LocalBooleanValueBlock extends ValueBlock
 		for(let i = 0; i < intBuffer.length; i++)
 			view[i] = intBuffer[i];
 		//endregion
-		
-		if(utilDecodeTC.call(this) !== 0 )
+
+		if(utilDecodeTC.call(this) !== 0)
 			this.value = true;
 		else
 			this.value = false;
@@ -1539,13 +1636,13 @@ class LocalBooleanValueBlock extends ValueBlock
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.value = this.value;
@@ -1581,7 +1678,8 @@ export class Boolean extends BaseBlock
 		return "BOOLEAN";
 	}
 	//**********************************************************************************
-	toString() {
+	toString()
+	{
 		return `${this.constructor.blockName()} : ${this.valueBlock.value}`;
 	}
 	//**********************************************************************************
@@ -1689,15 +1787,15 @@ export class Null extends BaseBlock
 
 		if(this.lenBlock.error.length === 0)
 			this.blockLength += this.lenBlock.blockLength;
-		
+
 		this.blockLength += inputLength;
-		
+
 		if((inputOffset + inputLength) > inputBuffer.byteLength)
 		{
 			this.error = "End of input reached before message was fully decoded (inconsistent offset and length values)";
 			return (-1);
 		}
-		
+
 		return (inputOffset + inputLength);
 	}
 	//**********************************************************************************
@@ -1706,21 +1804,27 @@ export class Null extends BaseBlock
 	 * @param {boolean} [sizeOnly=false] Flag that we need only a size of encoding, not a real array of bytes
 	 * @returns {ArrayBuffer}
 	 */
-	toBER(sizeOnly = false)
+	toBER(sizeOnly = false, writer)
 	{
 		const retBuf = new ArrayBuffer(2);
 
-		if(sizeOnly === true)
-			return retBuf;
+		if(!sizeOnly)
+		{
+			const retView = new Uint8Array(retBuf);
+			retView[0] = 0x05;
+			retView[1] = 0x00;
+		}
 
-		const retView = new Uint8Array(retBuf);
-		retView[0] = 0x05;
-		retView[1] = 0x00;
+		if(writer)
+		{
+			writer.write(retBuf);
+		}
 
 		return retBuf;
 	}
 	//**********************************************************************************
-	toString() {
+	toString()
+	{
 		return `${this.constructor.blockName()}`;
 	}
 	//**********************************************************************************
@@ -1802,10 +1906,10 @@ class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 	 * @param {boolean} [sizeOnly=false] Flag that we need only a size of encoding, not a real array of bytes
 	 * @returns {ArrayBuffer}
 	 */
-	toBER(sizeOnly = false)
+	toBER(sizeOnly = false, writer)
 	{
 		if(this.isConstructed === true)
-			return LocalConstructedValueBlock.prototype.toBER.call(this, sizeOnly);
+			return LocalConstructedValueBlock.prototype.toBER.call(this, sizeOnly, writer);
 
 		let retBuf = new ArrayBuffer(this.valueHex.byteLength);
 
@@ -1832,13 +1936,13 @@ class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.isConstructed = this.isConstructed;
@@ -1890,14 +1994,18 @@ export class OctetString extends BaseBlock
 		}
 		//endregion
 
-		if (!this.valueBlock.isConstructed) {
+		if(!this.valueBlock.isConstructed)
+		{
 			const buf = inputBuffer.slice(inputOffset, inputOffset + inputLength);
-			try {
+			try
+			{
 				const asn = fromBER(buf);
-				if (asn.offset !== -1 && asn.offset === inputLength) {
+				if(asn.offset !== -1 && asn.offset === inputLength)
+				{
 					this.valueBlock.value = [asn.result];
 				}
-			} catch (e) {
+			} catch(e)
+			{
 				// nothing
 			}
 		}
@@ -1934,10 +2042,13 @@ export class OctetString extends BaseBlock
 		return true;
 	}
 	//**********************************************************************************
-	toString() {
-		if (this.valueBlock.isConstructed || (this.valueBlock.value && this.valueBlock.value.length)) {
+	toString()
+	{
+		if(this.valueBlock.isConstructed || (this.valueBlock.value && this.valueBlock.value.length))
+		{
 			return Constructed.prototype.toString.call(this);
-		} else {
+		} else
+		{
 			return `${this.constructor.blockName()} : ${bufferToHexCodes(this.valueBlock.valueHex)}`;
 		}
 	}
@@ -2036,21 +2147,25 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 		const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
 
 		this.unusedBits = intBuffer[0];
-		
+
 		if(this.unusedBits > 7)
 		{
 			this.error = "Unused bits for BitString must be in range 0-7";
 			return (-1);
 		}
 
-		if (!this.unusedBits) {
+		if(!this.unusedBits)
+		{
 			const buf = inputBuffer.slice(inputOffset + 1, inputOffset + inputLength);
-			try {
+			try
+			{
 				const asn = fromBER(buf);
-				if (asn.offset !== -1 && asn.offset === (inputLength - 1)) {
+				if(asn.offset !== -1 && asn.offset === (inputLength - 1))
+				{
 					this.value = [asn.result];
 				}
-			} catch(e) {
+			} catch(e)
+			{
 				// nothing
 			}
 		}
@@ -2073,10 +2188,10 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 	 * @param {boolean} [sizeOnly=false] Flag that we need only a size of encoding, not a real array of bytes
 	 * @returns {ArrayBuffer}
 	 */
-	toBER(sizeOnly = false)
+	toBER(sizeOnly = false, writer)
 	{
 		if(this.isConstructed === true)
-			return LocalConstructedValueBlock.prototype.toBER.call(this, sizeOnly);
+			return LocalConstructedValueBlock.prototype.toBER.call(this, sizeOnly, writer);
 
 		if(sizeOnly === true)
 			return (new ArrayBuffer(this.valueHex.byteLength + 1));
@@ -2113,13 +2228,13 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.unusedBits = this.unusedBits;
@@ -2195,14 +2310,18 @@ export class BitString extends BaseBlock
 		return true;
 	}
 	//**********************************************************************************
-	toString() {
-		if (this.valueBlock.isConstructed || (this.valueBlock.value && this.valueBlock.value.length)) {
+	toString()
+	{
+		if(this.valueBlock.isConstructed || (this.valueBlock.value && this.valueBlock.value.length))
+		{
 			return Constructed.prototype.toString.call(this);
-		} else {
+		} else
+		{
 			// convert bytes to bits
 			const bits = [];
 			const valueHex = new Uint8Array(this.valueBlock.valueHex);
-			for (const byte of valueHex) {
+			for(const byte of valueHex)
+			{
 				bits.push(byte.toString(2).padStart(8, "0"));
 			}
 			return `${this.constructor.blockName()} : ${bits.join("")}`;
@@ -2320,7 +2439,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 				{
 					if((expectedLength - this._valueHex.byteLength) > 1)
 						expectedLength = this._valueHex.byteLength + 1;
-					
+
 					const updatedValueHex = new ArrayBuffer(expectedLength);
 					const updatedView = new Uint8Array(updatedValueHex);
 
@@ -2418,13 +2537,13 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.valueDec = this.valueDec;
@@ -2442,22 +2561,22 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 		{
 			//region Initial variables
 			const c = new Uint8Array([0]);
-			
+
 			let firstView = new Uint8Array(first);
 			let secondView = new Uint8Array(second);
-			
+
 			let firstViewCopy = firstView.slice(0);
 			const firstViewCopyLength = firstViewCopy.length - 1;
 			let secondViewCopy = secondView.slice(0);
 			const secondViewCopyLength = secondViewCopy.length - 1;
-			
+
 			let value = 0;
-			
+
 			const max = (secondViewCopyLength < firstViewCopyLength) ? firstViewCopyLength : secondViewCopyLength;
-			
+
 			let counter = 0;
 			//endregion
-			
+
 			for(let i = max; i >= 0; i--, counter++)
 			{
 				switch(true)
@@ -2468,9 +2587,9 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 					default:
 						value = firstViewCopy[firstViewCopyLength - counter] + c[0];
 				}
-				
+
 				c[0] = value / 10;
-				
+
 				switch(true)
 				{
 					case (counter >= firstViewCopy.length):
@@ -2480,13 +2599,13 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 						firstViewCopy[firstViewCopyLength - counter] = value % 10;
 				}
 			}
-			
+
 			if(c[0] > 0)
 				firstViewCopy = utilConcatView(c, firstViewCopy);
-			
+
 			return firstViewCopy.slice(0);
 		}
-		
+
 		function power2(n)
 		{
 			if(n >= powers2.length)
@@ -2495,46 +2614,46 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 				{
 					const c = new Uint8Array([0]);
 					let digits = (powers2[p - 1]).slice(0);
-					
-					for(let i = (digits.length - 1); i >=0; i--)
+
+					for(let i = (digits.length - 1); i >= 0; i--)
 					{
 						const newValue = new Uint8Array([(digits[i] << 1) + c[0]]);
 						c[0] = newValue[0] / 10;
 						digits[i] = newValue[0] % 10;
 					}
-					
-					if (c[0] > 0)
+
+					if(c[0] > 0)
 						digits = utilConcatView(c, digits);
-					
+
 					powers2.push(digits);
 				}
 			}
-			
+
 			return powers2[n];
 		}
-		
+
 		function viewSub(first, second)
 		{
 			//region Initial variables
 			let b = 0;
-			
+
 			let firstView = new Uint8Array(first);
 			let secondView = new Uint8Array(second);
-			
+
 			let firstViewCopy = firstView.slice(0);
 			const firstViewCopyLength = firstViewCopy.length - 1;
 			let secondViewCopy = secondView.slice(0);
 			const secondViewCopyLength = secondViewCopy.length - 1;
-			
+
 			let value;
-			
+
 			let counter = 0;
 			//endregion
-			
+
 			for(let i = secondViewCopyLength; i >= 0; i--, counter++)
 			{
 				value = firstViewCopy[firstViewCopyLength - counter] - secondViewCopy[secondViewCopyLength - counter] - b;
-				
+
 				switch(true)
 				{
 					case (value < 0):
@@ -2546,13 +2665,13 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 						firstViewCopy[firstViewCopyLength - counter] = value;
 				}
 			}
-			
+
 			if(b > 0)
 			{
 				for(let i = (firstViewCopyLength - secondViewCopyLength + 1); i >= 0; i--, counter++)
 				{
 					value = firstViewCopy[firstViewCopyLength - counter] - b;
-					
+
 					if(value < 0)
 					{
 						b = 1;
@@ -2566,30 +2685,30 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 					}
 				}
 			}
-			
+
 			return firstViewCopy.slice();
 		}
 		//endregion
-		
+
 		//region Initial variables
 		const firstBit = (this._valueHex.byteLength * 8) - 1;
-		
+
 		let digits = new Uint8Array((this._valueHex.byteLength * 8) / 3);
 		let bitNumber = 0;
 		let currentByte;
-		
+
 		const asn1View = new Uint8Array(this._valueHex);
-		
+
 		let result = "";
-		
+
 		let flag = false;
 		//endregion
-		
+
 		//region Calculate number
 		for(let byteNumber = (this._valueHex.byteLength - 1); byteNumber >= 0; byteNumber--)
 		{
 			currentByte = asn1View[byteNumber];
-			
+
 			for(let i = 0; i < 8; i++)
 			{
 				if((currentByte & 1) === 1)
@@ -2604,27 +2723,27 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 							digits = viewAdd(digits, power2(bitNumber));
 					}
 				}
-				
+
 				bitNumber++;
 				currentByte >>= 1;
 			}
 		}
 		//endregion
-		
+
 		//region Print number
 		for(let i = 0; i < digits.length; i++)
 		{
 			if(digits[i])
 				flag = true;
-			
+
 			if(flag)
 				result += digitsString.charAt(digits[i]);
 		}
-		
+
 		if(flag === false)
 			result += digitsString.charAt(0);
 		//endregion
-		
+
 		return result;
 	}
 	//**********************************************************************************
@@ -2672,7 +2791,7 @@ export class Integer extends BaseBlock
 
 			return false;
 		}
-		
+
 		if(otherValue instanceof ArrayBuffer)
 			return isEqualBuffer(this.valueBlock.valueHex, otherValue);
 
@@ -2700,11 +2819,12 @@ export class Integer extends BaseBlock
 		const expectedLength = (this.valueBlock.valueHex.byteLength % 2) ? (this.valueBlock.valueHex.byteLength + 1) : this.valueBlock.valueHex.byteLength;
 		const integer = new Integer({ valueHex: this.valueBlock.valueHex });
 		integer.valueBlock.fromDER(integer.valueBlock.valueHex, 0, integer.valueBlock.valueHex.byteLength, expectedLength);
-		
+
 		return integer;
 	}
 	//**********************************************************************************
-	toString() {
+	toString()
+	{
 		assertBigInt();
 		const hex = bufferToHexCodes(this.valueBlock.valueHex);
 		const bigInt = BigInt(`0x${hex}`);
@@ -2836,25 +2956,28 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 
 		return (inputOffset + this.blockLength);
 	}
-//**********************************************************************************
+	//**********************************************************************************
 	/**
 	 * Save a BigInt value immediately as an array of octects.
 	 */
- set valueBigInt(value) {
+	set valueBigInt(value)
+	{
 
-	assertBigInt();
+		assertBigInt();
 
-	let bits = BigInt(value).toString(2);
-	while (bits.length % 7) {
-		bits = "0" + bits;
+		let bits = BigInt(value).toString(2);
+		while(bits.length % 7)
+		{
+			bits = "0" + bits;
+		}
+		const bytes = new Uint8Array(bits.length / 7);
+		for(let i = 0; i < bytes.length; i++)
+		{
+			bytes[i] = parseInt(bits.slice(i * 7, i * 7 + 7), 2) + (i + 1 < bytes.length ? 0x80 : 0);
+		}
+		this.fromBER(bytes.buffer, 0, bytes.length);
 	}
-	const bytes = new Uint8Array(bits.length / 7);
-	for (let i = 0; i < bytes.length; i++) {
-		bytes[i] = parseInt(bits.slice(i*7, i*7 + 7), 2) + (i + 1 < bytes.length ? 0x80 : 0);
-	}
-	this.fromBER(bytes.buffer, 0, bytes.length);
-}
-//**********************************************************************************
+	//**********************************************************************************
 	/**
 	 * Encoding of current ASN.1 block into ASN.1 encoded array (BER rules)
 	 * @param {boolean} [sizeOnly=false] Flag that we need only a size of encoding, not a real array of bytes
@@ -2957,13 +3080,13 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.valueDec = this.valueDec;
@@ -3043,8 +3166,8 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 
 			retBufs.push(valueBuf);
 		}
-		
-		return utilConcatBuf(...retBufs);
+
+		return concat(retBufs);
 	}
 	//**********************************************************************************
 	/**
@@ -3105,14 +3228,16 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 			else
 			{
 				const sidBlock = new LocalSidValueBlock();
-        if (sid > Number.MAX_SAFE_INTEGER) {
+				if(sid > Number.MAX_SAFE_INTEGER)
+				{
 					assertBigInt();
 					const sidValue = BigInt(sid);
-          sidBlock.valueBigInt = sidValue;
-        } else {
-          sidBlock.valueDec = parseInt(sid, 10);
-          if (isNaN(sidBlock.valueDec)) return true;  
-        }
+					sidBlock.valueBigInt = sidValue;
+				} else
+				{
+					sidBlock.valueDec = parseInt(sid, 10);
+					if(isNaN(sidBlock.valueDec)) return true;
+				}
 
 				if(this.value.length === 0)
 				{
@@ -3177,13 +3302,13 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.value = this.toString();
@@ -3224,7 +3349,8 @@ export class ObjectIdentifier extends BaseBlock
 		return "OBJECT IDENTIFIER";
 	}
 	//**********************************************************************************
-	toString() {
+	toString()
+	{
 		return `${this.constructor.blockName()} : ${this.valueBlock.toString()}`;
 	}
 	//**********************************************************************************
@@ -3267,13 +3393,13 @@ class LocalUtf8StringValueBlock extends HexBlock(LocalBaseBlock)
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.value = this.value;
@@ -3382,7 +3508,8 @@ export class Utf8String extends BaseBlock
 		this.valueBlock.value = inputString;
 	}
 	//**********************************************************************************
-	toString() {
+	toString()
+	{
 		return `${this.constructor.blockName()} : ${this.valueBlock.value}`;
 	}
 	//**********************************************************************************
@@ -3423,12 +3550,12 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 	 */
 	fromBER(inputBuffer, inputOffset, inputLength)
 	{
-		if (inputLength === 0)
+		if(inputLength === 0)
 			return inputOffset;
 
 		//region Basic check for parameters
 		//noinspection JSCheckFunctionSignatures
-		if (checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
+		if(checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
 			return (-1);
 		//endregion
 
@@ -3437,13 +3564,13 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 		this.valueHex = new ArrayBuffer(inputLength);
 		let view = new Uint8Array(this.valueHex);
 
-		for (let i = 0; i < inputLength; i++)
+		for(let i = 0; i < inputLength; i++)
 		{
 			view[i] = intBuffer[i] & 0x7F;
 
 			this.blockLength++;
 
-			if ((intBuffer[i] & 0x80) === 0x00)
+			if((intBuffer[i] & 0x80) === 0x00)
 				break;
 		}
 
@@ -3451,7 +3578,7 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 		const tempValueHex = new ArrayBuffer(this.blockLength);
 		const tempView = new Uint8Array(tempValueHex);
 
-		for (let i = 0; i < this.blockLength; i++)
+		for(let i = 0; i < this.blockLength; i++)
 			tempView[i] = view[i];
 
 		//noinspection JSCheckFunctionSignatures
@@ -3459,16 +3586,16 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 		view = new Uint8Array(this.valueHex);
 		//endregion
 
-		if ((intBuffer[this.blockLength - 1] & 0x80) !== 0x00)
+		if((intBuffer[this.blockLength - 1] & 0x80) !== 0x00)
 		{
 			this.error = "End of input reached before message was fully decoded";
 			return (-1);
 		}
 
-		if (view[0] === 0x00)
+		if(view[0] === 0x00)
 			this.warnings.push("Needlessly long format of SID encoding");
 
-		if (this.blockLength <= 8)
+		if(this.blockLength <= 8)
 			this.valueDec = utilFromBase(view, 7);
 		else
 		{
@@ -3491,9 +3618,9 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 		let retView;
 		//endregion
 
-		if (this.isHexOnly)
+		if(this.isHexOnly)
 		{
-			if (sizeOnly === true)
+			if(sizeOnly === true)
 				return (new ArrayBuffer(this.valueHex.byteLength));
 
 			const curView = new Uint8Array(this.valueHex);
@@ -3501,7 +3628,7 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 			retBuf = new ArrayBuffer(this.blockLength);
 			retView = new Uint8Array(retBuf);
 
-			for (let i = 0; i < (this.blockLength - 1); i++)
+			for(let i = 0; i < (this.blockLength - 1); i++)
 				retView[i] = curView[i] | 0x80;
 
 			retView[this.blockLength - 1] = curView[this.blockLength - 1];
@@ -3510,7 +3637,7 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 		}
 
 		const encodedBuf = utilToBase(this.valueDec, 7);
-		if (encodedBuf.byteLength === 0)
+		if(encodedBuf.byteLength === 0)
 		{
 			this.error = "Error during encoding SID value";
 			return (new ArrayBuffer(0));
@@ -3518,12 +3645,12 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 
 		retBuf = new ArrayBuffer(encodedBuf.byteLength);
 
-		if (sizeOnly === false)
+		if(sizeOnly === false)
 		{
 			const encodedView = new Uint8Array(encodedBuf);
 			retView = new Uint8Array(retBuf);
 
-			for (let i = 0; i < (encodedBuf.byteLength - 1); i++)
+			for(let i = 0; i < (encodedBuf.byteLength - 1); i++)
 				retView[i] = encodedView[i] | 0x80;
 
 			retView[encodedBuf.byteLength - 1] = encodedView[encodedBuf.byteLength - 1];
@@ -3540,9 +3667,10 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 	{
 		let result = "";
 
-		if (this.isHexOnly === true)
+		if(this.isHexOnly === true)
 			result = bufferToHexCodes(this.valueHex, 0, this.valueHex.byteLength);
-		else {
+		else
+		{
 			result = this.valueDec.toString();
 		}
 
@@ -3559,9 +3687,10 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 		let object = {};
 
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
-		try {
+		try
+		{
 			object = super.toJSON();
-		} catch (ex) {}
+		} catch(ex) { }
 		//endregion
 
 		object.valueDec = this.valueDec;
@@ -3571,7 +3700,8 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 	//**********************************************************************************
 }
 //**************************************************************************************
-class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
+class LocalRelativeObjectIdentifierValueBlock extends ValueBlock
+{
 	//**********************************************************************************
 	/**
 	 * Constructor for "LocalRelativeObjectIdentifierValueBlock" class
@@ -3596,11 +3726,11 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
 	{
 		let resultOffset = inputOffset;
 
-		while (inputLength > 0)
+		while(inputLength > 0)
 		{
 			const sidBlock = new LocalRelativeSidValueBlock();
 			resultOffset = sidBlock.fromBER(inputBuffer, resultOffset, inputLength);
-			if (resultOffset === (-1))
+			if(resultOffset === (-1))
 			{
 				this.blockLength = 0;
 				this.error = sidBlock.error;
@@ -3625,10 +3755,10 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
 	{
 		let retBufs = new ArrayBuffer(0);
 
-		for (let i = 0; i < this.value.length; i++)
+		for(let i = 0; i < this.value.length; i++)
 		{
 			const valueBuf = this.value[i].toBER(sizeOnly);
-			if (valueBuf.byteLength === 0)
+			if(valueBuf.byteLength === 0)
 			{
 				this.error = this.value[i].error;
 				return (new ArrayBuffer(0));
@@ -3636,8 +3766,8 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
 
 			retBufs.push(valueBuf);
 		}
-		
-		return utilConcatBuf(...retBufs);
+
+		return concat(retBufs);
 	}
 	//**********************************************************************************
 	/**
@@ -3657,7 +3787,7 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
 		do
 		{
 			pos2 = string.indexOf(".", pos1);
-			if (pos2 === (-1))
+			if(pos2 === (-1))
 				sid = string.substr(pos1);
 			else
 				sid = string.substr(pos1, pos2 - pos1);
@@ -3666,12 +3796,12 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
 
 			const sidBlock = new LocalRelativeSidValueBlock();
 			sidBlock.valueDec = parseInt(sid, 10);
-			if (isNaN(sidBlock.valueDec))
+			if(isNaN(sidBlock.valueDec))
 				return true;
 
 			this.value.push(sidBlock);
 
-		} while (pos2 !== (-1));
+		} while(pos2 !== (-1));
 
 		return true;
 	}
@@ -3685,16 +3815,16 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
 		let result = "";
 		let isHexOnly = false;
 
-		for (let i = 0; i < this.value.length; i++)
+		for(let i = 0; i < this.value.length; i++)
 		{
 			isHexOnly = this.value[i].isHexOnly;
 
 			let sidStr = this.value[i].toString();
 
-			if (i !== 0)
+			if(i !== 0)
 				result = `${result}.`;
 
-			if (isHexOnly)
+			if(isHexOnly)
 			{
 				sidStr = `{${sidStr}}`;
 				result += sidStr;
@@ -3726,12 +3856,12 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock {
 		try
 		{
 			object = super.toJSON();
-		} catch (ex) {}
+		} catch(ex) { }
 		//endregion
 
 		object.value = this.toString();
 		object.sidArray = [];
-		for (let i = 0; i < this.value.length; i++)
+		for(let i = 0; i < this.value.length; i++)
 			object.sidArray.push(this.value[i].toJSON());
 
 		return object;
@@ -3807,13 +3937,13 @@ class LocalBmpStringValueBlock extends HexBlock(LocalBaseBlock)
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.value = this.value;
@@ -3931,7 +4061,8 @@ export class BmpString extends BaseBlock
 		this.valueBlock.value = inputString;
 	}
 	//**********************************************************************************
-	toString() {
+	toString()
+	{
 		return `${this.constructor.blockName()} : ${this.valueBlock.value}`;
 	}
 	//**********************************************************************************
@@ -3969,13 +4100,13 @@ class LocalUniversalStringValueBlock extends HexBlock(LocalBaseBlock)
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.value = this.value;
@@ -4093,7 +4224,8 @@ export class UniversalString extends BaseBlock
 		this.valueBlock.value = inputString;
 	}
 	//**********************************************************************************
-	toString() {
+	toString()
+	{
 		return `${this.constructor.blockName()} : ${this.valueBlock.value}`;
 	}
 	//**********************************************************************************
@@ -4131,13 +4263,13 @@ class LocalSimpleStringValueBlock extends HexBlock(LocalBaseBlock)
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.value = this.value;
@@ -4230,7 +4362,8 @@ class LocalSimpleStringBlock extends BaseBlock
 		this.valueBlock.value = inputString;
 	}
 	//**********************************************************************************
-	toString() {
+	toString()
+	{
 		return `${this.constructor.blockName()} : ${this.valueBlock.value}`;
 	}
 	//**********************************************************************************
@@ -4694,13 +4827,13 @@ export class UTCTime extends VisibleString
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.year = this.year;
@@ -5098,13 +5231,13 @@ export class GeneralizedTime extends VisibleString
 	toJSON()
 	{
 		let object = {};
-		
+
 		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
-		catch(ex){}
+		catch(ex) { }
 		//endregion
 
 		object.year = this.year;
