@@ -34,7 +34,7 @@
 //**************************************************************************************
 import { getParametersValue, padNumber, isEqualBuffer, bufferToHexCodes, checkBufferParams, utilToBase, utilFromBase, utilEncodeTC, utilDecodeTC, utilConcatView } from "pvutils";
 //**************************************************************************************
-//region Other utility functions
+//#region Other utility functions
 //**************************************************************************************
 function assertBigInt()
 {
@@ -98,16 +98,44 @@ function concat(buffers)
 	return retBuf;
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of global variables
+//#region Declaration of global variables
 //**************************************************************************************
 const powers2 = [new Uint8Array([1])];
 const digitsString = "0123456789";
+const NAME = "name";
+const VALUE_BEFORE_DECODE = "valueBeforeDecode";
+const BLOCK_LENGTH = "blockLength";
+const ERROR = "error";
+const WARNINGS = "warnings";
+const VALUE_HEX = "valueHex";
+const IS_HEX_ONLY = "isHexOnly";
+const ID_BLOCK = "idBlock";
+const TAG_CLASS = "tagClass";
+const TAG_NUMBER = "tagNumber";
+const IS_CONSTRUCTED = "isConstructed";
+const LEN_BLOCK = "lenBlock";
+const IS_INDEFINITE_FORM = "isIndefiniteForm";
+const LONG_FORM_USED = "longFormUsed";
+const LENGTH = "length";
+const OPTIONAL = "optional";
+const PRIMITIVE_SCHEMA = "primitiveSchema";
+const VALUE = "value";
+const VALUE_DATE = "valueDate";
+const FROM_BER = "fromBER";
+const TO_BER = "toBER";
+const LOCAL = "local";
+const UNUSED_BITS = "unusedBits";
+const VALUE_DEC = "valueDec";
+const IS_FIRST_SID = "isFirstSid";
+const DATA = "data";
+const EMPTY_STRING = "";
+const EMPTY_BUFFER = new ArrayBuffer(0);
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration for "ViewWriter"
+//#region Declaration for "ViewWriter"
 //**************************************************************************************
 class ViewWriter
 {
@@ -138,9 +166,9 @@ class ViewWriter
 	}
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration for "LocalBaseBlock" class
+//#region Declaration for "LocalBaseBlock" class
 //**************************************************************************************
 /**
  * Class used as a base block for all remaining ASN.1 classes
@@ -164,23 +192,23 @@ class LocalBaseBlock
 		/**
 		 * @type {number} blockLength
 		 */
-		this.blockLength = getParametersValue(parameters, "blockLength", 0);
+		this.blockLength = getParametersValue(parameters, BLOCK_LENGTH, 0);
 		/**
 		 * @type {string} error
 		 */
-		this.error = getParametersValue(parameters, "error", "");
+		this.error = getParametersValue(parameters, ERROR, EMPTY_STRING);
 		/**
 		 * @type {Array.<string>} warnings
 		 */
-		this.warnings = getParametersValue(parameters, "warnings", []);
+		this.warnings = getParametersValue(parameters, WARNINGS, []);
 		//noinspection JSCheckFunctionSignatures
 		/**
 		 * @type {ArrayBuffer} valueBeforeDecode
 		 */
-		if("valueBeforeDecode" in parameters)
+		if(VALUE_BEFORE_DECODE in parameters)
 			this.valueBeforeDecode = parameters.valueBeforeDecode.slice(0);
 		else
-			this.valueBeforeDecode = new ArrayBuffer(0);
+			this.valueBeforeDecode = EMPTY_BUFFER;
 	}
 	//**********************************************************************************
 	/**
@@ -209,9 +237,9 @@ class LocalBaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Description for "HexBlock" class
+//#region Description for "HexBlock" class
 //**************************************************************************************
 /**
  * Class used as a base block for all remaining ASN.1 classes
@@ -241,14 +269,14 @@ export const HexBlock = BaseClass => class LocalHexBlockMixin extends BaseClass
 		/**
 		 * @type {boolean}
 		 */
-		this.isHexOnly = getParametersValue(parameters, "isHexOnly", false);
+		this.isHexOnly = getParametersValue(parameters, IS_HEX_ONLY, false);
 		/**
 		 * @type {ArrayBuffer}
 		 */
-		if("valueHex" in parameters)
+		if(VALUE_HEX in parameters)
 			this.valueHex = parameters.valueHex.slice(0);
 		else
-			this.valueHex = new ArrayBuffer(0);
+			this.valueHex = EMPTY_BUFFER;
 	}
 	//**********************************************************************************
 	/**
@@ -269,27 +297,27 @@ export const HexBlock = BaseClass => class LocalHexBlockMixin extends BaseClass
 	 */
 	fromBER(inputBuffer, inputOffset, inputLength)
 	{
-		//region Basic check for parameters
+		//#region Basic check for parameters
 		//noinspection JSCheckFunctionSignatures
 		if(checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
 			return (-1);
-		//endregion
+		//#endregion
 
-		//region Getting Uint8Array from ArrayBuffer
+		//#region Getting Uint8Array from ArrayBuffer
 		const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
-		//endregion
+		//#endregion
 
-		//region Initial checks
+		//#region Initial checks
 		if(intBuffer.length === 0)
 		{
 			this.warnings.push("Zero buffer length");
 			return inputOffset;
 		}
-		//endregion
+		//#endregion
 
-		//region Copy input buffer to internal buffer
+		//#region Copy input buffer to internal buffer
 		this.valueHex = inputBuffer.slice(inputOffset, inputOffset + inputLength);
-		//endregion
+		//#endregion
 
 		this.blockLength = inputLength;
 
@@ -306,7 +334,7 @@ export const HexBlock = BaseClass => class LocalHexBlockMixin extends BaseClass
 		if(this.isHexOnly !== true)
 		{
 			this.error = "Flag \"isHexOnly\" is not set, abort";
-			return new ArrayBuffer(0);
+			return EMPTY_BUFFER;
 		}
 
 		if(sizeOnly === true)
@@ -324,13 +352,13 @@ export const HexBlock = BaseClass => class LocalHexBlockMixin extends BaseClass
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.blockName = this.constructor.blockName();
 		object.isHexOnly = this.isHexOnly;
@@ -341,9 +369,9 @@ export const HexBlock = BaseClass => class LocalHexBlockMixin extends BaseClass
 	//**********************************************************************************
 };
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of identification block class
+//#region Declaration of identification block class
 //**************************************************************************************
 class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 {
@@ -357,16 +385,16 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 	{
 		super();
 
-		if("idBlock" in parameters)
+		if(ID_BLOCK in parameters)
 		{
-			//region Properties from hexBlock class
-			this.isHexOnly = getParametersValue(parameters.idBlock, "isHexOnly", false);
-			this.valueHex = getParametersValue(parameters.idBlock, "valueHex", new ArrayBuffer(0));
-			//endregion
+			//#region Properties from hexBlock class
+			this.isHexOnly = getParametersValue(parameters.idBlock, IS_HEX_ONLY, false);
+			this.valueHex = getParametersValue(parameters.idBlock, VALUE_HEX, EMPTY_BUFFER);
+			//#endregion
 
-			this.tagClass = getParametersValue(parameters.idBlock, "tagClass", (-1));
-			this.tagNumber = getParametersValue(parameters.idBlock, "tagNumber", (-1));
-			this.isConstructed = getParametersValue(parameters.idBlock, "isConstructed", false);
+			this.tagClass = getParametersValue(parameters.idBlock, TAG_CLASS, (-1));
+			this.tagNumber = getParametersValue(parameters.idBlock, TAG_NUMBER, (-1));
+			this.isConstructed = getParametersValue(parameters.idBlock, IS_CONSTRUCTED, false);
 		}
 		else
 		{
@@ -392,11 +420,11 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 	 */
 	toBER(sizeOnly = false)
 	{
-		//region Initial variables
+		//#region Initial variables
 		let firstOctet = 0;
 		let retBuf;
 		let retView;
-		//endregion
+		//#endregion
 
 		switch(this.tagClass)
 		{
@@ -414,7 +442,7 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 				break;
 			default:
 				this.error = "Unknown tag class";
-				return (new ArrayBuffer(0));
+				return (EMPTY_BUFFER);
 		}
 
 		if(this.isConstructed)
@@ -485,25 +513,25 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 	 */
 	fromBER(inputBuffer, inputOffset, inputLength)
 	{
-		//region Basic check for parameters
+		//#region Basic check for parameters
 		//noinspection JSCheckFunctionSignatures
 		if(checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
 			return (-1);
-		//endregion
+		//#endregion
 
-		//region Getting Uint8Array from ArrayBuffer
+		//#region Getting Uint8Array from ArrayBuffer
 		const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
-		//endregion
+		//#endregion
 
-		//region Initial checks
+		//#region Initial checks
 		if(intBuffer.length === 0)
 		{
 			this.error = "Zero buffer length";
 			return (-1);
 		}
-		//endregion
+		//#endregion
 
-		//region Find tag class
+		//#region Find tag class
 		const tagClassMask = intBuffer[0] & 0xC0;
 
 		switch(tagClassMask)
@@ -524,25 +552,25 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 				this.error = "Unknown tag class";
 				return (-1);
 		}
-		//endregion
+		//#endregion
 
-		//region Find it's constructed or not
+		//#region Find it's constructed or not
 		this.isConstructed = (intBuffer[0] & 0x20) === 0x20;
-		//endregion
+		//#endregion
 
-		//region Find tag number
+		//#region Find tag number
 		this.isHexOnly = false;
 
 		const tagNumberMask = intBuffer[0] & 0x1F;
 
-		//region Simple case (tag number < 31)
+		//#region Simple case (tag number < 31)
 		if(tagNumberMask !== 0x1F)
 		{
 			this.tagNumber = (tagNumberMask);
 			this.blockLength = 1;
 		}
-		//endregion
-		//region Tag number bigger or equal to 31
+		//#endregion
+		//#region Tag number bigger or equal to 31
 		else
 		{
 			let count = 1;
@@ -563,7 +591,7 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 					return (-1);
 				}
 
-				//region In case if tag number length is greater than 255 bytes (rare but possible case)
+				//#region In case if tag number length is greater than 255 bytes (rare but possible case)
 				if(count === tagNumberBufferMaxLength)
 				{
 					tagNumberBufferMaxLength += 255;
@@ -577,13 +605,13 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 					this.valueHex = new ArrayBuffer(tagNumberBufferMaxLength);
 					intTagNumberBuffer = new Uint8Array(this.valueHex);
 				}
-				//endregion
+				//#endregion
 			}
 
 			this.blockLength = (count + 1);
 			intTagNumberBuffer[count - 1] = intBuffer[count] & 0x7F; // Write last byte to buffer
 
-			//region Cut buffer
+			//#region Cut buffer
 			const tempBuffer = new ArrayBuffer(count);
 			const tempBufferView = new Uint8Array(tempBuffer);
 
@@ -593,9 +621,9 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 			this.valueHex = new ArrayBuffer(count);
 			intTagNumberBuffer = new Uint8Array(this.valueHex);
 			intTagNumberBuffer.set(tempBufferView);
-			//endregion
+			//#endregion
 
-			//region Try to convert long tag number to short form
+			//#region Try to convert long tag number to short form
 			if(this.blockLength <= 9)
 				this.tagNumber = utilFromBase(intTagNumberBuffer, 7);
 			else
@@ -603,12 +631,12 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 				this.isHexOnly = true;
 				this.warnings.push("Tag too long, represented as hex-coded");
 			}
-			//endregion
+			//#endregion
 		}
-		//endregion
-		//endregion
+		//#endregion
+		//#endregion
 
-		//region Check if constructed encoding was using for primitive type
+		//#region Check if constructed encoding was using for primitive type
 		if(((this.tagClass === 1)) &&
 			(this.isConstructed))
 		{
@@ -632,7 +660,7 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 				default:
 			}
 		}
-		//endregion
+		//#endregion
 
 		return (inputOffset + this.blockLength); // Return current offset in input buffer
 	}
@@ -653,13 +681,13 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.blockName = this.constructor.blockName();
 		object.tagClass = this.tagClass;
@@ -671,9 +699,9 @@ class LocalIdentificationBlock extends HexBlock(LocalBaseBlock)
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of length block class
+//#region Declaration of length block class
 //**************************************************************************************
 class LocalLengthBlock extends LocalBaseBlock
 {
@@ -687,11 +715,11 @@ class LocalLengthBlock extends LocalBaseBlock
 	{
 		super();
 
-		if("lenBlock" in parameters)
+		if(LEN_BLOCK in parameters)
 		{
-			this.isIndefiniteForm = getParametersValue(parameters.lenBlock, "isIndefiniteForm", false);
-			this.longFormUsed = getParametersValue(parameters.lenBlock, "longFormUsed", false);
-			this.length = getParametersValue(parameters.lenBlock, "length", 0);
+			this.isIndefiniteForm = getParametersValue(parameters.lenBlock, IS_INDEFINITE_FORM, false);
+			this.longFormUsed = getParametersValue(parameters.lenBlock, LONG_FORM_USED, false);
+			this.length = getParametersValue(parameters.lenBlock, LENGTH, 0);
 		}
 		else
 		{
@@ -719,17 +747,17 @@ class LocalLengthBlock extends LocalBaseBlock
 	 */
 	fromBER(inputBuffer, inputOffset, inputLength)
 	{
-		//region Basic check for parameters
+		//#region Basic check for parameters
 		//noinspection JSCheckFunctionSignatures
 		if(checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
 			return (-1);
-		//endregion
+		//#endregion
 
-		//region Getting Uint8Array from ArrayBuffer
+		//#region Getting Uint8Array from ArrayBuffer
 		const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
-		//endregion
+		//#endregion
 
-		//region Initial checks
+		//#region Initial checks
 		if(intBuffer.length === 0)
 		{
 			this.error = "Zero buffer length";
@@ -741,34 +769,34 @@ class LocalLengthBlock extends LocalBaseBlock
 			this.error = "Length block 0xFF is reserved by standard";
 			return (-1);
 		}
-		//endregion
+		//#endregion
 
-		//region Check for length form type
+		//#region Check for length form type
 		this.isIndefiniteForm = intBuffer[0] === 0x80;
-		//endregion
+		//#endregion
 
-		//region Stop working in case of indefinite length form
+		//#region Stop working in case of indefinite length form
 		if(this.isIndefiniteForm === true)
 		{
 			this.blockLength = 1;
 			return (inputOffset + this.blockLength);
 		}
-		//endregion
+		//#endregion
 
-		//region Check is long form of length encoding using
+		//#region Check is long form of length encoding using
 		this.longFormUsed = !!(intBuffer[0] & 0x80);
-		//endregion
+		//#endregion
 
-		//region Stop working in case of short form of length value
+		//#region Stop working in case of short form of length value
 		if(this.longFormUsed === false)
 		{
 			this.length = (intBuffer[0]);
 			this.blockLength = 1;
 			return (inputOffset + this.blockLength);
 		}
-		//endregion
+		//#endregion
 
-		//region Calculate length value in case of long form
+		//#region Calculate length value in case of long form
 		const count = intBuffer[0] & 0x7F;
 
 		if(count > 8) // Too big length value
@@ -797,7 +825,7 @@ class LocalLengthBlock extends LocalBaseBlock
 			this.warnings.push("Unnecessary usage of long length form");
 
 		this.blockLength = count + 1;
-		//endregion
+		//#endregion
 
 		return (inputOffset + this.blockLength); // Return current offset in input buffer
 	}
@@ -809,10 +837,10 @@ class LocalLengthBlock extends LocalBaseBlock
 	 */
 	toBER(sizeOnly = false)
 	{
-		//region Initial variables
+		//#region Initial variables
 		let retBuf;
 		let retView;
-		//endregion
+		//#endregion
 
 		if(this.length > 127)
 			this.longFormUsed = true;
@@ -837,7 +865,7 @@ class LocalLengthBlock extends LocalBaseBlock
 			if(encodedBuf.byteLength > 127)
 			{
 				this.error = "Too big length";
-				return (new ArrayBuffer(0));
+				return (EMPTY_BUFFER);
 			}
 
 			retBuf = new ArrayBuffer(encodedBuf.byteLength + 1);
@@ -876,13 +904,13 @@ class LocalLengthBlock extends LocalBaseBlock
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.blockName = this.constructor.blockName();
 		object.isIndefiniteForm = this.isIndefiniteForm;
@@ -894,9 +922,9 @@ class LocalLengthBlock extends LocalBaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of value block class
+//#region Declaration of value block class
 //**************************************************************************************
 export class ValueBlock extends LocalBaseBlock
 {
@@ -929,9 +957,9 @@ export class ValueBlock extends LocalBaseBlock
 	 */
 	fromBER(inputBuffer, inputOffset, inputLength)
 	{
-		//region Throw an exception for a function which needs to be specified in extended classes
+		//#region Throw an exception for a function which needs to be specified in extended classes
 		throw TypeError("User need to make a specific function in a class which extends \"ValueBlock\"");
-		//endregion
+		//#endregion
 	}
 	//**********************************************************************************
 	//noinspection JSUnusedLocalSymbols
@@ -942,16 +970,16 @@ export class ValueBlock extends LocalBaseBlock
 	 */
 	toBER(sizeOnly = false)
 	{
-		//region Throw an exception for a function which needs to be specified in extended classes
+		//#region Throw an exception for a function which needs to be specified in extended classes
 		throw TypeError("User need to make a specific function in a class which extends \"ValueBlock\"");
-		//endregion
+		//#endregion
 	}
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of basic ASN.1 block class
+//#region Declaration of basic ASN.1 block class
 //**************************************************************************************
 export class BaseBlock extends LocalBaseBlock
 {
@@ -968,11 +996,11 @@ export class BaseBlock extends LocalBaseBlock
 	{
 		super(parameters);
 
-		if("name" in parameters)
+		if(NAME in parameters)
 			this.name = parameters.name;
-		if("optional" in parameters)
+		if(OPTIONAL in parameters)
 			this.optional = parameters.optional;
-		if("primitiveSchema" in parameters)
+		if(PRIMITIVE_SCHEMA in parameters)
 			this.primitiveSchema = parameters.primitiveSchema;
 
 		this.idBlock = new LocalIdentificationBlock(parameters);
@@ -1072,23 +1100,23 @@ export class BaseBlock extends LocalBaseBlock
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.idBlock = this.idBlock.toJSON();
 		object.lenBlock = this.lenBlock.toJSON();
 		object.valueBlock = this.valueBlock.toJSON();
 
-		if("name" in this)
+		if(NAME in this)
 			object.name = this.name;
-		if("optional" in this)
+		if(OPTIONAL in this)
 			object.optional = this.optional;
-		if("primitiveSchema" in this)
+		if(PRIMITIVE_SCHEMA in this)
 			object.primitiveSchema = this.primitiveSchema.toJSON();
 
 		return object;
@@ -1101,9 +1129,9 @@ export class BaseBlock extends LocalBaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of basic block for all PRIMITIVE types
+//#region Declaration of basic block for all PRIMITIVE types
 //**************************************************************************************
 class LocalPrimitiveValueBlock extends ValueBlock
 {
@@ -1117,14 +1145,14 @@ class LocalPrimitiveValueBlock extends ValueBlock
 	{
 		super(parameters);
 
-		//region Variables from "hexBlock" class
-		if("valueHex" in parameters)
+		//#region Variables from "hexBlock" class
+		if(VALUE_HEX in parameters)
 			this.valueHex = parameters.valueHex.slice(0);
 		else
-			this.valueHex = new ArrayBuffer(0);
+			this.valueHex = EMPTY_BUFFER;
 
-		this.isHexOnly = getParametersValue(parameters, "isHexOnly", true);
-		//endregion
+		this.isHexOnly = getParametersValue(parameters, IS_HEX_ONLY, true);
+		//#endregion
 	}
 	//**********************************************************************************
 	/**
@@ -1136,31 +1164,31 @@ class LocalPrimitiveValueBlock extends ValueBlock
 	 */
 	fromBER(inputBuffer, inputOffset, inputLength)
 	{
-		//region Basic check for parameters
+		//#region Basic check for parameters
 		//noinspection JSCheckFunctionSignatures
 		if(checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
 			return (-1);
-		//endregion
+		//#endregion
 
-		//region Getting Uint8Array from ArrayBuffer
+		//#region Getting Uint8Array from ArrayBuffer
 		const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
-		//endregion
+		//#endregion
 
-		//region Initial checks
+		//#region Initial checks
 		if(intBuffer.length === 0)
 		{
 			this.warnings.push("Zero buffer length");
 			return inputOffset;
 		}
-		//endregion
+		//#endregion
 
-		//region Copy input buffer into internal buffer
+		//#region Copy input buffer into internal buffer
 		this.valueHex = new ArrayBuffer(intBuffer.length);
 		const valueHexView = new Uint8Array(this.valueHex);
 
 		for(let i = 0; i < intBuffer.length; i++)
 			valueHexView[i] = intBuffer[i];
-		//endregion
+		//#endregion
 
 		this.blockLength = inputLength;
 
@@ -1195,13 +1223,13 @@ class LocalPrimitiveValueBlock extends ValueBlock
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.valueHex = bufferToHexCodes(this.valueHex, 0, this.valueHex.byteLength);
 		object.isHexOnly = this.isHexOnly;
@@ -1237,9 +1265,9 @@ export class Primitive extends BaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of basic block for all CONSTRUCTED types
+//#region Declaration of basic block for all CONSTRUCTED types
 //**************************************************************************************
 class LocalConstructedValueBlock extends ValueBlock
 {
@@ -1252,8 +1280,8 @@ class LocalConstructedValueBlock extends ValueBlock
 	{
 		super(parameters);
 
-		this.value = getParametersValue(parameters, "value", []);
-		this.isIndefiniteForm = getParametersValue(parameters, "isIndefiniteForm", false);
+		this.value = getParametersValue(parameters, VALUE, []);
+		this.isIndefiniteForm = getParametersValue(parameters, IS_INDEFINITE_FORM, false);
 	}
 	//**********************************************************************************
 	/**
@@ -1265,30 +1293,30 @@ class LocalConstructedValueBlock extends ValueBlock
 	 */
 	fromBER(inputBuffer, inputOffset, inputLength)
 	{
-		//region Store initial offset and length
+		//#region Store initial offset and length
 		const initialOffset = inputOffset;
 		const initialLength = inputLength;
-		//endregion
+		//#endregion
 
-		//region Basic check for parameters
+		//#region Basic check for parameters
 		//noinspection JSCheckFunctionSignatures
 		if(checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
 			return (-1);
-		//endregion
+		//#endregion
 
-		//region Getting Uint8Array from ArrayBuffer
+		//#region Getting Uint8Array from ArrayBuffer
 		const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
-		//endregion
+		//#endregion
 
-		//region Initial checks
+		//#region Initial checks
 		if(intBuffer.length === 0)
 		{
 			this.warnings.push("Zero buffer length");
 			return inputOffset;
 		}
-		//endregion
+		//#endregion
 
-		//region Aux function
+		//#region Aux function
 		function checkLen(indefiniteLength, length)
 		{
 			if(indefiniteLength === true)
@@ -1296,7 +1324,7 @@ class LocalConstructedValueBlock extends ValueBlock
 
 			return length;
 		}
-		//endregion
+		//#endregion
 
 		let currentOffset = inputOffset;
 
@@ -1329,9 +1357,9 @@ class LocalConstructedValueBlock extends ValueBlock
 				this.warnings.push("No EndOfContent block encoded");
 		}
 
-		//region Copy "inputBuffer" to "valueBeforeDecode"
+		//#region Copy "inputBuffer" to VALUE_BEFORE_DECODE
 		this.valueBeforeDecode = inputBuffer.slice(initialOffset, initialOffset + initialLength);
-		//endregion
+		//#endregion
 
 		return currentOffset;
 	}
@@ -1373,13 +1401,13 @@ class LocalConstructedValueBlock extends ValueBlock
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.isIndefiniteForm = this.isIndefiniteForm;
 		object.value = [];
@@ -1461,9 +1489,9 @@ export class Constructed extends BaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of ASN.1 EndOfContent type class
+//#region Declaration of ASN.1 EndOfContent type class
 //**************************************************************************************
 class LocalEndOfContentValueBlock extends ValueBlock
 {
@@ -1487,9 +1515,9 @@ class LocalEndOfContentValueBlock extends ValueBlock
 	 */
 	fromBER(inputBuffer, inputOffset, inputLength)
 	{
-		//region There is no "value block" for EndOfContent type and we need to return the same offset
+		//#region There is no "value block" for EndOfContent type and we need to return the same offset
 		return inputOffset;
-		//endregion
+		//#endregion
 	}
 	//**********************************************************************************
 	//noinspection JSUnusedLocalSymbols
@@ -1500,7 +1528,7 @@ class LocalEndOfContentValueBlock extends ValueBlock
 	 */
 	toBER(sizeOnly = false)
 	{
-		return new ArrayBuffer(0);
+		return EMPTY_BUFFER;
 	}
 	//**********************************************************************************
 	/**
@@ -1536,9 +1564,9 @@ export class EndOfContent extends BaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of ASN.1 Boolean type class
+//#region Declaration of ASN.1 Boolean type class
 //**************************************************************************************
 class LocalBooleanValueBlock extends ValueBlock
 {
@@ -1551,10 +1579,10 @@ class LocalBooleanValueBlock extends ValueBlock
 	{
 		super(parameters);
 
-		this.value = getParametersValue(parameters, "value", false);
-		this.isHexOnly = getParametersValue(parameters, "isHexOnly", false);
+		this.value = getParametersValue(parameters, VALUE, false);
+		this.isHexOnly = getParametersValue(parameters, IS_HEX_ONLY, false);
 
-		if("valueHex" in parameters)
+		if(VALUE_HEX in parameters)
 			this.valueHex = parameters.valueHex.slice(0);
 		else
 		{
@@ -1576,28 +1604,28 @@ class LocalBooleanValueBlock extends ValueBlock
 	 */
 	fromBER(inputBuffer, inputOffset, inputLength)
 	{
-		//region Basic check for parameters
+		//#region Basic check for parameters
 		//noinspection JSCheckFunctionSignatures
 		if(checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
 			return (-1);
-		//endregion
+		//#endregion
 
-		//region Getting Uint8Array from ArrayBuffer
+		//#region Getting Uint8Array from ArrayBuffer
 		const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
-		//endregion
+		//#endregion
 
 		if(inputLength > 1)
 			this.warnings.push("Boolean value encoded in more then 1 octet");
 
 		this.isHexOnly = true;
 
-		//region Copy input buffer to internal array
+		//#region Copy input buffer to internal array
 		this.valueHex = new ArrayBuffer(intBuffer.length);
 		const view = new Uint8Array(this.valueHex);
 
 		for(let i = 0; i < intBuffer.length; i++)
 			view[i] = intBuffer[i];
-		//endregion
+		//#endregion
 
 		if(utilDecodeTC.call(this) !== 0)
 			this.value = true;
@@ -1637,13 +1665,13 @@ class LocalBooleanValueBlock extends ValueBlock
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.value = this.value;
 		object.isHexOnly = this.isHexOnly;
@@ -1685,9 +1713,9 @@ export class Boolean extends BaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of ASN.1 Sequence and Set type classes
+//#region Declaration of ASN.1 Sequence and Set type classes
 //**************************************************************************************
 export class Sequence extends Constructed
 {
@@ -1741,9 +1769,9 @@ export class Set extends Constructed
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of ASN.1 Null type class
+//#region Declaration of ASN.1 Null type class
 //**************************************************************************************
 export class Null extends BaseBlock
 {
@@ -1754,7 +1782,7 @@ export class Null extends BaseBlock
 	 */
 	constructor(parameters = {})
 	{
-		super(parameters, LocalBaseBlock); // We will not have a call to "Null value block" because of specified "fromBER" and "toBER" functions
+		super(parameters, LocalBaseBlock); // We will not have a call to "Null value block" because of specified FROM_BER and TO_BER functions
 
 		this.idBlock.tagClass = 1; // UNIVERSAL
 		this.idBlock.tagNumber = 5; // Null
@@ -1830,9 +1858,9 @@ export class Null extends BaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of ASN.1 OctetString type class
+//#region Declaration of ASN.1 OctetString type class
 //**************************************************************************************
 class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 {
@@ -1846,7 +1874,7 @@ class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 	{
 		super(parameters);
 
-		this.isConstructed = getParametersValue(parameters, "isConstructed", false);
+		this.isConstructed = getParametersValue(parameters, IS_CONSTRUCTED, false);
 	}
 	//**********************************************************************************
 	/**
@@ -1937,13 +1965,13 @@ class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.isConstructed = this.isConstructed;
 		object.isHexOnly = this.isHexOnly;
@@ -1981,7 +2009,7 @@ export class OctetString extends BaseBlock
 		this.valueBlock.isConstructed = this.idBlock.isConstructed;
 		this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
 
-		//region Ability to encode empty OCTET STRING
+		//#region Ability to encode empty OCTET STRING
 		if(inputLength === 0)
 		{
 			if(this.idBlock.error.length === 0)
@@ -1992,7 +2020,7 @@ export class OctetString extends BaseBlock
 
 			return inputOffset;
 		}
-		//endregion
+		//#endregion
 
 		if(!this.valueBlock.isConstructed)
 		{
@@ -2029,15 +2057,15 @@ export class OctetString extends BaseBlock
 	 */
 	isEqual(octetString)
 	{
-		//region Check input type
+		//#region Check input type
 		if((octetString instanceof OctetString) === false)
 			return false;
-		//endregion
+		//#endregion
 
-		//region Compare two JSON strings
+		//#region Compare two JSON strings
 		if(JSON.stringify(this) !== JSON.stringify(octetString))
 			return false;
-		//endregion
+		//#endregion
 
 		return true;
 	}
@@ -2055,9 +2083,9 @@ export class OctetString extends BaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of ASN.1 BitString type class
+//#region Declaration of ASN.1 BitString type class
 //**************************************************************************************
 class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 {
@@ -2071,8 +2099,8 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 	{
 		super(parameters);
 
-		this.unusedBits = getParametersValue(parameters, "unusedBits", 0);
-		this.isConstructed = getParametersValue(parameters, "isConstructed", false);
+		this.unusedBits = getParametersValue(parameters, UNUSED_BITS, 0);
+		this.isConstructed = getParametersValue(parameters, IS_CONSTRUCTED, false);
 		this.blockLength = this.valueHex.byteLength;
 	}
 	//**********************************************************************************
@@ -2085,14 +2113,14 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 	 */
 	fromBER(inputBuffer, inputOffset, inputLength)
 	{
-		//region Ability to decode zero-length BitString value
+		//#region Ability to decode zero-length BitString value
 		if(inputLength === 0)
 			return inputOffset;
-		//endregion
+		//#endregion
 
 		let resultOffset = (-1);
 
-		//region If the BISTRING supposed to be a constructed value
+		//#region If the BISTRING supposed to be a constructed value
 		if(this.isConstructed === true)
 		{
 			resultOffset = LocalConstructedValueBlock.prototype.fromBER.call(this, inputBuffer, inputOffset, inputLength);
@@ -2136,13 +2164,13 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 
 			return resultOffset;
 		}
-		//endregion
-		//region If the BitString supposed to be a primitive value
-		//region Basic check for parameters
+		//#endregion
+		//#region If the BitString supposed to be a primitive value
+		//#region Basic check for parameters
 		//noinspection JSCheckFunctionSignatures
 		if(checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
 			return (-1);
-		//endregion
+		//#endregion
 
 		const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
 
@@ -2170,17 +2198,17 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 			}
 		}
 
-		//region Copy input buffer to internal buffer
+		//#region Copy input buffer to internal buffer
 		this.valueHex = new ArrayBuffer(intBuffer.length - 1);
 		const view = new Uint8Array(this.valueHex);
 		for(let i = 0; i < (inputLength - 1); i++)
 			view[i] = intBuffer[i + 1];
-		//endregion
+		//#endregion
 
 		this.blockLength = intBuffer.length;
 
 		return (inputOffset + inputLength);
-		//endregion
+		//#endregion
 	}
 	//**********************************************************************************
 	/**
@@ -2197,7 +2225,7 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 			return (new ArrayBuffer(this.valueHex.byteLength + 1));
 
 		if(this.valueHex.byteLength === 0)
-			return (new ArrayBuffer(0));
+			return (EMPTY_BUFFER);
 
 		const curView = new Uint8Array(this.valueHex);
 
@@ -2229,13 +2257,13 @@ class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock)
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.unusedBits = this.unusedBits;
 		object.isConstructed = this.isConstructed;
@@ -2280,10 +2308,10 @@ export class BitString extends BaseBlock
 	 */
 	fromBER(inputBuffer, inputOffset, inputLength)
 	{
-		//region Ability to encode empty BitString
+		//#region Ability to encode empty BitString
 		if(inputLength === 0)
 			return inputOffset;
-		//endregion
+		//#endregion
 
 		this.valueBlock.isConstructed = this.idBlock.isConstructed;
 		this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
@@ -2297,15 +2325,15 @@ export class BitString extends BaseBlock
 	 */
 	isEqual(bitString)
 	{
-		//region Check input type
+		//#region Check input type
 		if((bitString instanceof BitString) === false)
 			return false;
-		//endregion
+		//#endregion
 
-		//region Compare two JSON strings
+		//#region Compare two JSON strings
 		if(JSON.stringify(this) !== JSON.stringify(bitString))
 			return false;
-		//endregion
+		//#endregion
 
 		return true;
 	}
@@ -2330,9 +2358,9 @@ export class BitString extends BaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of ASN.1 Integer type class
+//#region Declaration of ASN.1 Integer type class
 //**************************************************************************************
 /**
  * @extends ValueBlock
@@ -2349,12 +2377,12 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 	{
 		super(parameters);
 
-		if("value" in parameters)
+		if(VALUE in parameters)
 			this.valueDec = parameters.value;
 	}
 	//**********************************************************************************
 	/**
-	 * Setter for "valueHex"
+	 * Setter for VALUE_HEX
 	 * @param {ArrayBuffer} _value
 	 */
 	set valueHex(_value)
@@ -2377,7 +2405,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Getter for "valueHex"
+	 * Getter for VALUE_HEX
 	 * @returns {ArrayBuffer}
 	 */
 	get valueHex()
@@ -2386,7 +2414,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Getter for "valueDec"
+	 * Getter for VALUE_DEC
 	 * @param {number} _value
 	 */
 	set valueDec(_value)
@@ -2398,7 +2426,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 	}
 	//**********************************************************************************
 	/**
-	 * Getter for "valueDec"
+	 * Getter for VALUE_DEC
 	 * @returns {number}
 	 */
 	get valueDec()
@@ -2411,7 +2439,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 	 * @param {!ArrayBuffer} inputBuffer ASN.1 DER encoded array
 	 * @param {!number} inputOffset Offset in ASN.1 DER encoded array where decoding should be started
 	 * @param {!number} inputLength Maximum length of array of bytes which can be using in this function
-	 * @param {number} [expectedLength=0] Expected length of converted "valueHex" buffer
+	 * @param {number} [expectedLength=0] Expected length of converted VALUE_HEX buffer
 	 * @returns {number} Offset after least decoded byte
 	 */
 	fromDER(inputBuffer, inputOffset, inputLength, expectedLength = 0)
@@ -2538,13 +2566,13 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.valueDec = this.valueDec;
 
@@ -2556,10 +2584,10 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 	 */
 	toString()
 	{
-		//region Aux functions
+		//#region Aux functions
 		function viewAdd(first, second)
 		{
-			//region Initial variables
+			//#region Initial variables
 			const c = new Uint8Array([0]);
 
 			let firstView = new Uint8Array(first);
@@ -2575,7 +2603,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 			const max = (secondViewCopyLength < firstViewCopyLength) ? firstViewCopyLength : secondViewCopyLength;
 
 			let counter = 0;
-			//endregion
+			//#endregion
 
 			for(let i = max; i >= 0; i--, counter++)
 			{
@@ -2634,7 +2662,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 
 		function viewSub(first, second)
 		{
-			//region Initial variables
+			//#region Initial variables
 			let b = 0;
 
 			let firstView = new Uint8Array(first);
@@ -2648,7 +2676,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 			let value;
 
 			let counter = 0;
-			//endregion
+			//#endregion
 
 			for(let i = secondViewCopyLength; i >= 0; i--, counter++)
 			{
@@ -2688,9 +2716,9 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 
 			return firstViewCopy.slice();
 		}
-		//endregion
+		//#endregion
 
-		//region Initial variables
+		//#region Initial variables
 		const firstBit = (this._valueHex.byteLength * 8) - 1;
 
 		let digits = new Uint8Array((this._valueHex.byteLength * 8) / 3);
@@ -2702,9 +2730,9 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 		let result = "";
 
 		let flag = false;
-		//endregion
+		//#endregion
 
-		//region Calculate number
+		//#region Calculate number
 		for(let byteNumber = (this._valueHex.byteLength - 1); byteNumber >= 0; byteNumber--)
 		{
 			currentByte = asn1View[byteNumber];
@@ -2728,9 +2756,9 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 				currentByte >>= 1;
 			}
 		}
-		//endregion
+		//#endregion
 
-		//region Print number
+		//#region Print number
 		for(let i = 0; i < digits.length; i++)
 		{
 			if(digits[i])
@@ -2742,7 +2770,7 @@ class LocalIntegerValueBlock extends HexBlock(ValueBlock)
 
 		if(flag === false)
 			result += digitsString.charAt(0);
-		//endregion
+		//#endregion
 
 		return result;
 	}
@@ -2832,9 +2860,9 @@ export class Integer extends BaseBlock
 	}
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of ASN.1 Enumerated type class
+//#region Declaration of ASN.1 Enumerated type class
 //**************************************************************************************
 export class Enumerated extends Integer
 {
@@ -2862,9 +2890,9 @@ export class Enumerated extends Integer
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of ASN.1 ObjectIdentifier type class
+//#region Declaration of ASN.1 ObjectIdentifier type class
 //**************************************************************************************
 class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 {
@@ -2879,8 +2907,8 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 	{
 		super(parameters);
 
-		this.valueDec = getParametersValue(parameters, "valueDec", -1);
-		this.isFirstSid = getParametersValue(parameters, "isFirstSid", false);
+		this.valueDec = getParametersValue(parameters, VALUE_DEC, -1);
+		this.isFirstSid = getParametersValue(parameters, IS_FIRST_SID, false);
 	}
 	//**********************************************************************************
 	/**
@@ -2904,11 +2932,11 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 		if(inputLength === 0)
 			return inputOffset;
 
-		//region Basic check for parameters
+		//#region Basic check for parameters
 		//noinspection JSCheckFunctionSignatures
 		if(checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
 			return (-1);
-		//endregion
+		//#endregion
 
 		const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
 
@@ -2925,7 +2953,7 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 				break;
 		}
 
-		//region Adjust size of valueHex buffer
+		//#region Adjust size of valueHex buffer
 		const tempValueHex = new ArrayBuffer(this.blockLength);
 		const tempView = new Uint8Array(tempValueHex);
 
@@ -2935,7 +2963,7 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 		//noinspection JSCheckFunctionSignatures
 		this.valueHex = tempValueHex.slice(0);
 		view = new Uint8Array(this.valueHex);
-		//endregion
+		//#endregion
 
 		if((intBuffer[this.blockLength - 1] & 0x80) !== 0x00)
 		{
@@ -2985,10 +3013,10 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 	 */
 	toBER(sizeOnly = false)
 	{
-		//region Initial variables
+		//#region Initial variables
 		let retBuf;
 		let retView;
-		//endregion
+		//#endregion
 
 		if(this.isHexOnly)
 		{
@@ -3012,7 +3040,7 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 		if(encodedBuf.byteLength === 0)
 		{
 			this.error = "Error during encoding SID value";
-			return (new ArrayBuffer(0));
+			return (EMPTY_BUFFER);
 		}
 
 		retBuf = new ArrayBuffer(encodedBuf.byteLength);
@@ -3081,13 +3109,13 @@ class LocalSidValueBlock extends HexBlock(LocalBaseBlock)
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.valueDec = this.valueDec;
 		object.isFirstSid = this.isFirstSid;
@@ -3109,7 +3137,7 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 	{
 		super(parameters);
 
-		this.fromString(getParametersValue(parameters, "value", ""));
+		this.fromString(getParametersValue(parameters, VALUE, EMPTY_STRING));
 	}
 	//**********************************************************************************
 	/**
@@ -3161,7 +3189,7 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 			if(valueBuf.byteLength === 0)
 			{
 				this.error = this.value[i].error;
-				return (new ArrayBuffer(0));
+				return (EMPTY_BUFFER);
 			}
 
 			retBufs.push(valueBuf);
@@ -3303,13 +3331,13 @@ class LocalObjectIdentifierValueBlock extends ValueBlock
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.value = this.toString();
 		object.sidArray = [];
@@ -3356,9 +3384,9 @@ export class ObjectIdentifier extends BaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of all string's classes
+//#region Declaration of all string's classes
 //**************************************************************************************
 class LocalUtf8StringValueBlock extends HexBlock(LocalBaseBlock)
 {
@@ -3394,13 +3422,13 @@ class LocalUtf8StringValueBlock extends HexBlock(LocalBaseBlock)
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.value = this.value;
 
@@ -3424,7 +3452,7 @@ export class Utf8String extends BaseBlock
 	{
 		super(parameters, LocalUtf8StringValueBlock);
 
-		if("value" in parameters)
+		if(VALUE in parameters)
 			this.fromString(parameters.value);
 
 		this.idBlock.tagClass = 1; // UNIVERSAL
@@ -3515,7 +3543,7 @@ export class Utf8String extends BaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//region Declaration of ASN.1 RelativeObjectIdentifier type class
+//#region Declaration of ASN.1 RelativeObjectIdentifier type class
 //**************************************************************************************
 class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 {
@@ -3529,7 +3557,7 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 	{
 		super(parameters);
 
-		this.valueDec = getParametersValue(parameters, "valueDec", -1);
+		this.valueDec = getParametersValue(parameters, VALUE_DEC, -1);
 	}
 	//**********************************************************************************
 	/**
@@ -3553,11 +3581,11 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 		if(inputLength === 0)
 			return inputOffset;
 
-		//region Basic check for parameters
+		//#region Basic check for parameters
 		//noinspection JSCheckFunctionSignatures
 		if(checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
 			return (-1);
-		//endregion
+		//#endregion
 
 		const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
 
@@ -3574,7 +3602,7 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 				break;
 		}
 
-		//region Adjust size of valueHex buffer
+		//#region Adjust size of valueHex buffer
 		const tempValueHex = new ArrayBuffer(this.blockLength);
 		const tempView = new Uint8Array(tempValueHex);
 
@@ -3584,7 +3612,7 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 		//noinspection JSCheckFunctionSignatures
 		this.valueHex = tempValueHex.slice(0);
 		view = new Uint8Array(this.valueHex);
-		//endregion
+		//#endregion
 
 		if((intBuffer[this.blockLength - 1] & 0x80) !== 0x00)
 		{
@@ -3613,10 +3641,10 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 	 */
 	toBER(sizeOnly = false)
 	{
-		//region Initial variables
+		//#region Initial variables
 		let retBuf;
 		let retView;
-		//endregion
+		//#endregion
 
 		if(this.isHexOnly)
 		{
@@ -3640,7 +3668,7 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 		if(encodedBuf.byteLength === 0)
 		{
 			this.error = "Error during encoding SID value";
-			return (new ArrayBuffer(0));
+			return (EMPTY_BUFFER);
 		}
 
 		retBuf = new ArrayBuffer(encodedBuf.byteLength);
@@ -3686,12 +3714,12 @@ class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock)
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		} catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.valueDec = this.valueDec;
 
@@ -3712,7 +3740,7 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock
 	{
 		super(parameters);
 
-		this.fromString(getParametersValue(parameters, "value", ""));
+		this.fromString(getParametersValue(parameters, VALUE, EMPTY_STRING));
 	}
 	//**********************************************************************************
 	/**
@@ -3753,7 +3781,7 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock
 	 */
 	toBER(sizeOnly = false)
 	{
-		let retBufs = new ArrayBuffer(0);
+		let retBufs = [];
 
 		for(let i = 0; i < this.value.length; i++)
 		{
@@ -3761,7 +3789,7 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock
 			if(valueBuf.byteLength === 0)
 			{
 				this.error = this.value[i].error;
-				return (new ArrayBuffer(0));
+				return (EMPTY_BUFFER);
 			}
 
 			retBufs.push(valueBuf);
@@ -3852,12 +3880,12 @@ class LocalRelativeObjectIdentifierValueBlock extends ValueBlock
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		} catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.value = this.toString();
 		object.sidArray = [];
@@ -3899,7 +3927,7 @@ export class RelativeObjectIdentifier extends BaseBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
 /**
  * @extends LocalBaseBlock
@@ -3938,13 +3966,13 @@ class LocalBmpStringValueBlock extends HexBlock(LocalBaseBlock)
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.value = this.value;
 
@@ -3967,7 +3995,7 @@ export class BmpString extends BaseBlock
 	{
 		super(parameters, LocalBmpStringValueBlock);
 
-		if("value" in parameters)
+		if(VALUE in parameters)
 			this.fromString(parameters.value);
 
 		this.idBlock.tagClass = 1; // UNIVERSAL
@@ -4101,13 +4129,13 @@ class LocalUniversalStringValueBlock extends HexBlock(LocalBaseBlock)
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.value = this.value;
 
@@ -4130,7 +4158,7 @@ export class UniversalString extends BaseBlock
 	{
 		super(parameters, LocalUniversalStringValueBlock);
 
-		if("value" in parameters)
+		if(VALUE in parameters)
 			this.fromString(parameters.value);
 
 		this.idBlock.tagClass = 1; // UNIVERSAL
@@ -4264,13 +4292,13 @@ class LocalSimpleStringValueBlock extends HexBlock(LocalBaseBlock)
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.value = this.value;
 
@@ -4293,7 +4321,7 @@ class LocalSimpleStringBlock extends BaseBlock
 	{
 		super(parameters, LocalSimpleStringValueBlock);
 
-		if("value" in parameters)
+		if(VALUE in parameters)
 			this.fromString(parameters.value);
 	}
 	//**********************************************************************************
@@ -4630,9 +4658,9 @@ export class CharacterString extends LocalSimpleStringBlock
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of all date and time classes
+//#region Declaration of all date and time classes
 //**************************************************************************************
 /**
  * @extends VisibleString
@@ -4657,8 +4685,8 @@ export class UTCTime extends VisibleString
 		this.minute = 0;
 		this.second = 0;
 
-		//region Create UTCTime from ASN.1 UTC string value
-		if("value" in parameters)
+		//#region Create UTCTime from ASN.1 UTC string value
+		if(VALUE in parameters)
 		{
 			this.fromString(parameters.value);
 
@@ -4668,14 +4696,14 @@ export class UTCTime extends VisibleString
 			for(let i = 0; i < parameters.value.length; i++)
 				view[i] = parameters.value.charCodeAt(i);
 		}
-		//endregion
-		//region Create GeneralizedTime from JavaScript Date type
-		if("valueDate" in parameters)
+		//#endregion
+		//#region Create GeneralizedTime from JavaScript Date type
+		if(VALUE_DATE in parameters)
 		{
 			this.fromDate(parameters.valueDate);
 			this.valueBlock.valueHex = this.toBuffer();
 		}
-		//endregion
+		//#endregion
 
 		this.idBlock.tagClass = 1; // UNIVERSAL
 		this.idBlock.tagNumber = 23; // UTCTime
@@ -4767,7 +4795,7 @@ export class UTCTime extends VisibleString
 	 */
 	fromString(inputString)
 	{
-		//region Parse input string
+		//#region Parse input string
 		const parser = /(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/ig;
 		const parserArray = parser.exec(inputString);
 		if(parserArray === null)
@@ -4775,9 +4803,9 @@ export class UTCTime extends VisibleString
 			this.error = "Wrong input string for conversion";
 			return;
 		}
-		//endregion
+		//#endregion
 
-		//region Store parsed values
+		//#region Store parsed values
 		const year = parseInt(parserArray[1], 10);
 		if(year >= 50)
 			this.year = 1900 + year;
@@ -4789,7 +4817,7 @@ export class UTCTime extends VisibleString
 		this.hour = parseInt(parserArray[4], 10);
 		this.minute = parseInt(parserArray[5], 10);
 		this.second = parseInt(parserArray[6], 10);
-		//endregion
+		//#endregion
 	}
 	//**********************************************************************************
 	/**
@@ -4828,13 +4856,13 @@ export class UTCTime extends VisibleString
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.year = this.year;
 		object.month = this.month;
@@ -4872,8 +4900,8 @@ export class GeneralizedTime extends VisibleString
 		this.second = 0;
 		this.millisecond = 0;
 
-		//region Create UTCTime from ASN.1 UTC string value
-		if("value" in parameters)
+		//#region Create UTCTime from ASN.1 UTC string value
+		if(VALUE in parameters)
 		{
 			this.fromString(parameters.value);
 
@@ -4883,14 +4911,14 @@ export class GeneralizedTime extends VisibleString
 			for(let i = 0; i < parameters.value.length; i++)
 				view[i] = parameters.value.charCodeAt(i);
 		}
-		//endregion
-		//region Create GeneralizedTime from JavaScript Date type
-		if("valueDate" in parameters)
+		//#endregion
+		//#region Create GeneralizedTime from JavaScript Date type
+		if(VALUE_DATE in parameters)
 		{
 			this.fromDate(parameters.valueDate);
 			this.valueBlock.valueHex = this.toBuffer();
 		}
-		//endregion
+		//#endregion
 
 		this.idBlock.tagClass = 1; // UNIVERSAL
 		this.idBlock.tagNumber = 24; // GeneralizedTime
@@ -4983,7 +5011,7 @@ export class GeneralizedTime extends VisibleString
 	 */
 	fromString(inputString)
 	{
-		//region Initial variables
+		//#region Initial variables
 		let isUTC = false;
 
 		let timeString = "";
@@ -4994,17 +5022,17 @@ export class GeneralizedTime extends VisibleString
 
 		let hourDifference = 0;
 		let minuteDifference = 0;
-		//endregion
+		//#endregion
 
-		//region Convert as UTC time
+		//#region Convert as UTC time
 		if(inputString[inputString.length - 1] === "Z")
 		{
 			timeString = inputString.substr(0, inputString.length - 1);
 
 			isUTC = true;
 		}
-		//endregion
-		//region Convert as local time
+		//#endregion
+		//#region Convert as local time
 		else
 		{
 			//noinspection JSPrimitiveTypeWrapperUsage
@@ -5015,9 +5043,9 @@ export class GeneralizedTime extends VisibleString
 
 			timeString = inputString;
 		}
-		//endregion
+		//#endregion
 
-		//region Check that we do not have a "+" and "-" symbols inside UTC time
+		//#region Check that we do not have a "+" and "-" symbols inside UTC time
 		if(isUTC)
 		{
 			if(timeString.indexOf("+") !== (-1))
@@ -5026,8 +5054,8 @@ export class GeneralizedTime extends VisibleString
 			if(timeString.indexOf("-") !== (-1))
 				throw new Error("Wrong input string for conversion");
 		}
-		//endregion
-		//region Get "UTC time difference" in case of local time
+		//#endregion
+		//#region Get "UTC time difference" in case of local time
 		else
 		{
 			let multiplier = 1;
@@ -5068,15 +5096,15 @@ export class GeneralizedTime extends VisibleString
 				}
 			}
 		}
-		//endregion
+		//#endregion
 
-		//region Get position of fraction point
+		//#region Get position of fraction point
 		let fractionPointPosition = timeString.indexOf("."); // Check for "full stop" symbol
 		if(fractionPointPosition === (-1))
 			fractionPointPosition = timeString.indexOf(","); // Check for "comma" symbol
-		//endregion
+		//#endregion
 
-		//region Get fraction part
+		//#region Get fraction part
 		if(fractionPointPosition !== (-1))
 		{
 			//noinspection JSPrimitiveTypeWrapperUsage
@@ -5091,9 +5119,9 @@ export class GeneralizedTime extends VisibleString
 		}
 		else
 			dateTimeString = timeString;
-		//endregion
+		//#endregion
 
-		//region Parse internal date
+		//#region Parse internal date
 		switch(true)
 		{
 			case (dateTimeString.length === 8): // "YYYYMMDD"
@@ -5140,9 +5168,9 @@ export class GeneralizedTime extends VisibleString
 			default:
 				throw new Error("Wrong input string for conversion");
 		}
-		//endregion
+		//#endregion
 
-		//region Put parsed values at right places
+		//#region Put parsed values at right places
 		const parserArray = parser.exec(dateTimeString);
 		if(parserArray === null)
 			throw new Error("Wrong input string for conversion");
@@ -5173,9 +5201,9 @@ export class GeneralizedTime extends VisibleString
 					throw new Error("Wrong input string for conversion");
 			}
 		}
-		//endregion
+		//#endregion
 
-		//region Get final date
+		//#region Get final date
 		if(isUTC === false)
 		{
 			const tempDate = new Date(this.year, this.month, this.day, this.hour, this.minute, this.second, this.millisecond);
@@ -5188,7 +5216,7 @@ export class GeneralizedTime extends VisibleString
 			this.second = tempDate.getUTCSeconds();
 			this.millisecond = tempDate.getUTCMilliseconds();
 		}
-		//endregion
+		//#endregion
 	}
 	//**********************************************************************************
 	/**
@@ -5232,13 +5260,13 @@ export class GeneralizedTime extends VisibleString
 	{
 		let object = {};
 
-		//region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
+		//#region Seems at the moment (Sep 2016) there is no way how to check method is supported in "super" object
 		try
 		{
 			object = super.toJSON();
 		}
 		catch(ex) { }
-		//endregion
+		//#endregion
 
 		object.year = this.year;
 		object.month = this.month;
@@ -5398,9 +5426,9 @@ export class TIME extends Utf8String
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of special ASN.1 schema type Choice
+//#region Declaration of special ASN.1 schema type Choice
 //**************************************************************************************
 export class Choice
 {
@@ -5413,15 +5441,15 @@ export class Choice
 	 */
 	constructor(parameters = {})
 	{
-		this.value = getParametersValue(parameters, "value", []);
-		this.optional = getParametersValue(parameters, "optional", false);
+		this.value = getParametersValue(parameters, VALUE, []);
+		this.optional = getParametersValue(parameters, OPTIONAL, false);
 	}
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of special ASN.1 schema type Any
+//#region Declaration of special ASN.1 schema type Any
 //**************************************************************************************
 export class Any
 {
@@ -5434,15 +5462,15 @@ export class Any
 	 */
 	constructor(parameters = {})
 	{
-		this.name = getParametersValue(parameters, "name", "");
-		this.optional = getParametersValue(parameters, "optional", false);
+		this.name = getParametersValue(parameters, NAME, EMPTY_STRING);
+		this.optional = getParametersValue(parameters, OPTIONAL, false);
 	}
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of special ASN.1 schema type Repeated
+//#region Declaration of special ASN.1 schema type Repeated
 //**************************************************************************************
 export class Repeated
 {
@@ -5455,17 +5483,17 @@ export class Repeated
 	 */
 	constructor(parameters = {})
 	{
-		this.name = getParametersValue(parameters, "name", "");
-		this.optional = getParametersValue(parameters, "optional", false);
-		this.value = getParametersValue(parameters, "value", new Any());
-		this.local = getParametersValue(parameters, "local", false); // Could local or global array to store elements
+		this.name = getParametersValue(parameters, NAME, EMPTY_STRING);
+		this.optional = getParametersValue(parameters, OPTIONAL, false);
+		this.value = getParametersValue(parameters, VALUE, new Any());
+		this.local = getParametersValue(parameters, LOCAL, false); // Could local or global array to store elements
 	}
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Declaration of special ASN.1 schema type RawData
+//#region Declaration of special ASN.1 schema type RawData
 //**************************************************************************************
 /**
  * @description Special class providing ability to have "toBER/fromBER" for raw ArrayBuffer
@@ -5481,7 +5509,7 @@ export class RawData
 	 */
 	constructor(parameters = {})
 	{
-		this.data = getParametersValue(parameters, "data", new ArrayBuffer(0));
+		this.data = getParametersValue(parameters, DATA, EMPTY_BUFFER);
 	}
 	//**********************************************************************************
 	/**
@@ -5509,9 +5537,9 @@ export class RawData
 	//**********************************************************************************
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Major ASN.1 BER decoding function
+//#region Major ASN.1 BER decoding function
 //**************************************************************************************
 /**
  * Internal library function for decoding ASN.1 BER
@@ -5524,7 +5552,7 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 {
 	const incomingOffset = inputOffset; // Need to store initial offset since "inputOffset" is changing in the function
 
-	//region Local function changing a type for ASN.1 classes
+	//#region Local function changing a type for ASN.1 classes
 	function localChangeType(inputObject, newType)
 	{
 		if(inputObject instanceof newType)
@@ -5539,13 +5567,13 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 
 		return newObject;
 	}
-	//endregion
+	//#endregion
 
-	//region Create a basic ASN.1 type since we need to return errors and warnings from the function
+	//#region Create a basic ASN.1 type since we need to return errors and warnings from the function
 	let returnObject = new BaseBlock({}, Object);
-	//endregion
+	//#endregion
 
-	//region Basic check for parameters
+	//#region Basic check for parameters
 	const baseBlock = new LocalBaseBlock();
 	if(checkBufferParams(baseBlock, inputBuffer, inputOffset, inputLength) === false)
 	{
@@ -5555,13 +5583,13 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 			result: returnObject
 		};
 	}
-	//endregion
+	//#endregion
 
-	//region Getting Uint8Array from ArrayBuffer
+	//#region Getting Uint8Array from ArrayBuffer
 	const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
-	//endregion
+	//#endregion
 
-	//region Initial checks
+	//#region Initial checks
 	if(intBuffer.length === 0)
 	{
 		returnObject.error = "Zero buffer length";
@@ -5570,9 +5598,9 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 			result: returnObject
 		};
 	}
-	//endregion
+	//#endregion
 
-	//region Decode identification block of ASN.1 BER structure
+	//#region Decode identification block of ASN.1 BER structure
 	let resultOffset = returnObject.idBlock.fromBER(inputBuffer, inputOffset, inputLength);
 	returnObject.warnings.concat(returnObject.idBlock.warnings);
 	if(resultOffset === (-1))
@@ -5586,9 +5614,9 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 
 	inputOffset = resultOffset;
 	inputLength -= returnObject.idBlock.blockLength;
-	//endregion
+	//#endregion
 
-	//region Decode length block of ASN.1 BER structure
+	//#region Decode length block of ASN.1 BER structure
 	resultOffset = returnObject.lenBlock.fromBER(inputBuffer, inputOffset, inputLength);
 	returnObject.warnings.concat(returnObject.lenBlock.warnings);
 	if(resultOffset === (-1))
@@ -5602,9 +5630,9 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 
 	inputOffset = resultOffset;
 	inputLength -= returnObject.lenBlock.blockLength;
-	//endregion
+	//#endregion
 
-	//region Check for using indefinite length form in encoding for primitive types
+	//#region Check for using indefinite length form in encoding for primitive types
 	if((returnObject.idBlock.isConstructed === false) &&
 		(returnObject.lenBlock.isIndefiniteForm === true))
 	{
@@ -5614,16 +5642,16 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 			result: returnObject
 		};
 	}
-	//endregion
+	//#endregion
 
-	//region Switch ASN.1 block type
+	//#region Switch ASN.1 block type
 	let newASN1Type = BaseBlock;
 
 	switch(returnObject.idBlock.tagClass)
 	{
-		//region UNIVERSAL
+		//#region UNIVERSAL
 		case 1:
-			//region Check for reserved tag numbers
+			//#region Check for reserved tag numbers
 			if((returnObject.idBlock.tagNumber >= 37) &&
 				(returnObject.idBlock.isHexOnly === false))
 			{
@@ -5633,13 +5661,13 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 					result: returnObject
 				};
 			}
-			//endregion
+			//#endregion
 
 			switch(returnObject.idBlock.tagNumber)
 			{
-				//region EndOfContent type
+				//#region EndOfContent type
 				case 0:
-					//region Check for EndOfContent type
+					//#region Check for EndOfContent type
 					if((returnObject.idBlock.isConstructed === true) &&
 						(returnObject.lenBlock.length > 0))
 					{
@@ -5649,166 +5677,166 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 							result: returnObject
 						};
 					}
-					//endregion
+					//#endregion
 
 					newASN1Type = EndOfContent;
 
 					break;
-				//endregion
-				//region Boolean type
+				//#endregion
+				//#region Boolean type
 				case 1:
 					newASN1Type = Boolean;
 					break;
-				//endregion
-				//region Integer type
+				//#endregion
+				//#region Integer type
 				case 2:
 					newASN1Type = Integer;
 					break;
-				//endregion
-				//region BitString type
+				//#endregion
+				//#region BitString type
 				case 3:
 					newASN1Type = BitString;
 					break;
-				//endregion
-				//region OctetString type
+				//#endregion
+				//#region OctetString type
 				case 4:
 					newASN1Type = OctetString;
 					break;
-				//endregion
-				//region Null type
+				//#endregion
+				//#region Null type
 				case 5:
 					newASN1Type = Null;
 					break;
-				//endregion
-				//region OBJECT IDENTIFIER type
+				//#endregion
+				//#region OBJECT IDENTIFIER type
 				case 6:
 					newASN1Type = ObjectIdentifier;
 					break;
-				//endregion
-				//region Enumerated type
+				//#endregion
+				//#region Enumerated type
 				case 10:
 					newASN1Type = Enumerated;
 					break;
-				//endregion
-				//region Utf8String type
+				//#endregion
+				//#region Utf8String type
 				case 12:
 					newASN1Type = Utf8String;
 					break;
-				//endregion
-				//region Time type
-				//region RELATIVE OBJECT IDENTIFIER type
+				//#endregion
+				//#region Time type
+				//#region RELATIVE OBJECT IDENTIFIER type
 				case 13:
 					newASN1Type = RelativeObjectIdentifier;
 					break;
-				//endregion
+				//#endregion
 				case 14:
 					newASN1Type = TIME;
 					break;
-				//endregion
-				//region ASN.1 reserved type
+				//#endregion
+				//#region ASN.1 reserved type
 				case 15:
 					returnObject.error = "[UNIVERSAL 15] is reserved by ASN.1 standard";
 					return {
 						offset: (-1),
 						result: returnObject
 					};
-				//endregion
-				//region Sequence type
+				//#endregion
+				//#region Sequence type
 				case 16:
 					newASN1Type = Sequence;
 					break;
-				//endregion
-				//region Set type
+				//#endregion
+				//#region Set type
 				case 17:
 					newASN1Type = Set;
 					break;
-				//endregion
-				//region NumericString type
+				//#endregion
+				//#region NumericString type
 				case 18:
 					newASN1Type = NumericString;
 					break;
-				//endregion
-				//region PrintableString type
+				//#endregion
+				//#region PrintableString type
 				case 19:
 					newASN1Type = PrintableString;
 					break;
-				//endregion
-				//region TeletexString type
+				//#endregion
+				//#region TeletexString type
 				case 20:
 					newASN1Type = TeletexString;
 					break;
-				//endregion
-				//region VideotexString type
+				//#endregion
+				//#region VideotexString type
 				case 21:
 					newASN1Type = VideotexString;
 					break;
-				//endregion
-				//region IA5String type
+				//#endregion
+				//#region IA5String type
 				case 22:
 					newASN1Type = IA5String;
 					break;
-				//endregion
-				//region UTCTime type
+				//#endregion
+				//#region UTCTime type
 				case 23:
 					newASN1Type = UTCTime;
 					break;
-				//endregion
-				//region GeneralizedTime type
+				//#endregion
+				//#region GeneralizedTime type
 				case 24:
 					newASN1Type = GeneralizedTime;
 					break;
-				//endregion
-				//region GraphicString type
+				//#endregion
+				//#region GraphicString type
 				case 25:
 					newASN1Type = GraphicString;
 					break;
-				//endregion
-				//region VisibleString type
+				//#endregion
+				//#region VisibleString type
 				case 26:
 					newASN1Type = VisibleString;
 					break;
-				//endregion
-				//region GeneralString type
+				//#endregion
+				//#region GeneralString type
 				case 27:
 					newASN1Type = GeneralString;
 					break;
-				//endregion
-				//region UniversalString type
+				//#endregion
+				//#region UniversalString type
 				case 28:
 					newASN1Type = UniversalString;
 					break;
-				//endregion
-				//region CharacterString type
+				//#endregion
+				//#region CharacterString type
 				case 29:
 					newASN1Type = CharacterString;
 					break;
-				//endregion
-				//region BmpString type
+				//#endregion
+				//#region BmpString type
 				case 30:
 					newASN1Type = BmpString;
 					break;
-				//endregion
-				//region DATE type
+				//#endregion
+				//#region DATE type
 				case 31:
 					newASN1Type = DATE;
 					break;
-				//endregion
-				//region TimeOfDay type
+				//#endregion
+				//#region TimeOfDay type
 				case 32:
 					newASN1Type = TimeOfDay;
 					break;
-				//endregion
-				//region Date-Time type
+				//#endregion
+				//#region Date-Time type
 				case 33:
 					newASN1Type = DateTime;
 					break;
-				//endregion
-				//region Duration type
+				//#endregion
+				//#region Duration type
 				case 34:
 					newASN1Type = Duration;
 					break;
-				//endregion
-				//region default
+				//#endregion
+				//#region default
 				default:
 					{
 						let newObject;
@@ -5824,11 +5852,11 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 
 						returnObject = newObject;
 					}
-				//endregion
+				//#endregion
 			}
 			break;
-		//endregion
-		//region All other tag classes
+		//#endregion
+		//#region All other tag classes
 		case 2: // APPLICATION
 		case 3: // CONTEXT-SPECIFIC
 		case 4: // PRIVATE
@@ -5839,18 +5867,18 @@ function LocalFromBER(inputBuffer, inputOffset, inputLength)
 				else
 					newASN1Type = Primitive;
 			}
-		//endregion
+		//#endregion
 	}
-	//endregion
+	//#endregion
 
-	//region Change type and perform BER decoding
+	//#region Change type and perform BER decoding
 	returnObject = localChangeType(returnObject, newASN1Type);
 	resultOffset = returnObject.fromBER(inputBuffer, inputOffset, (returnObject.lenBlock.isIndefiniteForm === true) ? inputLength : returnObject.lenBlock.length);
-	//endregion
+	//#endregion
 
-	//region Coping incoming buffer for entire ASN.1 block
+	//#region Coping incoming buffer for entire ASN.1 block
 	returnObject.valueBeforeDecode = inputBuffer.slice(incomingOffset, incomingOffset + returnObject.blockLength);
-	//endregion
+	//#endregion
 
 	return {
 		offset: resultOffset,
@@ -5878,9 +5906,9 @@ export function fromBER(inputBuffer)
 	return LocalFromBER(inputBuffer, 0, inputBuffer.byteLength);
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Major scheme verification function
+//#region Major scheme verification function
 //**************************************************************************************
 /**
  * Compare of two ASN.1 object trees
@@ -5891,7 +5919,7 @@ export function fromBER(inputBuffer)
  */
 export function compareSchema(root, inputData, inputSchema)
 {
-	//region Special case for Choice schema element type
+	//#region Special case for Choice schema element type
 	if(inputSchema instanceof Choice)
 	{
 		const choiceResult = false;
@@ -5917,30 +5945,30 @@ export function compareSchema(root, inputData, inputSchema)
 				}
 			};
 
-			if(inputSchema.hasOwnProperty("name"))
+			if(inputSchema.hasOwnProperty(NAME))
 				_result.name = inputSchema.name;
 
 			return _result;
 		}
 	}
-	//endregion
+	//#endregion
 
-	//region Special case for Any schema element type
+	//#region Special case for Any schema element type
 	if(inputSchema instanceof Any)
 	{
-		//region Add named component of ASN.1 schema
-		if(inputSchema.hasOwnProperty("name"))
+		//#region Add named component of ASN.1 schema
+		if(inputSchema.hasOwnProperty(NAME))
 			root[inputSchema.name] = inputData;
-		//endregion
+		//#endregion
 
 		return {
 			verified: true,
 			result: root
 		};
 	}
-	//endregion
+	//#endregion
 
-	//region Initial check
+	//#region Initial check
 	if((root instanceof Object) === false)
 	{
 		return {
@@ -5965,19 +5993,19 @@ export function compareSchema(root, inputData, inputSchema)
 		};
 	}
 
-	if(("idBlock" in inputSchema) === false)
+	if((ID_BLOCK in inputSchema) === false)
 	{
 		return {
 			verified: false,
 			result: { error: "Wrong ASN.1 schema" }
 		};
 	}
-	//endregion
+	//#endregion
 
-	//region Comparing idBlock properties in ASN.1 data and ASN.1 schema
-	//region Encode and decode ASN.1 schema idBlock
+	//#region Comparing idBlock properties in ASN.1 data and ASN.1 schema
+	//#region Encode and decode ASN.1 schema idBlock
 	/// <remarks>This encoding/decoding is necessary because could be an errors in schema definition</remarks>
-	if(("fromBER" in inputSchema.idBlock) === false)
+	if((FROM_BER in inputSchema.idBlock) === false)
 	{
 		return {
 			verified: false,
@@ -5985,7 +6013,7 @@ export function compareSchema(root, inputData, inputSchema)
 		};
 	}
 
-	if(("toBER" in inputSchema.idBlock) === false)
+	if((TO_BER in inputSchema.idBlock) === false)
 	{
 		return {
 			verified: false,
@@ -6010,10 +6038,10 @@ export function compareSchema(root, inputData, inputSchema)
 			result: { error: "Error decoding idBlock for ASN.1 schema" }
 		};
 	}
-	//endregion
+	//#endregion
 
-	//region tagClass
-	if(inputSchema.idBlock.hasOwnProperty("tagClass") === false)
+	//#region tagClass
+	if(inputSchema.idBlock.hasOwnProperty(TAG_CLASS) === false)
 	{
 		return {
 			verified: false,
@@ -6028,9 +6056,9 @@ export function compareSchema(root, inputData, inputSchema)
 			result: root
 		};
 	}
-	//endregion
-	//region tagNumber
-	if(inputSchema.idBlock.hasOwnProperty("tagNumber") === false)
+	//#endregion
+	//#region tagNumber
+	if(inputSchema.idBlock.hasOwnProperty(TAG_NUMBER) === false)
 	{
 		return {
 			verified: false,
@@ -6045,9 +6073,9 @@ export function compareSchema(root, inputData, inputSchema)
 			result: root
 		};
 	}
-	//endregion
-	//region isConstructed
-	if(inputSchema.idBlock.hasOwnProperty("isConstructed") === false)
+	//#endregion
+	//#region isConstructed
+	if(inputSchema.idBlock.hasOwnProperty(IS_CONSTRUCTED) === false)
 	{
 		return {
 			verified: false,
@@ -6062,9 +6090,9 @@ export function compareSchema(root, inputData, inputSchema)
 			result: root
 		};
 	}
-	//endregion
-	//region isHexOnly
-	if(("isHexOnly" in inputSchema.idBlock) === false) // Since 'isHexOnly' is an inherited property
+	//#endregion
+	//#region isHexOnly
+	if((IS_HEX_ONLY in inputSchema.idBlock) === false) // Since 'isHexOnly' is an inherited property
 	{
 		return {
 			verified: false,
@@ -6079,11 +6107,11 @@ export function compareSchema(root, inputData, inputSchema)
 			result: root
 		};
 	}
-	//endregion
-	//region valueHex
+	//#endregion
+	//#region valueHex
 	if(inputSchema.idBlock.isHexOnly === true)
 	{
-		if(("valueHex" in inputSchema.idBlock) === false) // Since 'valueHex' is an inherited property
+		if((VALUE_HEX in inputSchema.idBlock) === false) // Since 'valueHex' is an inherited property
 		{
 			return {
 				verified: false,
@@ -6113,19 +6141,19 @@ export function compareSchema(root, inputData, inputSchema)
 			}
 		}
 	}
-	//endregion
-	//endregion
+	//#endregion
+	//#endregion
 
-	//region Add named component of ASN.1 schema
-	if(inputSchema.hasOwnProperty("name"))
+	//#region Add named component of ASN.1 schema
+	if(inputSchema.hasOwnProperty(NAME))
 	{
-		inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, "");
+		inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
 		if(inputSchema.name !== "")
 			root[inputSchema.name] = inputData;
 	}
-	//endregion
+	//#endregion
 
-	//region Getting next ASN.1 block for comparison
+	//#region Getting next ASN.1 block for comparison
 	if(inputSchema.idBlock.isConstructed === true)
 	{
 		let admission = 0;
@@ -6139,7 +6167,7 @@ export function compareSchema(root, inputData, inputSchema)
 				maxLength = inputData.valueBlock.value.length;
 		}
 
-		//region Special case when constructive value has no elements
+		//#region Special case when constructive value has no elements
 		if(maxLength === 0)
 		{
 			return {
@@ -6147,9 +6175,9 @@ export function compareSchema(root, inputData, inputSchema)
 				result: root
 			};
 		}
-		//endregion
+		//#endregion
 
-		//region Special case when "inputData" has no values and "inputSchema" has all optional values
+		//#region Special case when "inputData" has no values and "inputSchema" has all optional values
 		if((inputData.valueBlock.value.length === 0) &&
 			(inputSchema.valueBlock.value.length !== 0))
 		{
@@ -6166,14 +6194,14 @@ export function compareSchema(root, inputData, inputSchema)
 				};
 			}
 
-			//region Delete early added name of block
-			if(inputSchema.hasOwnProperty("name"))
+			//#region Delete early added name of block
+			if(inputSchema.hasOwnProperty(NAME))
 			{
-				inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, "");
+				inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
 				if(inputSchema.name !== "")
 					delete root[inputSchema.name];
 			}
-			//endregion
+			//#endregion
 
 			root.error = "Inconsistent object length";
 
@@ -6182,11 +6210,11 @@ export function compareSchema(root, inputData, inputSchema)
 				result: root
 			};
 		}
-		//endregion
+		//#endregion
 
 		for(let i = 0; i < maxLength; i++)
 		{
-			//region Special case when there is an "optional" element of ASN.1 schema at the end
+			//#region Special case when there is an OPTIONAL element of ASN.1 schema at the end
 			if((i - admission) >= inputData.valueBlock.value.length)
 			{
 				if(inputSchema.valueBlock.value[i].optional === false)
@@ -6198,25 +6226,25 @@ export function compareSchema(root, inputData, inputSchema)
 
 					root.error = "Inconsistent length between ASN.1 data and schema";
 
-					//region Delete early added name of block
-					if(inputSchema.hasOwnProperty("name"))
+					//#region Delete early added name of block
+					if(inputSchema.hasOwnProperty(NAME))
 					{
-						inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, "");
+						inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
 						if(inputSchema.name !== "")
 						{
 							delete root[inputSchema.name];
 							_result.name = inputSchema.name;
 						}
 					}
-					//endregion
+					//#endregion
 
 					return _result;
 				}
 			}
-			//endregion
+			//#endregion
 			else
 			{
-				//region Special case for Repeated type of ASN.1 schema element
+				//#region Special case for Repeated type of ASN.1 schema element
 				if(inputSchema.valueBlock.value[0] instanceof Repeated)
 				{
 					result = compareSchema(root, inputData.valueBlock.value[i], inputSchema.valueBlock.value[0].value);
@@ -6226,24 +6254,24 @@ export function compareSchema(root, inputData, inputSchema)
 							admission++;
 						else
 						{
-							//region Delete early added name of block
-							if(inputSchema.hasOwnProperty("name"))
+							//#region Delete early added name of block
+							if(inputSchema.hasOwnProperty(NAME))
 							{
-								inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, "");
+								inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
 								if(inputSchema.name !== "")
 									delete root[inputSchema.name];
 							}
-							//endregion
+							//#endregion
 
 							return result;
 						}
 					}
 
-					if(("name" in inputSchema.valueBlock.value[0]) && (inputSchema.valueBlock.value[0].name.length > 0))
+					if((NAME in inputSchema.valueBlock.value[0]) && (inputSchema.valueBlock.value[0].name.length > 0))
 					{
 						let arrayRoot = {};
 
-						if(("local" in inputSchema.valueBlock.value[0]) && (inputSchema.valueBlock.value[0].local === true))
+						if((LOCAL in inputSchema.valueBlock.value[0]) && (inputSchema.valueBlock.value[0].local === true))
 							arrayRoot = inputData;
 						else
 							arrayRoot = root;
@@ -6254,7 +6282,7 @@ export function compareSchema(root, inputData, inputSchema)
 						arrayRoot[inputSchema.valueBlock.value[0].name].push(inputData.valueBlock.value[i]);
 					}
 				}
-				//endregion
+				//#endregion
 				else
 				{
 					result = compareSchema(root, inputData.valueBlock.value[i - admission], inputSchema.valueBlock.value[i]);
@@ -6264,14 +6292,14 @@ export function compareSchema(root, inputData, inputSchema)
 							admission++;
 						else
 						{
-							//region Delete early added name of block
-							if(inputSchema.hasOwnProperty("name"))
+							//#region Delete early added name of block
+							if(inputSchema.hasOwnProperty(NAME))
 							{
-								inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, "");
+								inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
 								if(inputSchema.name !== "")
 									delete root[inputSchema.name];
 							}
-							//endregion
+							//#endregion
 
 							return result;
 						}
@@ -6280,24 +6308,24 @@ export function compareSchema(root, inputData, inputSchema)
 			}
 		}
 
-		if(result.verified === false) // The situation may take place if last element is "optional" and verification failed
+		if(result.verified === false) // The situation may take place if last element is OPTIONAL and verification failed
 		{
 			const _result = {
 				verified: false,
 				result: root
 			};
 
-			//region Delete early added name of block
-			if(inputSchema.hasOwnProperty("name"))
+			//#region Delete early added name of block
+			if(inputSchema.hasOwnProperty(NAME))
 			{
-				inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, "");
+				inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
 				if(inputSchema.name !== "")
 				{
 					delete root[inputSchema.name];
 					_result.name = inputSchema.name;
 				}
 			}
-			//endregion
+			//#endregion
 
 			return _result;
 		}
@@ -6307,12 +6335,12 @@ export function compareSchema(root, inputData, inputSchema)
 			result: root
 		};
 	}
-	//endregion
-	//region Ability to parse internal value for primitive-encoded value (value of OctetString, for example)
-	if(("primitiveSchema" in inputSchema) &&
-		("valueHex" in inputData.valueBlock))
+	//#endregion
+	//#region Ability to parse internal value for primitive-encoded value (value of OctetString, for example)
+	if((PRIMITIVE_SCHEMA in inputSchema) &&
+		(VALUE_HEX in inputData.valueBlock))
 	{
-		//region Decoding of raw ASN.1 data
+		//#region Decoding of raw ASN.1 data
 		const asn1 = fromBER(inputData.valueBlock.valueHex);
 		if(asn1.offset === (-1))
 		{
@@ -6321,21 +6349,21 @@ export function compareSchema(root, inputData, inputSchema)
 				result: asn1.result
 			};
 
-			//region Delete early added name of block
-			if(inputSchema.hasOwnProperty("name"))
+			//#region Delete early added name of block
+			if(inputSchema.hasOwnProperty(NAME))
 			{
-				inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, "");
+				inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
 				if(inputSchema.name !== "")
 				{
 					delete root[inputSchema.name];
 					_result.name = inputSchema.name;
 				}
 			}
-			//endregion
+			//#endregion
 
 			return _result;
 		}
-		//endregion
+		//#endregion
 
 		return compareSchema(root, asn1.result, inputSchema.primitiveSchema);
 	}
@@ -6344,7 +6372,7 @@ export function compareSchema(root, inputData, inputSchema)
 		verified: true,
 		result: root
 	};
-	//endregion
+	//#endregion
 }
 //**************************************************************************************
 //noinspection JSUnusedGlobalSymbols
@@ -6356,7 +6384,7 @@ export function compareSchema(root, inputData, inputSchema)
  */
 export function verifySchema(inputBuffer, inputSchema)
 {
-	//region Initial check
+	//#region Initial check
 	if((inputSchema instanceof Object) === false)
 	{
 		return {
@@ -6364,9 +6392,9 @@ export function verifySchema(inputBuffer, inputSchema)
 			result: { error: "Wrong ASN.1 schema type" }
 		};
 	}
-	//endregion
+	//#endregion
 
-	//region Decoding of raw ASN.1 data
+	//#region Decoding of raw ASN.1 data
 	const asn1 = fromBER(inputBuffer);
 	if(asn1.offset === (-1))
 	{
@@ -6375,16 +6403,16 @@ export function verifySchema(inputBuffer, inputSchema)
 			result: asn1.result
 		};
 	}
-	//endregion
+	//#endregion
 
-	//region Compare ASN.1 struct with input schema
+	//#region Compare ASN.1 struct with input schema
 	return compareSchema(asn1.result, asn1.result, inputSchema);
-	//endregion
+	//#endregion
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
-//region Major function converting JSON to ASN.1 objects
+//#region Major function converting JSON to ASN.1 objects
 //**************************************************************************************
 //noinspection JSUnusedGlobalSymbols
 /**
@@ -6396,5 +6424,5 @@ export function fromJSON(json)
 	// TODO Implement
 }
 //**************************************************************************************
-//endregion
+//#endregion
 //**************************************************************************************
