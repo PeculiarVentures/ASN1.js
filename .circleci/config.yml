@@ -2,8 +2,7 @@ version: 2
 jobs:
   build:
     branches:
-      ignore:
-        - gh-pages
+      ignore: gh-pages
     docker:
       - image: "circleci/node:10.12.0"
     environment:
@@ -16,9 +15,6 @@ jobs:
       - run:
           name: Installing ASN1.js
           command: npm install
-      - run:
-          name: Building tests
-          command: npm run build:tests
       - run:
           name: Run tests
           command: npm test
