@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "CommonJS",
+    "strict": true,
+    "importHelpers": true,
+    "noImplicitOverride": true,
+    "skipLibCheck": true,
+    "noErrorTruncation": true,
+    "experimentalDecorators": true
+  },
+  "exclude": [
+    "build/**/*.ts"
+  ]
+}
