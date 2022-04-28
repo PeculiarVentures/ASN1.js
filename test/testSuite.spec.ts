@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as assert from "assert";
 import * as fs from "fs";
 import * as path from "path";
