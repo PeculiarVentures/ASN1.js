@@ -1,0 +1,21 @@
+import { ConstructedParams, Constructed } from "./Constructed";
+import { typeStore } from "./TypeStore";
+
+export type SetParams = ConstructedParams;
+
+export class Set extends Constructed {
+
+  static {
+    typeStore.Set = this;
+  }
+
+  public static override NAME = "SET";
+
+  constructor(parameters = {}) {
+    super(parameters);
+
+    this.idBlock.tagClass = 1; // UNIVERSAL
+    this.idBlock.tagNumber = 17; // Set
+  }
+
+}

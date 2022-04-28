@@ -1,0 +1,21 @@
+import { LocalSimpleStringBlockParams, LocalSimpleStringBlock } from "./internals/LocalSimpleStringBlock";
+import { typeStore } from "./TypeStore";
+
+export type GraphicStringParams = LocalSimpleStringBlockParams;
+
+export class GraphicString extends LocalSimpleStringBlock {
+
+  static {
+    typeStore.GraphicString = this;
+  }
+
+  public static override NAME = "GraphicString";
+
+  constructor(parameters: GraphicStringParams = {}) {
+    super(parameters);
+
+    this.idBlock.tagClass = 1; // UNIVERSAL
+    this.idBlock.tagNumber = 25; // GraphicString
+  }
+
+}

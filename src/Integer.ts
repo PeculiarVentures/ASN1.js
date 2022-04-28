@@ -1,0 +1,51 @@
+import * as pvutils from "pvutils";
+import { BaseBlock, BaseBlockParams } from "./BaseBlock";
+import * as utils from "./internals/utils";
+import { LocalIntegerValueBlockParams, LocalIntegerValueBlock, LocalIntegerValueBlockJson } from "./internals/LocalIntegerValueBlock";
+import { typeStore } from "./TypeStore";
+
+
+export interface IntegerParams extends BaseBlockParams, LocalIntegerValueBlockParams { }
+
+export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValueBlockJson> {
+
+  static {
+    typeStore.Integer = this;
+  }
+
+  public static override NAME = "INTEGER";
+
+  constructor(parameters: IntegerParams = {}) {
+    super(parameters, LocalIntegerValueBlock);
+
+    this.idBlock.tagClass = 1; // UNIVERSAL
+    this.idBlock.tagNumber = 2; // Integer
+  }
+
+  public convertToDER(): Integer {
+    const integer = new Integer({ valueHex: this.valueBlock.valueHex });
+    integer.valueBlock.toDER();
+
+    return integer;
+  }
+
+  /**
+   * Convert current Integer value from DER to BER format
+   * @returns
+   */
+  public convertFromDER(): Integer {
+    const expectedLength = (this.valueBlock.valueHex.byteLength % 2) ? (this.valueBlock.valueHex.byteLength + 1) : this.valueBlock.valueHex.byteLength;
+    const integer = new Integer({ valueHex: this.valueBlock.valueHex });
+    integer.valueBlock.fromDER(integer.valueBlock.valueHex, 0, integer.valueBlock.valueHex.byteLength, expectedLength);
+
+    return integer;
+  }
+
+  public override toString(): string {
+    utils.assertBigInt();
+    const hex = pvutils.bufferToHexCodes(this.valueBlock.valueHex);
+    const bigInt = BigInt(`0x${hex}`);
+
+    return `${(this.constructor as typeof Integer).NAME} : ${bigInt.toString()}`;
+  }
+}
