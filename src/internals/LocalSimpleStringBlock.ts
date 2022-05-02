@@ -1,3 +1,4 @@
+import { BufferSourceConverter } from "pvtsutils";
 import { BaseBlockParams } from "../BaseBlock";
 import { BaseStringBlock } from "../BaseStringBlock";
 import { EMPTY_STRING } from "./constants";
@@ -16,8 +17,8 @@ export class LocalSimpleStringBlock extends BaseStringBlock<LocalSimpleStringVal
     super(parameters, LocalSimpleStringValueBlock);
   }
 
-  public override fromBuffer(inputBuffer: ArrayBuffer): void {
-    this.valueBlock.value = String.fromCharCode.apply(null, new Uint8Array(inputBuffer) as unknown as number[]);
+  public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
+    this.valueBlock.value = String.fromCharCode.apply(null, BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]);
   }
 
   public fromString(inputString: string): void {

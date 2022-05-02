@@ -1,10 +1,11 @@
-import * as pvutils from "pvutils";
+import { BufferSourceConverter } from "pvtsutils";
 import { LocalBaseBlockJson } from "./LocalBaseBlock";
 import { EMPTY_BUFFER, END_OF_CONTENT_NAME } from "./constants";
 import type { BaseBlock } from "../BaseBlock";
 import { ValueBlock, ValueBlockParams } from "../ValueBlock";
 import { ViewWriter } from "../ViewWriter";
 import { localFromBER } from "../parser";
+import { checkBufferParams } from "./utils";
 
 export interface ILocalConstructedValueBlock {
   value: BaseBlock[];
@@ -43,21 +44,18 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
     this.isIndefiniteForm = isIndefiniteForm;
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+    const view = BufferSourceConverter.toUint8Array(inputBuffer);
+
     // Basic check for parameters
-    if (!pvutils.checkBufferParams(this, inputBuffer, inputOffset, inputLength)) {
+    if (!checkBufferParams(this, view, inputOffset, inputLength)) {
       return -1;
     }
 
-    // Store initial offset and length
-    const initialOffset = inputOffset;
-    const initialLength = inputLength;
-
-    // Getting Uint8Array from ArrayBuffer
-    const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
+    this.valueBeforeDecodeView = view.subarray(inputOffset, inputOffset + inputLength);
 
     // Initial checks
-    if (intBuffer.length === 0) {
+    if (this.valueBeforeDecodeView.length === 0) {
       this.warnings.push("Zero buffer length");
 
       return inputOffset;
@@ -66,7 +64,7 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
     let currentOffset = inputOffset;
 
     while (checkLen(this.isIndefiniteForm, inputLength) > 0) {
-      const returnObject = localFromBER(inputBuffer, currentOffset, inputLength);
+      const returnObject = localFromBER(view, currentOffset, inputLength);
       if (returnObject.offset === -1) {
         this.error = returnObject.result.error;
         this.warnings.concat(returnObject.result.warnings);
@@ -93,9 +91,6 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
         this.warnings.push("No EndOfContent block encoded");
       }
     }
-
-    // Copy "inputBuffer" to VALUE_BEFORE_DECODE
-    this.valueBeforeDecode = inputBuffer.slice(initialOffset, initialOffset + initialLength);
 
     return currentOffset;
   }

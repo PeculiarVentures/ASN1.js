@@ -3,6 +3,8 @@ import { ValueBlock } from "./ValueBlock";
 import { BaseBlock } from "./BaseBlock";
 import { LocalBaseBlock } from "./internals/LocalBaseBlock";
 import { AsnType, typeStore } from "./TypeStore";
+import { checkBufferParams } from "./internals/utils";
+import { BufferSourceConverter } from "pvtsutils";
 
 export interface FromBerResult {
   offset: number;
@@ -36,7 +38,7 @@ function localChangeType<T extends BaseBlock>(inputObject: BaseBlock, newType: n
  * @param inputLength Maximum length of array of bytes which can be using in this function
  * @returns
  */
-export function localFromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): FromBerResult {
+export function localFromBER(inputBuffer: Uint8Array, inputOffset: number, inputLength: number): FromBerResult {
   const incomingOffset = inputOffset; // Need to store initial offset since "inputOffset" is changing in the function
 
   // Create a basic ASN.1 type since we need to return errors and warnings from the function
@@ -44,7 +46,7 @@ export function localFromBER(inputBuffer: ArrayBuffer, inputOffset: number, inpu
 
   // Basic check for parameters
   const baseBlock = new LocalBaseBlock();
-  if (!pvutils.checkBufferParams(baseBlock, inputBuffer, inputOffset, inputLength)) {
+  if (!checkBufferParams(baseBlock, inputBuffer, inputOffset, inputLength)) {
     returnObject.error = baseBlock.error;
 
     return {
@@ -53,8 +55,8 @@ export function localFromBER(inputBuffer: ArrayBuffer, inputOffset: number, inpu
     };
   }
 
-  // Getting Uint8Array from ArrayBuffer
-  const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
+  // Getting Uint8Array subarray
+  const intBuffer = inputBuffer.subarray(inputOffset, inputOffset + inputLength);
 
   // Initial checks
   if (!intBuffer.length) {
@@ -260,7 +262,7 @@ export function localFromBER(inputBuffer: ArrayBuffer, inputOffset: number, inpu
   resultOffset = returnObject.fromBER(inputBuffer, inputOffset, returnObject.lenBlock.isIndefiniteForm ? inputLength : returnObject.lenBlock.length);
 
   // Coping incoming buffer for entire ASN.1 block
-  returnObject.valueBeforeDecode = inputBuffer.slice(incomingOffset, incomingOffset + returnObject.blockLength);
+  returnObject.valueBeforeDecodeView = inputBuffer.subarray(incomingOffset, incomingOffset + returnObject.blockLength);
 
   return {
     offset: resultOffset,
@@ -272,7 +274,7 @@ export function localFromBER(inputBuffer: ArrayBuffer, inputOffset: number, inpu
  * Major function for decoding ASN.1 BER array into internal library structures
  * @param inputBuffer ASN.1 BER encoded array of bytes
  */
-export function fromBER(inputBuffer: ArrayBuffer): FromBerResult {
+export function fromBER(inputBuffer: BufferSource): FromBerResult {
   if (!inputBuffer.byteLength) {
     const result = new BaseBlock({}, ValueBlock);
     result.error = "Input buffer has zero length";
@@ -283,5 +285,5 @@ export function fromBER(inputBuffer: ArrayBuffer): FromBerResult {
     };
   }
 
-  return localFromBER(inputBuffer, 0, inputBuffer.byteLength);
+  return localFromBER(BufferSourceConverter.toUint8Array(inputBuffer), 0, inputBuffer.byteLength);
 }

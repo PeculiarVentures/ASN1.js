@@ -1,3 +1,4 @@
+import { BufferSourceConverter } from "pvtsutils";
 import * as pvutils from "pvutils";
 import { BaseStringBlock, BaseStringBlockParams } from "./BaseStringBlock";
 import { EMPTY_STRING } from "./internals/constants";
@@ -24,9 +25,8 @@ export class BmpString extends BaseStringBlock<LocalBmpStringValueBlock, LocalBm
     this.idBlock.tagNumber = 30; // BmpString
   }
 
-  public fromBuffer(inputBuffer: ArrayBuffer): void {
-    const copyBuffer = inputBuffer.slice(0);
-    const valueView = new Uint8Array(copyBuffer);
+  public fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
+    const valueView = BufferSourceConverter.toUint8Array(inputBuffer).slice();
 
     for (let i = 0; i < valueView.length; i += 2) {
       const temp = valueView[i];
@@ -35,7 +35,7 @@ export class BmpString extends BaseStringBlock<LocalBmpStringValueBlock, LocalBm
       valueView[i + 1] = temp;
     }
 
-    this.valueBlock.value = String.fromCharCode.apply(null, new Uint16Array(copyBuffer) as unknown as number[]);
+    this.valueBlock.value = String.fromCharCode.apply(null, new Uint16Array(valueView.buffer) as unknown as number[]);
   }
 
   public fromString(inputString: string): void {

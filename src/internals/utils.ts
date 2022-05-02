@@ -1,5 +1,7 @@
 // Utility functions
 
+import { LocalBaseBlock } from "./LocalBaseBlock";
+
 /**
  * Throws an exception if BigInt is not supported
  */
@@ -33,4 +35,46 @@ export function concat(buffers: ArrayBuffer[]): ArrayBuffer {
   }
 
   return retView.buffer;
+}
+
+/**
+ * Check input "Uint8Array" for common functions
+ * @param baseBlock
+ * @param inputBuffer
+ * @param inputOffset
+ * @param inputLength
+ * @returns
+ */
+export function checkBufferParams(baseBlock: LocalBaseBlock, inputBuffer: Uint8Array, inputOffset: number, inputLength: number): boolean {
+  if (!(inputBuffer instanceof Uint8Array)) {
+    baseBlock.error = "Wrong parameter: inputBuffer must be 'Uint8Array'";
+
+    return false;
+  }
+
+  if (!inputBuffer.byteLength) {
+    baseBlock.error = "Wrong parameter: inputBuffer has zero length";
+
+    return false;
+  }
+
+  if (inputOffset < 0) {
+    baseBlock.error = "Wrong parameter: inputOffset less than zero";
+
+    return false;
+  }
+
+  if (inputLength < 0) {
+    baseBlock.error = "Wrong parameter: inputLength less than zero";
+
+    return false;
+  }
+
+  if ((inputBuffer.byteLength - inputOffset - inputLength) < 0) {
+    baseBlock.error = "End of input reached before message was fully decoded (inconsistent offset and length values)";
+
+    return false;
+  }
+
+  return true;
 }

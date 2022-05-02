@@ -30,7 +30,7 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
     this.fromString(value);
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
     let resultOffset = inputOffset;
 
     while (inputLength > 0) {

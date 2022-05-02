@@ -1,5 +1,6 @@
 
 export interface IBerConvertible {
+
   /**
    * Base function for converting block from BER encoded array of bytes
    * @param inputBuffer ASN.1 BER encoded array
@@ -7,7 +8,7 @@ export interface IBerConvertible {
    * @param inputLength Maximum length of array of bytes which can be using in this function
    * @returns Offset after least decoded byte
    */
-  fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number;
+  fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number;
   /**
    * Encoding of current ASN.1 block into ASN.1 encoded array (BER rules)
    * @param sizeOnly Flag that we need only a size of encoding, not a real array of bytes

@@ -1,7 +1,9 @@
+import { BufferSourceConverter } from "pvtsutils";
 import * as pvutils from "pvutils";
 import { IBerConvertible } from "../types";
 import { EMPTY_BUFFER } from "./constants";
 import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
+import { checkBufferParams } from "./utils";
 
 export interface ILocalLengthBlock {
   isIndefiniteForm: boolean;
@@ -38,13 +40,14 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
   }
 
 
-  public fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
-    //#region Basic check for parameters
-    if (pvutils.checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
+  public fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+    const view = BufferSourceConverter.toUint8Array(inputBuffer);
+    // Basic check for parameters
+    if (!checkBufferParams(this, view, inputOffset, inputLength)) {
       return -1;
-    //#endregion
+    }
     //#region Getting Uint8Array from ArrayBuffer
-    const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
+    const intBuffer = view.subarray(inputOffset, inputOffset + inputLength);
     //#endregion
     //#region Initial checks
     if (intBuffer.length === 0) {

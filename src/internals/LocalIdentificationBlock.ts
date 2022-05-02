@@ -3,6 +3,7 @@ import * as pvutils from "pvutils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
 import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
+import { checkBufferParams } from "./utils";
 
 
 export interface ILocalIdentificationBlock {
@@ -125,14 +126,17 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
     return retBuf;
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
-    //#region Basic check for parameters
-    if (pvutils.checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+    const inputView = BufferSourceConverter.toUint8Array(inputBuffer);
+
+    // Basic check for parameters
+    if (!checkBufferParams(this, inputView, inputOffset, inputLength)) {
       return -1;
-    //#endregion
-    //#region Getting Uint8Array from ArrayBuffer
-    const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
-    //#endregion
+    }
+
+    // Getting Uint8Array from ArrayBuffer
+    const intBuffer = inputView.subarray(inputOffset, inputOffset + inputLength);
+
     //#region Initial checks
     if (intBuffer.length === 0) {
       this.error = "Zero buffer length";
@@ -181,11 +185,9 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
     else {
       let count = 1;
 
-      this.valueHex = new ArrayBuffer(255);
+      let intTagNumberBuffer = this.valueView = new Uint8Array(255);
       let tagNumberBufferMaxLength = 255;
-      let intTagNumberBuffer = new Uint8Array(this.valueHex);
 
-      //noinspection JSBitwiseOperatorUsage
       while (intBuffer[count] & 0x80) {
         intTagNumberBuffer[count - 1] = intBuffer[count] & 0x7F;
         count++;
@@ -206,8 +208,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
           for (let i = 0; i < intTagNumberBuffer.length; i++)
             tempBufferView[i] = intTagNumberBuffer[i];
 
-          this.valueHex = new ArrayBuffer(tagNumberBufferMaxLength);
-          intTagNumberBuffer = new Uint8Array(this.valueHex);
+          intTagNumberBuffer = this.valueView = new Uint8Array(tagNumberBufferMaxLength);
         }
         //#endregion
       }
@@ -217,14 +218,12 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
 
 
       //#region Cut buffer
-      const tempBuffer = new ArrayBuffer(count);
-      const tempBufferView = new Uint8Array(tempBuffer);
+      const tempBufferView = new Uint8Array(count);
 
       for (let i = 0; i < count; i++)
         tempBufferView[i] = intTagNumberBuffer[i];
 
-      this.valueHex = new ArrayBuffer(count);
-      intTagNumberBuffer = new Uint8Array(this.valueHex);
+      intTagNumberBuffer = this.valueView = new Uint8Array(count);
       intTagNumberBuffer.set(tempBufferView);
       //#endregion
       //#region Try to convert long tag number to short form

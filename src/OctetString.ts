@@ -5,6 +5,7 @@ import { LocalOctetStringValueBlockParams, LocalOctetStringValueBlock } from "./
 import { OCTET_STRING_NAME } from "./internals/constants";
 import { fromBER } from "./parser";
 import { typeStore } from "./TypeStore";
+import { BufferSourceConverter } from "pvtsutils";
 
 export interface OctetStringParams extends BaseBlockParams, LocalOctetStringValueBlockParams { }
 
@@ -23,11 +24,11 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock> {
     this.idBlock.tagNumber = 4; // OctetString
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
     this.valueBlock.isConstructed = this.idBlock.isConstructed;
     this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
 
-    //#region Ability to encode empty OCTET STRING
+    // Ability to encode empty OCTET STRING
     if (inputLength === 0) {
       if (this.idBlock.error.length === 0)
         this.blockLength += this.idBlock.blockLength;
@@ -37,9 +38,10 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock> {
 
       return inputOffset;
     }
-    //#endregion
+
     if (!this.valueBlock.isConstructed) {
-      const buf = inputBuffer.slice(inputOffset, inputOffset + inputLength);
+      const view = BufferSourceConverter.toUint8Array(inputBuffer);
+      const buf = view.subarray(inputOffset, inputOffset + inputLength);
       try {
         const asn = fromBER(buf);
         if (asn.offset !== -1 && asn.offset === inputLength) {

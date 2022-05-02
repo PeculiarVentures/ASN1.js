@@ -20,14 +20,14 @@ export class Null extends BaseBlock<ValueBlock> {
     this.idBlock.tagNumber = 5; // Null
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
     if (this.lenBlock.length > 0)
       this.warnings.push("Non-zero length of value block for Null type");
 
-    if (this.idBlock.error.length === 0)
+    if (!this.idBlock.error.length)
       this.blockLength += this.idBlock.blockLength;
 
-    if (this.lenBlock.error.length === 0)
+    if (!this.lenBlock.error.length)
       this.blockLength += this.lenBlock.blockLength;
 
     this.blockLength += inputLength;

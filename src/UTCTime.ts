@@ -1,3 +1,4 @@
+import { BufferSourceConverter } from "pvtsutils";
 import * as pvutils from "pvutils";
 import { BaseBlockJson } from "./BaseBlock";
 import { LocalSimpleStringValueBlockJson } from "./internals/LocalSimpleStringValueBlock";
@@ -70,8 +71,8 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     this.idBlock.tagNumber = 23; // UTCTime
   }
 
-  public override fromBuffer(inputBuffer: ArrayBuffer): void {
-    this.fromString(String.fromCharCode.apply(null, new Uint8Array(inputBuffer) as unknown as number[]));
+  public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
+    this.fromString(String.fromCharCode.apply(null, BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]));
   }
 
   /**

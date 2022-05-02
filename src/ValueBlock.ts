@@ -10,7 +10,7 @@ export class ValueBlock extends internals.LocalBaseBlock implements IValueBlock,
 
   public static override NAME = "valueBlock";
 
-  public fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
+  public fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
     throw TypeError("User need to make a specific function in a class which extends 'ValueBlock'");
   }
 

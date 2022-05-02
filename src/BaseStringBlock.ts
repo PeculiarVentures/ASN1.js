@@ -19,7 +19,7 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
     this.fromString(value);
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
     const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, (this.lenBlock.isIndefiniteForm) ? inputLength : this.lenBlock.length);
     if (resultOffset === -1) {
       this.error = this.valueBlock.error;
@@ -27,15 +27,15 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
       return resultOffset;
     }
 
-    this.fromBuffer(this.valueBlock.valueHex);
+    this.fromBuffer(this.valueBlock.valueView);
 
-    if (this.idBlock.error.length === 0)
+    if (!this.idBlock.error.length)
       this.blockLength += this.idBlock.blockLength;
 
-    if (this.lenBlock.error.length === 0)
+    if (!this.lenBlock.error.length)
       this.blockLength += this.lenBlock.blockLength;
 
-    if (this.valueBlock.error.length === 0)
+    if (!this.valueBlock.error.length)
       this.blockLength += this.valueBlock.blockLength;
 
     return resultOffset;
@@ -45,7 +45,7 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
    * Function converting ArrayBuffer into ASN.1 internal string
    * @param inputBuffer ASN.1 BER encoded array
    */
-  public abstract fromBuffer(inputBuffer: ArrayBuffer): void;
+  public abstract fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void;
 
   public abstract fromString(inputString: string): void;
 

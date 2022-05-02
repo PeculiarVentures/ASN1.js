@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import * as pvutils from "pvutils";
 import { IBerConvertible } from "./types";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./internals/constants";
 import { LocalBaseBlockConstructor } from "./internals/LocalBaseBlock";
 import { BufferSourceConverter, Convert } from "pvtsutils";
+import { checkBufferParams } from "./internals/utils";
 
 export interface IHexBlock {
   isHexOnly: boolean;
@@ -55,28 +55,26 @@ export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
       this.valueView = params.valueHex ? BufferSourceConverter.toUint8Array(params.valueHex) : EMPTY_VIEW;
     }
 
-    public fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
+    public fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
       // Basic check for parameters
-      if (!pvutils.checkBufferParams(this, inputBuffer, inputOffset, inputLength)) {
+      const view = BufferSourceConverter.toUint8Array(inputBuffer);
+      if (!checkBufferParams(this, view, inputOffset, inputLength)) {
         return -1;
       }
 
-      // Getting Uint8Array from ArrayBuffer
-      const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
+      const endLength = inputOffset + inputLength;
 
       // Initial checks
-      if (!intBuffer.length) {
+      this.valueView = view.subarray(inputOffset, endLength);
+      if (!this.valueView.length) {
         this.warnings.push("Zero buffer length");
 
         return inputOffset;
       }
 
-      // Copy input buffer to internal buffer
-      this.valueHex = inputBuffer.slice(inputOffset, inputOffset + inputLength);
-
       this.blockLength = inputLength;
 
-      return (inputOffset + inputLength);
+      return endLength;
     }
 
     public toBER(sizeOnly = false): ArrayBuffer {

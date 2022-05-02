@@ -18,7 +18,7 @@ export class Constructed extends BaseBlock<LocalConstructedValueBlock> {
     this.idBlock.isConstructed = true;
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
     this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
 
     const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, (this.lenBlock.isIndefiniteForm) ? inputLength : this.lenBlock.length);
@@ -28,13 +28,13 @@ export class Constructed extends BaseBlock<LocalConstructedValueBlock> {
       return resultOffset;
     }
 
-    if (this.idBlock.error.length === 0)
+    if (!this.idBlock.error.length)
       this.blockLength += this.idBlock.blockLength;
 
-    if (this.lenBlock.error.length === 0)
+    if (!this.lenBlock.error.length)
       this.blockLength += this.lenBlock.blockLength;
 
-    if (this.valueBlock.error.length === 0)
+    if (!this.valueBlock.error.length)
       this.blockLength += this.valueBlock.blockLength;
 
     return resultOffset;

@@ -1,11 +1,11 @@
-import * as pvutils from "pvutils";
+import { BufferSourceConverter, Convert } from "pvtsutils";
 import { EMPTY_STRING, EMPTY_BUFFER } from "./constants";
 
 export interface ILocalBaseBlock {
   blockLength: number;
   error: string;
   warnings: string[];
-  valueBeforeDecode: ArrayBuffer;
+  valueBeforeDecode: BufferSource;
 }
 
 export interface LocalBaseBlockJson extends Omit<ILocalBaseBlock, "valueBeforeDecode"> {
@@ -42,7 +42,22 @@ export class LocalBaseBlock implements ILocalBaseBlock {
   public blockLength: number;
   public error: string;
   public warnings: string[];
-  public valueBeforeDecode: ArrayBuffer;
+  /**
+   * @deprecated since version 3.0.0
+   */
+  public get valueBeforeDecode(): ArrayBuffer {
+    return this.valueBeforeDecodeView.slice().buffer;
+  }
+  /**
+   * @deprecated since version 3.0.0
+   */
+  public set valueBeforeDecode(value: ArrayBuffer) {
+    this.valueBeforeDecodeView = new Uint8Array(value);
+  }
+  /**
+   * @since 3.0.0
+   */
+  public valueBeforeDecodeView: Uint8Array;
 
   /**
    * Creates and initializes an object instance of that class
@@ -57,7 +72,7 @@ export class LocalBaseBlock implements ILocalBaseBlock {
     this.blockLength = blockLength;
     this.error = error;
     this.warnings = warnings;
-    this.valueBeforeDecode = valueBeforeDecode;
+    this.valueBeforeDecodeView = BufferSourceConverter.toUint8Array(valueBeforeDecode);
   }
 
   /**
@@ -70,7 +85,7 @@ export class LocalBaseBlock implements ILocalBaseBlock {
       blockLength: this.blockLength,
       error: this.error,
       warnings: this.warnings,
-      valueBeforeDecode: pvutils.bufferToHexCodes(this.valueBeforeDecode, 0, this.valueBeforeDecode.byteLength)
+      valueBeforeDecode: Convert.ToHex(this.valueBeforeDecodeView),
     };
   }
 

@@ -2,6 +2,7 @@ import { BufferSourceConverter } from "pvtsutils";
 import * as pvutils from "pvutils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
+import { checkBufferParams } from "./utils";
 
 export interface ILocalBooleanValueBlock {
   value: boolean;
@@ -35,29 +36,21 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
     }
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+    const inputView = BufferSourceConverter.toUint8Array(inputBuffer);
     // Basic check for parameters
-    if (!pvutils.checkBufferParams(this, inputBuffer, inputOffset, inputLength)) {
+    if (!checkBufferParams(this, inputView, inputOffset, inputLength)) {
       return -1;
     }
 
-    // Getting Uint8Array from ArrayBuffer
-    const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
+    // Getting Uint8Array
+    this.valueView = inputView.subarray(inputOffset, inputOffset + inputLength);
 
     if (inputLength > 1)
       this.warnings.push("Boolean value encoded in more then 1 octet");
 
     this.isHexOnly = true;
-
-    // Copy input buffer to internal array
-    this.valueView = new Uint8Array(intBuffer.length);
-
-    for (let i = 0; i < intBuffer.length; i++) {
-      this.valueView[i] = intBuffer[i];
-    }
-
     this.value = !!pvutils.utilDecodeTC.call(this);
-
     this.blockLength = inputLength;
 
     return (inputOffset + inputLength);

@@ -1,3 +1,4 @@
+import { BufferSourceConverter } from "pvtsutils";
 import { BaseStringBlock, BaseStringBlockParams } from "./BaseStringBlock";
 import { LocalUtf8StringValueBlockParams, LocalUtf8StringValueBlock, LocalUtf8StringValueBlockJson } from "./internals/LocalUtf8StringValueBlock";
 import { typeStore } from "./TypeStore";
@@ -19,8 +20,8 @@ export class Utf8String extends BaseStringBlock<LocalUtf8StringValueBlock, Local
     this.idBlock.tagNumber = 12; // Utf8String
   }
 
-  public override fromBuffer(inputBuffer: ArrayBuffer): void {
-    this.valueBlock.value = String.fromCharCode.apply(null, new Uint8Array(inputBuffer) as unknown as number[]);
+  public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
+    this.valueBlock.value = String.fromCharCode.apply(null, BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]);
 
     try {
       this.valueBlock.value = decodeURIComponent(escape(this.valueBlock.value));

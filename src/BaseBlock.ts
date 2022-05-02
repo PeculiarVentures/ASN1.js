@@ -61,7 +61,7 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
     this.valueBlock = valueBlockType ? new valueBlockType(parameters) : new ValueBlock(parameters) as unknown as T;
   }
 
-  public fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
+  public fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
     const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, (this.lenBlock.isIndefiniteForm) ? inputLength : this.lenBlock.length);
     if (resultOffset === -1) {
       this.error = this.valueBlock.error;

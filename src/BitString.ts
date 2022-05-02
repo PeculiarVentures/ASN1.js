@@ -21,11 +21,12 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock> {
     this.idBlock.tagNumber = 3; // BitString
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
-    //#region Ability to encode empty BitString
-    if (inputLength === 0)
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+    // Ability to encode empty BitString
+    if (inputLength === 0) {
       return inputOffset;
-    //#endregion
+    }
+
     this.valueBlock.isConstructed = this.idBlock.isConstructed;
     this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
 

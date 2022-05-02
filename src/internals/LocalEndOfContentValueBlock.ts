@@ -5,10 +5,9 @@ export class LocalEndOfContentValueBlock extends ValueBlock {
 
   public static override = "EndOfContentValueBlock";
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
-    //#region There is no "value block" for EndOfContent type and we need to return the same offset
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+    // There is no "value block" for EndOfContent type and we need to return the same offset
     return inputOffset;
-    //#endregion
   }
 
   public override toBER(sizeOnly?: boolean): ArrayBuffer {

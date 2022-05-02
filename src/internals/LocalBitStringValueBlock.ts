@@ -4,6 +4,8 @@ import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { BIT_STRING_NAME, EMPTY_BUFFER, END_OF_CONTENT_NAME } from "./constants";
 import { LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock } from "./LocalConstructedValueBlock";
 import { fromBER } from "../parser";
+import { checkBufferParams } from "./utils";
+import { BufferSourceConverter } from "pvtsutils";
 
 export interface ILocalBitStringValueBlock {
   unusedBits: number;
@@ -33,7 +35,7 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
     this.blockLength = this.valueHex.byteLength;
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
     // Ability to decode zero-length BitString value
     if (!inputLength) {
       return inputOffset;
@@ -84,12 +86,14 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
       return resultOffset;
     }
 
+    const inputView = BufferSourceConverter.toUint8Array(inputBuffer);
+
     //If the BitString supposed to be a primitive value
-    if (!pvutils.checkBufferParams(this, inputBuffer, inputOffset, inputLength)) {
+    if (!checkBufferParams(this, inputView, inputOffset, inputLength)) {
       return -1;
     }
 
-    const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
+    const intBuffer = inputView.subarray(inputOffset, inputOffset + inputLength);
 
     this.unusedBits = intBuffer[0];
 
@@ -100,7 +104,7 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
     }
 
     if (!this.unusedBits) {
-      const buf = inputBuffer.slice(inputOffset + 1, inputOffset + inputLength);
+      const buf = intBuffer.subarray(1);
       try {
         const asn = fromBER(buf);
         if (asn.offset !== -1 && asn.offset === (inputLength - 1)) {
@@ -112,11 +116,7 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
     }
 
     // Copy input buffer to internal buffer
-    this.valueHex = new ArrayBuffer(intBuffer.length - 1);
-    const view = new Uint8Array(this.valueHex);
-    for (let i = 0; i < (inputLength - 1); i++) {
-      view[i] = intBuffer[i + 1];
-    }
+    this.valueView = intBuffer.subarray(1);
     this.blockLength = intBuffer.length;
 
     return (inputOffset + inputLength);

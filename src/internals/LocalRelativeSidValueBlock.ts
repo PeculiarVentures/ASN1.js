@@ -3,6 +3,8 @@ import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { LocalBaseBlock } from "./LocalBaseBlock";
 import { EMPTY_BUFFER } from "./constants";
+import { checkBufferParams } from "./utils";
+import { BufferSourceConverter } from "pvtsutils";
 
 export interface ILocalRelativeSidValueBlock {
   valueDec: number;
@@ -27,21 +29,22 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
     this.valueDec = valueDec;
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
     if (inputLength === 0)
       return inputOffset;
 
-    //#region Basic check for parameters
-    if (pvutils.checkBufferParams(this, inputBuffer, inputOffset, inputLength) === false)
-      return -1;
-    //#endregion
-    const intBuffer = new Uint8Array(inputBuffer, inputOffset, inputLength);
+    const inputView = BufferSourceConverter.toUint8Array(inputBuffer);
 
-    this.valueHex = new ArrayBuffer(inputLength);
-    let view = new Uint8Array(this.valueHex);
+    // Basic check for parameters
+    if (!checkBufferParams(this, inputView, inputOffset, inputLength))
+      return -1;
+
+    const intBuffer = inputView.subarray(inputOffset, inputOffset + inputLength);
+
+    this.valueView = new Uint8Array(inputLength);
 
     for (let i = 0; i < inputLength; i++) {
-      view[i] = intBuffer[i] & 0x7F;
+      this.valueView[i] = intBuffer[i] & 0x7F;
 
       this.blockLength++;
 
@@ -50,15 +53,12 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
     }
 
     //#region Adjust size of valueHex buffer
-    const tempValueHex = new ArrayBuffer(this.blockLength);
-    const tempView = new Uint8Array(tempValueHex);
+    const tempView = new Uint8Array(this.blockLength);
 
     for (let i = 0; i < this.blockLength; i++)
-      tempView[i] = view[i];
+      tempView[i] = this.valueView[i];
 
-    //noinspection JSCheckFunctionSignatures
-    this.valueHex = tempValueHex.slice(0);
-    view = new Uint8Array(this.valueHex);
+    this.valueView = tempView;
     //#endregion
     if ((intBuffer[this.blockLength - 1] & 0x80) !== 0x00) {
       this.error = "End of input reached before message was fully decoded";
@@ -66,11 +66,11 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
       return -1;
     }
 
-    if (view[0] === 0x00)
+    if (this.valueView[0] === 0x00)
       this.warnings.push("Needlessly long format of SID encoding");
 
     if (this.blockLength <= 8)
-      this.valueDec = pvutils.utilFromBase(view, 7);
+      this.valueDec = pvutils.utilFromBase(this.valueView, 7);
     else {
       this.isHexOnly = true;
       this.warnings.push("Too big SID for decoding, hex only");
