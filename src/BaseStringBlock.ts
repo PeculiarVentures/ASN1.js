@@ -16,7 +16,9 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
   }: BaseStringBlockParams = {}, stringValueBlockType: new () => T) {
     super(parameters, stringValueBlockType);
 
-    this.fromString(value);
+    if (value) {
+      this.fromString(value);
+    }
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
