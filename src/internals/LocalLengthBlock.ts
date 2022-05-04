@@ -1,4 +1,4 @@
-import { BufferSourceConverter } from "pvtsutils";
+import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
 import { IBerConvertible } from "../types";
 import { EMPTY_BUFFER } from "./constants";
@@ -41,7 +41,7 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
 
 
   public fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    const view = BufferSourceConverter.toUint8Array(inputBuffer);
+    const view = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
     // Basic check for parameters
     if (!checkBufferParams(this, view, inputOffset, inputLength)) {
       return -1;
@@ -99,10 +99,8 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
       return -1;
     }
 
-    const lengthBufferView = new Uint8Array(count);
-
-    for (let i = 0; i < count; i++)
-      lengthBufferView[i] = intBuffer[i + 1];
+    const lenOffset = inputOffset + 1;
+    const lengthBufferView = view.subarray(lenOffset, lenOffset + count);
 
     if (lengthBufferView[count - 1] === 0x00)
       this.warnings.push("Needlessly long encoded length");

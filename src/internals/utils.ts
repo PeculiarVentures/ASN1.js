@@ -1,6 +1,6 @@
 // Utility functions
 
-import { LocalBaseBlock } from "./LocalBaseBlock";
+import type { LocalBaseBlock } from "./LocalBaseBlock";
 
 /**
  * Throws an exception if BigInt is not supported

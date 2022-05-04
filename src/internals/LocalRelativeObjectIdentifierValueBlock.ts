@@ -60,7 +60,7 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
       if (valueBuf.byteLength === 0) {
         this.error = this.value[i].error;
 
-        return (EMPTY_BUFFER);
+        return EMPTY_BUFFER;
       }
 
       retBuffers.push(valueBuf);
@@ -80,10 +80,10 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
     do {
       pos2 = string.indexOf(".", pos1);
       if (pos2 === -1)
-        sid = string.substr(pos1);
+        sid = string.substring(pos1);
 
       else
-        sid = string.substr(pos1, pos2 - pos1);
+        sid = string.substring(pos1, pos2 - pos1);
 
       pos1 = pos2 + 1;
 

@@ -1,4 +1,4 @@
-import { BufferSourceConverter } from "pvtsutils";
+import * as pvtsutils from "pvtsutils";
 import { LocalBaseBlockJson } from "./LocalBaseBlock";
 import { EMPTY_BUFFER, END_OF_CONTENT_NAME } from "./constants";
 import type { BaseBlock } from "../BaseBlock";
@@ -45,7 +45,7 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    const view = BufferSourceConverter.toUint8Array(inputBuffer);
+    const view = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
 
     // Basic check for parameters
     if (!checkBufferParams(this, view, inputOffset, inputLength)) {

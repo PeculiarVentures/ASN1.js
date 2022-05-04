@@ -11,7 +11,7 @@ context("ASN.1:2008 TestSuite Tests", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc1.ber")));
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
     assert.equal(asn1.result.idBlock.tagNumber, -1, "Tag number must be set to default value -1");
-    assert.equal(asn1.result.idBlock.valueHex.byteLength, 10, "Hexadecimal representation of ID block must has 10 in length");
+    assert.equal(asn1.result.idBlock.valueHexView.byteLength, 10, "Hexadecimal representation of ID block must has 10 in length");
     assert.equal(asn1.result.idBlock.warnings.length, 1, "Should just one warning in ID block");
     assert.equal(asn1.result.idBlock.warnings[0], "Tag too long, represented as hex-coded", "Text of the warning in ID block does not match");
   });
@@ -154,7 +154,7 @@ context("ASN.1:2008 TestSuite Tests", () => {
     assert.equal(asn1.result.valueBlock.isHexOnly, true, "Value block value must be \"hex only\"");
     assert.equal(asn1.result.valueBlock.warnings.length, 1, "Should just one warning in value block");
     assert.equal(asn1.result.valueBlock.warnings[0], "Too big Integer for decoding, hex only", "Text of the warning in length block does not match");
-    assert.equal(asn1.result.valueBlock.valueHex.byteLength, 9, "Value block hex value must be 9 in length");
+    assert.equal(asn1.result.valueBlock.valueHexView.byteLength, 9, "Value block hex value must be 9 in length");
   });
 
   it("Test Case #21", () => {
@@ -177,7 +177,7 @@ context("ASN.1:2008 TestSuite Tests", () => {
     assert.ok(asn1.result instanceof asn1js.ObjectIdentifier, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.valueBlock.value[0].warnings.length, 1, "Should just one warning in value block");
     assert.equal(asn1.result.valueBlock.value[0].warnings[0], "Too big SID for decoding, hex only", "Text of the warning in SID block does not match");
-    assert.equal(asn1.result.valueBlock.value[0].valueHex.byteLength, 11, "Hex buffer for first SID value must be 11 in length");
+    assert.equal(asn1.result.valueBlock.value[0].valueHexView.byteLength, 11, "Hex buffer for first SID value must be 11 in length");
     assert.equal(asn1.result.valueBlock.value[0].isHexOnly, true, "First SID value must be \"hex only\"");
   });
 

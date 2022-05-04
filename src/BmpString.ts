@@ -1,4 +1,4 @@
-import { BufferSourceConverter } from "pvtsutils";
+import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
 import { BaseStringBlock, BaseStringBlockParams } from "./BaseStringBlock";
 import { EMPTY_STRING } from "./internals/constants";
@@ -26,7 +26,7 @@ export class BmpString extends BaseStringBlock<LocalBmpStringValueBlock, LocalBm
   }
 
   public fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
-    const valueView = BufferSourceConverter.toUint8Array(inputBuffer).slice();
+    const valueView = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer).slice();
 
     for (let i = 0; i < valueView.length; i += 2) {
       const temp = valueView[i];
@@ -41,8 +41,7 @@ export class BmpString extends BaseStringBlock<LocalBmpStringValueBlock, LocalBm
   public fromString(inputString: string): void {
     const strLength = inputString.length;
 
-    this.valueBlock.valueHex = new ArrayBuffer(strLength * 2);
-    const valueHexView = new Uint8Array(this.valueBlock.valueHex);
+    const valueHexView = this.valueBlock.valueHexView = new Uint8Array(strLength * 2);
 
     for (let i = 0; i < strLength; i++) {
       const codeBuf = pvutils.utilToBase(inputString.charCodeAt(i), 8);

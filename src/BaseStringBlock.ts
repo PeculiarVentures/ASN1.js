@@ -27,7 +27,7 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
       return resultOffset;
     }
 
-    this.fromBuffer(this.valueBlock.valueView);
+    this.fromBuffer(this.valueBlock.valueHexView);
 
     if (!this.idBlock.error.length)
       this.blockLength += this.idBlock.blockLength;

@@ -1,4 +1,4 @@
-import { BufferSourceConverter } from "pvtsutils";
+import * as pvtsutils from "pvtsutils";
 import { BaseStringBlock, BaseStringBlockParams } from "./BaseStringBlock";
 import { LocalUtf8StringValueBlockParams, LocalUtf8StringValueBlock, LocalUtf8StringValueBlockJson } from "./internals/LocalUtf8StringValueBlock";
 import { typeStore } from "./TypeStore";
@@ -21,10 +21,10 @@ export class Utf8String extends BaseStringBlock<LocalUtf8StringValueBlock, Local
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
-    this.valueBlock.value = String.fromCharCode.apply(null, BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]);
+    this.valueBlock.value = String.fromCharCode.apply(null, pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]);
 
     try {
-      this.valueBlock.value = decodeURIComponent(escape(this.valueBlock.value));
+      this.valueBlock.value = decodeURIComponent(encodeURI(this.valueBlock.value));
     }
     catch (ex) {
       this.warnings.push(`Error during "decodeURIComponent": ${ex}, using raw string`);
@@ -32,12 +32,10 @@ export class Utf8String extends BaseStringBlock<LocalUtf8StringValueBlock, Local
   }
 
   public fromString(inputString: string): void {
-    //noinspection JSDeprecatedSymbols
-    const str = unescape(encodeURIComponent(inputString));
+    const str = decodeURI(encodeURIComponent(inputString));
     const strLen = str.length;
 
-    this.valueBlock.valueHex = new ArrayBuffer(strLen);
-    const view = new Uint8Array(this.valueBlock.valueHex);
+    const view = this.valueBlock.valueHexView = new Uint8Array(strLen);
 
     for (let i = 0; i < strLen; i++)
       view[i] = str.charCodeAt(i);

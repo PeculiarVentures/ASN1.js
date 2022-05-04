@@ -1,3 +1,4 @@
+import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
 import { IBerConvertible } from "./types";
 import { LocalBaseBlockJson, LocalBaseBlockParams, LocalBaseBlock } from "./internals/LocalBaseBlock";
@@ -137,7 +138,7 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
     return object as BaseBlockJson<J>;
   }
   public override toString(): string {
-    return `${(this.constructor as typeof BaseBlock).NAME} : ${pvutils.bufferToHexCodes(this.valueBlock.valueBeforeDecode)}`; // TODO test
+    return `${(this.constructor as typeof BaseBlock).NAME} : ${pvtsutils.Convert.ToHex(this.valueBlock.valueBeforeDecodeView)}`;
   }
 
   /**

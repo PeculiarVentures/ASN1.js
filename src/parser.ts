@@ -1,10 +1,9 @@
-import * as pvutils from "pvutils";
+import * as pvtsutils from "pvtsutils";
 import { ValueBlock } from "./ValueBlock";
 import { BaseBlock } from "./BaseBlock";
 import { LocalBaseBlock } from "./internals/LocalBaseBlock";
 import { AsnType, typeStore } from "./TypeStore";
 import { checkBufferParams } from "./internals/utils";
-import { BufferSourceConverter } from "pvtsutils";
 
 export interface FromBerResult {
   offset: number;
@@ -26,7 +25,7 @@ function localChangeType<T extends BaseBlock>(inputObject: BaseBlock, newType: n
   newObject.idBlock = inputObject.idBlock;
   newObject.lenBlock = inputObject.lenBlock;
   newObject.warnings = inputObject.warnings;
-  newObject.valueBeforeDecode = inputObject.valueBeforeDecode.slice(0);
+  newObject.valueBeforeDecodeView = inputObject.valueBeforeDecodeView;
 
   return newObject;
 }
@@ -69,8 +68,11 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset: number, input
   }
 
   // Decode identification block of ASN.1 BER structure
+  // console.time("idBlock");
   let resultOffset = returnObject.idBlock.fromBER(inputBuffer, inputOffset, inputLength);
-  returnObject.warnings.concat(returnObject.idBlock.warnings);
+  if (returnObject.idBlock.warnings.length) {
+    returnObject.warnings.concat(returnObject.idBlock.warnings);
+  }
   if (resultOffset === -1) {
     returnObject.error = returnObject.idBlock.error;
 
@@ -79,12 +81,17 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset: number, input
       result: returnObject
     };
   }
+  // console.timeEnd("idBlock");
+
   inputOffset = resultOffset;
   inputLength -= returnObject.idBlock.blockLength;
 
   // Decode length block of ASN.1 BER structure
+  // console.time("lengthBlock");
   resultOffset = returnObject.lenBlock.fromBER(inputBuffer, inputOffset, inputLength);
-  returnObject.warnings.concat(returnObject.lenBlock.warnings);
+  if (returnObject.lenBlock.warnings.length) {
+    returnObject.warnings.concat(returnObject.lenBlock.warnings);
+  }
   if (resultOffset === -1) {
     returnObject.error = returnObject.lenBlock.error;
 
@@ -93,6 +100,8 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset: number, input
       result: returnObject
     };
   }
+  // console.timeEnd("lengthBlock");
+
   inputOffset = resultOffset;
   inputLength -= returnObject.lenBlock.blockLength;
 
@@ -257,12 +266,15 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset: number, input
     }
   }
 
+
   // Change type and perform BER decoding
   returnObject = localChangeType(returnObject, newASN1Type);
+  // console.time("valueBlock");
   resultOffset = returnObject.fromBER(inputBuffer, inputOffset, returnObject.lenBlock.isIndefiniteForm ? inputLength : returnObject.lenBlock.length);
 
   // Coping incoming buffer for entire ASN.1 block
   returnObject.valueBeforeDecodeView = inputBuffer.subarray(incomingOffset, incomingOffset + returnObject.blockLength);
+  // console.timeEnd("valueBlock");
 
   return {
     offset: resultOffset,
@@ -285,5 +297,5 @@ export function fromBER(inputBuffer: BufferSource): FromBerResult {
     };
   }
 
-  return localFromBER(BufferSourceConverter.toUint8Array(inputBuffer), 0, inputBuffer.byteLength);
+  return localFromBER(pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer).slice(), 0, inputBuffer.byteLength);
 }

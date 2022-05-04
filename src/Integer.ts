@@ -1,4 +1,4 @@
-import * as pvutils from "pvutils";
+import * as pvtsutils from "pvtsutils";
 import { BaseBlock, BaseBlockParams } from "./BaseBlock";
 import * as utils from "./internals/utils";
 import { LocalIntegerValueBlockParams, LocalIntegerValueBlock, LocalIntegerValueBlockJson } from "./internals/LocalIntegerValueBlock";
@@ -23,7 +23,7 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
   }
 
   public convertToDER(): Integer {
-    const integer = new Integer({ valueHex: this.valueBlock.valueHex });
+    const integer = new Integer({ valueHex: this.valueBlock.valueHexView });
     integer.valueBlock.toDER();
 
     return integer;
@@ -34,16 +34,16 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
    * @returns
    */
   public convertFromDER(): Integer {
-    const expectedLength = (this.valueBlock.valueHex.byteLength % 2) ? (this.valueBlock.valueHex.byteLength + 1) : this.valueBlock.valueHex.byteLength;
-    const integer = new Integer({ valueHex: this.valueBlock.valueHex });
-    integer.valueBlock.fromDER(integer.valueBlock.valueHex, 0, integer.valueBlock.valueHex.byteLength, expectedLength);
+    const expectedLength = (this.valueBlock.valueHexView.byteLength % 2) ? (this.valueBlock.valueHexView.byteLength + 1) : this.valueBlock.valueHexView.byteLength;
+    const integer = new Integer({ valueHex: this.valueBlock.valueHexView });
+    integer.valueBlock.fromDER(integer.valueBlock.valueHexView, 0, integer.valueBlock.valueHexView.byteLength, expectedLength);
 
     return integer;
   }
 
   public override toString(): string {
     utils.assertBigInt();
-    const hex = pvutils.bufferToHexCodes(this.valueBlock.valueHex);
+    const hex = pvtsutils.Convert.ToHex(this.valueBlock.valueHexView);
     const bigInt = BigInt(`0x${hex}`);
 
     return `${(this.constructor as typeof Integer).NAME} : ${bigInt.toString()}`;

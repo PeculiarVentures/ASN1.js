@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as assert from "assert";
 import * as asn1js from "../src";
 
@@ -9,13 +8,13 @@ context("Unit tests", () => {
       blockLength: 10,
       error: "error",
       warnings: ["warning 1", "warning 2"],
-      valueBeforeDecode: (new Uint8Array([0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01]).buffer),
+      valueBeforeDecode: new Uint8Array([0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01]),
       name: "name",
       optional: true,
       primitiveSchema: new asn1js.OctetString(),
       idBlock: {
         isHexOnly: false,
-        valueHex: (new Uint8Array([0x01])).buffer,
+        valueHex: new Uint8Array([0x01]),
         tagClass: 1,
         tagNumber: 1,
         isConstructed: false
@@ -30,7 +29,7 @@ context("Unit tests", () => {
     assert.equal(baseBlock.blockLength, 10, "Incorrect value for blockLength");
     assert.equal(baseBlock.error, "error", "Incorrect value for error");
     assert.equal(baseBlock.warnings.length, 2, "Incorrect value for warnings");
-    assert.equal(baseBlock.valueBeforeDecode.byteLength, 10, "Incorrect value for valueBeforeDecode");
+    assert.equal(baseBlock.valueBeforeDecodeView.byteLength, 10, "Incorrect value for valueBeforeDecode");
     assert.equal((baseBlock.constructor as typeof asn1js.BaseBlock).blockName(), "BaseBlock", "Incorrect value for blockName");
 
     const parseFunction = (key: string, value: any): any => {
@@ -54,11 +53,11 @@ context("Unit tests", () => {
     const string = JSON.stringify(baseBlock);
     const object = JSON.parse(string, parseFunction);
 
-    const secondaryBaseBlock = new asn1js.BaseBlock(object);
+    new asn1js.BaseBlock(object);
 
     const octetString = new asn1js.OctetString({ valueHex: (new Uint8Array([0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01])).buffer });
 
-    const secondaryOctetString = new asn1js.OctetString(JSON.parse(JSON.stringify(octetString), parseFunction));
+    new asn1js.OctetString(JSON.parse(JSON.stringify(octetString), parseFunction));
   });
 
   it("toString", () => {

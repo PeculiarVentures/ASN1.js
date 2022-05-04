@@ -1,11 +1,10 @@
-import * as pvutils from "pvutils";
+import * as pvtsutils from "pvtsutils";
 import { ViewWriter } from "../ViewWriter";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { BIT_STRING_NAME, EMPTY_BUFFER, END_OF_CONTENT_NAME } from "./constants";
 import { LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock } from "./LocalConstructedValueBlock";
-import { fromBER } from "../parser";
+import { localFromBER } from "../parser";
 import { checkBufferParams } from "./utils";
-import { BufferSourceConverter } from "pvtsutils";
 
 export interface ILocalBitStringValueBlock {
   unusedBits: number;
@@ -32,7 +31,7 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
 
     this.unusedBits = unusedBits;
     this.isConstructed = isConstructed;
-    this.blockLength = this.valueHex.byteLength;
+    this.blockLength = this.valueHexView.byteLength;
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
@@ -86,7 +85,7 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
       return resultOffset;
     }
 
-    const inputView = BufferSourceConverter.toUint8Array(inputBuffer);
+    const inputView = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
 
     //If the BitString supposed to be a primitive value
     if (!checkBufferParams(this, inputView, inputOffset, inputLength)) {
@@ -106,9 +105,11 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
     if (!this.unusedBits) {
       const buf = intBuffer.subarray(1);
       try {
-        const asn = fromBER(buf);
-        if (asn.offset !== -1 && asn.offset === (inputLength - 1)) {
-          this.value = [asn.result];
+        if (buf.byteLength) {
+          const asn = localFromBER(buf, 0, buf.byteLength);
+          if (asn.offset !== -1 && asn.offset === (inputLength - 1)) {
+            this.value = [asn.result];
+          }
         }
       } catch (e) {
         // nothing
@@ -116,7 +117,7 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
     }
 
     // Copy input buffer to internal buffer
-    this.valueView = intBuffer.subarray(1);
+    this.valueHexView = intBuffer.subarray(1);
     this.blockLength = intBuffer.length;
 
     return (inputOffset + inputLength);
@@ -128,25 +129,19 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
     }
 
     if (sizeOnly) {
-      return new ArrayBuffer(this.valueHex.byteLength + 1);
+      return new ArrayBuffer(this.valueHexView.byteLength + 1);
     }
 
-    if (!this.valueHex.byteLength) {
+    if (!this.valueHexView.byteLength) {
       return EMPTY_BUFFER;
     }
 
-    const curView = new Uint8Array(this.valueHex);
-
-    const retBuf = new ArrayBuffer(this.valueHex.byteLength + 1);
-    const retView = new Uint8Array(retBuf);
+    const retView = new Uint8Array(this.valueHexView.length + 1);
 
     retView[0] = this.unusedBits;
+    retView.set(this.valueHexView, 1);
 
-    for (let i = 0; i < this.valueHex.byteLength; i++) {
-      retView[i + 1] = curView[i];
-    }
-
-    return retBuf;
+    return retView.buffer;
   }
 
   public override toJSON(): LocalBitStringValueBlockJson {

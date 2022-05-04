@@ -205,8 +205,8 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
       };
     }
 
-    const schemaView = new Uint8Array(inputSchema.idBlock.valueHex);
-    const asn1View = new Uint8Array(inputData.idBlock.valueHex);
+    const schemaView = inputSchema.idBlock.valueHexView;
+    const asn1View = inputData.idBlock.valueHexView;
 
     if (schemaView.length !== asn1View.length) {
       return {
@@ -412,7 +412,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
   if (inputSchema.primitiveSchema &&
     (VALUE_HEX in inputData.valueBlock)) {
     //#region Decoding of raw ASN.1 data
-    const asn1 = fromBER(inputData.valueBlock.valueHex);
+    const asn1 = fromBER(inputData.valueBlock.valueHexView);
     if (asn1.offset === -1) {
       const _result: CompareSchemaResult = {
         verified: false,

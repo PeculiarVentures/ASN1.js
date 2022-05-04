@@ -1,4 +1,4 @@
-import { BufferSourceConverter } from "pvtsutils";
+import * as pvtsutils from "pvtsutils";
 import { BaseBlockParams } from "../BaseBlock";
 import { BaseStringBlock } from "../BaseStringBlock";
 import { EMPTY_STRING } from "./constants";
@@ -18,14 +18,13 @@ export class LocalSimpleStringBlock extends BaseStringBlock<LocalSimpleStringVal
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
-    this.valueBlock.value = String.fromCharCode.apply(null, BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]);
+    this.valueBlock.value = String.fromCharCode.apply(null, pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]);
   }
 
   public fromString(inputString: string): void {
     const strLen = inputString.length;
 
-    this.valueBlock.valueHex = new ArrayBuffer(strLen);
-    const view = new Uint8Array(this.valueBlock.valueHex);
+    const view = this.valueBlock.valueHexView = new Uint8Array(strLen);
 
     for (let i = 0; i < strLen; i++)
       view[i] = inputString.charCodeAt(i);

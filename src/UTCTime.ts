@@ -1,4 +1,4 @@
-import { BufferSourceConverter } from "pvtsutils";
+import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
 import { BaseBlockJson } from "./BaseBlock";
 import { LocalSimpleStringValueBlockJson } from "./internals/LocalSimpleStringValueBlock";
@@ -54,17 +54,16 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     if (value) {
       this.fromString(value);
 
-      this.valueBlock.valueHex = new ArrayBuffer(value.length);
-      const view = new Uint8Array(this.valueBlock.valueHex);
+      this.valueBlock.valueHexView = new Uint8Array(value.length);
 
       for (let i = 0; i < value.length; i++)
-        view[i] = value.charCodeAt(i);
+        this.valueBlock.valueHexView[i] = value.charCodeAt(i);
     }
     //#endregion
     //#region Create GeneralizedTime from JavaScript Date type
     if (valueDate) {
       this.fromDate(valueDate);
-      this.valueBlock.valueHex = this.toBuffer();
+      this.valueBlock.valueHexView = new Uint8Array(this.toBuffer());
     }
     //#endregion
     this.idBlock.tagClass = 1; // UNIVERSAL
@@ -72,7 +71,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
-    this.fromString(String.fromCharCode.apply(null, BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]));
+    this.fromString(String.fromCharCode.apply(null, pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]));
   }
 
   /**

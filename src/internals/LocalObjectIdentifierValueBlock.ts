@@ -55,20 +55,20 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
     return resultOffset;
   }
   public override toBER(sizeOnly?: boolean): ArrayBuffer {
-    const retBufs: ArrayBuffer[] = [];
+    const retBuffers: ArrayBuffer[] = [];
 
     for (let i = 0; i < this.value.length; i++) {
       const valueBuf = this.value[i].toBER(sizeOnly);
       if (valueBuf.byteLength === 0) {
         this.error = this.value[i].error;
 
-        return (EMPTY_BUFFER);
+        return EMPTY_BUFFER;
       }
 
-      retBufs.push(valueBuf);
+      retBuffers.push(valueBuf);
     }
 
-    return utils.concat(retBufs);
+    return utils.concat(retBuffers);
   }
 
   public fromString(string: string): void {
@@ -84,10 +84,10 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
     do {
       pos2 = string.indexOf(".", pos1);
       if (pos2 === -1)
-        sid = string.substr(pos1);
+        sid = string.substring(pos1);
 
       else
-        sid = string.substr(pos1, pos2 - pos1);
+        sid = string.substring(pos1, pos2 - pos1);
 
       pos1 = pos2 + 1;
 

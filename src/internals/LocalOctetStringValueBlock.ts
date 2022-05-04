@@ -69,17 +69,9 @@ export class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBl
     if (this.isConstructed)
       return LocalConstructedValueBlock.prototype.toBER.call(this, sizeOnly, writer);
 
-    let retBuf = new ArrayBuffer(this.valueHex.byteLength);
-
-    if (sizeOnly)
-      return retBuf;
-
-    if (this.valueHex.byteLength === 0)
-      return retBuf;
-
-    retBuf = this.valueHex.slice(0);
-
-    return retBuf;
+    return sizeOnly
+      ? new ArrayBuffer(this.valueHexView.byteLength)
+      : this.valueHexView.slice().buffer;
   }
 
   public override toJSON(): LocalOctetStringValueBlockJson {

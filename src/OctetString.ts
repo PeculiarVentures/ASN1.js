@@ -1,11 +1,10 @@
-import * as pvutils from "pvutils";
+import * as pvtsutils from "pvtsutils";
 import { BaseBlock, BaseBlockParams } from "./BaseBlock";
 import { Constructed } from "./Constructed";
 import { LocalOctetStringValueBlockParams, LocalOctetStringValueBlock } from "./internals/LocalOctetStringValueBlock";
 import { OCTET_STRING_NAME } from "./internals/constants";
-import { fromBER } from "./parser";
+import { localFromBER } from "./parser";
 import { typeStore } from "./TypeStore";
-import { BufferSourceConverter } from "pvtsutils";
 
 export interface OctetStringParams extends BaseBlockParams, LocalOctetStringValueBlockParams { }
 
@@ -40,12 +39,14 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock> {
     }
 
     if (!this.valueBlock.isConstructed) {
-      const view = BufferSourceConverter.toUint8Array(inputBuffer);
+      const view = inputBuffer instanceof ArrayBuffer ? new Uint8Array(inputBuffer) : inputBuffer;
       const buf = view.subarray(inputOffset, inputOffset + inputLength);
       try {
-        const asn = fromBER(buf);
-        if (asn.offset !== -1 && asn.offset === inputLength) {
-          this.valueBlock.value = [asn.result];
+        if (buf.byteLength) {
+          const asn = localFromBER(buf, 0, buf.byteLength);
+          if (asn.offset !== -1 && asn.offset === inputLength) {
+            this.valueBlock.value = [asn.result];
+          }
         }
       } catch (e) {
         // nothing
@@ -59,7 +60,7 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock> {
     if (this.valueBlock.isConstructed || (this.valueBlock.value && this.valueBlock.value.length)) {
       return Constructed.prototype.toString.call(this);
     } else {
-      return `${(this.constructor as typeof OctetString).NAME} : ${pvutils.bufferToHexCodes(this.valueBlock.valueHex)}`;
+      return `${(this.constructor as typeof OctetString).NAME} : ${pvtsutils.Convert.ToHex(this.valueBlock.valueHexView)}`;
     }
   }
 

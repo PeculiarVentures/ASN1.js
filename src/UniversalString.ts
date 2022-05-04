@@ -42,8 +42,7 @@ export class UniversalString extends BaseStringBlock<LocalUniversalStringValueBl
   public fromString(inputString: string): void {
     const strLength = inputString.length;
 
-    this.valueBlock.valueHex = new ArrayBuffer(strLength * 4);
-    const valueHexView = new Uint8Array(this.valueBlock.valueHex);
+    const valueHexView = this.valueBlock.valueHexView = new Uint8Array(strLength * 4);
 
     for (let i = 0; i < strLength; i++) {
       const codeBuf = pvutils.utilToBase(inputString.charCodeAt(i), 8);

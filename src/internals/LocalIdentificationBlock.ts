@@ -1,4 +1,4 @@
-import { BufferSourceConverter } from "pvtsutils";
+import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
@@ -35,7 +35,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
     if (idBlock) {
       //#region Properties from hexBlock class
       this.isHexOnly = idBlock.isHexOnly ?? false;
-      this.valueView = idBlock.valueHex ? BufferSourceConverter.toUint8Array(idBlock.valueHex) : EMPTY_VIEW;
+      this.valueHexView = idBlock.valueHex ? pvtsutils.BufferSourceConverter.toUint8Array(idBlock.valueHex) : EMPTY_VIEW;
       //#endregion
       this.tagClass = idBlock.tagClass ?? -1;
       this.tagNumber = idBlock.tagNumber ?? -1;
@@ -48,11 +48,8 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
   }
 
   public override toBER(sizeOnly = false): ArrayBuffer {
-    //#region Initial variables
     let firstOctet = 0;
-    let retBuf: ArrayBuffer;
-    let retView: Uint8Array;
-    //#endregion
+
     switch (this.tagClass) {
       case 1:
         firstOctet |= 0x00; // UNIVERSAL
@@ -69,15 +66,14 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       default:
         this.error = "Unknown tag class";
 
-        return (EMPTY_BUFFER);
+        return EMPTY_BUFFER;
     }
 
     if (this.isConstructed)
       firstOctet |= 0x20;
 
-    if ((this.tagNumber < 31) && (!this.isHexOnly)) {
-      retBuf = new ArrayBuffer(1);
-      retView = new Uint8Array(retBuf);
+    if (this.tagNumber < 31 && !this.isHexOnly) {
+      const retView = new Uint8Array(1);
 
       if (!sizeOnly) {
         let number = this.tagNumber;
@@ -87,16 +83,15 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
         retView[0] = firstOctet;
       }
 
-      return retBuf;
+      return retView.buffer;
     }
 
-    if (this.isHexOnly === false) {
+    if (!this.isHexOnly) {
       const encodedBuf = pvutils.utilToBase(this.tagNumber, 7);
       const encodedView = new Uint8Array(encodedBuf);
       const size = encodedBuf.byteLength;
 
-      retBuf = new ArrayBuffer(size + 1);
-      retView = new Uint8Array(retBuf);
+      const retView = new Uint8Array(size + 1);
       retView[0] = (firstOctet | 0x1F);
 
       if (!sizeOnly) {
@@ -106,28 +101,27 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
         retView[size] = encodedView[size - 1];
       }
 
-      return retBuf;
+      return retView.buffer;
     }
 
-    retBuf = new ArrayBuffer(this.valueHex.byteLength + 1);
-    retView = new Uint8Array(retBuf);
+    const retView = new Uint8Array(this.valueHexView.byteLength + 1);
 
     retView[0] = (firstOctet | 0x1F);
 
-    if (sizeOnly === false) {
-      const curView = new Uint8Array(this.valueHex);
+    if (!sizeOnly) {
+      const curView = this.valueHexView;
 
       for (let i = 0; i < (curView.length - 1); i++)
         retView[i + 1] = curView[i] | 0x80;
 
-      retView[this.valueHex.byteLength] = curView[curView.length - 1];
+      retView[this.valueHexView.byteLength] = curView[curView.length - 1];
     }
 
-    return retBuf;
+    return retView.buffer;
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    const inputView = BufferSourceConverter.toUint8Array(inputBuffer);
+    const inputView = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
 
     // Basic check for parameters
     if (!checkBufferParams(this, inputView, inputOffset, inputLength)) {
@@ -137,13 +131,13 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
     // Getting Uint8Array from ArrayBuffer
     const intBuffer = inputView.subarray(inputOffset, inputOffset + inputLength);
 
-    //#region Initial checks
+    // Initial checks
     if (intBuffer.length === 0) {
       this.error = "Zero buffer length";
 
       return -1;
     }
-    //#endregion
+
     //#region Find tag class
     const tagClassMask = intBuffer[0] & 0xC0;
 
@@ -166,26 +160,22 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
         return -1;
     }
     //#endregion
-    //#region Find it's constructed or not
+    // Find it's constructed or not
     this.isConstructed = (intBuffer[0] & 0x20) === 0x20;
-    //#endregion
-    //#region Find tag number
-    this.isHexOnly = false;
 
+    // Find tag number
+    this.isHexOnly = false;
     const tagNumberMask = intBuffer[0] & 0x1F;
 
-    //#region Simple case (tag number < 31)
     if (tagNumberMask !== 0x1F) {
+      // Simple case (tag number < 31)
       this.tagNumber = (tagNumberMask);
       this.blockLength = 1;
-    }
-    //#endregion
-
-    //#region Tag number bigger or equal to 31
-    else {
+    } else {
+      // Tag number bigger or equal to 31
       let count = 1;
 
-      let intTagNumberBuffer = this.valueView = new Uint8Array(255);
+      let intTagNumberBuffer = this.valueHexView = new Uint8Array(255);
       let tagNumberBufferMaxLength = 255;
 
       while (intBuffer[count] & 0x80) {
@@ -198,19 +188,17 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
           return -1;
         }
 
-        //#region In case if tag number length is greater than 255 bytes (rare but possible case)
+        // In case if tag number length is greater than 255 bytes (rare but possible case)
         if (count === tagNumberBufferMaxLength) {
           tagNumberBufferMaxLength += 255;
 
-          const tempBuffer = new ArrayBuffer(tagNumberBufferMaxLength);
-          const tempBufferView = new Uint8Array(tempBuffer);
+          const tempBufferView = new Uint8Array(tagNumberBufferMaxLength);
 
           for (let i = 0; i < intTagNumberBuffer.length; i++)
             tempBufferView[i] = intTagNumberBuffer[i];
 
-          intTagNumberBuffer = this.valueView = new Uint8Array(tagNumberBufferMaxLength);
+          intTagNumberBuffer = this.valueHexView = new Uint8Array(tagNumberBufferMaxLength);
         }
-        //#endregion
       }
 
       this.blockLength = (count + 1);
@@ -223,7 +211,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       for (let i = 0; i < count; i++)
         tempBufferView[i] = intTagNumberBuffer[i];
 
-      intTagNumberBuffer = this.valueView = new Uint8Array(count);
+      intTagNumberBuffer = this.valueHexView = new Uint8Array(count);
       intTagNumberBuffer.set(tempBufferView);
       //#endregion
       //#region Try to convert long tag number to short form

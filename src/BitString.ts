@@ -39,7 +39,7 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock> {
     } else {
       // convert bytes to bits
       const bits = [];
-      const valueHex = new Uint8Array(this.valueBlock.valueHex);
+      const valueHex = this.valueBlock.valueHexView;
       for (const byte of valueHex) {
         bits.push(byte.toString(2).padStart(8, "0"));
       }

@@ -2,7 +2,7 @@ import * as pvutils from "pvutils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { IDerConvertible } from "../types";
 import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
-import { EMPTY_BUFFER, powers2, digitsString } from "./constants";
+import { powers2, digitsString } from "./constants";
 
 function viewAdd(first: Uint8Array, second: Uint8Array): Uint8Array {
   //#region Initial variables
@@ -45,7 +45,7 @@ function viewAdd(first: Uint8Array, second: Uint8Array): Uint8Array {
   if (c[0] > 0)
     firstViewCopy = pvutils.utilConcatView(c, firstViewCopy);
 
-  return firstViewCopy.slice(0);
+  return firstViewCopy;
 }
 
 function power2(n: number): Uint8Array {
@@ -131,14 +131,14 @@ export interface LocalIntegerValueBlockJson extends HexBlockJson, ValueBlockJson
 
 export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDerConvertible {
   protected setValueHex(): void {
-    if (this.valueView.length >= 4) {
+    if (this.valueHexView.length >= 4) {
       this.warnings.push("Too big Integer for decoding, hex only");
       this.isHexOnly = true;
       this._valueDec = 0;
     } else {
       this.isHexOnly = false;
 
-      if (this.valueView.length > 0) {
+      if (this.valueHexView.length > 0) {
         this._valueDec = pvutils.utilDecodeTC.call(this);
       }
     }
@@ -149,12 +149,12 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
   static {
     Object.defineProperty(this.prototype, "valueHex", {
       set: function (this: LocalIntegerValueBlock, v: ArrayBuffer) {
-        this.valueView = new Uint8Array(v);
+        this.valueHexView = new Uint8Array(v);
 
         this.setValueHex();
       },
       get: function (this: LocalIntegerValueBlock) {
-        return this.valueView.slice().buffer;
+        return this.valueHexView.slice().buffer;
       },
     });
   }
@@ -174,7 +174,7 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
     this._valueDec = v;
 
     this.isHexOnly = false;
-    this.valueView = new Uint8Array(pvutils.utilEncodeTC(v));
+    this.valueHexView = new Uint8Array(pvutils.utilEncodeTC(v));
   }
 
   public get valueDec(): number {
@@ -186,10 +186,10 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
     if (offset === -1)
       return offset;
 
-    const view = this.valueView;
+    const view = this.valueHexView;
 
     if ((view[0] === 0x00) && ((view[1] & 0x80) !== 0)) {
-      this.valueView = view.subarray(1);
+      this.valueHexView = view.subarray(1);
     }
     else {
       if (expectedLength !== 0) {
@@ -197,7 +197,7 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
           if ((expectedLength - view.length) > 1)
             expectedLength = view.length + 1;
 
-          this.valueView = view.subarray(expectedLength - view.length);
+          this.valueHexView = view.subarray(expectedLength - view.length);
         }
       }
     }
@@ -206,22 +206,22 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
   }
 
   public toDER(sizeOnly = false): ArrayBuffer {
-    const view = this.valueView;
+    const view = this.valueHexView;
 
     switch (true) {
       case ((view[0] & 0x80) !== 0):
         {
-          const updatedView = new Uint8Array(this.valueView.length + 1);
+          const updatedView = new Uint8Array(this.valueHexView.length + 1);
 
           updatedView[0] = 0x00;
           updatedView.set(view, 1);
 
-          this.valueView = updatedView;
+          this.valueHexView = updatedView;
         }
         break;
       case ((view[0] === 0x00) && ((view[1] & 0x80) === 0)):
         {
-          this.valueView = this.valueView.subarray(1);
+          this.valueHexView = this.valueHexView.subarray(1);
         }
         break;
       default:
@@ -243,8 +243,8 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
 
   public override toBER(sizeOnly?: boolean): ArrayBuffer {
     return sizeOnly
-      ? new ArrayBuffer(this.valueView.length)
-      : this.valueView.slice(0).buffer;
+      ? new ArrayBuffer(this.valueHexView.length)
+      : this.valueHexView.slice().buffer;
   }
 
   public override toJSON(): LocalIntegerValueBlockJson {
@@ -256,13 +256,13 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
 
   public override toString(): string {
     //#region Initial variables
-    const firstBit = (this.valueView.length * 8) - 1;
+    const firstBit = (this.valueHexView.length * 8) - 1;
 
-    let digits = new Uint8Array((this.valueView.length * 8) / 3);
+    let digits = new Uint8Array((this.valueHexView.length * 8) / 3);
     let bitNumber = 0;
     let currentByte;
 
-    const asn1View = this.valueView;
+    const asn1View = this.valueHexView;
 
     let result = "";
 

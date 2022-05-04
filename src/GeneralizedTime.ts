@@ -56,7 +56,7 @@ export class GeneralizedTime extends UTCTime {
 
     //#region Convert as UTC time
     if (inputString[inputString.length - 1] === "Z") {
-      timeString = inputString.substr(0, inputString.length - 1);
+      timeString = inputString.substring(0, inputString.length - 1);
 
       isUTC = true;
     }
@@ -94,13 +94,13 @@ export class GeneralizedTime extends UTCTime {
       }
 
       if (differencePosition !== -1) {
-        differenceString = timeString.substr(differencePosition + 1);
-        timeString = timeString.substr(0, differencePosition);
+        differenceString = timeString.substring(differencePosition + 1);
+        timeString = timeString.substring(0, differencePosition);
 
         if ((differenceString.length !== 2) && (differenceString.length !== 4))
           throw new Error("Wrong input string for conversion");
 
-        let number = parseInt(differenceString.substr(0, 2), 10);
+        let number = parseInt(differenceString.substring(0, 2), 10);
 
         if (isNaN(number.valueOf()))
           throw new Error("Wrong input string for conversion");
@@ -109,7 +109,7 @@ export class GeneralizedTime extends UTCTime {
 
         if (differenceString.length === 4) {
           //noinspection JSPrimitiveTypeWrapperUsage
-          number = parseInt(differenceString.substr(2, 2), 10);
+          number = parseInt(differenceString.substring(2, 2), 10);
 
           if (isNaN(number.valueOf()))
             throw new Error("Wrong input string for conversion");
@@ -129,14 +129,14 @@ export class GeneralizedTime extends UTCTime {
     //#region Get fraction part
     if (fractionPointPosition !== -1) {
       //noinspection JSPrimitiveTypeWrapperUsage
-      const fractionPartCheck = new Number(`0${timeString.substr(fractionPointPosition)}`);
+      const fractionPartCheck = new Number(`0${timeString.substring(fractionPointPosition)}`);
 
       if (isNaN(fractionPartCheck.valueOf()))
         throw new Error("Wrong input string for conversion");
 
       fractionPart = fractionPartCheck.valueOf();
 
-      dateTimeString = timeString.substr(0, fractionPointPosition);
+      dateTimeString = timeString.substring(0, fractionPointPosition);
     }
     else
       dateTimeString = timeString;
