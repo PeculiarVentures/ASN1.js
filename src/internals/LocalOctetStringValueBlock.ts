@@ -2,6 +2,7 @@ import { ViewWriter } from "../ViewWriter";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { END_OF_CONTENT_NAME, OCTET_STRING_NAME } from "./constants";
 import { LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock } from "./LocalConstructedValueBlock";
+import type { OctetString } from "../OctetString";
 
 export interface ILocalOctetStringValueBlock {
   isConstructed: boolean;
@@ -16,6 +17,7 @@ export class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBl
   public static override NAME = "OctetStringValueBlock";
 
   public isConstructed: boolean;
+  declare public value: OctetString[];
 
   constructor({
     isConstructed = false,
@@ -81,4 +83,27 @@ export class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBl
     } as LocalOctetStringValueBlockJson;
   }
 
+}
+
+export interface LocalOctetStringValueBlock {
+  /**
+   * @deprecated since version 3.0.0
+   */
+  get valueBeforeDecode(): ArrayBuffer;
+  /**
+   * @deprecated since version 3.0.0
+   */
+  set valueBeforeDecode(value: ArrayBuffer);
+  /**
+   * Binary data in ArrayBuffer representation
+   *
+   * @deprecated since version 3.0.0
+   */
+  set valueHex(v: ArrayBuffer);
+  /**
+   * Binary data in ArrayBuffer representation
+   *
+   * @deprecated since version 3.0.0
+   */
+  get valueHex(): ArrayBuffer;
 }

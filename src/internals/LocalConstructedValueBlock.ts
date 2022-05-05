@@ -6,9 +6,12 @@ import { ValueBlock, ValueBlockParams } from "../ValueBlock";
 import { ViewWriter } from "../ViewWriter";
 import { localFromBER } from "../parser";
 import { checkBufferParams } from "./utils";
+import type { Any } from "../Any";
+
+export type ConstructedItem = BaseBlock | Any;
 
 export interface ILocalConstructedValueBlock {
-  value: BaseBlock[];
+  value: ConstructedItem[];
   isIndefiniteForm: boolean;
 }
 
@@ -40,7 +43,7 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
   }: LocalConstructedValueBlockParams = {}) {
     super(parameters);
 
-    this.value = value;
+    this.value = value as BaseBlock[]; // It's possible to set Any type for Schema declaration
     this.isIndefiniteForm = isIndefiniteForm;
   }
 

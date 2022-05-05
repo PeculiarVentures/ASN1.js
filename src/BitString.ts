@@ -1,12 +1,13 @@
-import { BaseBlock, BaseBlockParams } from "./BaseBlock";
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { Constructed } from "./Constructed";
 import { BIT_STRING_NAME } from "./internals/constants";
-import { LocalBitStringValueBlockParams, LocalBitStringValueBlock } from "./internals/LocalBitStringValueBlock";
+import { LocalBitStringValueBlockParams, LocalBitStringValueBlock, LocalBitStringValueBlockJson } from "./internals/LocalBitStringValueBlock";
 import { typeStore } from "./TypeStore";
 
 export interface BitStringParams extends BaseBlockParams, LocalBitStringValueBlockParams { }
+export type BitStringJson = BaseBlockJson<LocalBitStringValueBlockJson>;
 
-export class BitString extends BaseBlock<LocalBitStringValueBlock> {
+export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStringValueBlockJson> {
 
   static {
     typeStore.BitString = this;

@@ -1,11 +1,12 @@
 import { ViewWriter } from "./ViewWriter";
-import { ValueBlock } from "./ValueBlock";
-import { BaseBlock, BaseBlockParams } from "./BaseBlock";
+import { ValueBlock, ValueBlockJson } from "./ValueBlock";
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { typeStore } from "./TypeStore";
 
 export type NullParams = BaseBlockParams;
+export type NullJson = BaseBlockJson<ValueBlockJson>;
 
-export class Null extends BaseBlock<ValueBlock> {
+export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
 
   static {
     typeStore.Null = this;

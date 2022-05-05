@@ -108,8 +108,7 @@ export class GeneralizedTime extends UTCTime {
         hourDifference = multiplier * number;
 
         if (differenceString.length === 4) {
-          //noinspection JSPrimitiveTypeWrapperUsage
-          number = parseInt(differenceString.substring(2, 2), 10);
+          number = parseInt(differenceString.substring(2, 4), 10);
 
           if (isNaN(number.valueOf()))
             throw new Error("Wrong input string for conversion");
@@ -254,12 +253,6 @@ export class GeneralizedTime extends UTCTime {
   public override toJSON(): GeneralizedTimeJson {
     return {
       ...super.toJSON(),
-      year: this.year,
-      month: this.month,
-      day: this.day,
-      hour: this.hour,
-      minute: this.minute,
-      second: this.second,
       millisecond: this.millisecond,
     };
   }

@@ -1,7 +1,8 @@
-import { IntegerParams, Integer } from "./Integer";
+import { IntegerParams, Integer, IntegerJson } from "./Integer";
 import { typeStore } from "./TypeStore";
 
 export type EnumeratedParams = IntegerParams;
+export type EnumeratedJson = IntegerJson;
 
 export class Enumerated extends Integer {
 

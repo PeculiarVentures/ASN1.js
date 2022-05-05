@@ -1,7 +1,8 @@
-import { LocalSimpleStringBlockParams, LocalSimpleStringBlock } from "./internals/LocalSimpleStringBlock";
+import { LocalSimpleStringBlockParams, LocalSimpleStringBlock, LocalSimpleStringBlockJson } from "./internals/LocalSimpleStringBlock";
 import { typeStore } from "./TypeStore";
 
 export type GeneralStringParams = LocalSimpleStringBlockParams;
+export type GeneralStringJson = LocalSimpleStringBlockJson;
 
 export class GeneralString extends LocalSimpleStringBlock {
 

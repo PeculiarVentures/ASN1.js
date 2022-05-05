@@ -179,3 +179,26 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
   }
 
 }
+
+export interface LocalSidValueBlock {
+  /**
+   * @deprecated since version 3.0.0
+   */
+  get valueBeforeDecode(): ArrayBuffer;
+  /**
+   * @deprecated since version 3.0.0
+   */
+  set valueBeforeDecode(value: ArrayBuffer);
+  /**
+   * Binary data in ArrayBuffer representation
+   *
+   * @deprecated since version 3.0.0
+   */
+  set valueHex(v: ArrayBuffer);
+  /**
+   * Binary data in ArrayBuffer representation
+   *
+   * @deprecated since version 3.0.0
+   */
+  get valueHex(): ArrayBuffer;
+}

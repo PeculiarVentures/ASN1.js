@@ -1,7 +1,8 @@
 import { typeStore } from "./TypeStore";
-import { Utf8StringParams, Utf8String } from "./Utf8String";
+import { Utf8StringParams, Utf8String, Utf8StringJson } from "./Utf8String";
 
 export type DateTimeParams = Utf8StringParams;
+export type DateTimeJson = Utf8StringJson;
 
 export class DateTime extends Utf8String {
 

@@ -27,7 +27,9 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
   }: LocalRelativeObjectIdentifierValueBlockParams = {}) {
     super(parameters);
 
-    this.fromString(value);
+    if (value) {
+      this.fromString(value);
+    }
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
@@ -83,7 +85,7 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
         sid = string.substring(pos1);
 
       else
-        sid = string.substring(pos1, pos2 - pos1);
+        sid = string.substring(pos1, pos2);
 
       pos1 = pos2 + 1;
 

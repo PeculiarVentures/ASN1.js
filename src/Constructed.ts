@@ -1,10 +1,11 @@
-import { BaseBlock, BaseBlockParams } from "./BaseBlock";
-import { LocalConstructedValueBlock, LocalConstructedValueBlockParams } from "./internals/LocalConstructedValueBlock";
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
+import { LocalConstructedValueBlock, LocalConstructedValueBlockJson, LocalConstructedValueBlockParams } from "./internals/LocalConstructedValueBlock";
 import { typeStore } from "./TypeStore";
 
 export interface ConstructedParams extends BaseBlockParams, LocalConstructedValueBlockParams { }
+export type ConstructedJson = BaseBlockJson<LocalConstructedValueBlockJson>;
 
-export class Constructed extends BaseBlock<LocalConstructedValueBlock> {
+export class Constructed extends BaseBlock<LocalConstructedValueBlock, LocalConstructedValueBlockJson> {
 
   static {
     typeStore.Constructed = this;

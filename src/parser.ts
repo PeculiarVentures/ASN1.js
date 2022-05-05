@@ -37,7 +37,7 @@ function localChangeType<T extends BaseBlock>(inputObject: BaseBlock, newType: n
  * @param inputLength Maximum length of array of bytes which can be using in this function
  * @returns
  */
-export function localFromBER(inputBuffer: Uint8Array, inputOffset: number, inputLength: number): FromBerResult {
+export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLength = inputBuffer.length): FromBerResult {
   const incomingOffset = inputOffset; // Need to store initial offset since "inputOffset" is changing in the function
 
   // Create a basic ASN.1 type since we need to return errors and warnings from the function

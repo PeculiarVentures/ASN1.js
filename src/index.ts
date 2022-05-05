@@ -56,3 +56,4 @@ export * from "./RawData";
 
 export { FromBerResult, fromBER } from "./parser";
 export * from "./schema";
+export { AsnType } from "./TypeStore";

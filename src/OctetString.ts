@@ -1,14 +1,15 @@
 import * as pvtsutils from "pvtsutils";
-import { BaseBlock, BaseBlockParams } from "./BaseBlock";
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { Constructed } from "./Constructed";
-import { LocalOctetStringValueBlockParams, LocalOctetStringValueBlock } from "./internals/LocalOctetStringValueBlock";
+import { LocalOctetStringValueBlockParams, LocalOctetStringValueBlock, LocalOctetStringValueBlockJson } from "./internals/LocalOctetStringValueBlock";
 import { OCTET_STRING_NAME } from "./internals/constants";
 import { localFromBER } from "./parser";
 import { typeStore } from "./TypeStore";
 
 export interface OctetStringParams extends BaseBlockParams, LocalOctetStringValueBlockParams { }
+export type OctetStringJson = BaseBlockJson<LocalOctetStringValueBlockJson>;
 
-export class OctetString extends BaseBlock<LocalOctetStringValueBlock> {
+export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOctetStringValueBlockJson> {
 
   static {
     typeStore.OctetString = this;
@@ -45,7 +46,7 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock> {
         if (buf.byteLength) {
           const asn = localFromBER(buf, 0, buf.byteLength);
           if (asn.offset !== -1 && asn.offset === inputLength) {
-            this.valueBlock.value = [asn.result];
+            this.valueBlock.value = [asn.result as OctetString];
           }
         }
       } catch (e) {

@@ -1,11 +1,11 @@
 import * as pvtsutils from "pvtsutils";
-import { BaseBlock, BaseBlockParams } from "./BaseBlock";
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import * as utils from "./internals/utils";
 import { LocalIntegerValueBlockParams, LocalIntegerValueBlock, LocalIntegerValueBlockJson } from "./internals/LocalIntegerValueBlock";
 import { typeStore } from "./TypeStore";
 
-
 export interface IntegerParams extends BaseBlockParams, LocalIntegerValueBlockParams { }
+export type IntegerJson = BaseBlockJson<LocalIntegerValueBlockJson>;
 
 export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValueBlockJson> {
 

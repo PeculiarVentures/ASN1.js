@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { IS_CONSTRUCTED, EMPTY_STRING, NAME, ID_BLOCK, FROM_BER, TO_BER, TAG_CLASS, TAG_NUMBER, IS_HEX_ONLY, VALUE_HEX, LOCAL } from "./internals/constants";
+import * as pvtsutils from "pvtsutils";
+import { IS_CONSTRUCTED, EMPTY_STRING, NAME, ID_BLOCK, FROM_BER, TO_BER, TAG_CLASS, TAG_NUMBER, IS_HEX_ONLY, LOCAL, VALUE_HEX_VIEW } from "./internals/constants";
 import { Any } from "./Any";
 import { Choice } from "./Choice";
 import { Repeated } from "./Repeated";
-import { fromBER } from "./parser";
+import { localFromBER } from "./parser";
 import { AsnType, typeStore } from "./TypeStore";
 
 export type AsnSchemaType = AsnType | Any | Choice | Repeated;
 
 export interface CompareSchemaSuccess {
   verified: true;
-  result: AsnType;
+  result: AsnType & { [key: string]: any; };
 }
 
 export interface CompareSchemaFail {
@@ -197,7 +198,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
   //#endregion
   //#region valueHex
   if (inputSchema.idBlock.isHexOnly) {
-    if ((VALUE_HEX in inputSchema.idBlock) === false) // Since 'valueHex' is an inherited property
+    if ((VALUE_HEX_VIEW in inputSchema.idBlock) === false) // Since 'valueHex' is an inherited property
     {
       return {
         verified: false,
@@ -410,9 +411,9 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
   //#endregion
   //#region Ability to parse internal value for primitive-encoded value (value of OctetString, for example)
   if (inputSchema.primitiveSchema &&
-    (VALUE_HEX in inputData.valueBlock)) {
+    (VALUE_HEX_VIEW in inputData.valueBlock)) {
     //#region Decoding of raw ASN.1 data
-    const asn1 = fromBER(inputData.valueBlock.valueHexView);
+    const asn1 = localFromBER(inputData.valueBlock.valueHexView);
     if (asn1.offset === -1) {
       const _result: CompareSchemaResult = {
         verified: false,
@@ -449,7 +450,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
  * @return
  */
 
-export function verifySchema(inputBuffer: ArrayBuffer, inputSchema: AsnSchemaType): CompareSchemaResult {
+export function verifySchema(inputBuffer: BufferSource, inputSchema: AsnSchemaType): CompareSchemaResult {
   //#region Initial check
   if ((inputSchema instanceof Object) === false) {
     return {
@@ -459,7 +460,7 @@ export function verifySchema(inputBuffer: ArrayBuffer, inputSchema: AsnSchemaTyp
   }
   //#endregion
   //#region Decoding of raw ASN.1 data
-  const asn1 = fromBER(inputBuffer);
+  const asn1 = localFromBER(pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer));
   if (asn1.offset === -1) {
     return {
       verified: false,

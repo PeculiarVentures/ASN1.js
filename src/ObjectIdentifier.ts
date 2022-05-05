@@ -1,8 +1,9 @@
-import { BaseBlock, BaseBlockParams } from "./BaseBlock";
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { LocalObjectIdentifierValueBlockParams, LocalObjectIdentifierValueBlock, LocalObjectIdentifierValueBlockJson } from "./internals/LocalObjectIdentifierValueBlock";
 import { typeStore } from "./TypeStore";
 
 export interface ObjectIdentifierParams extends BaseBlockParams, LocalObjectIdentifierValueBlockParams { }
+export type ObjectIdentifierJson = BaseBlockJson<LocalObjectIdentifierValueBlockJson>;
 
 export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock, LocalObjectIdentifierValueBlockJson> {
 

@@ -5,6 +5,7 @@ import { EMPTY_STRING } from "./constants";
 import { LocalSimpleStringValueBlock, LocalSimpleStringValueBlockJson, LocalSimpleStringValueBlockParams } from "./LocalSimpleStringValueBlock";
 
 export interface LocalSimpleStringBlockParams extends BaseBlockParams, LocalSimpleStringValueBlockParams { }
+export type LocalSimpleStringBlockJson = LocalSimpleStringValueBlockJson;
 
 export class LocalSimpleStringBlock extends BaseStringBlock<LocalSimpleStringValueBlock, LocalSimpleStringValueBlockJson> {
 

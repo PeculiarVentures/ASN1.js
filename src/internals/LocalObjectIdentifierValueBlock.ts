@@ -27,7 +27,9 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
   }: LocalObjectIdentifierValueBlockParams = {}) {
     super(parameters);
 
-    this.fromString(value);
+    if (value) {
+      this.fromString(value);
+    }
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
@@ -81,13 +83,17 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
 
     let flag = false;
 
+    // const sids = string.split(".");
+    // for (const sid of sids) {
+
+    // }
     do {
       pos2 = string.indexOf(".", pos1);
       if (pos2 === -1)
         sid = string.substring(pos1);
 
       else
-        sid = string.substring(pos1, pos2 - pos1);
+        sid = string.substring(pos1, pos2);
 
       pos1 = pos2 + 1;
 

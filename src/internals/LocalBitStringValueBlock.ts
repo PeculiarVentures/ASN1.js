@@ -5,6 +5,7 @@ import { BIT_STRING_NAME, EMPTY_BUFFER, END_OF_CONTENT_NAME } from "./constants"
 import { LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock } from "./LocalConstructedValueBlock";
 import { localFromBER } from "../parser";
 import { checkBufferParams } from "./utils";
+import type { BitString } from "../BitString";
 
 export interface ILocalBitStringValueBlock {
   unusedBits: number;
@@ -19,6 +20,7 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
 
   public static override NAME = "BitStringValueBlock";
 
+  declare public value: BitString[];
   public unusedBits: number;
   public isConstructed: boolean;
 
@@ -108,7 +110,7 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
         if (buf.byteLength) {
           const asn = localFromBER(buf, 0, buf.byteLength);
           if (asn.offset !== -1 && asn.offset === (inputLength - 1)) {
-            this.value = [asn.result];
+            this.value = [asn.result as BitString];
           }
         }
       } catch (e) {
@@ -151,4 +153,27 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
       isConstructed: this.isConstructed,
     } as LocalBitStringValueBlockJson;
   }
+}
+
+export interface LocalBitStringValueBlock {
+  /**
+   * @deprecated since version 3.0.0
+   */
+  get valueBeforeDecode(): ArrayBuffer;
+  /**
+   * @deprecated since version 3.0.0
+   */
+  set valueBeforeDecode(value: ArrayBuffer);
+  /**
+   * Binary data in ArrayBuffer representation
+   *
+   * @deprecated since version 3.0.0
+   */
+  set valueHex(v: ArrayBuffer);
+  /**
+   * Binary data in ArrayBuffer representation
+   *
+   * @deprecated since version 3.0.0
+   */
+  get valueHex(): ArrayBuffer;
 }

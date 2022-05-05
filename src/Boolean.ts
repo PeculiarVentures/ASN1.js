@@ -1,10 +1,11 @@
-import { BaseBlock, BaseBlockParams } from "./BaseBlock";
-import { LocalBooleanValueBlockParams, LocalBooleanValueBlock } from "./internals/LocalBooleanValueBlock";
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
+import { LocalBooleanValueBlockParams, LocalBooleanValueBlock, LocalBooleanValueBlockJson } from "./internals/LocalBooleanValueBlock";
 import { typeStore } from "./TypeStore";
 
 export interface BooleanParams extends BaseBlockParams, LocalBooleanValueBlockParams { }
+export type BooleanJson = BaseBlockJson<LocalBooleanValueBlockJson>;
 
-export class Boolean extends BaseBlock<LocalBooleanValueBlock> {
+export class Boolean extends BaseBlock<LocalBooleanValueBlock, LocalBooleanValueBlockJson> {
 
   static {
     typeStore.Boolean = this;

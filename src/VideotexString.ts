@@ -1,7 +1,8 @@
-import { LocalSimpleStringBlockParams, LocalSimpleStringBlock } from "./internals/LocalSimpleStringBlock";
+import { LocalSimpleStringBlockParams, LocalSimpleStringBlock, LocalSimpleStringBlockJson } from "./internals/LocalSimpleStringBlock";
 import { typeStore } from "./TypeStore";
 
 export type VideotexStringParams = LocalSimpleStringBlockParams;
+export type VideotexStringJson = LocalSimpleStringBlockJson;
 
 export class VideotexString extends LocalSimpleStringBlock {
 

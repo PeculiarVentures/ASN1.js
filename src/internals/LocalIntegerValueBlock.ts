@@ -162,12 +162,14 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
   private _valueDec = 0;
 
   constructor({
-    value = 0,
+    value,
     ...parameters
   }: LocalIntegerValueBlockParams = {}) {
     super(parameters);
 
-    this.valueDec = value;
+    if (value !== undefined) {
+      this.valueDec = value;
+    }
   }
 
   public set valueDec(v: number) {
@@ -305,4 +307,27 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
     return result;
   }
 
+}
+
+export interface LocalIntegerValueBlock {
+  /**
+   * @deprecated since version 3.0.0
+   */
+  get valueBeforeDecode(): ArrayBuffer;
+  /**
+   * @deprecated since version 3.0.0
+   */
+  set valueBeforeDecode(value: ArrayBuffer);
+  /**
+   * Binary data in ArrayBuffer representation
+   *
+   * @deprecated since version 3.0.0
+   */
+  set valueHex(v: ArrayBuffer);
+  /**
+   * Binary data in ArrayBuffer representation
+   *
+   * @deprecated since version 3.0.0
+   */
+  get valueHex(): ArrayBuffer;
 }
