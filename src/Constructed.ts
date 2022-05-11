@@ -41,10 +41,13 @@ export class Constructed extends BaseBlock<LocalConstructedValueBlock, LocalCons
     return resultOffset;
   }
 
-  public override toString(): string {
+  /**
+   * @internal
+   */
+  public override onAsciiEncoding(): string {
     const values = [];
     for (const value of this.valueBlock.value) {
-      values.push(value.toString().split("\n").map(o => `  ${o}`).join("\n"));
+      values.push(value.toString("ascii").split("\n").map(o => `  ${o}`).join("\n"));
     }
     const blockName = this.idBlock.tagClass === 3
       ? `[${this.idBlock.tagNumber}]`

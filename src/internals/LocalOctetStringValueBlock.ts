@@ -8,7 +8,9 @@ export interface ILocalOctetStringValueBlock {
   isConstructed: boolean;
 }
 
-export interface LocalOctetStringValueBlockParams extends HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalOctetStringValueBlock> { }
+export interface LocalOctetStringValueBlockParams extends HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalOctetStringValueBlock> {
+  value?: OctetString[];
+}
 
 export interface LocalOctetStringValueBlockJson extends HexBlockJson, LocalConstructedValueBlockJson, ILocalOctetStringValueBlock { }
 
@@ -17,7 +19,6 @@ export class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBl
   public static override NAME = "OctetStringValueBlock";
 
   public isConstructed: boolean;
-  declare public value: OctetString[];
 
   constructor({
     isConstructed = false,

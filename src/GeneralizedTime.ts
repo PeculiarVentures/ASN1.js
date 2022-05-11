@@ -1,6 +1,6 @@
 import * as pvutils from "pvutils";
 import { typeStore } from "./TypeStore";
-import { IUTCTime, UTCTimeParams, UTCTimeJson, UTCTime } from "./UTCTime";
+import { IUTCTime, UTCTimeParams, UTCTimeJson, UTCTime, DateStringEncoding } from "./UTCTime";
 
 export interface IGeneralizedTime extends IUTCTime {
   millisecond: number;
@@ -63,7 +63,6 @@ export class GeneralizedTime extends UTCTime {
     //#endregion
     //#region Convert as local time
     else {
-      //noinspection JSPrimitiveTypeWrapperUsage
       const number = new Number(inputString[inputString.length - 1]);
 
       if (isNaN(number.valueOf()))
@@ -127,7 +126,6 @@ export class GeneralizedTime extends UTCTime {
 
     //#region Get fraction part
     if (fractionPointPosition !== -1) {
-      //noinspection JSPrimitiveTypeWrapperUsage
       const fractionPartCheck = new Number(`0${timeString.substring(fractionPointPosition)}`);
 
       if (isNaN(fractionPartCheck.valueOf()))
@@ -232,22 +230,26 @@ export class GeneralizedTime extends UTCTime {
     //#endregion
   }
 
-  public override toString(): string {
-    const outputArray = [];
+  public override toString(encoding: DateStringEncoding = "iso"): string {
+    if (encoding === "iso") {
+      const outputArray = [];
 
-    outputArray.push(pvutils.padNumber(this.year, 4));
-    outputArray.push(pvutils.padNumber(this.month, 2));
-    outputArray.push(pvutils.padNumber(this.day, 2));
-    outputArray.push(pvutils.padNumber(this.hour, 2));
-    outputArray.push(pvutils.padNumber(this.minute, 2));
-    outputArray.push(pvutils.padNumber(this.second, 2));
-    if (this.millisecond !== 0) {
-      outputArray.push(".");
-      outputArray.push(pvutils.padNumber(this.millisecond, 3));
+      outputArray.push(pvutils.padNumber(this.year, 4));
+      outputArray.push(pvutils.padNumber(this.month, 2));
+      outputArray.push(pvutils.padNumber(this.day, 2));
+      outputArray.push(pvutils.padNumber(this.hour, 2));
+      outputArray.push(pvutils.padNumber(this.minute, 2));
+      outputArray.push(pvutils.padNumber(this.second, 2));
+      if (this.millisecond !== 0) {
+        outputArray.push(".");
+        outputArray.push(pvutils.padNumber(this.millisecond, 3));
+      }
+      outputArray.push("Z");
+
+      return outputArray.join("");
     }
-    outputArray.push("Z");
 
-    return outputArray.join("");
+    return super.toString(encoding);
   }
 
   public override toJSON(): GeneralizedTimeJson {

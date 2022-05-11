@@ -11,6 +11,21 @@ export class Boolean extends BaseBlock<LocalBooleanValueBlock, LocalBooleanValue
     typeStore.Boolean = this;
   }
 
+  /**
+   * Gets value
+   * @since 3.0.0
+   */
+  public get value(): boolean {
+    return this.valueBlock.value;
+  }
+  /**
+   * Sets value
+   * @since 3.0.0
+   */
+  public set value(value: boolean) {
+    this.valueBlock.value = value;
+  }
+
   public static override NAME = "BOOLEAN";
 
   constructor(parameters: BooleanParams = {}) {
@@ -20,8 +35,8 @@ export class Boolean extends BaseBlock<LocalBooleanValueBlock, LocalBooleanValue
     this.idBlock.tagNumber = 1; // Boolean
   }
 
-  public override toString(): string {
-    return `${(this.constructor as typeof Boolean).NAME} : ${this.valueBlock.value}`;
+  protected override onAsciiEncoding(): string {
+    return `${(this.constructor as typeof Boolean).NAME} : ${this.value}`;
   }
 
 }

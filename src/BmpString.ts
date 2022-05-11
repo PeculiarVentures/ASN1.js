@@ -2,7 +2,6 @@ import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
 import { BaseBlockJson } from "./BaseBlock";
 import { BaseStringBlock, BaseStringBlockParams } from "./BaseStringBlock";
-import { EMPTY_STRING } from "./internals/constants";
 import { LocalBmpStringValueBlockParams, LocalBmpStringValueBlock, LocalBmpStringValueBlockJson } from "./internals/LocalBmpStringValueBlock";
 import { IStringConvertible } from "./types";
 import { typeStore } from "./TypeStore";

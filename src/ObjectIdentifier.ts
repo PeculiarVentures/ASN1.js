@@ -3,7 +3,9 @@ import { LocalObjectIdentifierValueBlockParams, LocalObjectIdentifierValueBlock,
 import { typeStore } from "./TypeStore";
 
 export interface ObjectIdentifierParams extends BaseBlockParams, LocalObjectIdentifierValueBlockParams { }
-export type ObjectIdentifierJson = BaseBlockJson<LocalObjectIdentifierValueBlockJson>;
+export interface ObjectIdentifierJson extends BaseBlockJson<LocalObjectIdentifierValueBlockJson> {
+  value: string;
+}
 
 export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock, LocalObjectIdentifierValueBlockJson> {
 
@@ -13,6 +15,14 @@ export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock,
 
   public static override NAME = "OBJECT IDENTIFIER";
 
+  /**
+   * Gets string representation of Object Identifier
+   * @since 3.0.0
+   */
+  public get value(): string {
+    return this.valueBlock.toString();
+  }
+
   constructor(parameters: ObjectIdentifierParams = {}) {
     super(parameters, LocalObjectIdentifierValueBlock);
 
@@ -20,8 +30,15 @@ export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock,
     this.idBlock.tagNumber = 6; // OBJECT IDENTIFIER
   }
 
-  public override toString(): string {
-    return `${(this.constructor as typeof ObjectIdentifier).NAME} : ${this.valueBlock.toString()}`;
+  protected override onAsciiEncoding(): string {
+    return `${(this.constructor as typeof ObjectIdentifier).NAME} : ${this.valueBlock.toString() || "empty"}`;
+  }
+
+  public override toJSON(): ObjectIdentifierJson {
+    return {
+      ...super.toJSON(),
+      value: this.value,
+    };
   }
 
 }

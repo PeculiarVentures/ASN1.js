@@ -17,8 +17,23 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
 
   public static override NAME = OCTET_STRING_NAME;
 
-  constructor(parameters: OctetStringParams = {}) {
-    super(parameters, LocalOctetStringValueBlock);
+  constructor({
+    idBlock = {},
+    lenBlock = {},
+    ...parameters
+  }: OctetStringParams = {}) {
+    parameters.isConstructed ??= !!parameters.value?.length;
+    super({
+      idBlock: {
+        isConstructed: parameters.isConstructed,
+        ...idBlock,
+      },
+      lenBlock: {
+        ...lenBlock,
+        isIndefiniteForm: !!parameters.isIndefiniteForm,
+      },
+      ...parameters,
+    }, LocalOctetStringValueBlock);
 
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 4; // OctetString
@@ -57,12 +72,32 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
     return super.fromBER(inputBuffer, inputOffset, inputLength);
   }
 
-  public override toString(): string {
+  protected override onAsciiEncoding(): string {
     if (this.valueBlock.isConstructed || (this.valueBlock.value && this.valueBlock.value.length)) {
-      return Constructed.prototype.toString.call(this);
-    } else {
-      return `${(this.constructor as typeof OctetString).NAME} : ${pvtsutils.Convert.ToHex(this.valueBlock.valueHexView)}`;
+      return Constructed.prototype.onAsciiEncoding.call(this);
     }
+
+    return `${(this.constructor as typeof OctetString).NAME} : ${pvtsutils.Convert.ToHex(this.valueBlock.valueHexView)}`;
+  }
+
+  /**
+   * Returns OctetString value. If OctetString is constructed, returns concatenated internal OctetString values
+   * @returns Array buffer
+   * @since 3.0.0
+   */
+  public getValue(): ArrayBuffer {
+    if (!this.idBlock.isConstructed) {
+      return this.valueBlock.valueHexView.slice().buffer;
+    }
+
+    const array: ArrayBuffer[] = [];
+    for (const content of this.valueBlock.value) {
+      if (content instanceof OctetString) {
+        array.push(content.valueBlock.valueHexView);
+      }
+    }
+
+    return pvtsutils.BufferSourceConverter.concat(array);
   }
 
 }

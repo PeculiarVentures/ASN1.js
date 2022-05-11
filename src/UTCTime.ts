@@ -1,6 +1,6 @@
 import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
-import { BaseBlockJson } from "./BaseBlock";
+import { BaseBlockJson, StringEncoding } from "./BaseBlock";
 import { LocalSimpleStringValueBlockJson } from "./internals/LocalSimpleStringValueBlock";
 import { IDateConvertible } from "./types";
 import { typeStore } from "./TypeStore";
@@ -20,6 +20,8 @@ export interface UTCTimeParams extends VisibleStringParams {
   valueDate?: Date;
 }
 export interface UTCTimeJson extends BaseBlockJson<LocalSimpleStringValueBlockJson>, IUTCTime { }
+
+export type DateStringEncoding = StringEncoding | "iso";
 
 export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible {
 
@@ -133,18 +135,26 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     //#endregion
   }
 
-  public override toString(): string {
-    const outputArray = new Array(7);
+  public override toString(encoding: DateStringEncoding = "iso"): string {
+    if (encoding === "iso") {
+      const outputArray = new Array(7);
 
-    outputArray[0] = pvutils.padNumber(((this.year < 2000) ? (this.year - 1900) : (this.year - 2000)), 2);
-    outputArray[1] = pvutils.padNumber(this.month, 2);
-    outputArray[2] = pvutils.padNumber(this.day, 2);
-    outputArray[3] = pvutils.padNumber(this.hour, 2);
-    outputArray[4] = pvutils.padNumber(this.minute, 2);
-    outputArray[5] = pvutils.padNumber(this.second, 2);
-    outputArray[6] = "Z";
+      outputArray[0] = pvutils.padNumber(((this.year < 2000) ? (this.year - 1900) : (this.year - 2000)), 2);
+      outputArray[1] = pvutils.padNumber(this.month, 2);
+      outputArray[2] = pvutils.padNumber(this.day, 2);
+      outputArray[3] = pvutils.padNumber(this.hour, 2);
+      outputArray[4] = pvutils.padNumber(this.minute, 2);
+      outputArray[5] = pvutils.padNumber(this.second, 2);
+      outputArray[6] = "Z";
 
-    return outputArray.join("");
+      return outputArray.join("");
+    }
+
+    return super.toString(encoding);
+  }
+
+  protected override onAsciiEncoding(): string {
+    return `${(this.constructor as typeof UTCTime).NAME} : ${this.toDate().toISOString()}`;
   }
 
   public override toJSON(): UTCTimeJson {

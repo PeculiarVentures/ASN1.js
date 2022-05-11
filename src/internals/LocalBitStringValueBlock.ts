@@ -12,7 +12,9 @@ export interface ILocalBitStringValueBlock {
   isConstructed: boolean;
 }
 
-export interface LocalBitStringValueBlockParams extends HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalBitStringValueBlock> { }
+export interface LocalBitStringValueBlockParams extends HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalBitStringValueBlock> {
+  value?: BitString[];
+}
 
 export interface LocalBitStringValueBlockJson extends HexBlockJson, LocalConstructedValueBlockJson, ILocalBitStringValueBlock { }
 
@@ -20,7 +22,6 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
 
   public static override NAME = "BitStringValueBlock";
 
-  declare public value: BitString[];
   public unusedBits: number;
   public isConstructed: boolean;
 
@@ -77,11 +78,6 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
         }
 
         this.unusedBits = valueBlock.unusedBits;
-        if (this.unusedBits > 7) {
-          this.error = "Unused bits for BitString must be in range 0-7";
-
-          return -1;
-        }
       }
 
       return resultOffset;

@@ -4,6 +4,7 @@ import type { LocalBaseBlock } from "./LocalBaseBlock";
 
 /**
  * Throws an exception if BigInt is not supported
+ * @throws Throws Error if BigInt is not supported
  */
 export function assertBigInt(): void {
   if (typeof BigInt === "undefined") {

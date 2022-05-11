@@ -1,7 +1,6 @@
 import * as pvtsutils from "pvtsutils";
 import { BaseBlockParams } from "../BaseBlock";
 import { BaseStringBlock } from "../BaseStringBlock";
-import { EMPTY_STRING } from "./constants";
 import { LocalSimpleStringValueBlock, LocalSimpleStringValueBlockJson, LocalSimpleStringValueBlockParams } from "./LocalSimpleStringValueBlock";
 
 export interface LocalSimpleStringBlockParams extends BaseBlockParams, LocalSimpleStringValueBlockParams { }

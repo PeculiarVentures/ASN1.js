@@ -105,7 +105,7 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
 
     const retView = new Uint8Array(encodedBuf.byteLength);
 
-    if (sizeOnly === false) {
+    if (!sizeOnly) {
       const encodedView = new Uint8Array(encodedBuf);
       const len = encodedBuf.byteLength - 1;
 

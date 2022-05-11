@@ -16,23 +16,34 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
 
   public static override NAME = "BooleanValueBlock";
 
-  public value: boolean;
+  public get value(): boolean {
+    for (const octet of this.valueHexView) {
+      if (octet > 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public set value(value: boolean) {
+    this.valueHexView[0] = value ? 0xFF : 0x00;
+  }
 
   constructor({
-    value = false,
+    value,
     ...parameters
   }: LocalBooleanValueBlockParams = {}) {
     super(parameters);
-
-    this.value = value;
 
     if (parameters.valueHex) {
       this.valueHexView = pvtsutils.BufferSourceConverter.toUint8Array(parameters.valueHex);
     } else {
       this.valueHexView = new Uint8Array(1);
-      if (this.value) {
-        this.valueHexView[0] = 0xFF;
-      }
+    }
+
+    if (value) {
+      this.value = value;
     }
   }
 
@@ -50,7 +61,7 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
       this.warnings.push("Boolean value encoded in more then 1 octet");
 
     this.isHexOnly = true;
-    this.value = !!pvutils.utilDecodeTC.call(this);
+    pvutils.utilDecodeTC.call(this);
     this.blockLength = inputLength;
 
     return (inputOffset + inputLength);

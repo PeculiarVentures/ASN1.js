@@ -58,7 +58,7 @@ export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
     return retBuf;
   }
 
-  public override toString(): string {
+  protected override onAsciiEncoding(): string {
     return `${(this.constructor as typeof Null).NAME}`;
   }
 

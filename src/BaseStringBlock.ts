@@ -10,6 +10,21 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
 
   public static override NAME = "BaseStringBlock";
 
+  /**
+   * String value
+   * @since 3.0.0
+   */
+  public get value(): string {
+    return this.valueBlock.value;
+  }
+  /**
+   * String value
+   * @since 3.0.0
+   */
+  public set value(value: string) {
+    this.valueBlock.value = value;
+  }
+
   constructor({
     value = EMPTY_STRING,
     ...parameters
@@ -51,8 +66,8 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
 
   public abstract fromString(inputString: string): void;
 
-  public override toString(): string {
-    return `${(this.constructor as typeof BaseStringBlock).NAME} : ${this.valueBlock.value}`;
+  protected override onAsciiEncoding(): string {
+    return `${(this.constructor as typeof BaseStringBlock).NAME} : '${this.valueBlock.value}'`;
   }
 
 }

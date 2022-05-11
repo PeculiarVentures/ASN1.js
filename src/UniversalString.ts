@@ -1,6 +1,5 @@
 import * as pvutils from "pvutils";
 import { BaseStringBlock, BaseStringBlockJson, BaseStringBlockParams } from "./BaseStringBlock";
-import { EMPTY_STRING } from "./internals/constants";
 import { LocalUniversalStringValueBlockParams, LocalUniversalStringValueBlock, LocalUniversalStringValueBlockJson } from "./internals/LocalUniversalStringValueBlockParams";
 import { IStringConvertible } from "./types";
 import { typeStore } from "./TypeStore";

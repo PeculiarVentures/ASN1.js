@@ -28,6 +28,8 @@ export interface BaseBlockJson<T extends LocalBaseBlockJson = LocalBaseBlockJson
   primitiveSchema?: BaseBlockJson;
 }
 
+export type StringEncoding = "ascii" | "hex";
+
 export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJson = ValueBlockJson> extends LocalBaseBlock implements IBaseBlock, IBerConvertible {
 
   static {
@@ -132,7 +134,15 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
 
     return object as BaseBlockJson<J>;
   }
-  public override toString(): string {
+  public override toString(encoding: StringEncoding = "ascii"): string {
+    if (encoding === "ascii") {
+      return this.onAsciiEncoding();
+    }
+
+    return pvtsutils.Convert.ToHex(this.toBER());
+  }
+
+  protected onAsciiEncoding(): string {
     return `${(this.constructor as typeof BaseBlock).NAME} : ${pvtsutils.Convert.ToHex(this.valueBlock.valueBeforeDecodeView)}`;
   }
 

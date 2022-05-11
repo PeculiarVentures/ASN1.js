@@ -15,28 +15,38 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStrin
 
   public static override NAME = BIT_STRING_NAME;
 
-  constructor(parameters: BitStringParams = {}) {
-    super(parameters, LocalBitStringValueBlock);
+  constructor({
+    idBlock = {},
+    lenBlock = {},
+    ...parameters
+  }: BitStringParams = {}) {
+    parameters.isConstructed ??= !!parameters.value?.length;
+    super({
+      idBlock: {
+        isConstructed: parameters.isConstructed,
+        ...idBlock,
+      },
+      lenBlock: {
+        ...lenBlock,
+        isIndefiniteForm: !!parameters.isIndefiniteForm,
+      },
+      ...parameters,
+    }, LocalBitStringValueBlock);
 
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 3; // BitString
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    // Ability to encode empty BitString
-    if (inputLength === 0) {
-      return inputOffset;
-    }
-
     this.valueBlock.isConstructed = this.idBlock.isConstructed;
     this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
 
     return super.fromBER(inputBuffer, inputOffset, inputLength);
   }
 
-  public override toString(): string {
+  protected override onAsciiEncoding(): string {
     if (this.valueBlock.isConstructed || (this.valueBlock.value && this.valueBlock.value.length)) {
-      return Constructed.prototype.toString.call(this);
+      return Constructed.prototype.onAsciiEncoding.call(this);
     } else {
       // convert bytes to bits
       const bits = [];
@@ -45,7 +55,9 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStrin
         bits.push(byte.toString(2).padStart(8, "0"));
       }
 
-      return `${(this.constructor as typeof BitString).NAME} : ${bits.join("")}`;
+      const bitsStr = bits.join("");
+
+      return `${(this.constructor as typeof BitString).NAME} : ${bitsStr.substring(0, bitsStr.length - this.valueBlock.unusedBits)}`;
     }
   }
 
