@@ -274,12 +274,12 @@ context("ASN types", () => {
 
   context("GeneralizedTime", () => {
     it("to/from BER", () => {
-      const value = new Date(2000, 1, 2, 12, 11, 10, 100);
+      const value = new Date("2000-01-02T12:11:10.100Z");
       const asn = new asn1js.GeneralizedTime({
         valueDate: value,
       });
       assert.ok(asn.value.startsWith, "2000");
-      assert.strictEqual(asn.toString("hex"), "181332303030303230323039313131302e3130305a");
+      assert.strictEqual(asn.toString("hex"), "181332303030303130323132313131302e3130305a");
       assert.ok(asn.toString("ascii").startsWith("GeneralizedTime : 2000"));
       assert.ok(asn.toString().startsWith, "2000");
     });
