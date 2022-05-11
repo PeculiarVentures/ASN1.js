@@ -101,16 +101,11 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
       _writer.write(new ArrayBuffer(2));
     }
     else {
-      const valueBlockSizeBuf = this.valueBlock.toBER(true);
-      this.lenBlock.length = valueBlockSizeBuf.byteLength;
+      const valueBlockBuf = this.valueBlock.toBER(sizeOnly);
+      this.lenBlock.length = valueBlockBuf.byteLength;
       const lenBlockBuf = this.lenBlock.toBER(sizeOnly);
 
       _writer.write(lenBlockBuf);
-
-      const valueBlockBuf = sizeOnly
-        ? new ArrayBuffer(this.lenBlock.length)
-        : this.valueBlock.toBER(sizeOnly);
-
       _writer.write(valueBlockBuf);
     }
 
