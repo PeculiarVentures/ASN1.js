@@ -15,7 +15,7 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStrin
 
   public static override NAME = BIT_STRING_NAME;
 
-  constructor(parameters = {}) {
+  constructor(parameters: BitStringParams = {}) {
     super(parameters, LocalBitStringValueBlock);
 
     this.idBlock.tagClass = 1; // UNIVERSAL

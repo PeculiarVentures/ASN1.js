@@ -12,7 +12,7 @@ export class TeletexString extends LocalSimpleStringBlock {
 
   public static override NAME = "TeletexString";
 
-  constructor(parameters = {}) {
+  constructor(parameters: TeletexStringParams = {}) {
     super(parameters);
 
     this.idBlock.tagClass = 1; // UNIVERSAL

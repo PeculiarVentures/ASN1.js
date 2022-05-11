@@ -12,7 +12,6 @@ export class LocalSimpleStringBlock extends BaseStringBlock<LocalSimpleStringVal
   public static override NAME = "SIMPLE STRING";
 
   constructor({
-    value = EMPTY_STRING,
     ...parameters
   }: LocalSimpleStringBlockParams = {}) {
     super(parameters, LocalSimpleStringValueBlock);

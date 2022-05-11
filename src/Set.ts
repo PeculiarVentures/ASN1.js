@@ -12,7 +12,7 @@ export class Set extends Constructed {
 
   public static override NAME = "SET";
 
-  constructor(parameters = {}) {
+  constructor(parameters: SetParams = {}) {
     super(parameters);
 
     this.idBlock.tagClass = 1; // UNIVERSAL
