@@ -1,7 +1,42 @@
 import * as assert from "assert";
 import * as asn1js from "../src";
+import { BaseBlock } from "../src";
+import { checkBufferParams } from "../src/internals/utils";
 
 context("Unit tests", () => {
+
+  context("utils", () => {
+    it("buffer incorrect type", () => {
+      const buffer = "wrong";
+      const block = new BaseBlock();
+      const res = checkBufferParams(block, buffer as unknown as Uint8Array, 0, 0);
+      assert.strictEqual(res, false);
+    });
+    it("buffer 0 length", () => {
+      const buffer = new Uint8Array();
+      const block = new BaseBlock();
+      const res = checkBufferParams(block, buffer, 0, 0);
+      assert.strictEqual(res, false);
+    });
+    it("offset is negative", () => {
+      const buffer = new Uint8Array(10);
+      const block = new BaseBlock();
+      const res = checkBufferParams(block, buffer, -1, 0);
+      assert.strictEqual(res, false);
+    });
+    it("length is negative", () => {
+      const buffer = new Uint8Array(10);
+      const block = new BaseBlock();
+      const res = checkBufferParams(block, buffer, 0, -1);
+      assert.strictEqual(res, false);
+    });
+    it("out of range", () => {
+      const buffer = new Uint8Array(10);
+      const block = new BaseBlock();
+      const res = checkBufferParams(block, buffer, 8, 3);
+      assert.strictEqual(res, false);
+    });
+  });
 
   it("LocalBaseBlock", () => {
     const baseBlock = new asn1js.BaseBlock({
