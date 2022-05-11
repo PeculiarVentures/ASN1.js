@@ -70,13 +70,13 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
       return resultOffset;
     }
 
-    if (this.idBlock.error.length === 0)
+    if (!this.idBlock.error.length)
       this.blockLength += this.idBlock.blockLength;
 
-    if (this.lenBlock.error.length === 0)
+    if (!this.lenBlock.error.length)
       this.blockLength += this.lenBlock.blockLength;
 
-    if (this.valueBlock.error.length === 0)
+    if (!this.valueBlock.error.length)
       this.blockLength += this.valueBlock.blockLength;
 
     return resultOffset;
