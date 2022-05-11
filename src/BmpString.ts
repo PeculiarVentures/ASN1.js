@@ -18,7 +18,6 @@ export class BmpString extends BaseStringBlock<LocalBmpStringValueBlock, LocalBm
   public static override NAME = "BMPString";
 
   constructor({
-    value = EMPTY_STRING,
     ...parameters
   }: BmpStringParams = {}) {
     super(parameters, LocalBmpStringValueBlock);

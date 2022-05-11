@@ -17,7 +17,6 @@ export class UniversalString extends BaseStringBlock<LocalUniversalStringValueBl
   public static override NAME = "UniversalString";
 
   constructor({
-    value = EMPTY_STRING,
     ...parameters
   }: UniversalStringParams = {}) {
     super(parameters, LocalUniversalStringValueBlock);
