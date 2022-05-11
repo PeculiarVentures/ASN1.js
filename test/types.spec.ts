@@ -72,8 +72,8 @@ context("ASN types", () => {
   context("BmpString", () => {
 
     it("toBER/fromBER", () => {
-      const testBER = pvtsutils.Convert.FromHex("1e1800740065007300740020006d006500730073006100670065");
-      const testValue = "test message";
+      const testBER = pvtsutils.Convert.FromHex("1e2400740065007300740020006d006500730073006100670065002004420435043a04410442");
+      const testValue = "test message текст";
 
       const asn = new asn1js.BmpString({
         value: testValue,
@@ -224,6 +224,42 @@ context("ASN types", () => {
     });
   });
 
+  context("UniversalString", () => {
+    it("to/from BER", () => {
+      const testString = "My test text";
+      const testHex = "1c300000004d0000007900000020000000740000006500000073000000740000002000000074000000650000007800000074";
+
+      const asn = new asn1js.UniversalString({
+        value: testString,
+      });
+      assert.strictEqual(asn.value, testString);
+      assert.strictEqual(asn.toString("hex"), testHex);
+      assert.strictEqual(asn.toString(), `UniversalString : '${testString}'`);
+
+      const parsedAsn = asn1js.fromBER(pvtsutils.Convert.FromHex(testHex));
+      assert.ok(parsedAsn.result instanceof asn1js.UniversalString);
+      assert.strictEqual(parsedAsn.result.value, testString);
+    });
+  });
+
+  context("Utf8String", () => {
+    it("to/from BER", () => {
+      const testString = "My test текст";
+      const testHex = "0c124d79207465737420d182d0b5d0bad181d182";
+
+      const asn = new asn1js.Utf8String({
+        value: testString,
+      });
+      assert.strictEqual(asn.value, testString);
+      assert.strictEqual(asn.toString("hex"), testHex);
+      assert.strictEqual(asn.toString(), `UTF8String : '${testString}'`);
+
+      const parsedAsn = asn1js.fromBER(pvtsutils.Convert.FromHex(testHex));
+      assert.ok(parsedAsn.result instanceof asn1js.Utf8String);
+      assert.strictEqual(parsedAsn.result.value, testString);
+    });
+  });
+
   context("DATE", () => {
     it("to/from BER", () => {
       const testString = "2000-01-02";
@@ -243,7 +279,7 @@ context("ASN types", () => {
         value: testString,
       });
       assert.strictEqual(asn.value, testString);
-      assert.strictEqual(asn.toString("hex"), "1f2112323030302d30312d30322031322533413030");
+      assert.strictEqual(asn.toString("hex"), "1f2110323030302d30312d30322031323a3030");
       assert.strictEqual(asn.toString(), `DateTime : '${testString}'`);
     });
   });
