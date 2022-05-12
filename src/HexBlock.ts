@@ -19,7 +19,7 @@ export type HexBlockParams = Partial<IHexBlock>;
  * Class used as a base block for all remaining ASN.1 classes
  */
 export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
-  return class extends BaseClass implements IHexBlock, IBerConvertible {
+  return class Some extends BaseClass implements IHexBlock, IBerConvertible {
 
     public static override NAME = "hexBlock";
 

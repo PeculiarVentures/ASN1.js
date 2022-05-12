@@ -48,7 +48,10 @@ export default [
     external: [...external],
     plugins: [
       dts({
-        tsconfig: path.resolve(__dirname, "./tsconfig.json")
+        tsconfig: path.resolve(__dirname, "./tsconfig.json"),
+        compilerOptions: {
+          stripInternal: true,
+        }
       })
     ],
     output: [

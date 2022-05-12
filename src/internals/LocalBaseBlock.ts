@@ -5,15 +5,16 @@ export interface ILocalBaseBlock {
   blockLength: number;
   error: string;
   warnings: string[];
-  valueBeforeDecode: BufferSource;
 }
 
-export interface LocalBaseBlockJson extends Omit<ILocalBaseBlock, "valueBeforeDecode"> {
+export interface LocalBaseBlockJson extends ILocalBaseBlock {
   blockName: string;
   valueBeforeDecode: string;
 }
 
-export type LocalBaseBlockParams = Partial<ILocalBaseBlock>;
+export interface LocalBaseBlockParams extends Partial<ILocalBaseBlock> {
+  valueBeforeDecode?: BufferSource;
+}
 
 export interface LocalBaseBlockConstructor<T extends LocalBaseBlock = LocalBaseBlock> {
   new(...args: any[]): T;

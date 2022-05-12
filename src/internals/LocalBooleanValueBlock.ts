@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
@@ -83,21 +84,13 @@ export interface LocalBooleanValueBlock {
   /**
    * @deprecated since version 3.0.0
    */
-  get valueBeforeDecode(): ArrayBuffer;
-  /**
-   * @deprecated since version 3.0.0
-   */
-  set valueBeforeDecode(value: ArrayBuffer);
+  // @ts-ignore
+  valueBeforeDecode: ArrayBuffer;
   /**
    * Binary data in ArrayBuffer representation
    *
    * @deprecated since version 3.0.0
    */
-  set valueHex(v: ArrayBuffer);
-  /**
-   * Binary data in ArrayBuffer representation
-   *
-   * @deprecated since version 3.0.0
-   */
-  get valueHex(): ArrayBuffer;
+  // @ts-ignore
+  valueHex: ArrayBuffer;
 }
