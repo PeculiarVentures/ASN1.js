@@ -72,6 +72,6 @@
     "lint:fix": "eslint --fix . --ext .ts",
     "coverage": "nyc npm test"
   },
-  "version": "3.0.0",
+  "version": "3.0.1",
   "license": "BSD-3-Clause"
 }
