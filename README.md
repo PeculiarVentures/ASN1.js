@@ -1,31 +1,31 @@
 ## ASN1js
 
-[![License](https://img.shields.io/badge/license-BSD-green.svg?style=flat)](https://raw.githubusercontent.com/PeculiarVentures/ASN1.js/master/LICENSE) [![CircleCI](https://circleci.com/gh/PeculiarVentures/ASN1.js.svg?style=svg)](https://circleci.com/gh/PeculiarVentures/ASN1.js) [![NPM version](https://badge.fury.io/js/asn1js.svg)](http://badge.fury.io/js/asn1js) [![Coverage Status](https://coveralls.io/repos/github/PeculiarVentures/ASN1.js/badge.svg?branch=master)](https://coveralls.io/github/PeculiarVentures/ASN1.js?branch=master)
+[![License](https://img.shields.io/badge/license-BSD-green.svg?style=flat)](https://raw.githubusercontent.com/PeculiarVentures/ASN1.js/master/LICENSE) [![Test](https://github.com/PeculiarVentures/ASN1.js/actions/workflows/test.yml/badge.svg)](https://github.com/PeculiarVentures/ASN1.js/actions/workflows/test.yml) [![NPM version](https://badge.fury.io/js/asn1js.svg)](http://badge.fury.io/js/asn1js) [![Coverage Status](https://coveralls.io/repos/github/PeculiarVentures/ASN1.js/badge.svg?branch=master)](https://coveralls.io/github/PeculiarVentures/ASN1.js?branch=master)
 
 [![NPM](https://nodei.co/npm-dl/asn1js.png?months=3&height=2)](https://nodei.co/npm/asn1js/)
 
-Abstract Syntax Notation One (ASN.1) is a standard and notation that describes rules and structures for representing, encoding, transmitting, and decoding data in telecommunications and computer networking. [ASN1js][] is a pure JavaScript library implementing this standard.  ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web.
+Abstract Syntax Notation One (ASN.1) is a standard and notation that describes rules and structures for representing, encoding, transmitting, and decoding data in telecommunications and computer networking. [ASN1js] is a pure JavaScript library implementing this standard.  ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web.
 
 ## Important Information for ASN1.js V1 Users
 ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
 
 ## Introduction
 
-[ASN1js][] is the first library for [BER][] encoding/decoding in Javascript designed for browser use. [BER][] is the basic encoding rules for [ASN.1][] that all others are based on, [DER][] is the encoding rules used by PKI applications - it is a subset of [BER][]. The [ASN1js][] library was tested against [freely available ASN.1:2008 test suite], with some limitations related to JavaScript language. 
+[ASN1js] is the first library for [BER] encoding/decoding in Javascript designed for browser use. [BER] is the basic encoding rules for [ASN.1] that all others are based on, [DER] is the encoding rules used by PKI applications - it is a subset of [BER]. The [ASN1js] library was tested against [freely available ASN.1:2008 test suite], with some limitations related to JavaScript language. 
 
 ## Features of the library
 
-* Based on latest features of JavaScipt language from ES2015 standard;
-* [ASN1js][] is a "base layer" for full-featured JS library [PKIjs][], which is using Web Cryptography API and has all classes, neccessary to work with PKI-related data;
-* Fully object-oriented library. Inhiritence is using everywhere inside the lib;
+* Based on latest features of JavaScript language from ES2015 standard;
+* [ASN1js] is a "base layer" for full-featured JS library [PKIjs], which is using Web Cryptography API and has all classes, necessary to work with PKI-related data;
+* Fully object-oriented library. Inheritance is using everywhere inside the lib;
 * Working with HTML5 data objects (ArrayBuffer, Uint8Array etc.);
 * Working with all ASN.1:2008 types;
-* Working with [BER][] encoded data;
+* Working with [BER] encoded data;
 * All types inside the library constantly stores information about all ASN.1 sub blocks (tag block, length block or value block);
 * User may have access to any byte inside any ASN.1 sub-block;
 * Any sub-block may have unlimited length, as it described in ASN.1 standard (even "tag block");
-* Ability to work with ASN.1 string date types (intcluding all "international" strings like UniversalString, BMPString, UTF8String) by passing native JavaScript strings into constuctors. And vice versa - all initially parsed data of ASN.1 string types right after decoding automatically converts into native JavaScript strings;
-* Same with ASN.1 date-time types: for major types like UTCTime and GeneralizedTime there are automatic convertion between "JS date type - ASN.1 date-time type" + vice versa;
+* Ability to work with ASN.1 string date types (including all "international" strings like UniversalString, BMPString, UTF8String) by passing native JavaScript strings into constructors. And vice versa - all initially parsed data of ASN.1 string types right after decoding automatically converts into native JavaScript strings;
+* Same with ASN.1 date-time types: for major types like UTCTime and GeneralizedTime there are automatic conversion between "JS date type - ASN.1 date-time type" + vice versa;
 * Same with ASN.1 OBJECT-IDENTIFIER (OID) data-type: you can initialize OID by JavaScript string and can get string representation via calling "oid.valueBlock.toString()";
 * Working with "easy-to-understand" ASN.1 schemas (pre-defined or built by user);
 * Has special types to work with ASN.1 schemas:
@@ -36,112 +36,108 @@ ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
 * Ability to parse internal data inside a primitively encoded data types and automatically validate it against special schema;
 * All types inside library are dynamic;
 * All types can be initialized in static or dynamic ways.
-* [ASN1js][] fully tested against [ASN.1:2008 TestSuite][].
+* [ASN1js] fully tested against [ASN.1:2008 TestSuite].
 
 ## Examples
 
+### How to create new ASN. structures
 ```javascript
-    //region How to create new ASN. structures 
-    var sequence = new asn1js.Sequence();
-    sequence.valueBlock.value.push(new asn1js.Integer({ value: 1 }));
+var sequence = new asn1js.Sequence();
+sequence.valueBlock.value.push(new asn1js.Integer({ value: 1 }));
 
-    var sequence_buffer = sequence.toBER(false); // Encode current sequence to BER (in ArrayBuffer)
-    var current_size = sequence_buffer.byteLength;
+var sequence_buffer = sequence.toBER(false); // Encode current sequence to BER (in ArrayBuffer)
+var current_size = sequence_buffer.byteLength;
 
-    var integer_data = new ArrayBuffer(8);
-    var integer_view = new Uint8Array(integer_data);
-    integer_view[0] = 0x01;
-    integer_view[1] = 0x01;
-    integer_view[2] = 0x01;
-    integer_view[3] = 0x01;
-    integer_view[4] = 0x01;
-    integer_view[5] = 0x01;
-    integer_view[6] = 0x01;
-    integer_view[7] = 0x01;
+var integer_data = new ArrayBuffer(8);
+var integer_view = new Uint8Array(integer_data);
+integer_view[0] = 0x01;
+integer_view[1] = 0x01;
+integer_view[2] = 0x01;
+integer_view[3] = 0x01;
+integer_view[4] = 0x01;
+integer_view[5] = 0x01;
+integer_view[6] = 0x01;
+integer_view[7] = 0x01;
 
-    sequence.valueBlock.value.push(new asn1js.Integer({
-        isHexOnly: true,
-        valueHex: integer_data
-    })); // Put too long for decoding Integer value
+sequence.valueBlock.value.push(new asn1js.Integer({
+  isHexOnly: true,
+  valueHex: integer_data,
+})); // Put too long for decoding Integer value
 
-    sequence_buffer = sequence.toBER(false);
-    current_size = sequence_buffer.byteLength;
-    //endregion 
+sequence_buffer = sequence.toBER();
+current_size = sequence_buffer.byteLength;
 ```
 
+### How to create new ASN.1 structures by calling constructors with parameters
 ```javascript
-    //region How to create new ASN.1 structures by calling constuctors with parameters 
-    var sequence2 = new asn1js.Sequence({
-        value: [
-            new asn1js.Integer({ value: 1 }),
-            new asn1js.Integer({
-                isHexOnly: true,
-                valueHex: integer_data
-            }),
-        ]
-    });
-    //endregion 
+var sequence2 = new asn1js.Sequence({
+  value: [
+    new asn1js.Integer({ value: 1 }),
+    new asn1js.Integer({
+      isHexOnly: true,
+      valueHex: integer_data
+    }),
+  ]
+});
 ```
 
+### How to validate ASN.1 against pre-defined schema 
 ```javascript
-    //region How to validate ASN.1 against pre-defined schema 
-    var asn1_schema = new asn1js.Sequence({
-        name: "block1",
-        value: [
-            new asn1js.Null({
-                name: "block2"
-            }),
-            new asn1js.Integer({
-                name: "block3",
-                optional: true // This block is absent inside data, but it's "optional". Hence verification against the schema will be passed.
-            })
-        ]
-    });
-    //endregion
+var asn1_schema = new asn1js.Sequence({
+  name: "block1",
+  value: [
+    new asn1js.Null({
+      name: "block2"
+    }),
+    new asn1js.Integer({
+      name: "block3",
+      optional: true // This block is absent inside data, but it's "optional". Hence verification against the schema will be passed.
+    })
+  ]
+});
 
-    var variant1 = org.pkijs.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
-    var variant1_verified = variant1.verified;
-    var variant1_result = variant1.result; // Verified decoded data with all block names inside
+var variant1 = org.pkijs.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
+var variant1_verified = variant1.verified;
+var variant1_result = variant1.result; // Verified decoded data with all block names inside
 ```
 
-```javascript
-    //region How to use "internal schemas" for primitevely encoded data types 
-    var primitive_octetstring = new asn1js.OctetString({ valueHex: encoded_sequence }); // Create a primitively encoded OctetString where internal data is an encoded Sequence
+### How to use "internal schemas" for primitively encoded data types
+```javascript 
+var primitive_octetstring = new asn1js.OctetString({ valueHex: encoded_sequence }); // Create a primitively encoded OctetString where internal data is an encoded Sequence
 
-    var asn1_schema_internal = new asn1js.OctetString({
-        name: "outer_block",
-        primitiveSchema: new asn1js.Sequence({
-            name: "block1",
-            value: [
-                    new asn1js.Null({
-                        name: "block2"
-                    })
-            ]
-        })
-    });
+var asn1_schema_internal = new asn1js.OctetString({
+  name: "outer_block",
+  primitiveSchema: new asn1js.Sequence({
+    name: "block1",
+    value: [
+      new asn1js.Null({
+        name: "block2"
+      })
+    ]
+  })
+});
 
-    var variant6 = org.pkijs.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
-    var variant6_verified = variant4.verified;
-    var variant6_block1_tag_num = variant6.result.block1.idBlock.tagNumber;
-    var variant6_block2_tag_num = variant6.result.block2.idBlock.tagNumber;
-    //endregion 
+var variant6 = org.pkijs.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
+var variant6_verified = variant4.verified;
+var variant6_block1_tag_num = variant6.result.block1.idBlock.tagNumber;
+var variant6_block2_tag_num = variant6.result.block2.idBlock.tagNumber;
 ```
 
-More examples could be found in "examples" directory or inside [PKIjs][] library.
+More examples could be found in "examples" directory or inside [PKIjs] library.
 
 ## Related source code 
 
-* [C++ ASN1:2008 BER coder/decoder](https://github.com/YuryStrozhevsky/C-plus-plus-ASN.1-2008-coder-decoder) - the "father" of [ASN1js][] project;
+* [C++ ASN1:2008 BER coder/decoder](https://github.com/YuryStrozhevsky/C-plus-plus-ASN.1-2008-coder-decoder) - the "father" of [ASN1js] project;
 * [Freely available ASN.1:2008 test suite](https://github.com/YuryStrozhevsky/ASN1-2008-free-test-suite) - the suite which can help you to validate (and better understand) any ASN.1 coder/decoder;
 * [NPM package for ASN.1:2008 test suite](https://github.com/YuryStrozhevsky/asn1-test-suite)
 
 ## Suitability
-There are several commercial products, enterprise solitions as well as open source project based on versions of ASN1js. You should, however, do your own code and security review before utilization in a production application before utilizing any open source library to ensure it will meet your needs.
+There are several commercial products, enterprise solutions as well as open source project based on versions of ASN1js. You should, however, do your own code and security review before utilization in a production application before utilizing any open source library to ensure it will meet your needs.
 
 ## License
 
 Copyright (c) 2014, [GMO GlobalSign](http://www.globalsign.com/)
-Copyright (c) 2015-2018, [Peculiar Ventures](http://peculiarventures.com/)
+Copyright (c) 2015-2022, [Peculiar Ventures](http://peculiarventures.com/)
 All rights reserved.
 
 Author 2014-2018, [Yury Strozhevsky](http://www.strozhevsky.com/).
