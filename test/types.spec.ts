@@ -8,7 +8,7 @@ context("ASN types", () => {
 
     it("empty constructor", () => {
       const asn = new asn1js.Boolean();
-      assert.strictEqual(asn.value, false);
+      assert.strictEqual(asn.getValue(), false);
       assert.strictEqual(asn.toString("hex"), "010100");
     });
 
@@ -24,7 +24,7 @@ context("ASN types", () => {
 
       const asnParsed = asn1js.fromBER(ber);
       assert.ok(asnParsed.result instanceof asn1js.Boolean);
-      assert.strictEqual(asnParsed.result.value, testValue);
+      assert.strictEqual(asnParsed.result.getValue(), testValue);
     });
 
     it("encode parsed value without changes", () => {
@@ -32,7 +32,7 @@ context("ASN types", () => {
 
       const asn = asn1js.fromBER(testBER);
       assert.ok(asn.result instanceof asn1js.Boolean);
-      assert.strictEqual(asn.result.value, true);
+      assert.strictEqual(asn.result.getValue(), true);
 
       const ber = asn.result.toBER();
       assert.strictEqual(pvtsutils.Convert.ToHex(ber), "010101");
@@ -63,7 +63,7 @@ context("ASN types", () => {
 
     it("change value", () => {
       const asn = new asn1js.Boolean();
-      asn.value = true;
+      asn.setValue(true);
       assert.strictEqual(asn.toString("hex"), "0101ff");
     });
 
@@ -218,7 +218,7 @@ context("ASN types", () => {
       const asn = new asn1js.CharacterString({
         value: testString,
       });
-      assert.strictEqual(asn.value, testString);
+      assert.strictEqual(asn.getValue(), testString);
       assert.strictEqual(asn.toString("hex"), "1d0b736f6d6520737472696e67");
       assert.strictEqual(asn.toString(), `CharacterString : '${testString}'`);
     });
@@ -232,13 +232,13 @@ context("ASN types", () => {
       const asn = new asn1js.UniversalString({
         value: testString,
       });
-      assert.strictEqual(asn.value, testString);
+      assert.strictEqual(asn.getValue(), testString);
       assert.strictEqual(asn.toString("hex"), testHex);
       assert.strictEqual(asn.toString(), `UniversalString : '${testString}'`);
 
       const parsedAsn = asn1js.fromBER(pvtsutils.Convert.FromHex(testHex));
       assert.ok(parsedAsn.result instanceof asn1js.UniversalString);
-      assert.strictEqual(parsedAsn.result.value, testString);
+      assert.strictEqual(parsedAsn.result.getValue(), testString);
     });
   });
 
@@ -250,13 +250,13 @@ context("ASN types", () => {
       const asn = new asn1js.Utf8String({
         value: testString,
       });
-      assert.strictEqual(asn.value, testString);
+      assert.strictEqual(asn.getValue(), testString);
       assert.strictEqual(asn.toString("hex"), testHex);
       assert.strictEqual(asn.toString(), `UTF8String : '${testString}'`);
 
       const parsedAsn = asn1js.fromBER(pvtsutils.Convert.FromHex(testHex));
       assert.ok(parsedAsn.result instanceof asn1js.Utf8String);
-      assert.strictEqual(parsedAsn.result.value, testString);
+      assert.strictEqual(parsedAsn.result.getValue(), testString);
     });
   });
 
@@ -266,7 +266,7 @@ context("ASN types", () => {
       const asn = new asn1js.DATE({
         value: testString,
       });
-      assert.strictEqual(asn.value, testString);
+      assert.strictEqual(asn.getValue(), testString);
       assert.strictEqual(asn.toString("hex"), "1f1f0a323030302d30312d3032");
       assert.strictEqual(asn.toString(), `DATE : '${testString}'`);
     });
@@ -278,7 +278,7 @@ context("ASN types", () => {
       const asn = new asn1js.DateTime({
         value: testString,
       });
-      assert.strictEqual(asn.value, testString);
+      assert.strictEqual(asn.getValue(), testString);
       assert.strictEqual(asn.toString("hex"), "1f2110323030302d30312d30322031323a3030");
       assert.strictEqual(asn.toString(), `DateTime : '${testString}'`);
     });
@@ -290,7 +290,7 @@ context("ASN types", () => {
       const asn = new asn1js.Duration({
         value: testString,
       });
-      assert.strictEqual(asn.value, testString);
+      assert.strictEqual(asn.getValue(), testString);
       assert.strictEqual(asn.toString("hex"), "1f220431303030");
       assert.strictEqual(asn.toString(), `Duration : '${testString}'`);
     });
@@ -302,7 +302,7 @@ context("ASN types", () => {
       const asn = new asn1js.GeneralString({
         value: testString,
       });
-      assert.strictEqual(asn.value, testString);
+      assert.strictEqual(asn.getValue(), testString);
       assert.strictEqual(asn.toString("hex"), "1b09736f6d652074657874");
       assert.strictEqual(asn.toString(), `GeneralString : '${testString}'`);
     });
@@ -314,7 +314,7 @@ context("ASN types", () => {
       const asn = new asn1js.GeneralizedTime({
         valueDate: value,
       });
-      assert.ok(asn.value.startsWith, "2000");
+      assert.ok(asn.getValue().startsWith, "2000");
       assert.strictEqual(asn.toString("hex"), "181332303030303130323132313131302e3130305a");
       assert.ok(asn.toString("ascii").startsWith("GeneralizedTime : 2000"));
       assert.ok(asn.toString().startsWith, "2000");
@@ -420,7 +420,7 @@ context("ASN types", () => {
       const asn = new asn1js.GraphicString({
         value: testString,
       });
-      assert.strictEqual(asn.value, testString);
+      assert.strictEqual(asn.getValue(), testString);
       assert.strictEqual(asn.toString("hex"), "1909736f6d652074657874");
       assert.strictEqual(asn.toString(), `GraphicString : '${testString}'`);
     });
@@ -432,7 +432,7 @@ context("ASN types", () => {
       const asn = new asn1js.NumericString({
         value: testString,
       });
-      assert.strictEqual(asn.value, testString);
+      assert.strictEqual(asn.getValue(), testString);
       assert.strictEqual(asn.toString("hex"), "120a31323334353637383930");
       assert.strictEqual(asn.toString(), `NumericString : '${testString}'`);
     });
@@ -515,7 +515,7 @@ context("ASN types", () => {
 
         const parsedAsn = asn1js.fromBER(asn.toBER());
         assert.ok(parsedAsn.result instanceof asn1js.RelativeObjectIdentifier);
-        assert.strictEqual(parsedAsn.result.value, asn.value);
+        assert.strictEqual(parsedAsn.result.getValue(), asn.getValue());
       });
       it("incorrect value", () => {
         const value = "wrong data";

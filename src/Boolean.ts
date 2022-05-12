@@ -15,14 +15,15 @@ export class Boolean extends BaseBlock<LocalBooleanValueBlock, LocalBooleanValue
    * Gets value
    * @since 3.0.0
    */
-  public get value(): boolean {
+  public getValue(): boolean {
     return this.valueBlock.value;
   }
   /**
    * Sets value
+   * @param value Boolean value
    * @since 3.0.0
    */
-  public set value(value: boolean) {
+  public setValue(value: boolean): void {
     this.valueBlock.value = value;
   }
 
@@ -36,7 +37,7 @@ export class Boolean extends BaseBlock<LocalBooleanValueBlock, LocalBooleanValue
   }
 
   protected override onAsciiEncoding(): string {
-    return `${(this.constructor as typeof Boolean).NAME} : ${this.value}`;
+    return `${(this.constructor as typeof Boolean).NAME} : ${this.getValue}`;
   }
 
 }

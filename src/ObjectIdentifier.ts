@@ -19,8 +19,17 @@ export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock,
    * Gets string representation of Object Identifier
    * @since 3.0.0
    */
-  public get value(): string {
+  public getValue(): string {
     return this.valueBlock.toString();
+  }
+
+  /**
+   * Sets Object Identifier value from string
+   * @param value String value
+   * @since 3.0.0
+   */
+  public setValue(value: string): void {
+    this.valueBlock.fromString(value);
   }
 
   constructor(parameters: ObjectIdentifierParams = {}) {
@@ -37,7 +46,7 @@ export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock,
   public override toJSON(): ObjectIdentifierJson {
     return {
       ...super.toJSON(),
-      value: this.value,
+      value: this.getValue(),
     };
   }
 

@@ -14,14 +14,15 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
    * String value
    * @since 3.0.0
    */
-  public get value(): string {
+  public getValue(): string {
     return this.valueBlock.value;
   }
   /**
    * String value
+   * @param value String value
    * @since 3.0.0
    */
-  public set value(value: string) {
+  public setValue(value: string): void {
     this.valueBlock.value = value;
   }
 
