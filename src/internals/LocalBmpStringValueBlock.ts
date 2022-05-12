@@ -1,5 +1,4 @@
 import * as pvtsutils from "pvtsutils";
-import * as pvutils from "pvutils";
 import { LocalSimpleStringBlock, LocalSimpleStringBlockJson, LocalSimpleStringBlockParams } from "./LocalSimpleStringBlock";
 
 export type LocalBmpStringValueBlockParams = LocalSimpleStringBlockParams;

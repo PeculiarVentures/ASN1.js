@@ -1,7 +1,3 @@
-import * as pvtsutils from "pvtsutils";
-import * as pvutils from "pvutils";
-import { BaseBlockJson } from "./BaseBlock";
-import { BaseStringBlock, BaseStringBlockParams } from "./BaseStringBlock";
 import { LocalBmpStringValueBlockParams, LocalBmpStringValueBlock, LocalBmpStringValueBlockJson } from "./internals/LocalBmpStringValueBlock";
 import { typeStore } from "./TypeStore";
 
