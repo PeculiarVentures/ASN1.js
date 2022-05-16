@@ -30,6 +30,7 @@ export type CompareSchemaResult = CompareSchemaSuccess | CompareSchemaFail;
  * @return Returns result of comparison
  */
 export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: AsnSchemaType): CompareSchemaResult {
+  Buffer.from("");
   //#region Special case for Choice schema element type
   if (inputSchema instanceof Choice) {
     const choiceResult = false;
@@ -450,7 +451,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
  * @return
  */
 
-export function verifySchema(inputBuffer: BufferSource, inputSchema: AsnSchemaType): CompareSchemaResult {
+export function verifySchema(inputBuffer: pvtsutils.BufferSource, inputSchema: AsnSchemaType): CompareSchemaResult {
   //#region Initial check
   if ((inputSchema instanceof Object) === false) {
     return {

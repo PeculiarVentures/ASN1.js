@@ -13,7 +13,7 @@ export interface LocalBaseBlockJson extends ILocalBaseBlock {
 }
 
 export interface LocalBaseBlockParams extends Partial<ILocalBaseBlock> {
-  valueBeforeDecode?: BufferSource;
+  valueBeforeDecode?: pvtsutils.BufferSource;
 }
 
 export interface LocalBaseBlockConstructor<T extends LocalBaseBlock = LocalBaseBlock> {

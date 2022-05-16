@@ -7,7 +7,7 @@ import { checkBufferParams } from "./internals/utils";
 
 export interface IHexBlock {
   isHexOnly: boolean;
-  valueHex: BufferSource;
+  valueHex: pvtsutils.BufferSource;
 }
 
 export interface HexBlockJson extends Omit<IHexBlock, "valueHex"> {

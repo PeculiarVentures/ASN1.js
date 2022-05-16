@@ -286,7 +286,7 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
  * Major function for decoding ASN.1 BER array into internal library structures
  * @param inputBuffer ASN.1 BER encoded array of bytes
  */
-export function fromBER(inputBuffer: BufferSource): FromBerResult {
+export function fromBER(inputBuffer: pvtsutils.BufferSource): FromBerResult {
   if (!inputBuffer.byteLength) {
     const result = new BaseBlock({}, ValueBlock);
     result.error = "Input buffer has zero length";
