@@ -30,7 +30,6 @@ export type CompareSchemaResult = CompareSchemaSuccess | CompareSchemaFail;
  * @return Returns result of comparison
  */
 export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: AsnSchemaType): CompareSchemaResult {
-  Buffer.from("");
   //#region Special case for Choice schema element type
   if (inputSchema instanceof Choice) {
     const choiceResult = false;
