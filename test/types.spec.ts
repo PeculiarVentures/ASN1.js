@@ -154,6 +154,36 @@ context("ASN types", () => {
 
   context("Integer", () => {
 
+    it("from number", () => {
+      const asn = new asn1js.Integer({
+        value: 97196,
+      });
+
+      assert.strictEqual(asn.valueBlock.toString(), "97196");
+      assert.strictEqual(asn.toString(), "INTEGER : 97196");
+      assert.strictEqual(asn.toString("hex"), "0203017bac");
+
+      const asn2 = asn1js.fromBER(asn.toBER());
+      assert.ok(asn2.result instanceof asn1js.Integer);
+      assert.strictEqual(asn2.result.valueBlock.valueDec, 97196);
+    });
+
+    it("from valueHex", () => {
+      const asn = new asn1js.Integer({
+        valueHex: new Uint8Array([0x01, 0x7b, 0xac]),
+      });
+
+      assert.strictEqual(asn.valueBlock.isHexOnly, false);
+      assert.strictEqual(asn.valueBlock.valueDec, 97196);
+      assert.strictEqual(asn.valueBlock.toString(), "97196");
+      assert.strictEqual(asn.toString(), "INTEGER : 97196");
+      assert.strictEqual(asn.toString("hex"), "0203017bac");
+
+      const asn2 = asn1js.fromBER(asn.toBER());
+      assert.ok(asn2.result instanceof asn1js.Integer);
+      assert.strictEqual(asn2.result.valueBlock.valueDec, 97196);
+    });
+
     it("toString positive", () => {
       const asn = new asn1js.Integer({
         valueHex: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
