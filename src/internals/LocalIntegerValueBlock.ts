@@ -168,6 +168,10 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
   }: LocalIntegerValueBlockParams = {}) {
     super(parameters);
 
+    if (parameters.valueHex) {
+      this.setValueHex();
+    }
+
     if (value !== undefined) {
       this.valueDec = value;
     }
