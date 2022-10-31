@@ -14,6 +14,7 @@ import type { GeneralString } from "./GeneralString";
 import type { GraphicString } from "./GraphicString";
 import type { IA5String } from "./IA5String";
 import type { Integer } from "./Integer";
+import type { Real } from "./Real";
 import type { Null } from "./Null";
 import type { NumericString } from "./NumericString";
 import type { ObjectIdentifier } from "./ObjectIdentifier";
@@ -32,7 +33,7 @@ import type { Utf8String } from "./Utf8String";
 import type { VideotexString } from "./VideotexString";
 import type { VisibleString } from "./VisibleString";
 
-export type AsnType = BaseBlock | EndOfContent | AsnBoolean | Integer | BitString | OctetString | Null | ObjectIdentifier | Enumerated | Utf8String | RelativeObjectIdentifier | TIME | Sequence | Set | NumericString | PrintableString | TeletexString | VideotexString | IA5String | UTCTime | GeneralizedTime | GraphicString | VisibleString | GeneralString | UniversalString | CharacterString | BmpString | DATE | TimeOfDay | DateTime | Duration | Constructed | Primitive;
+export type AsnType = BaseBlock | EndOfContent | AsnBoolean | Integer | Real | BitString | OctetString | Null | ObjectIdentifier | Enumerated | Utf8String | RelativeObjectIdentifier | TIME | Sequence | Set | NumericString | PrintableString | TeletexString | VideotexString | IA5String | UTCTime | GeneralizedTime | GraphicString | VisibleString | GeneralString | UniversalString | CharacterString | BmpString | DATE | TimeOfDay | DateTime | Duration | Constructed | Primitive;
 
 export interface TypeStore {
   BitString: typeof BitString;
@@ -50,6 +51,7 @@ export interface TypeStore {
   GraphicString: typeof GraphicString;
   IA5String: typeof IA5String;
   Integer: typeof Integer;
+  Real: typeof Real;
   Null: typeof Null;
   NumericString: typeof NumericString;
   ObjectIdentifier: typeof ObjectIdentifier;

@@ -79,3 +79,80 @@ export function checkBufferParams(baseBlock: LocalBaseBlock, inputBuffer: Uint8A
 
   return true;
 }
+
+enum ESpecialNumber {
+  nan = 1,
+  infinite = 2
+}
+
+interface INumberParts {
+  sign: 1 | -1,
+  exponent: number,
+  mantissa: number,
+  special?: ESpecialNumber
+}
+
+/**
+ * Retrieves the mantissa, exponent and sign of a number value
+ *
+ * Taken from:
+ * https://stackoverflow.com/questions/9383593/extracting-the-exponent-and-mantissa-of-a-javascript-number
+ *
+ * @param x - the number to get the values from
+ * @returns - the structs containing the extracted values
+ */
+export function getNumberParts(x: number): INumberParts
+{
+  if(isNaN(x)) {
+    return {
+      mantissa: -6755399441055744,
+      exponent: 972,
+      sign: 1,
+      special: ESpecialNumber.nan
+    };
+  }
+
+  const float = new Float64Array(1);
+  const bytes = new Uint8Array(float.buffer);
+  float[0] = x;
+  const msb = bytes[7] >> 7;
+  const sign = msb ? -1 : 1;
+
+  if(!isFinite(x)) {
+    return {
+      mantissa: 4503599627370496,
+      exponent: 972,
+      sign,
+      special: ESpecialNumber.infinite
+    };
+  }
+
+  let exponent = ((bytes[7] & 0x7f) << 4 | bytes[6] >> 4) - 0x3ff;
+
+  bytes[7] = 0x3f;
+  bytes[6] |= 0xf0;
+
+  // Return mantissa lower than 1
+  let mantissa = float[0];
+  while (mantissa >= 1) {
+    mantissa /= 2;
+    exponent++;
+  }
+
+  return {
+      sign,
+      exponent,
+      mantissa,
+  };
+}
+
+/**
+ * Converts an unsigned number to a signed one
+ *
+ * @param x - the unsigned number to get the signed from
+ * @returns - the signed number value
+ */
+export function getSignedFromUnsigned(x: number): number
+{
+  return x << 24 >> 24;
+}

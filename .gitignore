@@ -1,8 +1,13 @@
 .idea
-.vscode
 **/node_modules
 **/package-lock.json
 build
 .nyc_output
 coverage
 .DS_Store
+src/*.js
+src/*.js.map
+src/internals/*.js
+src/internals/*.js.map
+test/*.spec.js
+test/*.spec.js.map
