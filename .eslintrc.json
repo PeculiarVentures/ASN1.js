@@ -21,7 +21,6 @@
   "rules": {
     "no-prototype-builtins": 0,
     "no-unused-vars": 0,
-    "newline-before-return": 1,
     "@typescript-eslint/no-unused-vars": [
       "warn",
       {

@@ -166,6 +166,9 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
         case 6: // ObjectIdentifier
           newASN1Type = typeStore.ObjectIdentifier;
           break;
+        case 9: // Real
+          newASN1Type = typeStore.Real;
+          break;
         case 10: // Enumerated
           newASN1Type = typeStore.Enumerated;
           break;

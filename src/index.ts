@@ -17,6 +17,7 @@ export * from "./Boolean";
 export * from "./OctetString";
 export * from "./BitString";
 export * from "./Integer";
+export * from "./Real";
 export * from "./Enumerated";
 export * from "./ObjectIdentifier";
 export * from "./RelativeObjectIdentifier";
