@@ -1,6 +1,6 @@
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { LocalRelativeObjectIdentifierValueBlockParams, LocalRelativeObjectIdentifierValueBlock, LocalRelativeObjectIdentifierValueBlockJson } from "./internals/LocalRelativeObjectIdentifierValueBlock";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 
 
 export interface RelativeObjectIdentifierParams extends BaseBlockParams, LocalRelativeObjectIdentifierValueBlockParams { }
@@ -32,12 +32,13 @@ export class RelativeObjectIdentifier extends BaseBlock<LocalRelativeObjectIdent
   }
 
   public static override NAME = "RelativeObjectIdentifier";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.RelativeObjectIdentifier};
 
   constructor(parameters: RelativeObjectIdentifierParams = {}) {
     super(parameters, LocalRelativeObjectIdentifierValueBlock);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 13; // RELATIVE OBJECT IDENTIFIER
+    this.idBlock.tagClass = RelativeObjectIdentifier.defaultIDs.tagClass;
+    this.idBlock.tagNumber = RelativeObjectIdentifier.defaultIDs.tagNumber;
   }
 
   protected override onAsciiEncoding(): string {

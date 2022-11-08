@@ -19,4 +19,12 @@ export class Primitive extends BaseBlock<LocalPrimitiveValueBlock, LocalPrimitiv
     this.idBlock.isConstructed = false;
   }
 
+  public getValue(): null {
+    return null;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  public setValue(value: number): void {
+  }
+
 }

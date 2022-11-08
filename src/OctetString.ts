@@ -4,7 +4,7 @@ import { Constructed } from "./Constructed";
 import { LocalOctetStringValueBlockParams, LocalOctetStringValueBlock, LocalOctetStringValueBlockJson } from "./internals/LocalOctetStringValueBlock";
 import { OCTET_STRING_NAME } from "./internals/constants";
 import { localFromBER } from "./parser";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 
 export interface OctetStringParams extends BaseBlockParams, LocalOctetStringValueBlockParams { }
 export type OctetStringJson = BaseBlockJson<LocalOctetStringValueBlockJson>;
@@ -16,6 +16,7 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
   }
 
   public static override NAME = OCTET_STRING_NAME;
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.OctetString};
 
   constructor({
     idBlock = {},
@@ -35,8 +36,8 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
       ...parameters,
     }, LocalOctetStringValueBlock);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 4; // OctetString
+    this.idBlock.tagClass = OctetString.defaultIDs.tagClass;
+    this.idBlock.tagNumber = OctetString.defaultIDs.tagNumber;
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
