@@ -1,5 +1,5 @@
 import { LocalUniversalStringValueBlockParams, LocalUniversalStringValueBlock, LocalUniversalStringValueBlockJson } from "./internals/LocalUniversalStringValueBlockParams";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 
 export type UniversalStringParams = LocalUniversalStringValueBlockParams;
 export type UniversalStringJson = LocalUniversalStringValueBlockJson;
@@ -11,14 +11,15 @@ export class UniversalString extends LocalUniversalStringValueBlock {
   }
 
   public static override NAME = "UniversalString";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.UniversalString};
 
   constructor({
     ...parameters
   }: UniversalStringParams = {}) {
     super(parameters);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 28; // UniversalString
+    this.idBlock.tagClass = UniversalString.defaultIDs.tagClass;
+    this.idBlock.tagNumber = UniversalString.defaultIDs.tagNumber;
   }
 
 }

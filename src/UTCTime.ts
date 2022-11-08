@@ -3,7 +3,7 @@ import * as pvutils from "pvutils";
 import { BaseBlockJson, StringEncoding } from "./BaseBlock";
 import { LocalSimpleStringValueBlockJson } from "./internals/LocalSimpleStringValueBlock";
 import { IDateConvertible } from "./types";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 import { VisibleStringParams, VisibleString } from "./VisibleString";
 
 export interface IUTCTime {
@@ -30,6 +30,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
   }
 
   public static override NAME = "UTCTime";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.UTCTime};
 
   public year: number;
   public month: number;
@@ -68,8 +69,8 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
       this.valueBlock.valueHexView = new Uint8Array(this.toBuffer());
     }
     //#endregion
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 23; // UTCTime
+    this.idBlock.tagClass = UTCTime.defaultIDs.tagClass;
+    this.idBlock.tagNumber = UTCTime.defaultIDs.tagNumber;
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
