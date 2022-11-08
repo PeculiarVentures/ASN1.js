@@ -1,5 +1,6 @@
 import * as pvtsutils from "pvtsutils";
 import { EMPTY_STRING, EMPTY_VIEW } from "./constants";
+import { IBaseIDs } from "./LocalIdentificationBlock";
 
 export interface ILocalBaseBlock {
   blockLength: number;
@@ -20,6 +21,7 @@ export interface LocalBaseBlockConstructor<T extends LocalBaseBlock = LocalBaseB
   new(...args: any[]): T;
   prototype: T;
   NAME: string;
+  defaultIDs: IBaseIDs;
   blockName(): string;
 }
 
@@ -27,11 +29,16 @@ export interface LocalBaseBlockConstructor<T extends LocalBaseBlock = LocalBaseB
  * Class used as a base block for all remaining ASN.1 classes
  */
 export class LocalBaseBlock implements ILocalBaseBlock {
-
   /**
    * Name of the block
    */
-  public static NAME = "baseBlock";
+  public static NAME = "LocalBaseBlock";
+
+  /**
+   * The default ids for this kind of asn1 tag
+   */
+  public static defaultIDs: IBaseIDs = {tagClass: -1, tagNumber: -1};
+
   /**
    * Aux function, need to get a block name. Need to have it here for inheritance
    * @returns Returns name of the block

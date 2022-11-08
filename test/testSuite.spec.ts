@@ -131,7 +131,7 @@ context("ASN.1:2008 TestSuite Tests", () => {
 
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
     assert.ok(asn1.result instanceof asn1js.Integer, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
-    assert.equal(asn1.result.valueBlock.valueDec, -4095, "Value block value must be equal to -4095");
+    assert.equal(asn1.result.valueBlock.value, -4095, "Value block value must be equal to -4095");
     assert.equal(asn1.result.valueBlock.warnings.length, 1, "Should just one warning in value block");
     assert.equal(asn1.result.valueBlock.warnings[0], "Needlessly long format", "Text of the warning in length block does not match");
   });

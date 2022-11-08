@@ -2,7 +2,7 @@ import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
 import { IBerConvertible } from "./types";
 import { LocalBaseBlockJson, LocalBaseBlockParams, LocalBaseBlock } from "./internals/LocalBaseBlock";
-import { LocalIdentificationBlock, LocalIdentificationBlockJson, LocalIdentificationBlockParams } from "./internals/LocalIdentificationBlock";
+import { IBaseIDs, LocalIdentificationBlock, LocalIdentificationBlockJson, ILocalIdentificationBlockParams } from "./internals/LocalIdentificationBlock";
 import { LocalLengthBlock, LocalLengthBlockJson, LocalLengthBlockParams } from "./internals/LocalLengthBlock";
 import { ViewWriter } from "./ViewWriter";
 import { ValueBlock, ValueBlockJson } from "./ValueBlock";
@@ -15,7 +15,11 @@ export interface IBaseBlock {
   primitiveSchema?: BaseBlock;
 }
 
-export interface BaseBlockParams extends LocalBaseBlockParams, LocalIdentificationBlockParams, LocalLengthBlockParams, Partial<IBaseBlock> { }
+export interface IBaseBlockIDs {
+  defaultIDs: IBaseIDs;
+}
+
+export interface BaseBlockParams extends LocalBaseBlockParams, ILocalIdentificationBlockParams, LocalLengthBlockParams, Partial<IBaseBlock> { }
 
 export interface ValueBlockConstructor<T extends ValueBlock = ValueBlock> {
   new(...args: any[]): T;
@@ -31,12 +35,8 @@ export interface BaseBlockJson<T extends LocalBaseBlockJson = LocalBaseBlockJson
 export type StringEncoding = "ascii" | "hex";
 
 export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJson = ValueBlockJson> extends LocalBaseBlock implements IBaseBlock, IBerConvertible {
-
-  static {
-
-  }
-
   public static override NAME = "BaseBlock";
+  public static override defaultIDs: IBaseIDs = {tagClass: -1, tagNumber: -1};
 
   public idBlock: LocalIdentificationBlock;
   public lenBlock: LocalLengthBlock;
@@ -55,9 +55,11 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
 
     this.name = name;
     this.optional = optional;
-    if (primitiveSchema) {
+    // If the property is not explicitly defined as optional it may also be defined as optional with defining of the optionalID
+    if(parameters.idBlock?.optionalID !== undefined && parameters.idBlock.optionalID >= 0)
+      this.optional = true;
+    if (primitiveSchema)
       this.primitiveSchema = primitiveSchema;
-    }
 
     this.idBlock = new LocalIdentificationBlock(parameters);
     this.lenBlock = new LocalLengthBlock(parameters);
@@ -134,6 +136,7 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
 
     return object as BaseBlockJson<J>;
   }
+
   public override toString(encoding: StringEncoding = "ascii"): string {
     if (encoding === "ascii") {
       return this.onAsciiEncoding();

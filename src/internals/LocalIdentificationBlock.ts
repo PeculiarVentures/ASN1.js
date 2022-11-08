@@ -2,18 +2,32 @@
 import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
+import { ETagClass, EUniversalTagNumber } from "../TypeStore";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
 import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
 import { checkBufferParams } from "./utils";
 
 
-export interface ILocalIdentificationBlock {
-  tagClass: number;
-  tagNumber: number;
-  isConstructed: boolean;
+export interface IBaseIDs {
+  // The class of the asn1 object
+  tagClass: ETagClass;
+  // The tag number inside the class for the asn1 object
+  tagNumber: EUniversalTagNumber;
 }
 
-export interface LocalIdentificationBlockParams {
+
+export interface ILocalIdentificationBlock extends IBaseIDs {
+  // True if this is a constructed object
+  isConstructed: boolean;
+  /*
+   * In case a property is transported optinally the property may contain an id to specify it among the list of optionals
+   * If this property is set (>=0) the encoder will encode the tagClass to 3 (CONTEXT-SPECIFIC) and set the tagNumber to the optionalID
+   * While decoding the property the tagClass and tagNumber are taken from the scheme and the property is decoded accordingly
+   */
+  optionalID: number;
+}
+
+export interface ILocalIdentificationBlockParams {
   idBlock?: Partial<ILocalIdentificationBlock> & HexBlockParams;
 }
 
@@ -24,13 +38,14 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
 
   public static override NAME = "identificationBlock";
 
-  public tagClass: number;
-  public tagNumber: number;
+  public tagClass: ETagClass;
+  public tagNumber: EUniversalTagNumber | number;
   public isConstructed: boolean;
+  public optionalID: number;
 
   constructor({
     idBlock = {},
-  }: LocalIdentificationBlockParams = {}) {
+  }: ILocalIdentificationBlockParams = {}) {
     super();
 
     if (idBlock) {
@@ -41,27 +56,36 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       this.tagClass = idBlock.tagClass ?? -1;
       this.tagNumber = idBlock.tagNumber ?? -1;
       this.isConstructed = idBlock.isConstructed ?? false;
+      this.optionalID = idBlock.optionalID ?? -1;
     } else {
       this.tagClass = -1;
       this.tagNumber = -1;
       this.isConstructed = false;
+      this.optionalID = -1;
     }
   }
 
   public override toBER(sizeOnly = false): ArrayBuffer {
     let firstOctet = 0;
 
-    switch (this.tagClass) {
-      case 1:
+    let tagClass = this.tagClass;
+    let tagNumber = this.tagNumber;
+    if(this.optionalID >= 0) {
+      tagClass = ETagClass.CONTEXT_SPECIFIC;
+      tagNumber = this.optionalID;
+    }
+
+    switch (tagClass) {
+      case ETagClass.UNIVERSAL:
         firstOctet |= 0x00; // UNIVERSAL
         break;
-      case 2:
+      case ETagClass.APPLICATION:
         firstOctet |= 0x40; // APPLICATION
         break;
-      case 3:
+      case ETagClass.CONTEXT_SPECIFIC:
         firstOctet |= 0x80; // CONTEXT-SPECIFIC
         break;
-      case 4:
+      case ETagClass.PRIVATE:
         firstOctet |= 0xC0; // PRIVATE
         break;
       default:
@@ -73,14 +97,13 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
     if (this.isConstructed)
       firstOctet |= 0x20;
 
-    if (this.tagNumber < 31 && !this.isHexOnly) {
+    if (tagNumber < 31 && !this.isHexOnly) {
       const retView = new Uint8Array(1);
 
       if (!sizeOnly) {
-        let number = this.tagNumber;
+        let number = tagNumber;
         number &= 0x1F;
         firstOctet |= number;
-
         retView[0] = firstOctet;
       }
 
@@ -88,7 +111,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
     }
 
     if (!this.isHexOnly) {
-      const encodedBuf = pvutils.utilToBase(this.tagNumber, 7);
+      const encodedBuf = pvutils.utilToBase(tagNumber, 7);
       const encodedView = new Uint8Array(encodedBuf);
       const size = encodedBuf.byteLength;
 
@@ -144,20 +167,19 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
 
     switch (tagClassMask) {
       case 0x00:
-        this.tagClass = (1); // UNIVERSAL
+        this.tagClass = ETagClass.UNIVERSAL; // UNIVERSAL
         break;
       case 0x40:
-        this.tagClass = (2); // APPLICATION
+        this.tagClass = ETagClass.APPLICATION; // APPLICATION
         break;
       case 0x80:
-        this.tagClass = (3); // CONTEXT-SPECIFIC
+        this.tagClass = ETagClass.CONTEXT_SPECIFIC; // CONTEXT-SPECIFIC
         break;
       case 0xC0:
-        this.tagClass = (4); // PRIVATE
+        this.tagClass = ETagClass.PRIVATE; // PRIVATE
         break;
       default:
         this.error = "Unknown tag class";
-
         return -1;
     }
     //#endregion
@@ -260,7 +282,18 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       tagClass: this.tagClass,
       tagNumber: this.tagNumber,
       isConstructed: this.isConstructed,
+      optionalID: this.optionalID
     };
+  }
+
+  /**
+   * Checks whether two LocalIdentificationBlock are of the same type
+   *
+   * @param other - the object to compare against
+   * @returns true in case other and this is from the same type
+   */
+  public isIdenticalType(other: IBaseIDs): boolean {
+    return this.tagClass === other.tagClass && this.tagNumber === other.tagNumber;
   }
 }
 

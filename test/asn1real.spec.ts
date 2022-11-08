@@ -63,7 +63,7 @@ function decodeReal(value: string): number | undefined {
     const data = hex2buf(value);
     const result = asn1js.fromBER(data);
     if(result.result instanceof asn1js.Real)
-        return result.result.valueBlock.valueDec;
+        return result.result.valueBlock.value;
     return undefined;
 }
 
