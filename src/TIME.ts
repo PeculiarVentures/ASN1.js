@@ -1,4 +1,4 @@
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 import { Utf8StringParams, Utf8String, Utf8StringJson } from "./Utf8String";
 
 export type TIMEParams = Utf8StringParams;
@@ -11,12 +11,13 @@ export class TIME extends Utf8String {
   }
 
   public static override NAME = "TIME";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.TIME};
 
   constructor(parameters: TIMEParams = {}) {
     super(parameters);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 14; // Time
+    this.idBlock.tagClass = TIME.defaultIDs.tagClass;
+    this.idBlock.tagNumber = TIME.defaultIDs.tagNumber;
   }
 
 }

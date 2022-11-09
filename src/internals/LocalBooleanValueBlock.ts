@@ -61,7 +61,6 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
     if (inputLength > 1)
       this.warnings.push("Boolean value encoded in more then 1 octet");
 
-    this.isHexOnly = true;
     pvutils.utilDecodeTC.call(this);
     this.blockLength = inputLength;
 

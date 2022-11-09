@@ -2,12 +2,14 @@ import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
 import { IBerConvertible } from "./types";
 import { LocalBaseBlockJson, LocalBaseBlockParams, LocalBaseBlock } from "./internals/LocalBaseBlock";
-import { LocalIdentificationBlock, LocalIdentificationBlockJson, LocalIdentificationBlockParams } from "./internals/LocalIdentificationBlock";
+import { IBaseIDs, LocalIdentificationBlock, LocalIdentificationBlockJson, ILocalIdentificationBlockParams } from "./internals/LocalIdentificationBlock";
 import { LocalLengthBlock, LocalLengthBlockJson, LocalLengthBlockParams } from "./internals/LocalLengthBlock";
 import { ViewWriter } from "./ViewWriter";
 import { ValueBlock, ValueBlockJson } from "./ValueBlock";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./internals/constants";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
+import { Sequence } from "./Sequence";
+import { Set } from "./Set";
 
 export interface IBaseBlock {
   name: string;
@@ -15,7 +17,15 @@ export interface IBaseBlock {
   primitiveSchema?: BaseBlock;
 }
 
-export interface BaseBlockParams extends LocalBaseBlockParams, LocalIdentificationBlockParams, LocalLengthBlockParams, Partial<IBaseBlock> { }
+export interface IBaseBlockIDs {
+  /**
+   * These are the default IDs a certain asn1 object is using to express itself e.g. a UTF8String uses ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Utf8String
+   * The values are static to have them accessible without needing to create the object
+   */
+  defaultIDs: IBaseIDs;
+}
+
+export interface BaseBlockParams extends LocalBaseBlockParams, ILocalIdentificationBlockParams, LocalLengthBlockParams, Partial<IBaseBlock> { }
 
 export interface ValueBlockConstructor<T extends ValueBlock = ValueBlock> {
   new(...args: any[]): T;
@@ -31,12 +41,8 @@ export interface BaseBlockJson<T extends LocalBaseBlockJson = LocalBaseBlockJson
 export type StringEncoding = "ascii" | "hex";
 
 export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJson = ValueBlockJson> extends LocalBaseBlock implements IBaseBlock, IBerConvertible {
-
-  static {
-
-  }
-
   public static override NAME = "BaseBlock";
+  public static override defaultIDs: IBaseIDs = {tagClass: -1, tagNumber: -1};
 
   public idBlock: LocalIdentificationBlock;
   public lenBlock: LocalLengthBlock;
@@ -55,9 +61,11 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
 
     this.name = name;
     this.optional = optional;
-    if (primitiveSchema) {
+    // If the property is not explicitly defined as optional it may also be defined as optional with defining of the optionalID
+    if(parameters.idBlock?.optionalID !== undefined && parameters.idBlock.optionalID >= 0)
+      this.optional = true;
+    if (primitiveSchema)
       this.primitiveSchema = primitiveSchema;
-    }
 
     this.idBlock = new LocalIdentificationBlock(parameters);
     this.lenBlock = new LocalLengthBlock(parameters);
@@ -68,18 +76,14 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
     const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, (this.lenBlock.isIndefiniteForm) ? inputLength : this.lenBlock.length);
     if (resultOffset === -1) {
       this.error = this.valueBlock.error;
-
       return resultOffset;
     }
 
-    if (!this.idBlock.error.length)
+    if (!this.idBlock.error.length) {
       this.blockLength += this.idBlock.blockLength;
-
-    if (!this.lenBlock.error.length)
       this.blockLength += this.lenBlock.blockLength;
-
-    if (!this.valueBlock.error.length)
       this.blockLength += this.valueBlock.blockLength;
+    }
 
     return resultOffset;
   }
@@ -134,6 +138,7 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
 
     return object as BaseBlockJson<J>;
   }
+
   public override toString(encoding: StringEncoding = "ascii"): string {
     if (encoding === "ascii") {
       return this.onAsciiEncoding();
@@ -166,6 +171,38 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
     return pvutils.isEqualBuffer(thisRaw, otherRaw);
   }
 
+  /**
+    * Retrieve the tag type (universal object type) of this object
+    *
+    * @returns the universal tagNumber if the class is universal, otherwise undefined
+    */
+  public getUniversalTagNumber(): EUniversalTagNumber | undefined{
+    if (this.idBlock.tagClass === ETagClass.UNIVERSAL)
+      return this.idBlock.tagNumber;
+    return undefined;
+  }
+
+  /**
+    * Retrieve the tag type (universal object type) of this object
+    *
+    * @returns the universal tagNumber if the class is universal, otherwise undefined
+    */
+  public getAsSequence(): Sequence | undefined{
+    if (this.idBlock.tagClass === ETagClass.UNIVERSAL && this.idBlock.tagNumber === EUniversalTagNumber.Sequence)
+      return this as unknown as Sequence;
+    return undefined;
+  }
+
+  /**
+    * Retrieve the tag type (universal object type) of this object
+    *
+    * @returns the universal tagNumber if the class is universal, otherwise undefined
+    */
+  public getAsSet(): Sequence | undefined{
+    if (this.idBlock.tagClass === ETagClass.UNIVERSAL && this.idBlock.tagNumber === EUniversalTagNumber.Set)
+      return this as unknown as Set;
+    return undefined;
+  }
 }
 
 /**

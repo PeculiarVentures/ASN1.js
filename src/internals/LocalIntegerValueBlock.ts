@@ -135,12 +135,12 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
     if (this.valueHexView.length >= 4) {
       this.warnings.push("Too big Integer for decoding, hex only");
       this.isHexOnly = true;
-      this._valueDec = 0;
+      this._value = 0;
     } else {
       this.isHexOnly = false;
 
       if (this.valueHexView.length > 0) {
-        this._valueDec = pvutils.utilDecodeTC.call(this);
+        this._value = pvutils.utilDecodeTC.call(this);
       }
     }
   }
@@ -160,7 +160,7 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
     });
   }
 
-  private _valueDec = 0;
+  private _value = 0;
 
   constructor({
     value,
@@ -173,19 +173,19 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
     }
 
     if (value !== undefined) {
-      this.valueDec = value;
+      this.value = value;
     }
   }
 
-  public set valueDec(v: number) {
-    this._valueDec = v;
+  public set value(v: number) {
+    this._value = v;
 
     this.isHexOnly = false;
     this.valueHexView = new Uint8Array(pvutils.utilEncodeTC(v));
   }
 
-  public get valueDec(): number {
-    return this._valueDec;
+  public get value(): number {
+    return this._value;
   }
 
   public fromDER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number, expectedLength = 0): number {
@@ -257,7 +257,7 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
   public override toJSON(): LocalIntegerValueBlockJson {
     return {
       ...super.toJSON(),
-      valueDec: this.valueDec,
+      valueDec: this.value,
     };
   }
 

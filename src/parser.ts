@@ -2,13 +2,18 @@ import * as pvtsutils from "pvtsutils";
 import { ValueBlock } from "./ValueBlock";
 import { BaseBlock } from "./BaseBlock";
 import { LocalBaseBlock } from "./internals/LocalBaseBlock";
-import { AsnType, typeStore } from "./TypeStore";
+import { AsnType, ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 import { checkBufferParams } from "./internals/utils";
+import { ILocalIdentificationBlock } from "./internals/LocalIdentificationBlock";
+import { Constructed } from "./Constructed";
+import { IHexBlock } from "./HexBlock";
+import { Primitive } from "./Primitive";
 
 export interface FromBerResult {
   offset: number;
   result: AsnType;
 }
+export type TnewAsnType = new () => AsnType;
 
 /**
  * Local function changing a type for ASN.1 classes
@@ -28,6 +33,83 @@ function localChangeType<T extends BaseBlock>(inputObject: BaseBlock, newType: n
   newObject.valueBeforeDecodeView = inputObject.valueBeforeDecodeView;
 
   return newObject;
+}
+
+export function getTypeForIDBlock(idBlock: ILocalIdentificationBlock & IHexBlock): TnewAsnType | undefined {
+  if(idBlock.tagClass === 1) {
+    switch (idBlock.tagNumber) {
+      case EUniversalTagNumber.EndOfContent:
+        return typeStore.EndOfContent;
+      case EUniversalTagNumber.Boolean:
+        return typeStore.Boolean;
+      case EUniversalTagNumber.Integer:
+        return typeStore.Integer;
+      case EUniversalTagNumber.BitString:
+        return typeStore.BitString;
+      case EUniversalTagNumber.OctetString:
+        return typeStore.OctetString;
+      case EUniversalTagNumber.Null:
+        return typeStore.Null;
+      case EUniversalTagNumber.ObjectIdentifier:
+        return typeStore.ObjectIdentifier;
+      case EUniversalTagNumber.Real:
+        return typeStore.Real;
+      case EUniversalTagNumber.Enumerated:
+        return typeStore.Enumerated;
+      case EUniversalTagNumber.Utf8String:
+        return typeStore.Utf8String;
+      case EUniversalTagNumber.RelativeObjectIdentifier:
+        return typeStore.RelativeObjectIdentifier;
+      case EUniversalTagNumber.TIME:
+        return typeStore.TIME;
+      case EUniversalTagNumber.Sequence:
+        return typeStore.Sequence;
+      case EUniversalTagNumber.Set:
+        return typeStore.Set;
+      case EUniversalTagNumber.NumericString:
+        return typeStore.NumericString;
+      case EUniversalTagNumber.PrintableString:
+        return typeStore.PrintableString;
+      case EUniversalTagNumber.TeletexString:
+        return typeStore.TeletexString;
+      case EUniversalTagNumber.VideotexString:
+        return typeStore.VideotexString;
+      case EUniversalTagNumber.IA5String:
+        return typeStore.IA5String;
+      case EUniversalTagNumber.UTCTime:
+        return typeStore.UTCTime;
+      case EUniversalTagNumber.GeneralizedTime:
+        return typeStore.GeneralizedTime;
+      case EUniversalTagNumber.GraphicString:
+        return typeStore.GraphicString;
+      case EUniversalTagNumber.VisibleString:
+        return typeStore.VisibleString;
+      case EUniversalTagNumber.GeneralString:
+        return typeStore.GeneralString;
+      case EUniversalTagNumber.UniversalString:
+        return typeStore.UniversalString;
+      case EUniversalTagNumber.CharacterString:
+        return typeStore.CharacterString;
+      case EUniversalTagNumber.BmpString:
+        return typeStore.BmpString;
+      case EUniversalTagNumber.DATE:
+        return typeStore.DATE;
+      case EUniversalTagNumber.TimeOfDay:
+        return typeStore.TimeOfDay;
+      case EUniversalTagNumber.DateTime:
+        return typeStore.DateTime;
+      case EUniversalTagNumber.Duration:
+        return typeStore.Duration;
+      default:
+        return undefined;
+    }
+  } else {
+    // All other tag classes
+    // APPLICATION
+    // CONTEXT-SPECIFIC
+    // PRIVATE
+    return idBlock.isConstructed ? typeStore.Constructed : typeStore.Primitive;
+  }
 }
 
 /**
@@ -116,159 +198,36 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
     };
   }
 
-  // Switch ASN.1 block type
-  let newASN1Type: new () => AsnType = BaseBlock as any;
-
-  switch (returnObject.idBlock.tagClass) {
-    // UNIVERSAL
-    case 1:
-      // Check for reserved tag numbers
-      if ((returnObject.idBlock.tagNumber >= 37) &&
-        (returnObject.idBlock.isHexOnly === false)) {
-        returnObject.error = "UNIVERSAL 37 and upper tags are reserved by ASN.1 standard";
-
-        return {
-          offset: -1,
-          result: returnObject
-        };
-      }
-      switch (returnObject.idBlock.tagNumber) {
-        case 0: // EndOfContent
-          // Check for EndOfContent type
-          if ((returnObject.idBlock.isConstructed) &&
-            (returnObject.lenBlock.length > 0)) {
-            returnObject.error = "Type [UNIVERSAL 0] is reserved";
-
-            return {
-              offset: -1,
-              result: returnObject
-            };
-          }
-
-          newASN1Type = typeStore.EndOfContent;
-
-          break;
-        case 1: // Boolean
-          newASN1Type = typeStore.Boolean;
-          break;
-        case 2: // Integer
-          newASN1Type = typeStore.Integer;
-          break;
-        case 3: // BitString
-          newASN1Type = typeStore.BitString;
-          break;
-        case 4: // OctetString
-          newASN1Type = typeStore.OctetString;
-          break;
-        case 5: // Null
-          newASN1Type = typeStore.Null;
-          break;
-        case 6: // ObjectIdentifier
-          newASN1Type = typeStore.ObjectIdentifier;
-          break;
-        case 9: // Real
-          newASN1Type = typeStore.Real;
-          break;
-        case 10: // Enumerated
-          newASN1Type = typeStore.Enumerated;
-          break;
-        case 12: // Utf8String
-          newASN1Type = typeStore.Utf8String;
-          break;
-        case 13: // RelativeObjectIdentifier
-          newASN1Type = typeStore.RelativeObjectIdentifier;
-          break;
-        case 14: // TIME
-          newASN1Type = typeStore.TIME;
-          break;
-        case 15:
-          returnObject.error = "[UNIVERSAL 15] is reserved by ASN.1 standard";
-
-          return {
-            offset: -1,
-            result: returnObject
-          };
-        case 16: // Sequence
-          newASN1Type = typeStore.Sequence;
-          break;
-        case 17: // Set
-          newASN1Type = typeStore.Set;
-          break;
-        case 18: // NumericString
-          newASN1Type = typeStore.NumericString;
-          break;
-        case 19: // PrintableString
-          newASN1Type = typeStore.PrintableString;
-          break;
-        case 20: // TeletexString
-          newASN1Type = typeStore.TeletexString;
-          break;
-        case 21: // VideotexString
-          newASN1Type = typeStore.VideotexString;
-          break;
-        case 22: // IA5String
-          newASN1Type = typeStore.IA5String;
-          break;
-        case 23: // UTCTime
-          newASN1Type = typeStore.UTCTime;
-          break;
-        case 24: // GeneralizedTime
-          newASN1Type = typeStore.GeneralizedTime;
-          break;
-        case 25: // GraphicString
-          newASN1Type = typeStore.GraphicString;
-          break;
-        case 26: // VisibleString
-          newASN1Type = typeStore.VisibleString;
-          break;
-        case 27: // GeneralString
-          newASN1Type = typeStore.GeneralString;
-          break;
-        case 28: // UniversalString
-          newASN1Type = typeStore.UniversalString;
-          break;
-        case 29: // CharacterString
-          newASN1Type = typeStore.CharacterString;
-          break;
-        case 30: // BmpString
-          newASN1Type = typeStore.BmpString;
-          break;
-        case 31: // DATE
-          newASN1Type = typeStore.DATE;
-          break;
-        case 32: // TimeOfDay
-          newASN1Type = typeStore.TimeOfDay;
-          break;
-        case 33: // DateTime
-          newASN1Type = typeStore.DateTime;
-          break;
-        case 34: // Duration
-          newASN1Type = typeStore.Duration;
-          break;
-        default: {
-          const newObject = returnObject.idBlock.isConstructed
-            ? new typeStore.Constructed()
-            : new typeStore.Primitive();
-
-          newObject.idBlock = returnObject.idBlock;
-          newObject.lenBlock = returnObject.lenBlock;
-          newObject.warnings = returnObject.warnings;
-
-          returnObject = newObject;
-        }
-      }
-      break;
-    // All other tag classes
-    case 2: // APPLICATION
-    case 3: // CONTEXT-SPECIFIC
-    case 4: // PRIVATE
-    default: {
-      newASN1Type = returnObject.idBlock.isConstructed
-        ? typeStore.Constructed
-        : typeStore.Primitive;
+  if (returnObject.idBlock.tagClass === 1) {
+    if (returnObject.idBlock.tagNumber === 0 && returnObject.idBlock.isConstructed && returnObject.lenBlock.length > 0) {
+      returnObject.error = "Type [UNIVERSAL 0] is reserved";
+      return {
+        offset: -1,
+        result: returnObject
+      };
+    } else if(returnObject.idBlock.tagNumber >= 37 && returnObject.idBlock.isHexOnly === false) {
+      returnObject.error = "UNIVERSAL 37 and upper tags are reserved by ASN.1 standard";
+      return {
+        offset: -1,
+        result: returnObject
+      };
     }
   }
 
+  const newASN1Type = getTypeForIDBlock(returnObject.idBlock);
+  if (newASN1Type === undefined) {
+    returnObject.error = `Unable to create property for tagClass:${returnObject.idBlock.tagClass} tagNumber:${returnObject.idBlock.tagNumber}`;
+    return {
+      offset: -1,
+      result: returnObject
+    };
+  }
+  if ((newASN1Type instanceof Constructed || newASN1Type instanceof Primitive) && returnObject.idBlock.tagClass === ETagClass.UNIVERSAL) {
+      newASN1Type.idBlock = returnObject.idBlock;
+      newASN1Type.lenBlock = returnObject.lenBlock;
+      newASN1Type.warnings = returnObject.warnings;
+      returnObject = newASN1Type as BaseBlock;
+  }
 
   // Change type and perform BER decoding
   returnObject = localChangeType(returnObject, newASN1Type);

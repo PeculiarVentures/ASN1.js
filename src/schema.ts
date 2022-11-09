@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as pvtsutils from "pvtsutils";
-import { IS_CONSTRUCTED, EMPTY_STRING, NAME, ID_BLOCK, FROM_BER, TO_BER, TAG_CLASS, TAG_NUMBER, IS_HEX_ONLY, LOCAL, VALUE_HEX_VIEW } from "./internals/constants";
+import { IS_CONSTRUCTED, NAME, ID_BLOCK, FROM_BER, TO_BER, TAG_CLASS, TAG_NUMBER, IS_HEX_ONLY, LOCAL, VALUE_HEX_VIEW } from "./internals/constants";
 import { Any } from "./Any";
 import { Choice } from "./Choice";
 import { Repeated } from "./Repeated";
-import { localFromBER } from "./parser";
+import { getTypeForIDBlock, localFromBER } from "./parser";
 import { AsnType, typeStore } from "./TypeStore";
+import { ILocalConstructedValueBlock } from "./internals/LocalConstructedValueBlock";
+import { LocalIdentificationBlock } from "./internals/LocalIdentificationBlock";
+import { LocalLengthBlock } from "./internals/LocalLengthBlock";
 
 export type AsnSchemaType = AsnType | Any | Choice | Repeated;
 
@@ -35,8 +38,11 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
     const choiceResult = false;
 
     for (let j = 0; j < inputSchema.value.length; j++) {
-      const result = compareSchema(root, inputData, inputSchema.value[j]);
+      const schema = inputSchema.value[j];
+      const result = compareSchema(root, inputData, schema);
       if (result.verified) {
+        inputData.name = schema.name;
+        inputData.optional = schema.optional;
         return {
           verified: true,
           result: root
@@ -119,21 +125,25 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
     };
   }
 
-  const encodedId = inputSchema.idBlock.toBER(false);
-  if (encodedId.byteLength === 0) {
-    return {
-      verified: false,
-      result: { error: "Error encoding idBlock for ASN.1 schema" }
-    };
-  }
+  /*
+    As optional params are encoded differently to the scheme (tagclass contextual and tagnumber is the id of the element
+    we should not encode decode the values here as these operations touch the schema attributes
+    const encodedId = inputSchema.idBlock.toBER(false);
+    if (encodedId.byteLength === 0) {
+      return {
+        verified: false,
+        result: { error: "Error encoding idBlock for ASN.1 schema" }
+      };
+    }
 
-  const decodedOffset = inputSchema.idBlock.fromBER(encodedId, 0, encodedId.byteLength);
-  if (decodedOffset === -1) {
-    return {
-      verified: false,
-      result: { error: "Error decoding idBlock for ASN.1 schema" }
-    };
-  }
+    const decodedOffset = inputSchema.idBlock.fromBER(encodedId, 0, encodedId.byteLength);
+    if (decodedOffset === -1) {
+      return {
+        verified: false,
+        result: { error: "Error decoding idBlock for ASN.1 schema" }
+      };
+    }
+  */
   //#endregion
   //#region tagClass
   if (inputSchema.idBlock.hasOwnProperty(TAG_CLASS) === false) {
@@ -227,12 +237,21 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
   }
   //#endregion
   //#endregion
+
   //#region Add named component of ASN.1 schema
-  if (inputSchema.name) {
-    inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
-    if (inputSchema.name)
-      (root as any)[inputSchema.name] = inputData; // TODO check field existence. If exists throw an error
-  }
+  /*
+    Urgs, what coding style is that? A consumer of the api chooses a specific name e.g. "optional" or "name" and overwrites
+    internal structures. I don´t think it´s ment to work like that...
+    In case someone wants to acces certain properties by name a getter should get used and that searches in the valueblock
+    Furthermore this idea is not typescript compatible, you need to cast this object here to write to it and the consumer also needs to cast it to be able to access the properties...
+    -> not ideal, therefore commented out.... (also removed the delete methods below that removed it in case of an error)
+    -> use getValueByName("nam"") from the Sequence and Set objects
+    if (inputSchema.name) {
+      inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
+      if (inputSchema.name)
+        (root as any)[inputSchema.name] = inputData; // "no longer a TODO" check field existence. If exists throw an error
+    }
+  */
   //#endregion
   //#region Getting next ASN.1 block for comparison
   if (inputSchema instanceof typeStore.Constructed) {
@@ -246,12 +265,14 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
       }
     };
 
+    // Get rid of ts-ignore and cast the input object properly one time in advance
+    const inputValue = (inputData.valueBlock as ILocalConstructedValueBlock).value as AsnType[];
+
     let maxLength = inputSchema.valueBlock.value.length;
 
     if (maxLength > 0) {
       if (inputSchema.valueBlock.value[0] instanceof Repeated) {
-        // @ts-ignore
-        maxLength = inputData.valueBlock.value.length; // TODO debug it
+        maxLength = inputValue.length; // TODO debug it
       }
     }
 
@@ -264,9 +285,8 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
     }
     //#endregion
     //#region Special case when "inputData" has no values and "inputSchema" has all optional values
-    // @ts-ignore
     // TODO debug it
-    if ((inputData.valueBlock.value.length === 0) &&
+    if ((inputValue.length === 0) &&
       (inputSchema.valueBlock.value.length !== 0)) {
       let _optional = true;
 
@@ -280,13 +300,6 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
         };
       }
 
-      //#region Delete early added name of block
-      if (inputSchema.name) {
-        inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
-        if (inputSchema.name)
-          delete (root as any)[inputSchema.name];
-      }
-      //#endregion
       root.error = "Inconsistent object length";
 
       return {
@@ -294,29 +307,19 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
         result: root
       };
     }
+    // Helper variable to improve searching for context specific optional attributes
+    // The variable stores the last value where we found the last optional param
+    let nextOptional = 0;
     //#endregion
     for (let i = 0; i < maxLength; i++) {
       //#region Special case when there is an OPTIONAL element of ASN.1 schema at the end
-      // @ts-ignore
-      if ((i - admission) >= inputData.valueBlock.value.length) {
+      if ((i - admission) >= inputValue.length) {
         if (inputSchema.valueBlock.value[i].optional === false) {
           const _result: CompareSchemaResult = {
             verified: false,
             result: root
           };
-
           root.error = "Inconsistent length between ASN.1 data and schema";
-
-          //#region Delete early added name of block
-          if (inputSchema.name) {
-            inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
-            if (inputSchema.name) {
-              delete (root as any)[inputSchema.name];
-              _result.name = inputSchema.name;
-            }
-          }
-          //#endregion
-
           return _result;
         }
       }
@@ -325,22 +328,12 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
       else {
         //#region Special case for Repeated type of ASN.1 schema element
         if (inputSchema.valueBlock.value[0] instanceof Repeated) {
-          // @ts-ignore
-          result = compareSchema(root, inputData.valueBlock.value[i], inputSchema.valueBlock.value[0].value);
+          result = compareSchema(root, inputValue[i], inputSchema.valueBlock.value[0].value);
           if (result.verified === false) {
             if (inputSchema.valueBlock.value[0].optional)
               admission++;
-            else {
-              //#region Delete early added name of block
-              if (inputSchema.name) {
-                inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
-                if (inputSchema.name)
-                  delete (root as any)[inputSchema.name];
-              }
-              //#endregion
-
+            else
               return result;
-            }
           }
 
           if ((NAME in inputSchema.valueBlock.value[0]) && (inputSchema.valueBlock.value[0].name.length > 0)) {
@@ -348,34 +341,67 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
 
             if ((LOCAL in inputSchema.valueBlock.value[0]) && (inputSchema.valueBlock.value[0].local))
               arrayRoot = inputData;
-
             else
               arrayRoot = root;
 
             if (typeof arrayRoot[inputSchema.valueBlock.value[0].name] === "undefined")
               arrayRoot[inputSchema.valueBlock.value[0].name] = [];
 
-            // @ts-ignore
-            arrayRoot[inputSchema.valueBlock.value[0].name].push(inputData.valueBlock.value[i]);
+            arrayRoot[inputSchema.valueBlock.value[0].name].push(inputValue[i]);
           }
         }
-
         //#endregion
         else {
-          // @ts-ignore
-          result = compareSchema(root, inputData.valueBlock.value[i - admission], inputSchema.valueBlock.value[i]);
-          if (result.verified === false) {
+          let inputObject = inputValue[i - admission];
+          let schema = inputSchema.valueBlock.value[i];
+          if (inputObject.idBlock.tagClass === 3 && inputObject.idBlock.tagNumber >= 0) {
+            // This is a context specific property (optional property)
+            // the type comes from the target field with optionalID === tagNumber
+            for (let j = nextOptional; j < maxLength; j++) {
+                const check = inputSchema.valueBlock.value[j];
+                if (check.idBlock.optionalID === inputObject.idBlock.tagNumber) {
+                  nextOptional = j + 1;
+                  schema = check;
+                  // As we have a context specific attribute the type comes from the schema field
+                  const newType = getTypeForIDBlock(schema.idBlock);
+                  if (newType) {
+                    // Create the new object matching the type of the scheme for the context spcific parameter from the input
+                    const contextualElement = new newType();
+                    // Create the id block based on the schema information
+                    contextualElement.idBlock = new LocalIdentificationBlock(schema);
+                    // Take over the name for reference
+                    contextualElement.name = schema.name;
+                    // The id block may be different for this value especially if the context specific with a higer id used more than one byte.
+                    // So we calculate the required block length by converting to BER and ignoring the optionalID flag in the toBER calculation
+                    contextualElement.idBlock.blockLength = contextualElement.idBlock.toBER(true, true).byteLength;
+                    // The len block is the same as from the source, create a copy and set the same blockLength
+                    contextualElement.lenBlock = new LocalLengthBlock(inputObject);
+                    // The blocklength is not taken over from the input but is the same as in the original object so we just take it over
+                    contextualElement.lenBlock.blockLength = inputObject.lenBlock.blockLength;
+                    // Let´s take over the payload from the input parameter into the final parameter
+                    contextualElement.valueBeforeDecodeView = new Uint8Array(inputObject.valueBeforeDecodeView);
+                    // We need to tune the first byte as the type information has now changed from context specific + optionalID to universal + tag number (type)
+                    contextualElement.valueBeforeDecodeView[0] = contextualElement.idBlock.tagNumber;
+                    // Now we need to calculate the offset of the payload inside the source elements, It´s the source idblock length + the source len block length
+                    const offset = inputObject.lenBlock.blockLength + inputObject.idBlock.blockLength;
+                    const decoded = contextualElement.fromBER(contextualElement.valueBeforeDecodeView, offset, contextualElement.valueBeforeDecodeView.length);
+                    if (decoded) {
+                      inputObject = contextualElement;
+                      inputValue[i - admission] = contextualElement;
+                    }
+                  }
+                  break;
+                }
+            }
+          }
+          result = compareSchema(root, inputObject, schema);
+          if(result.verified) {
+            inputObject.name = schema.name;
+            inputObject.optional = schema.optional;
+          } else {
             if (inputSchema.valueBlock.value[i].optional)
               admission++;
             else {
-              //#region Delete early added name of block
-              if (inputSchema.name) {
-                inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
-                if (inputSchema.name)
-                  delete (root as any)[inputSchema.name];
-              }
-              //#endregion
-
               return result;
             }
           }
@@ -389,16 +415,6 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
         verified: false,
         result: root
       };
-
-      //#region Delete early added name of block
-      if (inputSchema.name) {
-        inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
-        if (inputSchema.name) {
-          delete (root as any)[inputSchema.name];
-          _result.name = inputSchema.name;
-        }
-      }
-      //#endregion
 
       return _result;
     }
@@ -419,16 +435,6 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
         verified: false,
         result: asn1.result
       };
-
-      //#region Delete early added name of block
-      if (inputSchema.name) {
-        inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
-        if (inputSchema.name) {
-          delete (root as any)[inputSchema.name];
-          _result.name = inputSchema.name;
-        }
-      }
-      //#endregion
 
       return _result;
     }

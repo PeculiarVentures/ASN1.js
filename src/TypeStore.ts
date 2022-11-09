@@ -51,13 +51,13 @@ export interface TypeStore {
   GraphicString: typeof GraphicString;
   IA5String: typeof IA5String;
   Integer: typeof Integer;
-  Real: typeof Real;
   Null: typeof Null;
   NumericString: typeof NumericString;
   ObjectIdentifier: typeof ObjectIdentifier;
   OctetString: typeof OctetString;
   Primitive: typeof Primitive;
   PrintableString: typeof PrintableString;
+  Real: typeof Real;
   RelativeObjectIdentifier: typeof RelativeObjectIdentifier;
   Sequence: typeof Sequence;
   Set: typeof Set;
@@ -70,4 +70,50 @@ export interface TypeStore {
   VideotexString: typeof VideotexString;
   VisibleString: typeof VisibleString;
 }
+
+export enum ETagClass {
+  UNIVERSAL = 1,
+  APPLICATION = 2,
+  CONTEXT_SPECIFIC = 3,
+  PRIVATE = 4
+}
+
+export enum EUniversalTagNumber {
+  EndOfContent = 0,
+  Boolean = 1,
+  Integer = 2,
+  BitString = 3,
+  OctetString = 4,
+  Null = 5,
+  ObjectIdentifier = 6,
+  // 7 - ObjectDescriptor
+  // 8 - INSTANCE OF, EXTERNAL
+  Real = 9,
+  Enumerated = 10,
+  // 11 - EMBEDDED PDV
+  Utf8String = 12,
+  RelativeObjectIdentifier = 13,
+  TIME = 14,
+  // 15
+  Sequence = 16,
+  Set = 17,
+  NumericString = 18,
+  PrintableString = 19,
+  TeletexString = 20,
+  VideotexString = 21,
+  IA5String = 22,
+  UTCTime = 23,
+  GeneralizedTime = 24,
+  GraphicString = 25,
+  VisibleString = 26,
+  GeneralString = 27,
+  UniversalString = 28,
+  CharacterString = 29,
+  BmpString = 30,
+  DATE = 31,
+  TimeOfDay = 32,
+  DateTime = 33,
+  Duration = 34
+}
+
 export const typeStore = {} as TypeStore;

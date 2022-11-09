@@ -1,5 +1,5 @@
 import { IntegerParams, Integer, IntegerJson } from "./Integer";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 
 export type EnumeratedParams = IntegerParams;
 export type EnumeratedJson = IntegerJson;
@@ -11,12 +11,13 @@ export class Enumerated extends Integer {
   }
 
   public static override NAME = "ENUMERATED";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Enumerated};
 
   constructor(parameters: EnumeratedParams = {}) {
     super(parameters);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 10; // Enumerated
+    this.idBlock.tagClass = Enumerated.defaultIDs.tagClass;
+    this.idBlock.tagNumber = Enumerated.defaultIDs.tagNumber;
   }
 
 }

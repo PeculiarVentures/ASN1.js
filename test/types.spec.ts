@@ -165,7 +165,7 @@ context("ASN types", () => {
 
       const asn2 = asn1js.fromBER(asn.toBER());
       assert.ok(asn2.result instanceof asn1js.Integer);
-      assert.strictEqual(asn2.result.valueBlock.valueDec, 97196);
+      assert.strictEqual(asn2.result.valueBlock.value, 97196);
     });
 
     it("from valueHex", () => {
@@ -174,14 +174,14 @@ context("ASN types", () => {
       });
 
       assert.strictEqual(asn.valueBlock.isHexOnly, false);
-      assert.strictEqual(asn.valueBlock.valueDec, 97196);
+      assert.strictEqual(asn.valueBlock.value, 97196);
       assert.strictEqual(asn.valueBlock.toString(), "97196");
       assert.strictEqual(asn.toString(), "INTEGER : 97196");
       assert.strictEqual(asn.toString("hex"), "0203017bac");
 
       const asn2 = asn1js.fromBER(asn.toBER());
       assert.ok(asn2.result instanceof asn1js.Integer);
-      assert.strictEqual(asn2.result.valueBlock.valueDec, 97196);
+      assert.strictEqual(asn2.result.valueBlock.value, 97196);
     });
 
     it("toString positive", () => {

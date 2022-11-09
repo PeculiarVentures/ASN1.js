@@ -1,5 +1,5 @@
 import { LocalSimpleStringBlockParams, LocalSimpleStringBlock, LocalSimpleStringBlockJson } from "./internals/LocalSimpleStringBlock";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 
 export type PrintableStringParams = LocalSimpleStringBlockParams;
 export type PrintableStringJson = LocalSimpleStringBlockJson;
@@ -11,12 +11,13 @@ export class PrintableString extends LocalSimpleStringBlock {
   }
 
   public static override NAME = "PrintableString";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.PrintableString};
 
   constructor(parameters: PrintableStringParams = {}) {
     super(parameters);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 19; // PrintableString
+    this.idBlock.tagClass = PrintableString.defaultIDs.tagClass;
+    this.idBlock.tagNumber = PrintableString.defaultIDs.tagNumber;
   }
 
 }

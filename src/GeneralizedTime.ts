@@ -1,5 +1,5 @@
 import * as pvutils from "pvutils";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 import { IUTCTime, UTCTimeParams, UTCTimeJson, UTCTime, DateStringEncoding } from "./UTCTime";
 
 export interface IGeneralizedTime extends IUTCTime {
@@ -19,6 +19,7 @@ export class GeneralizedTime extends UTCTime {
   }
 
   public static override NAME = "GeneralizedTime";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.GeneralizedTime};
 
   public millisecond: number;
 
@@ -27,8 +28,8 @@ export class GeneralizedTime extends UTCTime {
 
     this.millisecond ??= 0;
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 24; // GeneralizedTime
+    this.idBlock.tagClass = GeneralizedTime.defaultIDs.tagClass;
+    this.idBlock.tagNumber = GeneralizedTime.defaultIDs.tagNumber;
   }
 
   public override fromDate(inputDate: Date): void {

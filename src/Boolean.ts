@@ -1,6 +1,7 @@
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { LocalBooleanValueBlockParams, LocalBooleanValueBlock, LocalBooleanValueBlockJson } from "./internals/LocalBooleanValueBlock";
-import { typeStore } from "./TypeStore";
+import { IBaseIDs } from "./internals/LocalIdentificationBlock";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 
 export interface BooleanParams extends BaseBlockParams, LocalBooleanValueBlockParams { }
 export type BooleanJson = BaseBlockJson<LocalBooleanValueBlockJson>;
@@ -28,12 +29,13 @@ export class Boolean extends BaseBlock<LocalBooleanValueBlock, LocalBooleanValue
   }
 
   public static override NAME = "BOOLEAN";
+  public static override defaultIDs: IBaseIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Boolean};
 
   constructor(parameters: BooleanParams = {}) {
     super(parameters, LocalBooleanValueBlock);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 1; // Boolean
+    this.idBlock.tagClass = Boolean.defaultIDs.tagClass;
+    this.idBlock.tagNumber = Boolean.defaultIDs.tagNumber;
   }
 
   protected override onAsciiEncoding(): string {

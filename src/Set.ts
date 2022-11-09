@@ -1,5 +1,5 @@
 import { ConstructedParams, Constructed, ConstructedJson } from "./Constructed";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 
 export type SetParams = ConstructedParams;
 export type SetJson = ConstructedJson;
@@ -11,12 +11,13 @@ export class Set extends Constructed {
   }
 
   public static override NAME = "SET";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Set};
 
   constructor(parameters: SetParams = {}) {
     super(parameters);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 17; // Set
+    this.idBlock.tagClass = Set.defaultIDs.tagClass;
+    this.idBlock.tagNumber = Set.defaultIDs.tagNumber;
   }
 
 }

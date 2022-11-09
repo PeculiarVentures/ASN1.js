@@ -1,7 +1,7 @@
 import { ViewWriter } from "./ViewWriter";
 import { ValueBlock, ValueBlockJson } from "./ValueBlock";
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 
 export type NullParams = BaseBlockParams;
 export type NullJson = BaseBlockJson<ValueBlockJson>;
@@ -13,12 +13,21 @@ export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
   }
 
   public static override NAME = "NULL";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Null};
 
   constructor(parameters: NullParams = {}) {
     super(parameters, ValueBlock); // We will not have a call to "Null value block" because of specified FROM_BER and TO_BER functions
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 5; // Null
+    this.idBlock.tagClass = Null.defaultIDs.tagClass;
+    this.idBlock.tagNumber = Null.defaultIDs.tagNumber;
+  }
+
+  public getValue(): null {
+    return null;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  public setValue(value: number): void {
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {

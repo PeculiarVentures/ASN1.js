@@ -1,7 +1,7 @@
 import { BaseBlockJson } from "./BaseBlock";
 import { BaseStringBlockParams } from "./BaseStringBlock";
 import { LocalUtf8StringValueBlockParams, LocalUtf8StringValueBlock, LocalUtf8StringValueBlockJson } from "./internals/LocalUtf8StringValueBlock";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 
 export interface Utf8StringParams extends BaseStringBlockParams, LocalUtf8StringValueBlockParams { }
 export type Utf8StringJson = BaseBlockJson<LocalUtf8StringValueBlockJson>;
@@ -13,12 +13,13 @@ export class Utf8String extends LocalUtf8StringValueBlock {
   }
 
   public static override NAME = "UTF8String";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Utf8String};
 
   constructor(parameters: Utf8StringParams = {}) {
     super(parameters);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 12; // Utf8String
+    this.idBlock.tagClass = Utf8String.defaultIDs.tagClass;
+    this.idBlock.tagNumber = Utf8String.defaultIDs.tagNumber;
   }
 
 }

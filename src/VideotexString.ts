@@ -1,5 +1,5 @@
 import { LocalSimpleStringBlockParams, LocalSimpleStringBlock, LocalSimpleStringBlockJson } from "./internals/LocalSimpleStringBlock";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 
 export type VideotexStringParams = LocalSimpleStringBlockParams;
 export type VideotexStringJson = LocalSimpleStringBlockJson;
@@ -11,12 +11,13 @@ export class VideotexString extends LocalSimpleStringBlock {
   }
 
   public static override NAME = "VideotexString";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.VideotexString};
 
   constructor(parameters: VideotexStringParams = {}) {
     super(parameters);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 21; // VideotexString
+    this.idBlock.tagClass = VideotexString.defaultIDs.tagClass;
+    this.idBlock.tagNumber = VideotexString.defaultIDs.tagNumber;
   }
 
 }

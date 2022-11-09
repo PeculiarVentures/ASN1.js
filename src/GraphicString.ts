@@ -1,5 +1,5 @@
 import { LocalSimpleStringBlockParams, LocalSimpleStringBlock, LocalSimpleStringBlockJson } from "./internals/LocalSimpleStringBlock";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 
 export type GraphicStringParams = LocalSimpleStringBlockParams;
 export type GraphicStringJson = LocalSimpleStringBlockJson;
@@ -11,12 +11,13 @@ export class GraphicString extends LocalSimpleStringBlock {
   }
 
   public static override NAME = "GraphicString";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.GraphicString};
 
   constructor(parameters: GraphicStringParams = {}) {
     super(parameters);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 25; // GraphicString
+    this.idBlock.tagClass = GraphicString.defaultIDs.tagClass;
+    this.idBlock.tagNumber = GraphicString.defaultIDs.tagNumber;
   }
 
 }

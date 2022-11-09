@@ -2,7 +2,7 @@ import * as pvtsutils from "pvtsutils";
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { LocalRealValueBlockParams, LocalRealValueBlock, LocalRealValueBlockJson } from "./internals/LocalRealValueBlock";
 import { assertBigInt } from "./internals/utils";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 import { ViewWriter } from "./ViewWriter";
 
 export interface RealParams extends BaseBlockParams, LocalRealValueBlockParams { }
@@ -15,13 +15,23 @@ export class Real extends BaseBlock<LocalRealValueBlock, LocalRealValueBlockJson
   }
 
   public static override NAME = "REAL";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Real};
 
   constructor(parameters: RealParams = {}) {
     super(parameters, LocalRealValueBlock);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 9; // Real
+    this.idBlock.tagClass = Real.defaultIDs.tagClass;
+    this.idBlock.tagNumber = Real.defaultIDs.tagNumber;
   }
+
+  public getValue(): number {
+    return this.valueBlock.value;
+  }
+
+  public setValue(value: number): void {
+    this.valueBlock.value = value;
+  }
+
 
   /**
    * Converts Real into BigInt

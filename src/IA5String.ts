@@ -1,5 +1,5 @@
 import { LocalSimpleStringBlockParams, LocalSimpleStringBlock, LocalSimpleStringBlockJson } from "./internals/LocalSimpleStringBlock";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 
 export type IA5StringParams = LocalSimpleStringBlockParams;
 export type IA5StringJson = LocalSimpleStringBlockJson;
@@ -11,12 +11,13 @@ export class IA5String extends LocalSimpleStringBlock {
   }
 
   public static override NAME = "IA5String";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.IA5String};
 
   constructor(parameters: IA5StringParams = {}) {
     super(parameters);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 22; // IA5String
+    this.idBlock.tagClass = IA5String.defaultIDs.tagClass;
+    this.idBlock.tagNumber = IA5String.defaultIDs.tagNumber;
   }
 
 }

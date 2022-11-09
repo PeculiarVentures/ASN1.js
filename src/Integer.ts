@@ -2,7 +2,7 @@ import * as pvtsutils from "pvtsutils";
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { LocalIntegerValueBlockParams, LocalIntegerValueBlock, LocalIntegerValueBlockJson } from "./internals/LocalIntegerValueBlock";
 import { assertBigInt } from "./internals/utils";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 import { ViewWriter } from "./ViewWriter";
 
 export interface IntegerParams extends BaseBlockParams, LocalIntegerValueBlockParams { }
@@ -15,12 +15,21 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
   }
 
   public static override NAME = "INTEGER";
+  public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Integer};
 
   constructor(parameters: IntegerParams = {}) {
     super(parameters, LocalIntegerValueBlock);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 2; // Integer
+    this.idBlock.tagClass = Integer.defaultIDs.tagClass;
+    this.idBlock.tagNumber = Integer.defaultIDs.tagNumber;
+  }
+
+  public getValue(): number {
+    return this.valueBlock.value;
+  }
+
+  public setValue(value: number): void {
+    this.valueBlock.value = value;
   }
 
   /**

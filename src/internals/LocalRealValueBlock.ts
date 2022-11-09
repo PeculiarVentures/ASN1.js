@@ -145,7 +145,7 @@ enum ASN1RealBaseType {
 export class LocalRealValueBlock extends HexBlock(ValueBlock) implements IDerConvertible {
   protected setValueHex(): void {
     if (this.valueHexView.length > 0) {
-      this._valueDec = 0;
+      this._value = 0;
 
       if (this.valueHexView.length > 0) {
         // Decoding goes here...
@@ -232,7 +232,7 @@ export class LocalRealValueBlock extends HexBlock(ValueBlock) implements IDerCon
     }
 
     mantissa = sign * value * BigInt(Math.pow(2, scaling));
-    this._valueDec = Math.pow(base, Number(exponent)) * Number(mantissa);
+    this._value = Math.pow(base, Number(exponent)) * Number(mantissa);
     this.isHexOnly = false;
   }
 
@@ -246,16 +246,16 @@ export class LocalRealValueBlock extends HexBlock(ValueBlock) implements IDerCon
 
     const info = this.valueHexView[0];
     if(info === 0x40) {
-      this._valueDec = Number.POSITIVE_INFINITY;
+      this._value = Number.POSITIVE_INFINITY;
       this.isHexOnly = false;
     } else if(info === 0x41) {
-      this._valueDec = Number.NEGATIVE_INFINITY;
+      this._value = Number.NEGATIVE_INFINITY;
       this.isHexOnly = false;
     } else if(info === 0x42) {
-      this._valueDec = Number.NaN;
+      this._value = Number.NaN;
       this.isHexOnly = false;
     } else if(info === 0x43) {
-      this._valueDec = 0;
+      this._value = 0;
       this.isHexOnly = false;
     } else
       this.warnings.push(`Invalid value (${info.toString(16)}) for a special real value`);
@@ -276,7 +276,7 @@ export class LocalRealValueBlock extends HexBlock(ValueBlock) implements IDerCon
     });
   }
 
-  private _valueDec = 0;
+  private _value = 0;
 
   constructor({
     value,
@@ -289,12 +289,12 @@ export class LocalRealValueBlock extends HexBlock(ValueBlock) implements IDerCon
     }
 
     if (value !== undefined) {
-      this.valueDec = value;
+      this.value = value;
     }
   }
 
-  public set valueDec(v: number) {
-    this._valueDec = v;
+  public set value(v: number) {
+    this._value = v;
 
     if(v === 0) {
       this.isHexOnly = false;
@@ -381,8 +381,8 @@ export class LocalRealValueBlock extends HexBlock(ValueBlock) implements IDerCon
     this.isHexOnly = false;
   }
 
-  public get valueDec(): number {
-    return this._valueDec;
+  public get value(): number {
+    return this._value;
   }
 
   public fromDER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number, expectedLength = 0): number {
@@ -454,7 +454,7 @@ export class LocalRealValueBlock extends HexBlock(ValueBlock) implements IDerCon
   public override toJSON(): LocalRealValueBlockJson {
     return {
       ...super.toJSON(),
-      valueDec: this.valueDec,
+      valueDec: this.value,
     };
   }
 

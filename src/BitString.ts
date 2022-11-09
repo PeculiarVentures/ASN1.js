@@ -2,7 +2,8 @@ import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { Constructed } from "./Constructed";
 import { BIT_STRING_NAME } from "./internals/constants";
 import { LocalBitStringValueBlockParams, LocalBitStringValueBlock, LocalBitStringValueBlockJson } from "./internals/LocalBitStringValueBlock";
-import { typeStore } from "./TypeStore";
+import { IBaseIDs } from "./internals/LocalIdentificationBlock";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 
 export interface BitStringParams extends BaseBlockParams, LocalBitStringValueBlockParams { }
 export type BitStringJson = BaseBlockJson<LocalBitStringValueBlockJson>;
@@ -14,6 +15,7 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStrin
   }
 
   public static override NAME = BIT_STRING_NAME;
+  public static override defaultIDs: IBaseIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.BitString};
 
   constructor({
     idBlock = {},
@@ -33,8 +35,8 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStrin
       ...parameters,
     }, LocalBitStringValueBlock);
 
-    this.idBlock.tagClass = 1; // UNIVERSAL
-    this.idBlock.tagNumber = 3; // BitString
+    this.idBlock.tagClass = BitString.defaultIDs.tagClass;
+    this.idBlock.tagNumber = BitString.defaultIDs.tagNumber;
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
