@@ -7,7 +7,9 @@ import { LocalLengthBlock, LocalLengthBlockJson, LocalLengthBlockParams } from "
 import { ViewWriter } from "./ViewWriter";
 import { ValueBlock, ValueBlockJson } from "./ValueBlock";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./internals/constants";
-import { typeStore } from "./TypeStore";
+import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
+import { Sequence } from "./Sequence";
+import { Set } from "./Set";
 
 export interface IBaseBlock {
   name: string;
@@ -74,18 +76,14 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
     const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, (this.lenBlock.isIndefiniteForm) ? inputLength : this.lenBlock.length);
     if (resultOffset === -1) {
       this.error = this.valueBlock.error;
-
       return resultOffset;
     }
 
-    if (!this.idBlock.error.length)
+    if (!this.idBlock.error.length) {
       this.blockLength += this.idBlock.blockLength;
-
-    if (!this.lenBlock.error.length)
       this.blockLength += this.lenBlock.blockLength;
-
-    if (!this.valueBlock.error.length)
       this.blockLength += this.valueBlock.blockLength;
+    }
 
     return resultOffset;
   }
@@ -173,6 +171,38 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
     return pvutils.isEqualBuffer(thisRaw, otherRaw);
   }
 
+  /**
+    * Retrieve the tag type (universal object type) of this object
+    *
+    * @returns the universal tagNumber if the class is universal, otherwise undefined
+    */
+  public getUniversalTagNumber(): EUniversalTagNumber | undefined{
+    if (this.idBlock.tagClass === ETagClass.UNIVERSAL)
+      return this.idBlock.tagNumber;
+    return undefined;
+  }
+
+  /**
+    * Retrieve the tag type (universal object type) of this object
+    *
+    * @returns the universal tagNumber if the class is universal, otherwise undefined
+    */
+  public getAsSequence(): Sequence | undefined{
+    if (this.idBlock.tagClass === ETagClass.UNIVERSAL && this.idBlock.tagNumber === EUniversalTagNumber.Sequence)
+      return this as unknown as Sequence;
+    return undefined;
+  }
+
+  /**
+    * Retrieve the tag type (universal object type) of this object
+    *
+    * @returns the universal tagNumber if the class is universal, otherwise undefined
+    */
+  public getAsSet(): Sequence | undefined{
+    if (this.idBlock.tagClass === ETagClass.UNIVERSAL && this.idBlock.tagNumber === EUniversalTagNumber.Set)
+      return this as unknown as Set;
+    return undefined;
+  }
 }
 
 /**
