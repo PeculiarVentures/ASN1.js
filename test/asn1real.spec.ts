@@ -67,7 +67,7 @@ function decodeReal(value: string): number | undefined {
     return undefined;
 }
 
-context("Asn1Real implementation test", () => {
+context("Asn1Real implementation tests", () => {
     it("decode asnreal -0.128 base 2, objective systems created", () => {
         const testValue = -0.128;
         const resultValue = decodeReal("0909c0cb04189374bc6a7f");

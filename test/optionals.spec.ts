@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as assert from "assert";
-import { off } from "process";
 import * as asn1js from "../src";
 
 /**
@@ -15,11 +14,6 @@ function buf2hex(buffer: ArrayBuffer): string {
 		.join(" ");
 }
 
-function buf2numbers(buffer: ArrayBuffer): string {
-	return [...new Uint8Array(buffer)]
-		.map(x => x.toString())
-		.join(" ");
-}
 /**
  * Converts a hex string to an array buffer
  *
@@ -49,18 +43,18 @@ function hex2buf(hex: string): Uint8Array {
 function getSequence(getschema: boolean, value0?: string, value1?: number, value2?: boolean): asn1js.Sequence {
     const seq = new asn1js.Sequence({
         value: [
-            new asn1js.Utf8String({name: "string", value: "string"}),
-            new asn1js.Boolean({name: "mytest", value: true}),
+            new asn1js.Utf8String({name: "string", ...(!getschema && { value: "string"}) }),
+            new asn1js.Boolean({name: "mytest", ...(!getschema && { value: true}) }),
         ]
     });
 
     const value = seq.valueBlock.value;
     if (getschema || value0 !== undefined)
-        value.push(new asn1js.Utf8String({name: "optional0", value: value0, idBlock: {optionalID: 0}}));
+        value.push(new asn1js.Utf8String({name: "optional0", ...(!getschema && { value: value0 }), idBlock: {optionalID: 0}}));
     if (getschema || value1 !== undefined)
-        value.push(new asn1js.Integer({name: "optional1", value: value1, idBlock: {optionalID: 1}}));
+        value.push(new asn1js.Integer({name: "optional1", ...(!getschema && { value: value1 }), idBlock: {optionalID: 1}}));
     if (getschema || value2 !== undefined)
-        value.push(new asn1js.Boolean({name: "optional2", value: value2, idBlock: {optionalID: 2}}));
+        value.push(new asn1js.Boolean({name: "optional2", ...(!getschema && { value: value2 }), idBlock: {optionalID: 2}}));
     return seq;
 }
 
@@ -76,8 +70,8 @@ function getSequence(getschema: boolean, value0?: string, value1?: number, value
 function getLargeSequence(getschema: boolean, maxium: number): asn1js.Sequence {
         const seq = new asn1js.Sequence({
             value: [
-                new asn1js.Utf8String({name: "string", value: "string"}),
-                new asn1js.Boolean({name: "mytest", value: true}),
+                new asn1js.Utf8String({name: "string", ...(!getschema && { value: "string"}) }),
+                new asn1js.Boolean({name: "mytest", ...(!getschema && { value: true}) }),
             ]
         });
         for(let value = 0; value < maxium; value++) {
@@ -101,7 +95,7 @@ const allOptionalsSet = "30 19 0c 06 73 74 72 69 6e 67 01 01 ff 80 06 76 61 6c 7
 // Loop value from 0 to 39 (modulo%3 defines Boolean value%2 ? true : false, Integer value, UTF8String "value")
 const multipleOptionalsSet = "30 81 96 0c 06 73 74 72 69 6e 67 01 01 ff 80 01 00 81 01 01 82 01 32 83 01 ff 84 01 04 85 01 35 86 01 00 87 01 07 88 01 38 89 01 ff 8a 01 0a 8b 02 31 31 8c 01 00 8d 01 0d 8e 02 31 34 8f 01 ff 90 01 10 91 02 31 37 92 01 00 93 01 13 94 02 32 30 95 01 ff 96 01 16 97 02 32 33 98 01 00 99 01 19 9a 02 32 36 9b 01 ff 9c 01 1c 9d 02 32 39 9e 01 00 9f 1f 01 1f 9f 20 02 33 32 9f 21 01 ff 9f 22 01 22 9f 23 02 33 35 9f 24 01 00 9f 25 01 25 9f 26 02 33 38 9f 27 01 ff";
 
-context("Optional parameter test", () => {
+context("Optional parameter implementation tests", () => {
     it ("encode sequence with one optional parameter set", () => {
         const seq = getSequence(false, undefined, undefined, true);
         const data = seq.toBER();
