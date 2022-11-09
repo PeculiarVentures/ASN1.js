@@ -19,10 +19,11 @@ export interface IBaseIDs {
 export interface ILocalIdentificationBlock extends IBaseIDs {
   // True if this is a constructed object
   isConstructed: boolean;
-  /*
-   * In case a property is transported optinally the property may contain an id to specify it among the list of optionals
+  /**
+   * In case a property is transported optionally the property may contain an id to specify it among a list of optionals
    * If this property is set (>=0) the encoder will encode the tagClass to 3 (CONTEXT-SPECIFIC) and set the tagNumber to the optionalID
-   * While decoding the property the tagClass and tagNumber are taken from the scheme and the property is decoded accordingly
+   * While decoding the property is initally a primitive and then while mapping it to a scheme the tagClass and tagNumber are taken from the scheme
+   * and the object recreated with the propertytype of the scheme (check optionals.spec.ts how its meant to be used)
    */
   optionalID: number;
 }
