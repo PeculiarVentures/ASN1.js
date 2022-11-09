@@ -66,12 +66,18 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
     }
   }
 
-  public override toBER(sizeOnly = false): ArrayBuffer {
+  /**
+   * Encodes the localID block into ber
+   *
+   * @param sizeOnly - Do only provide the buffer (and with it the size) required to encode the inputData
+   * @param ignoreOptionalID - calculate the idBlock and ignore the optionalID flag if provided (this is needed when we map back the optional attribute into the original parameter, the mapped idBlock contains the optionaID for reference but should not have an effect on the size calculation)
+   */
+  public override toBER(sizeOnly = false, ignoreOptionalID = false): ArrayBuffer {
     let firstOctet = 0;
 
     let tagClass = this.tagClass;
     let tagNumber = this.tagNumber;
-    if(this.optionalID >= 0) {
+    if (this.optionalID >= 0 && !ignoreOptionalID) {
       tagClass = ETagClass.CONTEXT_SPECIFIC;
       tagNumber = this.optionalID;
     }

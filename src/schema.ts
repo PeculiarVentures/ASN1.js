@@ -365,13 +365,25 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
                   // As we have a context specific attribute the type comes from the schema field
                   const newType = getTypeForIDBlock(schema.idBlock);
                   if (newType) {
+                    // Create the new object matching the type of the scheme for the context spcific parameter from the input
                     const contextualElement = new newType();
+                    // Create the id block based on the schema information
                     contextualElement.idBlock = new LocalIdentificationBlock(schema);
-                    contextualElement.lenBlock = new LocalLengthBlock(inputObject);
-                    const offset = inputObject.blockLength - contextualElement.lenBlock.length;
-                    contextualElement.valueBeforeDecodeView = new Uint8Array(inputObject.valueBeforeDecodeView);
-                    contextualElement.valueBeforeDecodeView[0] = contextualElement.idBlock.tagNumber;
+                    // Take over the name for reference
                     contextualElement.name = schema.name;
+                    // The id block may be different for this value especially if the context specific with a higer id used more than one byte.
+                    // So we calculate the required block length by converting to BER and ignoring the optionalID flag in the toBER calculation
+                    contextualElement.idBlock.blockLength = contextualElement.idBlock.toBER(true, true).byteLength;
+                    // The len block is the same as from the source, create a copy and set the same blockLength
+                    contextualElement.lenBlock = new LocalLengthBlock(inputObject);
+                    // The blocklength is not taken over from the input but is the same as in the original object so we just take it over
+                    contextualElement.lenBlock.blockLength = inputObject.lenBlock.blockLength;
+                    // Let´s take over the payload from the input parameter into the final parameter
+                    contextualElement.valueBeforeDecodeView = new Uint8Array(inputObject.valueBeforeDecodeView);
+                    // We need to tune the first byte as the type information has now changed from context specific + optionalID to universal + tag number (type)
+                    contextualElement.valueBeforeDecodeView[0] = contextualElement.idBlock.tagNumber;
+                    // Now we need to calculate the offset of the payload inside the source elements, It´s the source idblock length + the source len block length
+                    const offset = inputObject.lenBlock.blockLength + inputObject.idBlock.blockLength;
                     const decoded = contextualElement.fromBER(contextualElement.valueBeforeDecodeView, offset, contextualElement.valueBeforeDecodeView.length);
                     if (decoded) {
                       inputObject = contextualElement;
