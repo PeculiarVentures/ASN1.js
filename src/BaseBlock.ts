@@ -16,6 +16,10 @@ export interface IBaseBlock {
 }
 
 export interface IBaseBlockIDs {
+  /**
+   * These are the default IDs a certain asn1 object is using to express itself e.g. a UTF8String uses ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Utf8String
+   * The values are static to have them accessible without needing to create the object
+   */
   defaultIDs: IBaseIDs;
 }
 

@@ -79,9 +79,9 @@ export class Constructed extends BaseBlock<LocalConstructedValueBlock, LocalCons
   /**
    * Queries a value from the valueBlock by name and ensures it is of the given type
    *
-   * @param type - the property type we are looking for
+   * @param type - the property type we are looking for e.g. asn1js.UTF8String
    * @param name - the property we are looking for
-   * @returns the property if found or undefined
+   * @returns the property if found and of type T (e.g. asn1js.UTF8String) or undefined
    */
   public getTypedValueByName<T extends LocalBaseBlock>(c: new () => T, name: string): T | undefined {
     const ids = (c as unknown as {defaultIDs: IBaseIDs}).defaultIDs;
