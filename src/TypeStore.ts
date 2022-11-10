@@ -116,4 +116,88 @@ export enum EUniversalTagNumber {
   Duration = 34
 }
 
+export function getTagClassAsText(tagClass: ETagClass): string {
+  switch(tagClass) {
+  case ETagClass.UNIVERSAL:
+    return "UNIVERSAL";
+  case ETagClass.APPLICATION:
+    return "APPLICATION";
+  case ETagClass.CONTEXT_SPECIFIC:
+    return "CONTEXT_SPECIFIC";
+  case ETagClass.PRIVATE:
+    return "PRIVATE";
+  default:
+    return `TAGCLASS(${tagClass})`;
+  }
+}
+
+export function getTagNumberAsText(tagNumber: EUniversalTagNumber): string {
+  switch(tagNumber) {
+    case EUniversalTagNumber.EndOfContent:
+      return "EndOfContent";
+    case EUniversalTagNumber.Boolean:
+      return "Boolean";
+    case EUniversalTagNumber.Integer:
+      return "Integer";
+    case EUniversalTagNumber.BitString:
+      return "BitString";
+    case EUniversalTagNumber.OctetString:
+      return "OctetString";
+    case EUniversalTagNumber.Null:
+      return "Null";
+    case EUniversalTagNumber.ObjectIdentifier:
+      return "ObjectIdentifier";
+    case EUniversalTagNumber.Real:
+      return "Real";
+    case EUniversalTagNumber.Enumerated:
+      return "Enumerated";
+    case EUniversalTagNumber.Utf8String:
+      return "Utf8String";
+    case EUniversalTagNumber.RelativeObjectIdentifier:
+      return "RelativeObjectIdentifier";
+    case EUniversalTagNumber.TIME:
+      return "TIME";
+    case EUniversalTagNumber.Sequence:
+     return "Sequence";
+    case EUniversalTagNumber.Set:
+     return "Set";
+    case EUniversalTagNumber.NumericString:
+      return "NumericString";
+    case EUniversalTagNumber.PrintableString:
+      return "PrintableString";
+    case EUniversalTagNumber.TeletexString:
+      return "TeletexString";
+    case EUniversalTagNumber.VideotexString:
+      return "VideotexString";
+    case EUniversalTagNumber.IA5String:
+      return "IA5String";
+    case EUniversalTagNumber.UTCTime:
+      return "UTCTime";
+    case EUniversalTagNumber.GeneralizedTime:
+      return "GeneralizedTime";
+    case EUniversalTagNumber.GraphicString:
+      return "GraphicString";
+    case EUniversalTagNumber.VisibleString:
+      return "VisibleString";
+    case EUniversalTagNumber.GeneralString:
+      return "GeneralString";
+    case EUniversalTagNumber.UniversalString:
+      return "UniversalString";
+    case EUniversalTagNumber.CharacterString:
+      return "CharacterString";
+    case EUniversalTagNumber.BmpString:
+      return "BmpString";
+    case EUniversalTagNumber.DATE:
+      return "DATE";
+    case EUniversalTagNumber.TimeOfDay:
+      return "TimeOfDay";
+    case EUniversalTagNumber.DateTime:
+      return "DateTime";
+    case EUniversalTagNumber.Duration:
+      return "Duration";
+    default:
+      return `TAGNUMBER(${tagNumber})`;
+  }
+}
+
 export const typeStore = {} as TypeStore;

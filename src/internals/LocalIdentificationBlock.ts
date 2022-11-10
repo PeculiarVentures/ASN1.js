@@ -2,7 +2,7 @@
 import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
-import { ETagClass, EUniversalTagNumber } from "../TypeStore";
+import { ETagClass, EUniversalTagNumber, getTagClassAsText, getTagNumberAsText } from "../TypeStore";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
 import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
 import { checkBufferParams } from "./utils";
@@ -64,6 +64,21 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       this.isConstructed = false;
       this.optionalID = -1;
     }
+  }
+
+  /**
+   * Returns a debug string to express tagclass and tagnumber
+   * @delimiter - a delimiter to set between class and number
+   */
+  public getDebug(delimiter = ""): string {
+    let result = "";
+    result += getTagClassAsText(this.tagClass);
+    result += delimiter;
+    if(this.tagClass === ETagClass.UNIVERSAL)
+      result += getTagNumberAsText(this.tagNumber);
+    else
+      result += this.tagNumber;
+    return result;
   }
 
   /**

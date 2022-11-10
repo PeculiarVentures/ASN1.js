@@ -7,6 +7,10 @@ export interface IChoice extends IAny {
 
 export type ChoiceParams = Partial<IChoice>;
 
+/**
+ * A Choice is only used while schema validation
+ * In that case the choice takes the place of a list of possible options while verifying a schema
+ */
 export class Choice extends Any implements IChoice {
   public value: BaseBlock[];
 
