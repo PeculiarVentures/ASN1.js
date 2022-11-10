@@ -9,6 +9,7 @@ import { AsnType, typeStore } from "./TypeStore";
 import { ILocalConstructedValueBlock } from "./internals/LocalConstructedValueBlock";
 import { LocalIdentificationBlock } from "./internals/LocalIdentificationBlock";
 import { LocalLengthBlock } from "./internals/LocalLengthBlock";
+import { BaseBlock } from "./BaseBlock";
 
 export type AsnSchemaType = AsnType | Any | Choice | Repeated;
 
@@ -19,50 +20,140 @@ export interface CompareSchemaSuccess {
 
 export interface CompareSchemaFail {
   verified: false;
-  name?: string;
-  result: AsnType | { error: string; };
+  errors?: SchemaErrors;
+}
+
+/**
+ * Configure options how the schema shall get verified.
+ * Allows to configure laxer or stricter parsing
+ */
+export class VerifyOptions {
+  constructor(continueOnError = true, allowLargerThanSchema = false) {
+    this.continueOnError = continueOnError;
+    this.allowLargerThanSchema = allowLargerThanSchema;
+  }
+  // Parsing continues on an error, the errorlist contains all errors
+  public continueOnError: boolean;
+  // If the asn1 object is larger than the schema, this is not an error
+  public allowLargerThanSchema: boolean;
+}
+
+export enum ESchemaError {
+	NO_ERROR = 0,
+  // The provided asn1data is invalid
+  INVALID_ASN1DATA = 1,
+  // The provided schema data is invalid
+  INVALID_SCHEMADATA = 2,
+  // The schema attribute has no tag class
+  MISSING_TAG_CLASS_IN_SCHEMA = 3,
+  // Mismatching tag class between asn1 and schema
+  MISMATCHING_TAG_CLASS = 4,
+  // The schema attribute has no tag number
+  MISSING_TAG_NUMBER_IN_SCHEMA = 5,
+  // Mismatching tag number between asn1 and schema
+  MISMATCHING_TAG_NUMBER = 6,
+  // The schema attribute has no constructed flag
+  MISSING_CONSTRUCTED_FLAG_IN_SCHEMA = 7,
+  // Mismatching constructed flag between asn1 and schema
+  MISMATCHING_CONSTRUCTED_FLAG = 8,
+  // The schema attribute has no constructed flag
+  MISSING_ISHEXONLY_FLAG_IN_SCHEMA = 9,
+  // Mismatching constructed flag between asn1 and schema
+  MISMATCHING_ISHEXONLY_FLAG = 10,
+  // The schema attribute has hexview flag
+  MISSING_HEXVIEW_IN_SCHEMA = 11,
+  // The hex view length is not matching between the asn1 and the schema
+  MISMATCHING_HEX_VIEW_LENGTH = 12,
+  // The hex view data is not matching between the asn1 and the schema
+  MISMATCHING_HEX_VIEW_DATA = 13,
+  // The object length is mismatching between the asn1 and the schema
+  MISMATCHING_OBJECT_LENGTH = 14,
+  // Failed to decode primitive data
+  FAILED_TO_BER_DECODE_PRIMITIVE_DATA = 16,
+  // Failed to match asn1 data with choice from the schema
+  NO_MATCHING_DATA_FOR_CHOICE = 17,
+  // The ASN1 structure is larger than the schema
+  ASN1_IS_LARGER_THAN_SCHEMA = 18
+}
+
+/**
+ * This object contains a schema error that occured while validating the schema
+ */
+export class SchemaError {
+  constructor(error: ESchemaError, context: string) {
+    this.error = error;
+    this.context = context;
+  }
+  // The schema error (check enum for details)
+  public error: ESchemaError;
+  // Context in the tree (which parameter caused the issue)
+  public context: string;
+}
+
+/**
+ * While checking the schema this object contains the list of errors to give a deeper
+ */
+export class SchemaErrors extends Array<SchemaError> {
+  public get failed(): boolean {
+    return this.length > 0;
+  }
+  public get ok(): boolean {
+    return this.length === 0;
+  }
 }
 
 export type CompareSchemaResult = CompareSchemaSuccess | CompareSchemaFail;
 
+export function compareSchema(root: AsnType, inputSchema: AsnSchemaType, options: VerifyOptions = new VerifyOptions()): CompareSchemaResult {
+  const errors = compareSchemaInternal(root, inputSchema, options);
+  if (errors.failed) {
+    return {
+      verified: false,
+      errors
+    };
+  } else {
+    return {
+      verified: true,
+      result: root
+    };
+  }
+}
+
 /**
  * Compare of two ASN.1 object trees
  * @param root Root of input ASN.1 object tree
- * @param inputData Input ASN.1 object tree
  * @param inputSchema Input ASN.1 schema to compare with
+ * @param inputData Input ASN.1 object tree
+ * @param context A context that holds the name where we are in the root AsnType while parsing (needed for contextual errors)
  * @return Returns result of comparison
  */
-export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: AsnSchemaType): CompareSchemaResult {
-  //#region Special case for Choice schema element type
-  if (inputSchema instanceof Choice) {
-    const choiceResult = false;
+function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, options = new VerifyOptions(), inputData = root, context = ""): SchemaErrors {
+  const errors = new SchemaErrors();
 
+  if(!context.length) {
+    context = inputSchema.name;
+    if (!context && inputSchema instanceof BaseBlock)
+      context += inputSchema.idBlock.getDebug("-");
+  }
+
+   //#region Special case for Choice schema element type
+  if (inputSchema instanceof Choice) {
+    /**
+     * We iterate over the choice fields and validate whether the inputData matches the choice data
+     * If that is the case we take over name and the optional from the choice attribute
+     */
     for (let j = 0; j < inputSchema.value.length; j++) {
       const schema = inputSchema.value[j];
-      const result = compareSchema(root, inputData, schema);
-      if (result.verified) {
-        inputData.name = schema.name;
-        inputData.optional = schema.optional;
-        return {
-          verified: true,
-          result: root
-        };
+      const errors = compareSchemaInternal(root, schema, options, inputData, context);
+      if (errors.ok) {
+        inputData.name = inputSchema.name;
+        inputData.optional = inputSchema.optional;
+        return errors;
       }
     }
 
-    if (choiceResult === false) {
-      const _result: CompareSchemaResult = {
-        verified: false,
-        result: {
-          error: "Wrong values for Choice type"
-        },
-      };
-
-      if (inputSchema.hasOwnProperty(NAME))
-        _result.name = inputSchema.name;
-
-      return _result;
-    }
+    errors.push(new SchemaError(ESchemaError.NO_MATCHING_DATA_FOR_CHOICE, context));
+    return errors;
   }
   //#endregion
   //#region Special case for Any schema element type
@@ -73,56 +164,41 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
 
 
     //#endregion
-    return {
-      verified: true,
-      result: root
-    };
+    return errors;
   }
   //#endregion
   //#region Initial check
   if ((root instanceof Object) === false) {
-    return {
-      verified: false,
-      result: { error: "Wrong root object" }
-    };
+    errors.push(new SchemaError(ESchemaError.INVALID_ASN1DATA, context));
+    return errors;
   }
 
   if ((inputData instanceof Object) === false) {
-    return {
-      verified: false,
-      result: { error: "Wrong ASN.1 data" }
-    };
+    errors.push(new SchemaError(ESchemaError.INVALID_ASN1DATA, context));
+    return errors;
   }
 
   if ((inputSchema instanceof Object) === false) {
-    return {
-      verified: false,
-      result: { error: "Wrong ASN.1 schema" }
-    };
+    errors.push(new SchemaError(ESchemaError.INVALID_SCHEMADATA, context));
+    return errors;
   }
 
-  if ((ID_BLOCK in inputSchema) === false) {
-    return {
-      verified: false,
-      result: { error: "Wrong ASN.1 schema" }
-    };
+  if (!(ID_BLOCK in inputSchema)) {
+    errors.push(new SchemaError(ESchemaError.INVALID_SCHEMADATA, context));
+    return errors;
   }
   //#endregion
   //#region Comparing idBlock properties in ASN.1 data and ASN.1 schema
   //#region Encode and decode ASN.1 schema idBlock
   /// <remarks>This encoding/decoding is necessary because could be an errors in schema definition</remarks>
-  if ((FROM_BER in inputSchema.idBlock) === false) {
-    return {
-      verified: false,
-      result: { error: "Wrong ASN.1 schema" }
-    };
+  if (!(FROM_BER in inputSchema.idBlock)) {
+    errors.push(new SchemaError(ESchemaError.INVALID_SCHEMADATA, context));
+    return errors;
   }
 
-  if ((TO_BER in inputSchema.idBlock) === false) {
-    return {
-      verified: false,
-      result: { error: "Wrong ASN.1 schema" }
-    };
+  if (!(TO_BER in inputSchema.idBlock)) {
+    errors.push(new SchemaError(ESchemaError.INVALID_SCHEMADATA, context));
+    return errors;
   }
 
   /*
@@ -146,92 +222,69 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
   */
   //#endregion
   //#region tagClass
-  if (inputSchema.idBlock.hasOwnProperty(TAG_CLASS) === false) {
-    return {
-      verified: false,
-      result: { error: "Wrong ASN.1 schema" }
-    };
+  if (!inputSchema.idBlock.hasOwnProperty(TAG_CLASS)) {
+    errors.push(new SchemaError(ESchemaError.MISSING_TAG_CLASS_IN_SCHEMA, context));
+    return errors;
   }
 
   if (inputSchema.idBlock.tagClass !== inputData.idBlock.tagClass) {
-    return {
-      verified: false,
-      result: root
-    };
+    errors.push(new SchemaError(ESchemaError.MISMATCHING_TAG_CLASS, context));
+    return errors;
   }
   //#endregion
   //#region tagNumber
-  if (inputSchema.idBlock.hasOwnProperty(TAG_NUMBER) === false) {
-    return {
-      verified: false,
-      result: { error: "Wrong ASN.1 schema" }
-    };
+  if (!inputSchema.idBlock.hasOwnProperty(TAG_NUMBER)) {
+    errors.push(new SchemaError(ESchemaError.MISSING_TAG_NUMBER_IN_SCHEMA, context));
+    return errors;
   }
 
   if (inputSchema.idBlock.tagNumber !== inputData.idBlock.tagNumber) {
-    return {
-      verified: false,
-      result: root
-    };
+    errors.push(new SchemaError(ESchemaError.MISMATCHING_TAG_NUMBER, context));
+    return errors;
   }
   //#endregion
   //#region isConstructed
-  if (inputSchema.idBlock.hasOwnProperty(IS_CONSTRUCTED) === false) {
-    return {
-      verified: false,
-      result: { error: "Wrong ASN.1 schema" }
-    };
+  if (!inputSchema.idBlock.hasOwnProperty(IS_CONSTRUCTED)) {
+    errors.push(new SchemaError(ESchemaError.MISSING_CONSTRUCTED_FLAG_IN_SCHEMA, context));
+    return errors;
   }
 
   if (inputSchema.idBlock.isConstructed !== inputData.idBlock.isConstructed) {
-    return {
-      verified: false,
-      result: root
-    };
+    errors.push(new SchemaError(ESchemaError.MISMATCHING_CONSTRUCTED_FLAG, context));
+    return errors;
   }
   //#endregion
   //#region isHexOnly
-  if (!(IS_HEX_ONLY in inputSchema.idBlock)) // Since 'isHexOnly' is an inherited property
-  {
-    return {
-      verified: false,
-      result: { error: "Wrong ASN.1 schema" }
-    };
+  if (!inputSchema.idBlock.hasOwnProperty(IS_HEX_ONLY)) {
+    errors.push(new SchemaError(ESchemaError.MISSING_ISHEXONLY_FLAG_IN_SCHEMA, context));
+    return errors;
   }
 
   if (inputSchema.idBlock.isHexOnly !== inputData.idBlock.isHexOnly) {
-    return {
-      verified: false,
-      result: root
-    };
+    errors.push(new SchemaError(ESchemaError.MISMATCHING_ISHEXONLY_FLAG, context));
+    return errors;
   }
   //#endregion
   //#region valueHex
   if (inputSchema.idBlock.isHexOnly) {
-    if ((VALUE_HEX_VIEW in inputSchema.idBlock) === false) // Since 'valueHex' is an inherited property
+    if (!inputSchema.idBlock.hasOwnProperty(VALUE_HEX_VIEW)) // Since 'valueHex' is an inherited property
     {
-      return {
-        verified: false,
-        result: { error: "Wrong ASN.1 schema" }
-      };
+      errors.push(new SchemaError(ESchemaError.MISSING_HEXVIEW_IN_SCHEMA, context));
+      return errors;
     }
 
     const schemaView = inputSchema.idBlock.valueHexView;
     const asn1View = inputData.idBlock.valueHexView;
 
     if (schemaView.length !== asn1View.length) {
-      return {
-        verified: false,
-        result: root
-      };
+      errors.push(new SchemaError(ESchemaError.MISMATCHING_HEX_VIEW_LENGTH, context));
+      return errors;
     }
 
     for (let i = 0; i < schemaView.length; i++) {
       if (schemaView[i] !== asn1View[1]) {
-        return {
-          verified: false,
-          result: root
-        };
+        errors.push(new SchemaError(ESchemaError.MISMATCHING_HEX_VIEW_DATA, context));
+        return errors;
       }
     }
   }
@@ -258,17 +311,11 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
     // TODO not clear how it works for OctetString and BitString
     //* if (inputSchema.idBlock.isConstructed) {
     let admission = 0;
-    let result: CompareSchemaResult = {
-      verified: false,
-      result: {
-        error: "Unknown error",
-      }
-    };
 
     // Get rid of ts-ignore and cast the input object properly one time in advance
     const inputValue = (inputData.valueBlock as ILocalConstructedValueBlock).value as AsnType[];
 
-    let maxLength = inputSchema.valueBlock.value.length;
+    let maxLength = Math.max(inputSchema.valueBlock.value.length, inputValue.length);
 
     if (maxLength > 0) {
       if (inputSchema.valueBlock.value[0] instanceof Repeated) {
@@ -277,12 +324,9 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
     }
 
     //#region Special case when constructive value has no elements
-    if (maxLength === 0) {
-      return {
-        verified: true,
-        result: root
-      };
-    }
+    if (maxLength === 0)
+      return errors;
+
     //#endregion
     //#region Special case when "inputData" has no values and "inputSchema" has all optional values
     // TODO debug it
@@ -293,19 +337,11 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
       for (let i = 0; i < inputSchema.valueBlock.value.length; i++)
         _optional = _optional && (inputSchema.valueBlock.value[i].optional || false);
 
-      if (_optional) {
-        return {
-          verified: true,
-          result: root
-        };
-      }
+      if (_optional)
+        return errors;
 
-      root.error = "Inconsistent object length";
-
-      return {
-        verified: false,
-        result: root
-      };
+      errors.push(new SchemaError(ESchemaError.MISMATCHING_OBJECT_LENGTH, context));
+      return errors;
     }
     // Helper variable to improve searching for context specific optional attributes
     // The variable stores the last value where we found the last optional param
@@ -315,25 +351,20 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
       //#region Special case when there is an OPTIONAL element of ASN.1 schema at the end
       if ((i - admission) >= inputValue.length) {
         if (inputSchema.valueBlock.value[i].optional === false) {
-          const _result: CompareSchemaResult = {
-            verified: false,
-            result: root
-          };
-          root.error = "Inconsistent length between ASN.1 data and schema";
-          return _result;
+          errors.push(new SchemaError(ESchemaError.MISMATCHING_OBJECT_LENGTH, context));
+          return errors;
         }
       }
-
       //#endregion
       else {
         //#region Special case for Repeated type of ASN.1 schema element
         if (inputSchema.valueBlock.value[0] instanceof Repeated) {
-          result = compareSchema(root, inputValue[i], inputSchema.valueBlock.value[0].value);
-          if (result.verified === false) {
+          const errors = compareSchemaInternal(root, inputSchema.valueBlock.value[0].value, options, inputValue[i], context);
+          if (errors.failed) {
             if (inputSchema.valueBlock.value[0].optional)
               admission++;
             else
-              return result;
+              return errors;
           }
 
           if ((NAME in inputSchema.valueBlock.value[0]) && (inputSchema.valueBlock.value[0].name.length > 0)) {
@@ -354,6 +385,25 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
         else {
           let inputObject = inputValue[i - admission];
           let schema = inputSchema.valueBlock.value[i];
+
+          let newContext = context;
+          if (newContext.length)
+            newContext += ":";
+
+          if (!schema) {
+            // The input object exists but is not reference in the schema.
+            if (!options.allowLargerThanSchema) {
+              // This is not allowed, let´s throw an error
+              newContext += inputObject.idBlock.getDebug("-");
+              errors.push(new SchemaError(ESchemaError.ASN1_IS_LARGER_THAN_SCHEMA, newContext));
+            }
+            return errors;
+          }
+          if (schema.name)
+            newContext += schema.name;
+          else
+            newContext += schema.idBlock.getDebug("-");
+
           if (inputObject.idBlock.tagClass === 3 && inputObject.idBlock.tagNumber >= 0) {
             // This is a context specific property (optional property)
             // the type comes from the target field with optionalID === tagNumber
@@ -394,35 +444,30 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
                 }
             }
           }
-          result = compareSchema(root, inputObject, schema);
-          if(result.verified) {
-            inputObject.name = schema.name;
-            inputObject.optional = schema.optional;
-          } else {
+          const recursive_errors = compareSchemaInternal(root, schema, options, inputObject, newContext);
+          if(recursive_errors.failed) {
             if (inputSchema.valueBlock.value[i].optional)
               admission++;
-            else {
-              return result;
-            }
+            else if(!options.continueOnError)
+              return recursive_errors;
+            else
+              errors.push(...recursive_errors);
+          } else {
+            inputObject.name = schema.name;
+            inputObject.optional = schema.optional;
           }
         }
       }
     }
 
-    if (result.verified === false) // The situation may take place if last element is OPTIONAL and verification failed
-    {
-      const _result: CompareSchemaResult = {
-        verified: false,
-        result: root
-      };
+    if(errors.failed)
+      return errors;
 
-      return _result;
-    }
+    // Here we are done with iterating over all objects (including recursion, stepping in) and we step out to the next higher element in the structure
+    inputData.name = inputSchema.name;
+    inputData.optional = inputSchema.optional;
 
-    return {
-      verified: true,
-      result: root
-    };
+    return errors;
   }
   //#endregion
   //#region Ability to parse internal value for primitive-encoded value (value of OctetString, for example)
@@ -431,51 +476,38 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
     //#region Decoding of raw ASN.1 data
     const asn1 = localFromBER(inputData.valueBlock.valueHexView);
     if (asn1.offset === -1) {
-      const _result: CompareSchemaResult = {
-        verified: false,
-        result: asn1.result
-      };
-
-      return _result;
+      errors.push(new SchemaError(ESchemaError.FAILED_TO_BER_DECODE_PRIMITIVE_DATA, context));
+      return errors;
     }
     //#endregion
 
-    return compareSchema(root, asn1.result, inputSchema.primitiveSchema);
+    return compareSchemaInternal(root, inputSchema.primitiveSchema, options, asn1.result, context);
   }
 
-  return {
-    verified: true,
-    result: root
-  };
+  return errors;
   //#endregion
 }
+
 /**
  * ASN.1 schema verification for ArrayBuffer data
- * @param  inputBuffer Input BER-encoded ASN.1 data
- * @param  inputSchema Input ASN.1 schema to verify against to
+ * @param inputBuffer - Input BER-encoded ASN.1 data
+ * @param inputSchema - Input ASN.1 schema to verify against to
+ * @param verifyOptions - Options to control how the object is beeing verified
  * @return
  */
-
-export function verifySchema(inputBuffer: pvtsutils.BufferSource, inputSchema: AsnSchemaType): CompareSchemaResult {
-  //#region Initial check
-  if ((inputSchema instanceof Object) === false) {
-    return {
-      verified: false,
-      result: { error: "Wrong ASN.1 schema type" }
-    };
-  }
-  //#endregion
+export function verifySchema(inputBuffer: pvtsutils.BufferSource, inputSchema: AsnSchemaType, options: VerifyOptions = new VerifyOptions()): CompareSchemaResult {
   //#region Decoding of raw ASN.1 data
   const asn1 = localFromBER(pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer));
   if (asn1.offset === -1) {
+    const errors = new SchemaErrors();
+    errors.push(new SchemaError(ESchemaError.FAILED_TO_BER_DECODE_PRIMITIVE_DATA, ""));
     return {
       verified: false,
-      result: asn1.result
+      errors
     };
   }
   //#endregion
   //#region Compare ASN.1 struct with input schema
-
-  return compareSchema(asn1.result, asn1.result, inputSchema);
+  return compareSchema(asn1.result, inputSchema, options);
   //#endregion
 }
