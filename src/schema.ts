@@ -5,7 +5,7 @@ import { Any } from "./Any";
 import { Choice } from "./Choice";
 import { Repeated } from "./Repeated";
 import { getTypeForIDBlock, localFromBER } from "./parser";
-import { AsnType, typeStore } from "./TypeStore";
+import { AsnType, ETagClass, typeStore } from "./TypeStore";
 import { ILocalConstructedValueBlock } from "./internals/LocalConstructedValueBlock";
 import { LocalIdentificationBlock } from "./internals/LocalIdentificationBlock";
 import { LocalLengthBlock } from "./internals/LocalLengthBlock";
@@ -36,6 +36,41 @@ export class VerifyOptions {
   public continueOnError: boolean;
   // If the asn1 object is larger than the schema, this is not an error
   public allowLargerThanSchema: boolean;
+}
+
+/**
+ * A helper object that is carried around while recursing through the schema
+ */
+export class SchemaContext {
+  // The path within the structure we are parsing (object:subobject:element)
+  public path = "";
+  // Allows to specify an outer id from a context-specific element and is then used in recursion to find the proper option (constructed->tag points to schema option)
+  public contextID?: number;
+  // Debug helper in the schema validation (test) to stop at a certain recursion level if (context.debug && context.recursion === 2)
+  public recursion = 0;
+  // Debug helper in the schema validation (test) to stop at a certain recursion level if (context.debug && context.recursion === 2)
+  public debug = false;
+  // We are recusring into a sub element and adopt the SchemaContext accordingly, we return a new schema to be used for recursion
+  public recurse(schema: AsnSchemaType | undefined): SchemaContext {
+    const result = new SchemaContext();
+    result.path = this.path;
+    result.contextID = this.contextID;
+    result.recursion = this.recursion;
+    result.debug = this.debug;
+    if (result.path) {
+      result.path += ":";
+      result.recursion++;
+    }
+
+    if (schema) {
+      if (schema.name)
+        result.path += schema.name;
+      else if (schema instanceof BaseBlock)
+        result.path += schema.idBlock.getDebug("-");
+    }
+
+    return result;
+  }
 }
 
 export enum ESchemaError {
@@ -80,9 +115,9 @@ export enum ESchemaError {
  * This object contains a schema error that occured while validating the schema
  */
 export class SchemaError {
-  constructor(error: ESchemaError, context: string) {
+  constructor(error: ESchemaError, context = new SchemaContext()) {
     this.error = error;
-    this.context = context;
+    this.context = context.path;
   }
   // The schema error (check enum for details)
   public error: ESchemaError;
@@ -104,8 +139,8 @@ export class SchemaErrors extends Array<SchemaError> {
 
 export type CompareSchemaResult = CompareSchemaSuccess | CompareSchemaFail;
 
-export function compareSchema(root: AsnType, inputSchema: AsnSchemaType, options: VerifyOptions = new VerifyOptions()): CompareSchemaResult {
-  const errors = compareSchemaInternal(root, inputSchema, options);
+export function compareSchema(root: AsnType, inputSchema: AsnSchemaType, options = new VerifyOptions(), context = new SchemaContext()): CompareSchemaResult {
+  const errors = compareSchemaInternal(root, inputSchema, options, context);
   if (errors.failed) {
     return {
       verified: false,
@@ -124,17 +159,15 @@ export function compareSchema(root: AsnType, inputSchema: AsnSchemaType, options
  * @param root Root of input ASN.1 object tree
  * @param inputSchema Input ASN.1 schema to compare with
  * @param inputData Input ASN.1 object tree
- * @param context A context that holds the name where we are in the root AsnType while parsing (needed for contextual errors)
+ * @param context A context that holds properties while we parse the schema
  * @return Returns result of comparison
  */
-function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, options = new VerifyOptions(), inputData = root, context = ""): SchemaErrors {
+function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, options = new VerifyOptions(), context = new SchemaContext(), inputData = root): SchemaErrors {
   const errors = new SchemaErrors();
 
-  if(!context.length) {
-    context = inputSchema.name;
-    if (!context && inputSchema instanceof BaseBlock)
-      context += inputSchema.idBlock.getDebug("-");
-  }
+  // First call, let´s add some root information if this is our first call
+  if (!context.path)
+    context = context.recurse(inputSchema);
 
    //#region Special case for Choice schema element type
   if (inputSchema instanceof Choice) {
@@ -144,7 +177,8 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
      */
     for (let j = 0; j < inputSchema.value.length; j++) {
       const schema = inputSchema.value[j];
-      const errors = compareSchemaInternal(root, schema, options, inputData, context);
+      const newContext = context.recurse(schema);
+      const errors = compareSchemaInternal(root, schema, options, newContext, inputData);
       if (errors.ok) {
         inputData.name = inputSchema.name;
         inputData.optional = inputSchema.optional;
@@ -238,10 +272,6 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
     return errors;
   }
 
-  if (inputSchema.idBlock.tagNumber !== inputData.idBlock.tagNumber) {
-    errors.push(new SchemaError(ESchemaError.MISMATCHING_TAG_NUMBER, context));
-    return errors;
-  }
   //#endregion
   //#region isConstructed
   if (!inputSchema.idBlock.hasOwnProperty(IS_CONSTRUCTED)) {
@@ -264,6 +294,51 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
     errors.push(new SchemaError(ESchemaError.MISMATCHING_ISHEXONLY_FLAG, context));
     return errors;
   }
+
+  if (inputSchema.idBlock.tagNumber !== inputData.idBlock.tagNumber) {
+    const failed = true;
+    if(inputData.idBlock.tagClass === ETagClass.CONTEXT_SPECIFIC) {
+      // Choice elements may also get encoded context specific.
+      // In such a case the caller has specified the choise option using the tag number
+      // The tag number tells which option the sender has chosen from the choise options in the schem
+      const values = (inputData.valueBlock as ILocalConstructedValueBlock).value;
+      let value: AsnType | undefined;
+      if(values.length === 1)
+        value = values[0] as AsnType;
+      if(!value) {
+        errors.push(new SchemaError(ESchemaError.INVALID_ASN1DATA, context));
+        return errors;
+      }
+      // Only works if the constructed has a single value
+      const schemaValue = (inputSchema.valueBlock as ILocalConstructedValueBlock).value;
+      if (schemaValue.length !== 1) {
+        errors.push(new SchemaError(ESchemaError.INVALID_SCHEMADATA, context));
+        return errors;
+      }
+      const schemaChoice = schemaValue[0];
+      if (schemaChoice instanceof Choice) {
+        const requestedOptionID = inputData.idBlock.tagNumber;
+        // The schema holds a choice, let´s see if we find the choice option based on the tagnumber
+        for (const schemaChoiceOption of schemaChoice.value) {
+          if (schemaChoiceOption.idBlock.optionalID !== undefined && requestedOptionID === schemaChoiceOption.idBlock.optionalID) {
+            // Choice option found -> thus we did not fail we can now validate the schema
+            const newContext = context.recurse(schemaChoiceOption);
+            const errors = compareSchemaInternal(root, schemaChoiceOption, options, newContext, value);
+            if (errors.ok) {
+              inputData.name = inputSchema.name;
+              inputData.optional = inputSchema.optional;
+            }
+            return errors;
+          }
+        }
+      }
+    }
+    if (failed) {
+      errors.push(new SchemaError(ESchemaError.MISMATCHING_TAG_NUMBER, context));
+      return errors;
+    }
+  }
+
   //#endregion
   //#region valueHex
   if (inputSchema.idBlock.isHexOnly) {
@@ -359,7 +434,7 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
       else {
         //#region Special case for Repeated type of ASN.1 schema element
         if (inputSchema.valueBlock.value[0] instanceof Repeated) {
-          const errors = compareSchemaInternal(root, inputSchema.valueBlock.value[0].value, options, inputValue[i], context);
+          const errors = compareSchemaInternal(root, inputSchema.valueBlock.value[0].value, options, context, inputValue[i]);
           if (errors.failed) {
             if (inputSchema.valueBlock.value[0].optional)
               admission++;
@@ -386,23 +461,16 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
           let inputObject = inputValue[i - admission];
           let schema = inputSchema.valueBlock.value[i];
 
-          let newContext = context;
-          if (newContext.length)
-            newContext += ":";
-
+          const newContext = context.recurse(schema);
           if (!schema) {
             // The input object exists but is not reference in the schema.
             if (!options.allowLargerThanSchema) {
               // This is not allowed, let´s throw an error
-              newContext += inputObject.idBlock.getDebug("-");
+              newContext.path += inputObject.idBlock.getDebug("-");
               errors.push(new SchemaError(ESchemaError.ASN1_IS_LARGER_THAN_SCHEMA, newContext));
             }
             return errors;
           }
-          if (schema.name)
-            newContext += schema.name;
-          else
-            newContext += schema.idBlock.getDebug("-");
 
           if (inputObject.idBlock.tagClass === 3 && inputObject.idBlock.tagNumber >= 0) {
             // This is a context specific property (optional property)
@@ -444,7 +512,7 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
                 }
             }
           }
-          const recursive_errors = compareSchemaInternal(root, schema, options, inputObject, newContext);
+          const recursive_errors = compareSchemaInternal(root, schema, options, newContext, inputObject);
           if(recursive_errors.failed) {
             if (inputSchema.valueBlock.value[i].optional)
               admission++;
@@ -481,7 +549,7 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
     }
     //#endregion
 
-    return compareSchemaInternal(root, inputSchema.primitiveSchema, options, asn1.result, context);
+    return compareSchemaInternal(root, inputSchema.primitiveSchema, options, context, asn1.result);
   }
 
   return errors;
@@ -495,12 +563,12 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
  * @param verifyOptions - Options to control how the object is beeing verified
  * @return
  */
-export function verifySchema(inputBuffer: pvtsutils.BufferSource, inputSchema: AsnSchemaType, options: VerifyOptions = new VerifyOptions()): CompareSchemaResult {
+export function verifySchema(inputBuffer: pvtsutils.BufferSource, inputSchema: AsnSchemaType, options = new VerifyOptions(), context = new SchemaContext()): CompareSchemaResult {
   //#region Decoding of raw ASN.1 data
   const asn1 = localFromBER(pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer));
   if (asn1.offset === -1) {
     const errors = new SchemaErrors();
-    errors.push(new SchemaError(ESchemaError.FAILED_TO_BER_DECODE_PRIMITIVE_DATA, ""));
+    errors.push(new SchemaError(ESchemaError.FAILED_TO_BER_DECODE_PRIMITIVE_DATA));
     return {
       verified: false,
       errors
@@ -508,6 +576,6 @@ export function verifySchema(inputBuffer: pvtsutils.BufferSource, inputSchema: A
   }
   //#endregion
   //#region Compare ASN.1 struct with input schema
-  return compareSchema(asn1.result, inputSchema, options);
+  return compareSchema(asn1.result, inputSchema, options, context);
   //#endregion
 }

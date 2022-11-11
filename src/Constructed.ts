@@ -1,9 +1,8 @@
-import { AsnType } from "../build";
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { LocalBaseBlock } from "./internals/LocalBaseBlock";
 import { LocalConstructedValueBlock, LocalConstructedValueBlockJson, LocalConstructedValueBlockParams } from "./internals/LocalConstructedValueBlock";
 import { IBaseIDs } from "./internals/LocalIdentificationBlock";
-import { typeStore } from "./TypeStore";
+import { AsnType, typeStore } from "./TypeStore";
 
 export interface ConstructedParams extends BaseBlockParams, LocalConstructedValueBlockParams { }
 export type ConstructedJson = BaseBlockJson<LocalConstructedValueBlockJson>;

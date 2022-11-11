@@ -87,9 +87,8 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
    * @since 3.0.0
    */
   public getValue(): ArrayBuffer {
-    if (!this.idBlock.isConstructed) {
-      return this.valueBlock.valueHexView.slice().buffer;
-    }
+    if (!this.idBlock.isConstructed)
+      return this.valueBlock.valueHexView.slice();
 
     const array: ArrayBuffer[] = [];
     for (const content of this.valueBlock.value) {
