@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as assert from "assert";
-import { HexBlockParams } from "../build";
 import * as asn1js from "../src";
+import { HexBlockParams } from "../src";
 import { ILocalIdentificationBlock } from "../src/internals/LocalIdentificationBlock";
 
 /**
@@ -14,6 +14,16 @@ function buf2hex(buffer: ArrayBuffer): string {
 	return [...new Uint8Array(buffer)]
 		.map(x => x.toString(16).padStart(2, "0"))
 		.join(" ");
+}
+
+/**
+ * Converts an array buffer to hex notation
+ *
+ * @param buffer - the array to convert
+ * @returns the ArrayBuffer in hex string notation
+ */
+function typedArrayToBuffer(array: Uint8Array): ArrayBuffer {
+    return array.buffer.slice(array.byteOffset, array.byteLength + array.byteOffset);
 }
 
 /**
@@ -269,6 +279,45 @@ context("validateSchema implementation tests", () => {
                 assert.equal(result.errors[0].error, 18, "Wrong error code");
                 assert.equal(result.errors[0].context, "sequence:child1:UNIVERSAL-Boolean", "Wrong error context");
             }
+        }
+    });
+
+    it ("validate an object against a schema with embedded any", () => {
+          const payload = new asn1js.Sequence({
+            name: "payload",
+            value: [
+                new asn1js.Utf8String({name: "string",  value: "string"  }),
+                new asn1js.Integer({name: "integer", value: 1 }),
+                new asn1js.Boolean({name: "boolean", value: true }),
+            ]
+        });
+        const data = new asn1js.Sequence({
+            name: "body",
+            value: [
+                new asn1js.Integer({value:1}),
+                payload
+            ]
+        });
+
+        const schema = new asn1js.Sequence({
+            name: "sequence",
+            value: [
+                new asn1js.Integer({name: "int"}),
+                new asn1js.Any({name: "any"})
+            ]
+        });
+
+        const ber = data.toBER();
+        const result = asn1js.verifySchema(ber, schema);
+        assert.ok(result.verified, "Schema verification failed");
+        if (result.verified && result.result instanceof asn1js.Sequence) {
+            const int = result.result.getTypedValueByName(asn1js.Integer, "int");
+            const any = result.result.getValueByName("any");
+            assert.ok(int, "missing int value in result");
+            assert.ok(any, "missing any value in result");
+            assert.equal(int.getValue(), 1, "Wrong value");
+            const data = buf2hex(typedArrayToBuffer(any.valueBeforeDecodeView));
+            assert.equal(data, "30 0e 0c 06 73 74 72 69 6e 67 02 01 01 01 01 ff");
         }
     });
 

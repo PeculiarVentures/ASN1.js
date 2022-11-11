@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as assert from "assert";
-import { isFunction } from "util";
-import { Utf8String } from "../build";
 import * as asn1js from "../src";
+import { SchemaContext } from "../src";
+import { ETagClass } from "../src/TypeStore";
 
 /**
  * Converts an array buffer to hex notation
@@ -98,4 +98,71 @@ context("Asn1Choice implementation tests", () => {
             }
         }
     });
+
+    it("test choice on root level (using a constructed item that embeds the choice)", () => {
+        // All choices would match the asn1 type but the type exposed the optional context-specific
+        // Thus the context needs to be found by id and not by matching schema
+        const schemacontent = new asn1js.Choice({
+            name: "choice",
+            value: [
+                new asn1js.Sequence({name: "first",
+                     idBlock: {optionalID: 1},
+                     value: [
+                        new asn1js.Utf8String({name: "first"}),
+                        new asn1js.Boolean({name: "first", optional: true})
+                    ]
+                }),
+                new asn1js.Sequence({name: "second",
+                     idBlock: {optionalID: 2},
+                     value: [
+                        new asn1js.Utf8String({name: "second"}),
+                        new asn1js.Integer({name: "second", optional: true})
+                    ]
+                }),
+                new asn1js.Sequence({name: "third",
+                     idBlock: {optionalID: 3},
+                     value: [
+                        new asn1js.Utf8String({name: "third"}),
+                        new asn1js.Utf8String({name: "third", optional: true})
+                    ]
+                }),
+            ]
+        });
+        const schema = new asn1js.Constructed({
+            name: "constructed",
+            idBlock: {
+                tagClass: ETagClass.CONTEXT_SPECIFIC,
+            },
+            value: [schemacontent]
+        });
+        const seq = new asn1js.Constructed({
+            name: "constructed",
+            idBlock: {
+                tagClass: ETagClass.CONTEXT_SPECIFIC,
+                tagNumber: 2,
+            },
+            value: [
+                new asn1js.Sequence({value: [new asn1js.Utf8String({value: "teststring"})]})
+            ]
+        });
+        const data = seq.toBER();
+        const hex = buf2hex(data);
+
+        const context = new SchemaContext();
+        context.debug = true;
+
+        const result = asn1js.verifySchema(data, schema, undefined, context);
+        assert.equal(result.verified, true, "Schema verification failed");
+        if (result.verified) {
+            const seq = result.result.getTypedValueByName(asn1js.Sequence, "second");
+            assert.ok(seq, "Choice option not found");
+            if (seq) {
+                const utf8 = seq.getTypedValueByName(asn1js.Utf8String, "second");
+                assert.ok(utf8, "Sequence value not found");
+                assert.equal(utf8.getValue(), "teststring", "Wrong value found");
+            }
+        }
+    });
+
+
 });
