@@ -1,15 +1,17 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as pvtsutils from "pvtsutils";
-import { IS_CONSTRUCTED, NAME, ID_BLOCK, FROM_BER, TO_BER, TAG_CLASS, TAG_NUMBER, IS_HEX_ONLY, LOCAL, VALUE_HEX_VIEW } from "./internals/constants";
+import { IS_CONSTRUCTED, ID_BLOCK, FROM_BER, TO_BER, TAG_CLASS, TAG_NUMBER, IS_HEX_ONLY, VALUE_HEX_VIEW } from "./internals/constants";
 import { Any } from "./Any";
 import { Choice } from "./Choice";
 import { Repeated } from "./Repeated";
-import { getTypeForIDBlock, localFromBER } from "./parser";
+import { Sequence } from "./Sequence";
+import { getTypeForIDBlock, localFromBER, TnewAsnType } from "./parser";
 import { AsnType, ETagClass, typeStore } from "./TypeStore";
 import { ILocalConstructedValueBlock } from "./internals/LocalConstructedValueBlock";
 import { LocalIdentificationBlock } from "./internals/LocalIdentificationBlock";
 import { LocalLengthBlock } from "./internals/LocalLengthBlock";
 import { BaseBlock } from "./BaseBlock";
+import { EUniversalTagNumber } from "../build";
 
 export type AsnSchemaType = AsnType | Any | Choice | Repeated;
 
@@ -190,16 +192,37 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
     return errors;
   }
   //#endregion
-  //#region Special case for Any schema element type
-  if (inputSchema instanceof Any) {
-    //#region Add named component of ASN.1 schema
-    if (inputSchema.hasOwnProperty(NAME))
-      (root as any)[inputSchema.name] = inputData; // TODO Such call may replace original field of the object (eg idBlock)
 
+   //#region Special case for Repeated schema element type
+  else if (inputSchema instanceof Repeated) {
+    /**
+     * We iterate over the value fields and validate whether the schema matches the value data
+     */
+    if (inputData.idBlock.tagClass !== ETagClass.UNIVERSAL
+      || inputData.idBlock.tagNumber !== EUniversalTagNumber.Sequence) {
+      errors.push(new SchemaError(ESchemaError.INVALID_ASN1DATA, context));
+      return errors;
+    }
+    const schema = inputSchema.value;
+    const newContext = context.recurse(schema);
+    inputData.name = inputSchema.name;
+    inputData.optional = inputSchema.optional;
 
-    //#endregion
+    const seq = inputData as Sequence;
+    const pos = 0;
+    const path = newContext.path;
+    for(const value of seq.valueBlock.value) {
+      newContext.path = path + ":" + pos;
+      const err = compareSchemaInternal(root, schema, options, newContext, value);
+      if (err.failed)
+        errors.push(...err);
+    }
     return errors;
   }
+  //#endregion
+  //#region Special case for Any schema element type
+  else if (inputSchema instanceof Any)
+    return errors;
   //#endregion
   //#region Initial check
   if ((root instanceof Object) === false) {
@@ -325,6 +348,8 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
             const newContext = context.recurse(schemaChoiceOption);
             const errors = compareSchemaInternal(root, schemaChoiceOption, options, newContext, value);
             if (errors.ok) {
+              inputData.idBlock.tagNumber = 16;
+              inputData.idBlock.tagClass = 1;
               inputData.name = inputSchema.name;
               inputData.optional = inputSchema.optional;
             }
@@ -432,98 +457,77 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
       }
       //#endregion
       else {
-        //#region Special case for Repeated type of ASN.1 schema element
-        if (inputSchema.valueBlock.value[0] instanceof Repeated) {
-          const errors = compareSchemaInternal(root, inputSchema.valueBlock.value[0].value, options, context, inputValue[i]);
-          if (errors.failed) {
-            if (inputSchema.valueBlock.value[0].optional)
-              admission++;
-            else
-              return errors;
+        let inputObject = inputValue[i - admission];
+        let schema = inputSchema.valueBlock.value[i];
+
+        const newContext = context.recurse(schema);
+        if (!schema) {
+          // The input object exists but is not reference in the schema.
+          if (!options.allowLargerThanSchema) {
+            // This is not allowed, let´s throw an error
+            newContext.path += inputObject.idBlock.getDebug("-");
+            errors.push(new SchemaError(ESchemaError.ASN1_IS_LARGER_THAN_SCHEMA, newContext));
           }
+          return errors;
+        }
 
-          if ((NAME in inputSchema.valueBlock.value[0]) && (inputSchema.valueBlock.value[0].name.length > 0)) {
-            let arrayRoot: Record<string, any> = {};
-
-            if ((LOCAL in inputSchema.valueBlock.value[0]) && (inputSchema.valueBlock.value[0].local))
-              arrayRoot = inputData;
-            else
-              arrayRoot = root;
-
-            if (typeof arrayRoot[inputSchema.valueBlock.value[0].name] === "undefined")
-              arrayRoot[inputSchema.valueBlock.value[0].name] = [];
-
-            arrayRoot[inputSchema.valueBlock.value[0].name].push(inputValue[i]);
+        if (inputObject.idBlock.tagClass === 3 && inputObject.idBlock.tagNumber >= 0) {
+          // This is a context specific property (optional property)
+          // the type comes from the target field with optionalID === tagNumber
+          for (let j = nextOptional; j < maxLength; j++) {
+              const check = inputSchema.valueBlock.value[j];
+              if (check.idBlock.optionalID === inputObject.idBlock.tagNumber) {
+                nextOptional = j + 1;
+                schema = check;
+                // As we have a context specific attribute the type comes from the schema field
+                let newType: TnewAsnType | undefined;
+                if (schema instanceof Repeated)
+                  newType = typeStore.Sequence;
+                else
+                  newType = getTypeForIDBlock(schema.idBlock);
+                if (newType) {
+                  // Create the new object matching the type of the scheme for the context spcific parameter from the input
+                  const contextualElement = new newType();
+                  // Take over the name for reference
+                  contextualElement.name = schema.name;
+                  // Create the id block based on the schema information
+                  if (schema.idBlock.tagClass !== ETagClass.UNKNOWN)
+                    contextualElement.idBlock = new LocalIdentificationBlock(schema);
+                  // The id block may be different for this value especially if the context specific with a higer id used more than one byte.
+                  // So we calculate the required block length by converting to BER and ignoring the optionalID flag in the toBER calculation
+                  contextualElement.idBlock.blockLength = contextualElement.idBlock.toBER(true, true).byteLength;
+                  // The len block is the same as from the source, create a copy and set the same blockLength
+                  contextualElement.lenBlock = new LocalLengthBlock(inputObject);
+                  // The blocklength is not taken over from the input but is the same as in the original object so we just take it over
+                  contextualElement.lenBlock.blockLength = inputObject.lenBlock.blockLength;
+                  // Let´s take over the payload from the input parameter into the final parameter
+                  contextualElement.valueBeforeDecodeView = new Uint8Array(inputObject.valueBeforeDecodeView);
+                  // We need to tune the first byte as the type information has now changed from context specific + optionalID to universal + tag number (type)
+                  contextualElement.valueBeforeDecodeView[0] = contextualElement.idBlock.tagNumber;
+                  // Now we need to calculate the offset of the payload inside the source elements, It´s the source idblock length + the source len block length
+                  const offset = inputObject.lenBlock.blockLength + inputObject.idBlock.blockLength;
+                  const decoded = contextualElement.fromBER(contextualElement.valueBeforeDecodeView, offset, contextualElement.valueBeforeDecodeView.length);
+                  if (decoded) {
+                    inputObject = contextualElement;
+                    inputValue[i - admission] = contextualElement;
+                  }
+                }
+                break;
+              }
           }
         }
-        //#endregion
-        else {
-          let inputObject = inputValue[i - admission];
-          let schema = inputSchema.valueBlock.value[i];
 
-          const newContext = context.recurse(schema);
-          if (!schema) {
-            // The input object exists but is not reference in the schema.
-            if (!options.allowLargerThanSchema) {
-              // This is not allowed, let´s throw an error
-              newContext.path += inputObject.idBlock.getDebug("-");
-              errors.push(new SchemaError(ESchemaError.ASN1_IS_LARGER_THAN_SCHEMA, newContext));
-            }
-            return errors;
-          }
-
-          if (inputObject.idBlock.tagClass === 3 && inputObject.idBlock.tagNumber >= 0) {
-            // This is a context specific property (optional property)
-            // the type comes from the target field with optionalID === tagNumber
-            for (let j = nextOptional; j < maxLength; j++) {
-                const check = inputSchema.valueBlock.value[j];
-                if (check.idBlock.optionalID === inputObject.idBlock.tagNumber) {
-                  nextOptional = j + 1;
-                  schema = check;
-                  // As we have a context specific attribute the type comes from the schema field
-                  const newType = getTypeForIDBlock(schema.idBlock);
-                  if (newType) {
-                    // Create the new object matching the type of the scheme for the context spcific parameter from the input
-                    const contextualElement = new newType();
-                    // Create the id block based on the schema information
-                    contextualElement.idBlock = new LocalIdentificationBlock(schema);
-                    // Take over the name for reference
-                    contextualElement.name = schema.name;
-                    // The id block may be different for this value especially if the context specific with a higer id used more than one byte.
-                    // So we calculate the required block length by converting to BER and ignoring the optionalID flag in the toBER calculation
-                    contextualElement.idBlock.blockLength = contextualElement.idBlock.toBER(true, true).byteLength;
-                    // The len block is the same as from the source, create a copy and set the same blockLength
-                    contextualElement.lenBlock = new LocalLengthBlock(inputObject);
-                    // The blocklength is not taken over from the input but is the same as in the original object so we just take it over
-                    contextualElement.lenBlock.blockLength = inputObject.lenBlock.blockLength;
-                    // Let´s take over the payload from the input parameter into the final parameter
-                    contextualElement.valueBeforeDecodeView = new Uint8Array(inputObject.valueBeforeDecodeView);
-                    // We need to tune the first byte as the type information has now changed from context specific + optionalID to universal + tag number (type)
-                    contextualElement.valueBeforeDecodeView[0] = contextualElement.idBlock.tagNumber;
-                    // Now we need to calculate the offset of the payload inside the source elements, It´s the source idblock length + the source len block length
-                    const offset = inputObject.lenBlock.blockLength + inputObject.idBlock.blockLength;
-                    const decoded = contextualElement.fromBER(contextualElement.valueBeforeDecodeView, offset, contextualElement.valueBeforeDecodeView.length);
-                    if (decoded) {
-                      inputObject = contextualElement;
-                      inputValue[i - admission] = contextualElement;
-                    }
-                  }
-                  break;
-                }
-            }
-          }
-          const recursive_errors = compareSchemaInternal(root, schema, options, newContext, inputObject);
-          if(recursive_errors.failed) {
-            if (inputSchema.valueBlock.value[i].optional)
-              admission++;
-            else if(!options.continueOnError)
-              return recursive_errors;
-            else
-              errors.push(...recursive_errors);
-          } else {
-            inputObject.name = schema.name;
-            inputObject.optional = schema.optional;
-          }
+        const recursive_errors = compareSchemaInternal(root, schema, options, newContext, inputObject);
+        if(recursive_errors.failed) {
+          if (inputSchema.valueBlock.value[i].optional)
+            admission++;
+          else if(!options.continueOnError)
+            return recursive_errors;
+          else
+            errors.push(...recursive_errors);
+        } else {
+          inputObject.name = schema.name;
+          inputObject.optional = schema.optional;
         }
       }
     }

@@ -72,6 +72,7 @@ export interface TypeStore {
 }
 
 export enum ETagClass {
+  UNKNOWN = -1,
   UNIVERSAL = 1,
   APPLICATION = 2,
   CONTEXT_SPECIFIC = 3,
@@ -79,6 +80,7 @@ export enum ETagClass {
 }
 
 export enum EUniversalTagNumber {
+  unknown = -1,
   EndOfContent = 0,
   Boolean = 1,
   Integer = 2,

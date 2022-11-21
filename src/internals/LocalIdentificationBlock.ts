@@ -54,13 +54,13 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       this.isHexOnly = idBlock.isHexOnly ?? false;
       this.valueHexView = idBlock.valueHex ? pvtsutils.BufferSourceConverter.toUint8Array(idBlock.valueHex) : EMPTY_VIEW;
       //#endregion
-      this.tagClass = idBlock.tagClass ?? -1;
-      this.tagNumber = idBlock.tagNumber ?? -1;
+      this.tagClass = idBlock.tagClass ?? ETagClass.UNKNOWN;
+      this.tagNumber = idBlock.tagNumber ?? EUniversalTagNumber.unknown;
       this.isConstructed = idBlock.isConstructed ?? false;
       this.optionalID = idBlock.optionalID ?? -1;
     } else {
-      this.tagClass = -1;
-      this.tagNumber = -1;
+      this.tagClass = ETagClass.UNKNOWN;
+      this.tagNumber = EUniversalTagNumber.unknown;
       this.isConstructed = false;
       this.optionalID = -1;
     }
