@@ -6,12 +6,11 @@ import { Choice } from "./Choice";
 import { Repeated } from "./Repeated";
 import { Sequence } from "./Sequence";
 import { getTypeForIDBlock, localFromBER, TnewAsnType } from "./parser";
-import { AsnType, ETagClass, typeStore } from "./TypeStore";
+import { AsnType, ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 import { ILocalConstructedValueBlock } from "./internals/LocalConstructedValueBlock";
 import { LocalIdentificationBlock } from "./internals/LocalIdentificationBlock";
 import { LocalLengthBlock } from "./internals/LocalLengthBlock";
 import { BaseBlock } from "./BaseBlock";
-import { EUniversalTagNumber } from "../build";
 
 export type AsnSchemaType = AsnType | Any | Choice | Repeated;
 
