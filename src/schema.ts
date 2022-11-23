@@ -471,12 +471,20 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
         }
 
         if (inputObject.idBlock.tagClass === 3 && inputObject.idBlock.tagNumber >= 0) {
-          // This is a context specific property (optional property)
-          // the type comes from the target field with optionalID === tagNumber
-          for (let j = nextOptional; j < maxLength; j++) {
+          let maxOptional = maxLength;
+          let bFound = false;
+
+          // Maximum two loops if we start from nextOptional > 0 as we do not cover the region 0 to nextOptional - 1 with it
+          // This is needed if the optionals are not perfectly sorted from 0-n in the schema.
+          const iMax = nextOptional > 0 ? 2 : 1;
+          for(let iLoop = 0; iLoop < iMax; iLoop++) {
+            // This is a context specific property (optional property)
+            // the type comes from the target field with optionalID === tagNumber
+            for (let j = nextOptional; j < maxOptional; j++) {
               const check = inputSchema.valueBlock.value[j];
               if (check.idBlock.optionalID === inputObject.idBlock.tagNumber) {
                 nextOptional = j + 1;
+                bFound = true;
                 schema = check;
                 // As we have a context specific attribute the type comes from the schema field
                 let newType: TnewAsnType | undefined;
@@ -513,6 +521,20 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
                 }
                 break;
               }
+            }
+            if (bFound)
+              break;
+            else {
+              if(nextOptional > 0) {
+                // Optional was not found -> if we started from nextOptional == 0 we are done (then we made the whole loop)
+                // If we started from nextOptional > 0 we need to cover the area from 0 to nextoptional -1
+                maxOptional = nextOptional - 1;
+                nextOptional = 0;
+              } else {
+                // We looped from the beginning to the end
+                break;
+              }
+            }
           }
         }
 
