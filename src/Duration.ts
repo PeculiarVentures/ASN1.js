@@ -13,10 +13,8 @@ export class Duration extends Utf8String {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Duration};
 
   constructor(parameters: DurationParams = {}) {
+    Duration.mergeIDBlock(parameters, Duration.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = Duration.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Duration.defaultIDs.tagNumber;
   }
 
 }

@@ -14,10 +14,8 @@ export class GraphicString extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.GraphicString};
 
   constructor(parameters: GraphicStringParams = {}) {
+    GraphicString.mergeIDBlock(parameters, GraphicString.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = GraphicString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = GraphicString.defaultIDs.tagNumber;
   }
 
 }

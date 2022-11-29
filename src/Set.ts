@@ -14,10 +14,8 @@ export class Set extends Constructed {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Set};
 
   constructor(parameters: SetParams = {}) {
+    Set.mergeIDBlock(parameters, Set.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = Set.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Set.defaultIDs.tagNumber;
   }
 
 }

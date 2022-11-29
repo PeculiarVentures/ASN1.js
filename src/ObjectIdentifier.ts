@@ -34,10 +34,8 @@ export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock,
   }
 
   constructor(parameters: ObjectIdentifierParams = {}) {
+    ObjectIdentifier.mergeIDBlock(parameters, ObjectIdentifier.defaultIDs);
     super(parameters, LocalObjectIdentifierValueBlock);
-
-    this.idBlock.tagClass = ObjectIdentifier.defaultIDs.tagClass;
-    this.idBlock.tagNumber = ObjectIdentifier.defaultIDs.tagNumber;
   }
 
   protected override onAsciiEncoding(): string {

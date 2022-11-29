@@ -32,10 +32,8 @@ export class Boolean extends BaseBlock<LocalBooleanValueBlock, LocalBooleanValue
   public static override defaultIDs: IBaseIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Boolean};
 
   constructor(parameters: BooleanParams = {}) {
+    Boolean.mergeIDBlock(parameters, Boolean.defaultIDs);
     super(parameters, LocalBooleanValueBlock);
-
-    this.idBlock.tagClass = Boolean.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Boolean.defaultIDs.tagNumber;
   }
 
   protected override onAsciiEncoding(): string {

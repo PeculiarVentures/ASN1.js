@@ -15,10 +15,8 @@ export class EndOfContent extends BaseBlock<LocalEndOfContentValueBlock> {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.EndOfContent};
 
   constructor(parameters: EndOfContentParams = {}) {
+    EndOfContent.mergeIDBlock(parameters, EndOfContent.defaultIDs);
     super(parameters, LocalEndOfContentValueBlock);
-
-    this.idBlock.tagClass = EndOfContent.defaultIDs.tagClass;
-    this.idBlock.tagNumber = EndOfContent.defaultIDs.tagNumber;
   }
 
   public getValue(): null {

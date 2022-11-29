@@ -14,10 +14,8 @@ export class Sequence extends Constructed {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Sequence};
 
   constructor(parameters: SequenceParams = {}) {
+    Sequence.mergeIDBlock(parameters, Sequence.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = Sequence.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Sequence.defaultIDs.tagNumber;
   }
 
 }

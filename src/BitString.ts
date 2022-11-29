@@ -17,26 +17,12 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStrin
   public static override NAME = BIT_STRING_NAME;
   public static override defaultIDs: IBaseIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.BitString};
 
-  constructor({
-    idBlock = {},
-    lenBlock = {},
-    ...parameters
-  }: BitStringParams = {}) {
+  constructor(parameters: BitStringParams = {}) {
     parameters.isConstructed ??= !!parameters.value?.length;
-    super({
-      idBlock: {
-        isConstructed: parameters.isConstructed,
-        ...idBlock,
-      },
-      lenBlock: {
-        ...lenBlock,
-        isIndefiniteForm: !!parameters.isIndefiniteForm,
-      },
-      ...parameters,
-    }, LocalBitStringValueBlock);
-
-    this.idBlock.tagClass = BitString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = BitString.defaultIDs.tagNumber;
+    parameters.idBlock = {isConstructed: parameters.isConstructed};
+    parameters.lenBlock = {isIndefiniteForm: !!parameters.isIndefiniteForm};
+    BitString.mergeIDBlock(parameters, BitString.defaultIDs);
+    super(parameters, LocalBitStringValueBlock);
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {

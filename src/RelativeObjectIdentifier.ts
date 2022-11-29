@@ -35,10 +35,8 @@ export class RelativeObjectIdentifier extends BaseBlock<LocalRelativeObjectIdent
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.RelativeObjectIdentifier};
 
   constructor(parameters: RelativeObjectIdentifierParams = {}) {
+    RelativeObjectIdentifier.mergeIDBlock(parameters, RelativeObjectIdentifier.defaultIDs);
     super(parameters, LocalRelativeObjectIdentifierValueBlock);
-
-    this.idBlock.tagClass = RelativeObjectIdentifier.defaultIDs.tagClass;
-    this.idBlock.tagNumber = RelativeObjectIdentifier.defaultIDs.tagNumber;
   }
 
   protected override onAsciiEncoding(): string {

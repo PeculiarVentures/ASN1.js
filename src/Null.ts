@@ -16,10 +16,9 @@ export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Null};
 
   constructor(parameters: NullParams = {}) {
+    Null.mergeIDBlock(parameters, Null.defaultIDs);
     super(parameters, ValueBlock); // We will not have a call to "Null value block" because of specified FROM_BER and TO_BER functions
 
-    this.idBlock.tagClass = Null.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Null.defaultIDs.tagNumber;
   }
 
   public getValue(): null {

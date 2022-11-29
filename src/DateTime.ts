@@ -14,10 +14,8 @@ export class DateTime extends Utf8String {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.DateTime};
 
   constructor(parameters: DateTimeParams = {}) {
+    DateTime.mergeIDBlock(parameters, DateTime.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = DateTime.defaultIDs.tagClass;
-    this.idBlock.tagNumber = DateTime.defaultIDs.tagNumber;
   }
 
 }

@@ -14,10 +14,8 @@ export class PrintableString extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.PrintableString};
 
   constructor(parameters: PrintableStringParams = {}) {
+    PrintableString.mergeIDBlock(parameters, PrintableString.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = PrintableString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = PrintableString.defaultIDs.tagNumber;
   }
 
 }

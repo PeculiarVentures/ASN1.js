@@ -151,10 +151,13 @@ context("ASN.1:2008 TestSuite Tests", () => {
 
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
     assert.ok(asn1.result instanceof asn1js.Integer, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
-    assert.equal(asn1.result.valueBlock.isHexOnly, true, "Value block value must be \"hex only\"");
-    assert.equal(asn1.result.valueBlock.warnings.length, 1, "Should just one warning in value block");
-    assert.equal(asn1.result.valueBlock.warnings[0], "Too big Integer for decoding, hex only", "Text of the warning in length block does not match");
-    assert.equal(asn1.result.valueBlock.valueHexView.byteLength, 9, "Value block hex value must be 9 in length");
+    /*
+      ASN1 does not define a max length for integer values, so the testcase is rather
+      assert.equal(asn1.result.valueBlock.isHexOnly, true, "Value block value must be \"hex only\"");
+      assert.equal(asn1.result.valueBlock.warnings.length, 1, "Should just one warning in value block");
+      assert.equal(asn1.result.valueBlock.warnings[0], "Too big Integer for decoding, hex only", "Text of the warning in length block does not match");
+      assert.equal(asn1.result.valueBlock.valueHexView.byteLength, 9, "Value block hex value must be 9 in length");
+    */
   });
 
   it("Test Case #21", () => {

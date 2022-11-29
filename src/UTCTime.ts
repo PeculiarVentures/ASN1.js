@@ -44,6 +44,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     valueDate,
     ...parameters
   }: UTCTimeParams = {}) {
+    UTCTime.mergeIDBlock(parameters, UTCTime.defaultIDs);
     super(parameters);
 
     this.year = 0;
@@ -69,8 +70,6 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
       this.valueBlock.valueHexView = new Uint8Array(this.toBuffer());
     }
     //#endregion
-    this.idBlock.tagClass = UTCTime.defaultIDs.tagClass;
-    this.idBlock.tagNumber = UTCTime.defaultIDs.tagNumber;
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {

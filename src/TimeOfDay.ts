@@ -14,10 +14,8 @@ export class TimeOfDay extends Utf8String {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.TimeOfDay};
 
   constructor(parameters: TimeOfDayParams = {}) {
+    TimeOfDay.mergeIDBlock(parameters, TimeOfDay.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = TimeOfDay.defaultIDs.tagClass;
-    this.idBlock.tagNumber = TimeOfDay.defaultIDs.tagNumber;
   }
 
 }

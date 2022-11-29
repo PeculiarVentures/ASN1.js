@@ -18,10 +18,8 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Integer};
 
   constructor(parameters: IntegerParams = {}) {
+    Integer.mergeIDBlock(parameters, Integer.defaultIDs);
     super(parameters, LocalIntegerValueBlock);
-
-    this.idBlock.tagClass = Integer.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Integer.defaultIDs.tagNumber;
   }
 
   public getValue(): number {

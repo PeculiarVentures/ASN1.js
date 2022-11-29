@@ -13,13 +13,9 @@ export class UniversalString extends LocalUniversalStringValueBlock {
   public static override NAME = "UniversalString";
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.UniversalString};
 
-  constructor({
-    ...parameters
-  }: UniversalStringParams = {}) {
+  constructor(parameters: UniversalStringParams = {}) {
+    UniversalString.mergeIDBlock(parameters, UniversalString.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = UniversalString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = UniversalString.defaultIDs.tagNumber;
   }
 
 }

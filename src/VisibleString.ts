@@ -14,10 +14,8 @@ export class VisibleString extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.VisibleString};
 
   constructor(parameters: VisibleStringParams = {}) {
+    VisibleString.mergeIDBlock(parameters, VisibleString.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = VisibleString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = VisibleString.defaultIDs.tagNumber;
   }
 
 }

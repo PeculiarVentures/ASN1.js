@@ -14,10 +14,8 @@ export class Enumerated extends Integer {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Enumerated};
 
   constructor(parameters: EnumeratedParams = {}) {
+    Enumerated.mergeIDBlock(parameters, Enumerated.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = Enumerated.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Enumerated.defaultIDs.tagNumber;
   }
 
 }

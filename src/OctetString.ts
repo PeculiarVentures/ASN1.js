@@ -18,26 +18,14 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
   public static override NAME = OCTET_STRING_NAME;
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.OctetString};
 
-  constructor({
-    idBlock = {},
-    lenBlock = {},
-    ...parameters
-  }: OctetStringParams = {}) {
+  constructor(parameters: OctetStringParams = {}) {
     parameters.isConstructed ??= !!parameters.value?.length;
-    super({
-      idBlock: {
-        isConstructed: parameters.isConstructed,
-        ...idBlock,
-      },
-      lenBlock: {
-        ...lenBlock,
-        isIndefiniteForm: !!parameters.isIndefiniteForm,
-      },
-      ...parameters,
-    }, LocalOctetStringValueBlock);
-
-    this.idBlock.tagClass = OctetString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = OctetString.defaultIDs.tagNumber;
+    OctetString.mergeIDBlock(parameters, OctetString.defaultIDs);
+    parameters.idBlock ||= {};
+    parameters.lenBlock ||= {};
+    parameters.idBlock.isConstructed = parameters.isConstructed;
+    parameters.lenBlock.isIndefiniteForm = !!parameters.isIndefiniteForm;
+    super(parameters, LocalOctetStringValueBlock);
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {

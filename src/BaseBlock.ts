@@ -172,10 +172,10 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
   }
 
   /**
-    * Retrieve the tag type (universal object type) of this object
-    *
-    * @returns the universal tagNumber if the class is universal, otherwise undefined
-    */
+   * Retrieve the tag type (universal object type) of this object
+   *
+   * @returns the universal tagNumber if the class is universal, otherwise undefined
+   */
   public getUniversalTagNumber(): EUniversalTagNumber | undefined{
     if (this.idBlock.tagClass === ETagClass.UNIVERSAL)
       return this.idBlock.tagNumber;
@@ -183,10 +183,10 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
   }
 
   /**
-    * Retrieve the tag type (universal object type) of this object
-    *
-    * @returns the universal tagNumber if the class is universal, otherwise undefined
-    */
+   * Retrieve the tag type (universal object type) of this object
+   *
+   * @returns the universal tagNumber if the class is universal, otherwise undefined
+   */
   public getAsSequence(): Sequence | undefined{
     if (this.idBlock.tagClass === ETagClass.UNIVERSAL && this.idBlock.tagNumber === EUniversalTagNumber.Sequence)
       return this as unknown as Sequence;
@@ -194,14 +194,26 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
   }
 
   /**
-    * Retrieve the tag type (universal object type) of this object
-    *
-    * @returns the universal tagNumber if the class is universal, otherwise undefined
-    */
+   * Retrieve the tag type (universal object type) of this object
+   *
+   * @returns the universal tagNumber if the class is universal, otherwise undefined
+   */
   public getAsSet(): Sequence | undefined{
     if (this.idBlock.tagClass === ETagClass.UNIVERSAL && this.idBlock.tagNumber === EUniversalTagNumber.Set)
       return this as unknown as Set;
     return undefined;
+  }
+
+  /**
+   * Merges baseID tagClass and tagNumber into params if they have not been already set
+   */
+  public static mergeIDBlock(params: BaseBlockParams, baseIDs: IBaseIDs): void {
+    if (!params.idBlock)
+      params.idBlock = {};
+    if (params.idBlock.tagClass === undefined)
+      params.idBlock.tagClass = baseIDs.tagClass;
+    if (params.idBlock.tagNumber === undefined)
+      params.idBlock.tagNumber = baseIDs.tagNumber;
   }
 }
 

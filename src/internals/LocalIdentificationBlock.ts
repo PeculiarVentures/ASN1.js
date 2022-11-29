@@ -7,14 +7,12 @@ import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
 import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
 import { checkBufferParams } from "./utils";
 
-
 export interface IBaseIDs {
   // The class of the asn1 object
   tagClass: ETagClass;
   // The tag number inside the class for the asn1 object
   tagNumber: EUniversalTagNumber;
 }
-
 
 export interface ILocalIdentificationBlock extends IBaseIDs {
   // True if this is a constructed object

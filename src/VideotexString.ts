@@ -14,10 +14,8 @@ export class VideotexString extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.VideotexString};
 
   constructor(parameters: VideotexStringParams = {}) {
+    VideotexString.mergeIDBlock(parameters, VideotexString.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = VideotexString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = VideotexString.defaultIDs.tagNumber;
   }
 
 }

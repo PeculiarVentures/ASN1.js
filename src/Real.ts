@@ -18,10 +18,8 @@ export class Real extends BaseBlock<LocalRealValueBlock, LocalRealValueBlockJson
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Real};
 
   constructor(parameters: RealParams = {}) {
+    Real.mergeIDBlock(parameters, Real.defaultIDs);
     super(parameters, LocalRealValueBlock);
-
-    this.idBlock.tagClass = Real.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Real.defaultIDs.tagNumber;
   }
 
   public getValue(): number {

@@ -14,10 +14,8 @@ export class NumericString extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.NumericString};
 
   constructor(parameters: NumericStringParams = {}) {
+    NumericString.mergeIDBlock(parameters, NumericString.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = NumericString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = NumericString.defaultIDs.tagNumber;
   }
 
 }

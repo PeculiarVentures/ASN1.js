@@ -24,12 +24,10 @@ export class GeneralizedTime extends UTCTime {
   public millisecond: number;
 
   constructor(parameters: GeneralizedTimeParams = {}) {
+    GeneralizedTime.mergeIDBlock(parameters, GeneralizedTime.defaultIDs);
     super(parameters);
 
     this.millisecond ??= 0;
-
-    this.idBlock.tagClass = GeneralizedTime.defaultIDs.tagClass;
-    this.idBlock.tagNumber = GeneralizedTime.defaultIDs.tagNumber;
   }
 
   public override fromDate(inputDate: Date): void {

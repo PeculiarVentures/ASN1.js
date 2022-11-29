@@ -14,10 +14,8 @@ export class CharacterString extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.CharacterString};
 
   constructor(parameters: CharacterStringParams = {}) {
+    CharacterString.mergeIDBlock(parameters, CharacterString.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = CharacterString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = CharacterString.defaultIDs.tagNumber;
   }
 
 }

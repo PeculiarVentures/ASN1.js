@@ -14,10 +14,8 @@ export class IA5String extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.IA5String};
 
   constructor(parameters: IA5StringParams = {}) {
+    IA5String.mergeIDBlock(parameters, IA5String.defaultIDs);
     super(parameters);
-
-    this.idBlock.tagClass = IA5String.defaultIDs.tagClass;
-    this.idBlock.tagNumber = IA5String.defaultIDs.tagNumber;
   }
 
 }
