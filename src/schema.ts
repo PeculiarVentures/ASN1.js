@@ -75,7 +75,7 @@ export class SchemaContext {
 }
 
 export enum ESchemaError {
-	NO_ERROR = 0,
+  NO_ERROR = 0,
   // The provided asn1data is invalid
   INVALID_ASN1DATA = 1,
   // The provided schema data is invalid
@@ -110,6 +110,50 @@ export enum ESchemaError {
   NO_MATCHING_DATA_FOR_CHOICE = 17,
   // The ASN1 structure is larger than the schema
   ASN1_IS_LARGER_THAN_SCHEMA = 18
+  // If you add new Values !!! Add them to the getTextForError as well !!!
+}
+
+function getTextForError(error: ESchemaError): string {
+  switch (error) {
+    case ESchemaError.NO_ERROR:
+      return "no error";
+    case ESchemaError.INVALID_ASN1DATA:
+      return "The provided asn1data is invalid";
+    case ESchemaError.INVALID_SCHEMADATA:
+      return "The provided schema data is invalid";
+    case ESchemaError.MISSING_TAG_CLASS_IN_SCHEMA:
+      return "The schema attribute has no tag class";
+    case ESchemaError.MISMATCHING_TAG_CLASS:
+      return "Mismatching tag class between asn1 and schema";
+    case ESchemaError.MISSING_TAG_NUMBER_IN_SCHEMA:
+      return "The schema attribute has no tag number";
+    case ESchemaError.MISMATCHING_TAG_NUMBER:
+      return "Mismatching tag number between asn1 and schema";
+    case ESchemaError.MISSING_CONSTRUCTED_FLAG_IN_SCHEMA:
+      return "The schema attribute has no constructed flag";
+    case ESchemaError.MISMATCHING_CONSTRUCTED_FLAG:
+      return "Mismatching constructed flag between asn1 and schema";
+    case ESchemaError.MISSING_ISHEXONLY_FLAG_IN_SCHEMA:
+      return "The schema attribute has no constructed flag";
+    case ESchemaError.MISMATCHING_ISHEXONLY_FLAG:
+      return "Mismatching constructed flag between asn1 and schema";
+    case ESchemaError.MISSING_HEXVIEW_IN_SCHEMA:
+      return "The schema attribute has hexview flag";
+    case ESchemaError.MISMATCHING_HEX_VIEW_LENGTH:
+      return "The hex view length is not matching between the asn1 and the schema";
+    case ESchemaError.MISMATCHING_HEX_VIEW_DATA:
+      return "The hex view data is not matching between the asn1 and the schema";
+    case ESchemaError.MISMATCHING_OBJECT_LENGTH:
+      return "The object length is mismatching between the asn1 and the schema";
+    case ESchemaError.FAILED_TO_BER_DECODE_PRIMITIVE_DATA:
+      return "Failed to decode primitive data";
+    case ESchemaError.NO_MATCHING_DATA_FOR_CHOICE:
+      return "Failed to match asn1 data with choice from the schema";
+    case ESchemaError.ASN1_IS_LARGER_THAN_SCHEMA:
+      return "The ASN1 structure is larger than the schema";
+    default:
+      return `Unknown error: ${error}`;
+  }
 }
 
 /**
@@ -118,10 +162,13 @@ export enum ESchemaError {
 export class SchemaError {
   constructor(error: ESchemaError, context = new SchemaContext()) {
     this.error = error;
+    this.errorText = getTextForError(error);
     this.context = context.path;
   }
   // The schema error (check enum for details)
   public error: ESchemaError;
+  // The human readable error string (based on the error value)
+  public errorText: string;
   // Context in the tree (which parameter caused the issue)
   public context: string;
 }
@@ -320,17 +367,6 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
   if (inputSchema.idBlock.tagNumber !== inputData.idBlock.tagNumber) {
     const failed = true;
     if(inputData.idBlock.tagClass === ETagClass.CONTEXT_SPECIFIC) {
-      // Choice elements may also get encoded context specific.
-      // In such a case the caller has specified the choise option using the tag number
-      // The tag number tells which option the sender has chosen from the choise options in the schem
-      const values = (inputData.valueBlock as ILocalConstructedValueBlock).value;
-      let value: AsnType | undefined;
-      if(values.length === 1)
-        value = values[0] as AsnType;
-      if(!value) {
-        errors.push(new SchemaError(ESchemaError.INVALID_ASN1DATA, context));
-        return errors;
-      }
       // Only works if the constructed has a single value
       const schemaValue = (inputSchema.valueBlock as ILocalConstructedValueBlock).value;
       if (schemaValue.length !== 1) {
@@ -344,15 +380,18 @@ function compareSchemaInternal(root: AsnType, inputSchema: AsnSchemaType, option
         for (const schemaChoiceOption of schemaChoice.value) {
           if (schemaChoiceOption.idBlock.optionalID !== undefined && requestedOptionID === schemaChoiceOption.idBlock.optionalID) {
             // Choice option found -> thus we did not fail we can now validate the schema
-            const newContext = context.recurse(schemaChoiceOption);
-            const errors = compareSchemaInternal(root, schemaChoiceOption, options, newContext, value);
-            if (errors.ok) {
-              inputData.idBlock.tagNumber = 16;
-              inputData.idBlock.tagClass = 1;
-              inputData.name = inputSchema.name;
-              inputData.optional = inputSchema.optional;
+            // We take over tagclass and tagnumber from the scheme and overwrite the current choice tagnumber and class
+            const savedTagClass = inputData.idBlock.tagClass;
+            const savedTagNumebr = inputData.idBlock.tagNumber;
+            inputData.idBlock.tagClass = schemaChoiceOption.idBlock.tagClass;
+            inputData.idBlock.tagNumber = schemaChoiceOption.idBlock.tagNumber;            const newContext = context.recurse(schemaChoiceOption);
+            const errors = compareSchemaInternal(root, schemaChoiceOption, options, newContext, inputData);
+            if (errors.failed) {
+              // On fail we restore the old values
+              inputData.idBlock.tagClass = savedTagClass;
+              inputData.idBlock.tagNumber = savedTagNumebr;
             }
-            return errors;
+           return errors;
           }
         }
       }
