@@ -8,9 +8,6 @@ import { ViewWriter } from "./ViewWriter";
 import { ValueBlock, ValueBlockJson } from "./ValueBlock";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./internals/constants";
 import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
-import { Sequence } from "./Sequence";
-import { Set } from "./Set";
-import { Constructed } from "./Constructed";
 
 export interface IBaseBlock {
   name: string;
@@ -180,39 +177,6 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
   public getUniversalTagNumber(): EUniversalTagNumber | undefined{
     if (this.idBlock.tagClass === ETagClass.UNIVERSAL)
       return this.idBlock.tagNumber;
-    return undefined;
-  }
-
-  /**
-   * Retrieve ourself as sequence (if applicapable)
-   *
-   * @returns the Sequence object or undefined if not applicapable
-   */
-  public getAsSequence(): Sequence | undefined {
-    if(Sequence.typeGuard(this))
-      return this as Sequence;
-    return undefined;
-  }
-
-  /**
-   * Retrieve ourself as Set (if applicapable)
-   *
-   * @returns the Set object or undefined if not applicapable
-   */
-  public getAsSet(): Set | undefined{
-    if(Set.typeGuard(this))
-      return this as Set;
-    return undefined;
-  }
-
-  /**
-   * Retrieve ourself as Set (if applicapable)
-   *
-   * @returns the Set object or undefined if not applicapable
-   */
-  public getAsConstructed(): Constructed | undefined{
-    if (this.idBlock.isConstructed)
-      return this as unknown as Constructed;
     return undefined;
   }
 
