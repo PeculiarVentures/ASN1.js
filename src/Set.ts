@@ -18,4 +18,11 @@ export class Set extends Constructed {
     super(parameters);
   }
 
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is Set {
+    return this.matches(obj);
+  }
+
 }

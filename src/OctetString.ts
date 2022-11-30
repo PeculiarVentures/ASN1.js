@@ -74,7 +74,7 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
    * @returns Array buffer
    * @since 3.0.0
    */
-  public override getValue(): ArrayBuffer {
+  public getValue(): ArrayBuffer {
     if (!this.idBlock.isConstructed)
       return this.valueBlock.valueHexView.slice();
 
@@ -86,6 +86,13 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
     }
 
     return pvtsutils.BufferSourceConverter.concat(array);
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is OctetString {
+    return this.matches(obj);
   }
 
 }

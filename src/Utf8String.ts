@@ -20,4 +20,11 @@ export class Utf8String extends LocalUtf8StringValueBlock {
     super(parameters);
   }
 
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is Utf8String {
+    return this.matches(obj);
+  }
+
 }

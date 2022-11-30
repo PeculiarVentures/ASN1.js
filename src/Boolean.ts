@@ -16,7 +16,7 @@ export class Boolean extends BaseBlock<LocalBooleanValueBlock, LocalBooleanValue
    * Gets value
    * @since 3.0.0
    */
-  public override getValue(): boolean {
+  public getValue(): boolean {
     return this.valueBlock.value;
   }
   /**
@@ -38,6 +38,14 @@ export class Boolean extends BaseBlock<LocalBooleanValueBlock, LocalBooleanValue
 
   protected override onAsciiEncoding(): string {
     return `${(this.constructor as typeof Boolean).NAME} : ${this.getValue}`;
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  public static typeGuard(obj: unknown | undefined): obj is Boolean {
+    return this.matches(obj);
   }
 
 }

@@ -22,7 +22,7 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
     super(parameters, LocalIntegerValueBlock);
   }
 
-  public override getValue(): number {
+  public getValue(): number {
     return this.valueBlock.value;
   }
 
@@ -105,6 +105,13 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
 
   protected override onAsciiEncoding(): string {
     return `${(this.constructor as typeof Integer).NAME} : ${this.valueBlock.toString()}`;
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is Integer {
+    return this.matches(obj);
   }
 
 }

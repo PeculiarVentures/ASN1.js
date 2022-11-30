@@ -18,4 +18,11 @@ export class Enumerated extends Integer {
     super(parameters);
   }
 
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static override typeGuard(obj: unknown | undefined): obj is Enumerated {
+    return this.matches(obj);
+  }
+
 }

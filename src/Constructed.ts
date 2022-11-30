@@ -96,7 +96,7 @@ export class Constructed extends BaseBlock<LocalConstructedValueBlock, LocalCons
     return undefined;
   }
 
- public override getValue(): BaseBlock[] {
+ public getValue(): BaseBlock[] {
     return this.valueBlock.value;
   }
 

@@ -21,7 +21,7 @@ export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
 
   }
 
-  public override getValue(): null {
+  public getValue(): null {
     return null;
   }
 
@@ -68,6 +68,13 @@ export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
 
   protected override onAsciiEncoding(): string {
     return `${(this.constructor as typeof Null).NAME}`;
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is Null {
+    return this.matches(obj);
   }
 
 }

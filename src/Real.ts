@@ -22,7 +22,7 @@ export class Real extends BaseBlock<LocalRealValueBlock, LocalRealValueBlockJson
     super(parameters, LocalRealValueBlock);
   }
 
-  public override getValue(): number {
+  public getValue(): number {
     return this.valueBlock.value;
   }
 
@@ -106,6 +106,13 @@ export class Real extends BaseBlock<LocalRealValueBlock, LocalRealValueBlockJson
 
   protected override onAsciiEncoding(): string {
     return `${(this.constructor as typeof Real).NAME} : ${this.valueBlock.toString()}`;
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is Real {
+    return this.matches(obj);
   }
 
 }

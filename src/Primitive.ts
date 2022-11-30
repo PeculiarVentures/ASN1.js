@@ -19,7 +19,7 @@ export class Primitive extends BaseBlock<LocalPrimitiveValueBlock, LocalPrimitiv
     this.idBlock.isConstructed = false;
   }
 
-  public override getValue(): null {
+  public getValue(): null {
     return null;
   }
 

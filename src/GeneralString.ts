@@ -18,4 +18,11 @@ export class GeneralString extends LocalSimpleStringBlock {
     super(parameters);
   }
 
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is GeneralString {
+    return this.matches(obj);
+  }
+
 }

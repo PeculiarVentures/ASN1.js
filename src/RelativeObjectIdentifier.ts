@@ -18,7 +18,7 @@ export class RelativeObjectIdentifier extends BaseBlock<LocalRelativeObjectIdent
    * Gets string representation of Relative Object Identifier
    * @since 3.0.0
    */
-  public override getValue(): string {
+  public getValue(): string {
     return this.valueBlock.toString();
   }
 
@@ -48,6 +48,13 @@ export class RelativeObjectIdentifier extends BaseBlock<LocalRelativeObjectIdent
       ...super.toJSON(),
       value: this.getValue(),
     };
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is RelativeObjectIdentifier {
+    return this.matches(obj);
   }
 
 }

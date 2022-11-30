@@ -258,4 +258,11 @@ export class GeneralizedTime extends UTCTime {
     };
   }
 
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static override typeGuard(obj: unknown | undefined): obj is GeneralizedTime {
+    return this.matches(obj);
+  }
+
 }

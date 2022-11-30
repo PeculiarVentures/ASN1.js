@@ -10,6 +10,7 @@ import { EMPTY_BUFFER, EMPTY_STRING } from "./internals/constants";
 import { ETagClass, EUniversalTagNumber, typeStore } from "./TypeStore";
 import { Sequence } from "./Sequence";
 import { Set } from "./Set";
+import { Constructed } from "./Constructed";
 
 export interface IBaseBlock {
   name: string;
@@ -183,35 +184,38 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
   }
 
   /**
-   * Retrieve the tag type (universal object type) of this object
+   * Retrieve ourself as sequence (if applicapable)
    *
-   * @returns the universal tagNumber if the class is universal, otherwise undefined
+   * @returns the Sequence object or undefined if not applicapable
    */
-  public getAsSequence(): Sequence | undefined{
-    if (this.idBlock.tagClass === ETagClass.UNIVERSAL && this.idBlock.tagNumber === EUniversalTagNumber.Sequence)
-      return this as unknown as Sequence;
+  public getAsSequence(): Sequence | undefined {
+    if(Sequence.typeGuard(this))
+      return this as Sequence;
     return undefined;
   }
 
   /**
-   * Retrieve the tag type (universal object type) of this object
+   * Retrieve ourself as Set (if applicapable)
    *
-   * @returns the universal tagNumber if the class is universal, otherwise undefined
+   * @returns the Set object or undefined if not applicapable
    */
-  public getAsSet(): Sequence | undefined{
-    if (this.idBlock.tagClass === ETagClass.UNIVERSAL && this.idBlock.tagNumber === EUniversalTagNumber.Set)
-      return this as unknown as Set;
+  public getAsSet(): Set | undefined{
+    if(Set.typeGuard(this))
+      return this as Set;
     return undefined;
   }
-
 
   /**
-   * String value
-   * @since 3.0.0
+   * Retrieve ourself as Set (if applicapable)
+   *
+   * @returns the Set object or undefined if not applicapable
    */
-  public getValue(): unknown {
+  public getAsConstructed(): Constructed | undefined{
+    if (this.idBlock.isConstructed)
+      return this as unknown as Constructed;
     return undefined;
   }
+
   /**
    * Merges baseID tagClass and tagNumber into params if they have not been already set
    */
@@ -223,6 +227,21 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
     if (params.idBlock.tagNumber === undefined)
       params.idBlock.tagNumber = baseIDs.tagNumber;
   }
+
+  /**
+   * Implements the core typeguard check function
+   */
+  protected static matches(obj: unknown): boolean {
+    if (!obj)
+      return false;
+    const comp = (obj as BaseBlock);
+    try {
+      return comp.idBlock.tagClass === this.defaultIDs.tagClass && comp.idBlock.tagNumber === this.defaultIDs.tagNumber;
+    } catch (error) {
+      return false;
+    }
+  }
+
 }
 
 /**

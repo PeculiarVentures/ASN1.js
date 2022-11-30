@@ -169,4 +169,11 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     };
   }
 
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static override typeGuard(obj: unknown | undefined): obj is UTCTime {
+    return this.matches(obj);
+  }
+
 }

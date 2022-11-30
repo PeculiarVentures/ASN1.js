@@ -19,12 +19,19 @@ export class EndOfContent extends BaseBlock<LocalEndOfContentValueBlock> {
     super(parameters, LocalEndOfContentValueBlock);
   }
 
-  public override getValue(): null {
+  public getValue(): null {
     return null;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   public setValue(value: number): void {
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is EndOfContent {
+    return this.matches(obj);
   }
 
 }

@@ -18,4 +18,11 @@ export class BmpString extends LocalBmpStringValueBlock {
     super(parameters);
   }
 
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is BmpString {
+    return this.matches(obj);
+  }
+
 }

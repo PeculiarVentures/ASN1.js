@@ -18,4 +18,14 @@ export class VisibleString extends LocalSimpleStringBlock {
     super(parameters);
   }
 
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is VisibleString {
+    if (!obj)
+      return false;
+    const compare = obj as VisibleString;
+    return VisibleString.defaultIDs.tagClass === compare.idBlock.tagClass && VisibleString.defaultIDs.tagNumber === compare.idBlock.tagNumber;
+  }
+
 }
