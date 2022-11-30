@@ -22,7 +22,7 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
     super(parameters, LocalIntegerValueBlock);
   }
 
-  public getValue(): number {
+  public override getValue(): number {
     return this.valueBlock.value;
   }
 

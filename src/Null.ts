@@ -21,7 +21,7 @@ export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
 
   }
 
-  public getValue(): null {
+  public override getValue(): null {
     return null;
   }
 

@@ -74,7 +74,7 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
    * @returns Array buffer
    * @since 3.0.0
    */
-  public getValue(): ArrayBuffer {
+  public override getValue(): ArrayBuffer {
     if (!this.idBlock.isConstructed)
       return this.valueBlock.valueHexView.slice();
 

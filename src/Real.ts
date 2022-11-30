@@ -22,7 +22,7 @@ export class Real extends BaseBlock<LocalRealValueBlock, LocalRealValueBlockJson
     super(parameters, LocalRealValueBlock);
   }
 
-  public getValue(): number {
+  public override getValue(): number {
     return this.valueBlock.value;
   }
 

@@ -14,7 +14,7 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
    * String value
    * @since 3.0.0
    */
-  public getValue(): string {
+  public override getValue(): string {
     return this.valueBlock.value;
   }
   /**

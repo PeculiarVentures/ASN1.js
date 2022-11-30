@@ -204,6 +204,14 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
     return undefined;
   }
 
+
+  /**
+   * String value
+   * @since 3.0.0
+   */
+  public getValue(): unknown {
+    return undefined;
+  }
   /**
    * Merges baseID tagClass and tagNumber into params if they have not been already set
    */

@@ -19,7 +19,7 @@ export class EndOfContent extends BaseBlock<LocalEndOfContentValueBlock> {
     super(parameters, LocalEndOfContentValueBlock);
   }
 
-  public getValue(): null {
+  public override getValue(): null {
     return null;
   }
 

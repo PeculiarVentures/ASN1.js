@@ -16,7 +16,7 @@ export class Boolean extends BaseBlock<LocalBooleanValueBlock, LocalBooleanValue
    * Gets value
    * @since 3.0.0
    */
-  public getValue(): boolean {
+  public override getValue(): boolean {
     return this.valueBlock.value;
   }
   /**

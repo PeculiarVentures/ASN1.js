@@ -20,7 +20,7 @@ export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock,
    * Gets string representation of Object Identifier
    * @since 3.0.0
    */
-  public getValue(): string {
+  public override getValue(): string {
     return this.valueBlock.toString();
   }
 

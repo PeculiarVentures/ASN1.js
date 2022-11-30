@@ -18,7 +18,7 @@ export class RelativeObjectIdentifier extends BaseBlock<LocalRelativeObjectIdent
    * Gets string representation of Relative Object Identifier
    * @since 3.0.0
    */
-  public getValue(): string {
+  public override getValue(): string {
     return this.valueBlock.toString();
   }
 
