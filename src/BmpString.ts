@@ -13,13 +13,16 @@ export class BmpString extends LocalBmpStringValueBlock {
   public static override NAME = "BMPString";
   public static override defaultIDs: IBaseIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.BmpString};
 
-  constructor({
-    ...parameters
-  }: BmpStringParams = {}) {
+  constructor(parameters: BmpStringParams = {}) {
+    BmpString.mergeIDBlock(parameters, BmpString.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = BmpString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = BmpString.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is BmpString {
+    return this.matches(obj);
   }
 
 }

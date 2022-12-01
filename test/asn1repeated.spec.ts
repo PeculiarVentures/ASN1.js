@@ -72,7 +72,11 @@ context("Asn1Repeated implementation tests", () => {
         const result = asn1js.verifySchema(data, schema);
         assert.equal(result.verified, true, "Schema verification failed");
         if (result.verified) {
-            const sequence = result.result.getAsSequence();
+            const sequence = result.result;
+            if(!asn1js.Sequence.typeGuard(sequence)) {
+                assert("Result is not a sequence");
+                return;
+            }
             assert.equal(sequence?.name, "mandatory", "failed");
             assert.equal(sequence?.valueBlock.value.length, 2, "failed");
         }

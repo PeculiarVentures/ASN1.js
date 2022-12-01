@@ -34,10 +34,8 @@ export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock,
   }
 
   constructor(parameters: ObjectIdentifierParams = {}) {
+    ObjectIdentifier.mergeIDBlock(parameters, ObjectIdentifier.defaultIDs);
     super(parameters, LocalObjectIdentifierValueBlock);
-
-    this.idBlock.tagClass = ObjectIdentifier.defaultIDs.tagClass;
-    this.idBlock.tagNumber = ObjectIdentifier.defaultIDs.tagNumber;
   }
 
   protected override onAsciiEncoding(): string {
@@ -49,6 +47,13 @@ export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock,
       ...super.toJSON(),
       value: this.getValue(),
     };
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is ObjectIdentifier {
+    return this.matches(obj);
   }
 
 }

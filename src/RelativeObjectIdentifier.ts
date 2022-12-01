@@ -35,10 +35,8 @@ export class RelativeObjectIdentifier extends BaseBlock<LocalRelativeObjectIdent
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.RelativeObjectIdentifier};
 
   constructor(parameters: RelativeObjectIdentifierParams = {}) {
+    RelativeObjectIdentifier.mergeIDBlock(parameters, RelativeObjectIdentifier.defaultIDs);
     super(parameters, LocalRelativeObjectIdentifierValueBlock);
-
-    this.idBlock.tagClass = RelativeObjectIdentifier.defaultIDs.tagClass;
-    this.idBlock.tagNumber = RelativeObjectIdentifier.defaultIDs.tagNumber;
   }
 
   protected override onAsciiEncoding(): string {
@@ -50,6 +48,13 @@ export class RelativeObjectIdentifier extends BaseBlock<LocalRelativeObjectIdent
       ...super.toJSON(),
       value: this.getValue(),
     };
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is RelativeObjectIdentifier {
+    return this.matches(obj);
   }
 
 }

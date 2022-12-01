@@ -14,10 +14,15 @@ export class CharacterString extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.CharacterString};
 
   constructor(parameters: CharacterStringParams = {}) {
+    CharacterString.mergeIDBlock(parameters, CharacterString.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = CharacterString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = CharacterString.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is CharacterString {
+    return this.matches(obj);
   }
 
 }

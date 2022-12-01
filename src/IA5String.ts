@@ -14,10 +14,15 @@ export class IA5String extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.IA5String};
 
   constructor(parameters: IA5StringParams = {}) {
+    IA5String.mergeIDBlock(parameters, IA5String.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = IA5String.defaultIDs.tagClass;
-    this.idBlock.tagNumber = IA5String.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is IA5String {
+    return this.matches(obj);
   }
 
 }

@@ -38,9 +38,10 @@ function hex2buf(hex: string): Uint8Array {
  * @param value0 - an optional paramter to embed into the sequence
  * @param value1 - an optional paramter to embed into the sequence
  * @param value2 - an optional paramter to embed into the sequence
+ * @param brokensorted - to test invalid sorted optional values
  * @returns the asn1 sequence object
  */
-function getSequence(getschema: boolean, value0?: string, value1?: number, value2?: boolean): asn1js.Sequence {
+function getSequence(getschema: boolean, value0?: string, value1?: number, value2?: boolean, brokensorted?: boolean): asn1js.Sequence {
     const seq = new asn1js.Sequence({
         value: [
             new asn1js.Utf8String({name: "string", ...(!getschema && { value: "string"}) }),
@@ -49,12 +50,21 @@ function getSequence(getschema: boolean, value0?: string, value1?: number, value
     });
 
     const value = seq.valueBlock.value;
-    if (getschema || value0 !== undefined)
-        value.push(new asn1js.Utf8String({name: "optional0", ...(!getschema && { value: value0 }), idBlock: {optionalID: 0}}));
-    if (getschema || value1 !== undefined)
-        value.push(new asn1js.Integer({name: "optional1", ...(!getschema && { value: value1 }), idBlock: {optionalID: 1}}));
-    if (getschema || value2 !== undefined)
-        value.push(new asn1js.Boolean({name: "optional2", ...(!getschema && { value: value2 }), idBlock: {optionalID: 2}}));
+    if(brokensorted) {
+        if (getschema || value0 !== undefined)
+            value.push(new asn1js.Utf8String({name: "optional0", ...(!getschema && { value: value0 }), idBlock: {optionalID: 0}}));
+        if (getschema || value2 !== undefined)
+            value.push(new asn1js.Boolean({name: "optional2", ...(!getschema && { value: value2 }), idBlock: {optionalID: 2}}));
+        if (getschema || value1 !== undefined)
+            value.push(new asn1js.Integer({name: "optional1", ...(!getschema && { value: value1 }), idBlock: {optionalID: 1}}));
+    } else {
+        if (getschema || value0 !== undefined)
+            value.push(new asn1js.Utf8String({name: "optional0", ...(!getschema && { value: value0 }), idBlock: {optionalID: 0}}));
+        if (getschema || value1 !== undefined)
+            value.push(new asn1js.Integer({name: "optional1", ...(!getschema && { value: value1 }), idBlock: {optionalID: 1}}));
+        if (getschema || value2 !== undefined)
+            value.push(new asn1js.Boolean({name: "optional2", ...(!getschema && { value: value2 }), idBlock: {optionalID: 2}}));
+    }
     return seq;
 }
 
@@ -220,6 +230,27 @@ context("Optional parameter implementation tests", () => {
         assert.ok(result.verified, "Could not verify encoded data with schema");
         const obj = result.result.getTypedValueByName(asn1js.Utf8String, "optional2");
         assert.equal(obj, undefined, "Object not undefined");
+    });
+
+
+    it ("not ordered optionals in schema", () => {
+        const schema = getSequence(true, undefined, undefined, undefined, true);
+        const data = getSequence(false, "string", 1, true, false);
+        const encoded = data.toBER();
+        const result = asn1js.verifySchema(encoded, schema);
+        assert.ok(result.verified, "Could not verify encoded data with schema");
+        const obj1 = result.result.getTypedValueByName(asn1js.Utf8String, "optional0");
+        const obj2 = result.result.getTypedValueByName(asn1js.Integer, "optional1");
+        const obj3 = result.result.getTypedValueByName(asn1js.Boolean, "optional2");
+        assert.notEqual(obj1, undefined, "Object not undefined");
+        if(obj1)
+            assert.equal(obj1.getValue(), "string", "wrong value");
+        assert.notEqual(obj2, undefined, "Object not undefined");
+        if(obj2)
+            assert.equal(obj2.getValue(), 1, "wrong value");
+        assert.notEqual(obj3, undefined, "Object not undefined");
+        if(obj3)
+            assert.equal(obj3.getValue(), true, "wrong value");
     });
 });
 

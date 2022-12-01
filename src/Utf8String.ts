@@ -16,10 +16,15 @@ export class Utf8String extends LocalUtf8StringValueBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Utf8String};
 
   constructor(parameters: Utf8StringParams = {}) {
+    Utf8String.mergeIDBlock(parameters, Utf8String.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = Utf8String.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Utf8String.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is Utf8String {
+    return this.matches(obj);
   }
 
 }

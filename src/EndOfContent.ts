@@ -15,10 +15,8 @@ export class EndOfContent extends BaseBlock<LocalEndOfContentValueBlock> {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.EndOfContent};
 
   constructor(parameters: EndOfContentParams = {}) {
+    EndOfContent.mergeIDBlock(parameters, EndOfContent.defaultIDs);
     super(parameters, LocalEndOfContentValueBlock);
-
-    this.idBlock.tagClass = EndOfContent.defaultIDs.tagClass;
-    this.idBlock.tagNumber = EndOfContent.defaultIDs.tagNumber;
   }
 
   public getValue(): null {
@@ -27,6 +25,13 @@ export class EndOfContent extends BaseBlock<LocalEndOfContentValueBlock> {
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   public setValue(value: number): void {
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is EndOfContent {
+    return this.matches(obj);
   }
 
 }

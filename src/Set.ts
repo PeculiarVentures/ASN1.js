@@ -14,10 +14,15 @@ export class Set extends Constructed {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Set};
 
   constructor(parameters: SetParams = {}) {
+    Set.mergeIDBlock(parameters, Set.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = Set.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Set.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is Set {
+    return this.matches(obj);
   }
 
 }

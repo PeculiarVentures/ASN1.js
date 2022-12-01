@@ -13,13 +13,16 @@ export class UniversalString extends LocalUniversalStringValueBlock {
   public static override NAME = "UniversalString";
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.UniversalString};
 
-  constructor({
-    ...parameters
-  }: UniversalStringParams = {}) {
+  constructor(parameters: UniversalStringParams = {}) {
+    UniversalString.mergeIDBlock(parameters, UniversalString.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = UniversalString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = UniversalString.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is UniversalString {
+    return this.matches(obj);
   }
 
 }

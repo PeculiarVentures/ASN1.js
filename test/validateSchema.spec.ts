@@ -133,7 +133,11 @@ context("validateSchema implementation tests", () => {
         const schema = getSequence(true, true, -1);
         const result = asn1js.verifySchema(ber, schema);
         assert.ok(result.verified, "Schema validation failed");
-        const sequence = result.result.getAsSequence();
+        const sequence = result.result;
+        if(!asn1js.Sequence.typeGuard(sequence)) {
+            assert("Result is not a sequence");
+            return;
+        }
         assert.ok(sequence, "Schema validation result is not a sequence");
         if (sequence) {
             const child = sequence.getTypedValueByName(asn1js.Sequence, "sequence");

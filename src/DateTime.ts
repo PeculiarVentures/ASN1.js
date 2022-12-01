@@ -14,10 +14,15 @@ export class DateTime extends Utf8String {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.DateTime};
 
   constructor(parameters: DateTimeParams = {}) {
+    DateTime.mergeIDBlock(parameters, DateTime.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = DateTime.defaultIDs.tagClass;
-    this.idBlock.tagNumber = DateTime.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static override typeGuard(obj: unknown | undefined): obj is DateTime {
+    return this.matches(obj);
   }
 
 }

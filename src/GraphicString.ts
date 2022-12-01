@@ -14,10 +14,15 @@ export class GraphicString extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.GraphicString};
 
   constructor(parameters: GraphicStringParams = {}) {
+    GraphicString.mergeIDBlock(parameters, GraphicString.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = GraphicString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = GraphicString.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is GraphicString {
+    return this.matches(obj);
   }
 
 }

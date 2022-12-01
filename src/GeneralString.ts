@@ -14,10 +14,15 @@ export class GeneralString extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.GeneralString};
 
   constructor(parameters: GeneralStringParams = {}) {
+    GeneralString.mergeIDBlock(parameters, GeneralString.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = GeneralString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = GeneralString.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is GeneralString {
+    return this.matches(obj);
   }
 
 }

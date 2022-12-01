@@ -14,10 +14,15 @@ export class DATE extends Utf8String {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.DATE};
 
   constructor(parameters: DATEParams = {}) {
+    DATE.mergeIDBlock(parameters, DATE.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = DATE.defaultIDs.tagClass;
-    this.idBlock.tagNumber = DATE.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static override typeGuard(obj: unknown | undefined): obj is DATE {
+    return this.matches(obj);
   }
 
 }

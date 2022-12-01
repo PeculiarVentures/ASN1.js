@@ -132,17 +132,11 @@ export interface LocalIntegerValueBlockJson extends HexBlockJson, ValueBlockJson
 
 export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDerConvertible {
   protected setValueHex(): void {
-    if (this.valueHexView.length >= 4) {
-      this.warnings.push("Too big Integer for decoding, hex only");
-      this.isHexOnly = true;
+    this.isHexOnly = false;
+    if (this.valueHexView.length > 0)
+      this._value = pvutils.utilDecodeTC.call(this);
+    else
       this._value = 0;
-    } else {
-      this.isHexOnly = false;
-
-      if (this.valueHexView.length > 0) {
-        this._value = pvutils.utilDecodeTC.call(this);
-      }
-    }
   }
 
   public static override NAME = "IntegerValueBlock";

@@ -14,10 +14,15 @@ export class NumericString extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.NumericString};
 
   constructor(parameters: NumericStringParams = {}) {
+    NumericString.mergeIDBlock(parameters, NumericString.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = NumericString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = NumericString.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is NumericString {
+    return this.matches(obj);
   }
 
 }

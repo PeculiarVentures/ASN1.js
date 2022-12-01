@@ -24,12 +24,10 @@ export class GeneralizedTime extends UTCTime {
   public millisecond: number;
 
   constructor(parameters: GeneralizedTimeParams = {}) {
+    GeneralizedTime.mergeIDBlock(parameters, GeneralizedTime.defaultIDs);
     super(parameters);
 
     this.millisecond ??= 0;
-
-    this.idBlock.tagClass = GeneralizedTime.defaultIDs.tagClass;
-    this.idBlock.tagNumber = GeneralizedTime.defaultIDs.tagNumber;
   }
 
   public override fromDate(inputDate: Date): void {
@@ -258,6 +256,13 @@ export class GeneralizedTime extends UTCTime {
       ...super.toJSON(),
       millisecond: this.millisecond,
     };
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static override typeGuard(obj: unknown | undefined): obj is GeneralizedTime {
+    return this.matches(obj);
   }
 
 }

@@ -14,10 +14,15 @@ export class Sequence extends Constructed {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Sequence};
 
   constructor(parameters: SequenceParams = {}) {
+    Sequence.mergeIDBlock(parameters, Sequence.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = Sequence.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Sequence.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is Sequence {
+    return this.matches(obj);
   }
 
 }

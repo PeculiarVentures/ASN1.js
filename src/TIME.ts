@@ -14,10 +14,15 @@ export class TIME extends Utf8String {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.TIME};
 
   constructor(parameters: TIMEParams = {}) {
+    TIME.mergeIDBlock(parameters, TIME.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = TIME.defaultIDs.tagClass;
-    this.idBlock.tagNumber = TIME.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static override typeGuard(obj: unknown | undefined): obj is TIME {
+    return this.matches(obj);
   }
 
 }

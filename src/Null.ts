@@ -16,10 +16,9 @@ export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Null};
 
   constructor(parameters: NullParams = {}) {
+    Null.mergeIDBlock(parameters, Null.defaultIDs);
     super(parameters, ValueBlock); // We will not have a call to "Null value block" because of specified FROM_BER and TO_BER functions
 
-    this.idBlock.tagClass = Null.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Null.defaultIDs.tagNumber;
   }
 
   public getValue(): null {
@@ -69,6 +68,13 @@ export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
 
   protected override onAsciiEncoding(): string {
     return `${(this.constructor as typeof Null).NAME}`;
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is Null {
+    return this.matches(obj);
   }
 
 }

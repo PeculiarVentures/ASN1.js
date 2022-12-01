@@ -18,10 +18,8 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Integer};
 
   constructor(parameters: IntegerParams = {}) {
+    Integer.mergeIDBlock(parameters, Integer.defaultIDs);
     super(parameters, LocalIntegerValueBlock);
-
-    this.idBlock.tagClass = Integer.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Integer.defaultIDs.tagNumber;
   }
 
   public getValue(): number {
@@ -107,6 +105,13 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
 
   protected override onAsciiEncoding(): string {
     return `${(this.constructor as typeof Integer).NAME} : ${this.valueBlock.toString()}`;
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is Integer {
+    return this.matches(obj);
   }
 
 }

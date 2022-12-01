@@ -14,10 +14,15 @@ export class PrintableString extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.PrintableString};
 
   constructor(parameters: PrintableStringParams = {}) {
+    PrintableString.mergeIDBlock(parameters, PrintableString.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = PrintableString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = PrintableString.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is PrintableString {
+    return this.matches(obj);
   }
 
 }

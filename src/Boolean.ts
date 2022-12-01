@@ -32,14 +32,20 @@ export class Boolean extends BaseBlock<LocalBooleanValueBlock, LocalBooleanValue
   public static override defaultIDs: IBaseIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.Boolean};
 
   constructor(parameters: BooleanParams = {}) {
+    Boolean.mergeIDBlock(parameters, Boolean.defaultIDs);
     super(parameters, LocalBooleanValueBlock);
-
-    this.idBlock.tagClass = Boolean.defaultIDs.tagClass;
-    this.idBlock.tagNumber = Boolean.defaultIDs.tagNumber;
   }
 
   protected override onAsciiEncoding(): string {
     return `${(this.constructor as typeof Boolean).NAME} : ${this.getValue}`;
+  }
+
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  public static typeGuard(obj: unknown | undefined): obj is Boolean {
+    return this.matches(obj);
   }
 
 }

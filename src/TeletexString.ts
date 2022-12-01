@@ -14,10 +14,15 @@ export class TeletexString extends LocalSimpleStringBlock {
   public static override defaultIDs = {tagClass: ETagClass.UNIVERSAL, tagNumber: EUniversalTagNumber.TeletexString};
 
   constructor(parameters: TeletexStringParams = {}) {
+    TeletexString.mergeIDBlock(parameters, TeletexString.defaultIDs);
     super(parameters);
+  }
 
-    this.idBlock.tagClass = TeletexString.defaultIDs.tagClass;
-    this.idBlock.tagNumber = TeletexString.defaultIDs.tagNumber;
+  /**
+   * A typeguard that allows to validate if a certain asn1.js object is of our type
+   */
+  public static typeGuard(obj: unknown | undefined): obj is TeletexString {
+    return this.matches(obj);
   }
 
 }
