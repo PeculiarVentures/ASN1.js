@@ -11,5 +11,8 @@
     "skipLibCheck": true,
     "noErrorTruncation": true,
     "experimentalDecorators": true
-  }
+  },
+  "exclude": [
+    "website"
+  ]
 }
