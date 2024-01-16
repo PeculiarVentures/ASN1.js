@@ -2,6 +2,7 @@
 
 :root {
   --ifm-font-family-base: 'Open Sans', Arial, sans-serif;
+  --ifm-color-primary: #F78700;
 }
 
 .header-github-link:hover {
