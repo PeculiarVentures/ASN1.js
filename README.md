@@ -96,7 +96,7 @@ var asn1_schema = new asn1js.Sequence({
   ]
 });
 
-var variant1 = org.pkijs.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
+var variant1 = asn1js.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
 var variant1_verified = variant1.verified;
 var variant1_result = variant1.result; // Verified decoded data with all block names inside
 ```
@@ -117,7 +117,7 @@ var asn1_schema_internal = new asn1js.OctetString({
   })
 });
 
-var variant6 = org.pkijs.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
+var variant6 = asn1js.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
 var variant6_verified = variant4.verified;
 var variant6_block1_tag_num = variant6.result.block1.idBlock.tagNumber;
 var variant6_block2_tag_num = variant6.result.block2.idBlock.tagNumber;
