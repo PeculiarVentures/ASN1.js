@@ -1,6 +1,7 @@
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 import { themes as prismThemes } from 'prism-react-renderer';
+import npm2yarn from '@docusaurus/remark-plugin-npm2yarn';
 import packageJSON from '../package.json';
 
 const config: Config = {
@@ -25,6 +26,7 @@ const config: Config = {
         docs: {
           path: 'docs',
           sidebarPath: './sidebars.ts',
+          remarkPlugins: [npm2yarn],
         },
         theme: {
           customCss: './src/css/custom.css',
@@ -66,7 +68,7 @@ const config: Config = {
       style: 'dark',
       logo: {
         alt: 'asn1.js',
-        src: '/img/logo.svg',
+        src: '/img/logo_r2.svg',
         width: 92,
       },
       items: [
