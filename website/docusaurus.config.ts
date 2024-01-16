@@ -67,7 +67,7 @@ const config: Config = {
       logo: {
         alt: 'asn1.js',
         src: '/img/logo.svg',
-        width: 75,
+        width: 92,
       },
       items: [
         {

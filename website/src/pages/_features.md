@@ -8,9 +8,9 @@ Encode and decode ASN.1 objects, allowing for the serialization and deserializat
 
 <li>
 
-#### BER, DER, and CER Support
+#### BER and DER Support
 
-Support for Basic Encoding Rules (BER), Distinguished Encoding Rules (DER), and Canonical Encoding Rules (CER), which are different encoding rules for ASN.1.
+Support for Basic Encoding Rules (BER) and Distinguished Encoding Rules (DER), which are different encoding rules for ASN.1.
 
 </li>
 
