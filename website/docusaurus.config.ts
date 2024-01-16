@@ -68,7 +68,7 @@ const config: Config = {
       style: 'dark',
       logo: {
         alt: 'asn1.js',
-        src: '/img/logo_r2.svg',
+        src: '/img/logo_r3.svg',
         width: 92,
       },
       items: [
