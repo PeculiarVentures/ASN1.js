@@ -47,8 +47,14 @@ const config: Config = {
         entryPoints: ['../src/index.ts'],
         tsconfig: '../tsconfig.json',
         disableSources: true,
-        hideInPageTOC: true,
+        membersWithOwnFile: ["Class", "Enum", "Interface"],
         readme: 'none',
+        textContentMappings: {
+          'title.memberPage': '{name}',
+        },
+        sidebar: {
+          autoConfiguration: true,
+        },
       },
     ],
     'docusaurus-plugin-sass',
