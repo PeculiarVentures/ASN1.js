@@ -1,22 +1,23 @@
-import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
+import {
+  ValueBlock, ValueBlockJson, ValueBlockParams,
+} from "../ValueBlock";
+import { IStringConvertible } from "../types";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./constants";
 import * as utils from "./utils";
 import { LocalSidValueBlockJson, LocalSidValueBlock } from "./LocalSidValueBlock";
-import { IStringConvertible } from "../types";
-
 
 export interface ILocalObjectIdentifierValueBlock {
   value: string;
 }
 
-export interface LocalObjectIdentifierValueBlockParams extends ValueBlockParams, Partial<ILocalObjectIdentifierValueBlock> { }
+export interface LocalObjectIdentifierValueBlockParams extends
+  ValueBlockParams, Partial<ILocalObjectIdentifierValueBlock> { }
 
 export interface LocalObjectIdentifierValueBlockJson extends ValueBlockJson, ILocalObjectIdentifierValueBlock {
   sidArray: LocalSidValueBlockJson[];
 }
 
 export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStringConvertible {
-
   public static override NAME = "ObjectIdentifierValueBlock";
 
   public value: LocalSidValueBlock[] = [];
@@ -56,6 +57,7 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
 
     return resultOffset;
   }
+
   public override toBER(sizeOnly?: boolean): ArrayBuffer {
     const retBuffers: ArrayBuffer[] = [];
 
@@ -166,9 +168,7 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
 
         else
           result += sidStr;
-      }
-
-      else
+      } else
         result += sidStr;
     }
 
@@ -188,5 +188,4 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
 
     return object;
   }
-
 }

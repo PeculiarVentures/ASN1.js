@@ -1,26 +1,33 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as pvtsutils from "pvtsutils";
 import { ViewWriter } from "../ViewWriter";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
-import { BIT_STRING_NAME, EMPTY_BUFFER, END_OF_CONTENT_NAME } from "./constants";
-import { LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock } from "./LocalConstructedValueBlock";
+import {
+  HexBlockJson, HexBlockParams, HexBlock,
+} from "../HexBlock";
 import { localFromBER } from "../parser";
-import { checkBufferParams } from "./utils";
 import type { BitString } from "../BitString";
+import {
+  BIT_STRING_NAME, EMPTY_BUFFER, END_OF_CONTENT_NAME,
+} from "./constants";
+import {
+  LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock,
+} from "./LocalConstructedValueBlock";
+import { checkBufferParams } from "./utils";
 
 export interface ILocalBitStringValueBlock {
   unusedBits: number;
   isConstructed: boolean;
 }
 
-export interface LocalBitStringValueBlockParams extends HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalBitStringValueBlock> {
+export interface LocalBitStringValueBlockParams extends
+  HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalBitStringValueBlock> {
   value?: BitString[];
 }
 
-export interface LocalBitStringValueBlockJson extends HexBlockJson, LocalConstructedValueBlockJson, ILocalBitStringValueBlock { }
+export interface LocalBitStringValueBlockJson extends
+  HexBlockJson, LocalConstructedValueBlockJson, ILocalBitStringValueBlock { }
 
-export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock) implements ILocalBitStringValueBlock {
-
+export class LocalBitStringValueBlock extends
+  HexBlock(LocalConstructedValueBlock) implements ILocalBitStringValueBlock {
   public static override NAME = "BitStringValueBlock";
 
   public unusedBits: number;
@@ -86,7 +93,7 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
 
     const inputView = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
 
-    //If the BitString supposed to be a primitive value
+    // If the BitString supposed to be a primitive value
     if (!checkBufferParams(this, inputView, inputOffset, inputLength)) {
       return -1;
     }
@@ -110,7 +117,7 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
             this.value = [asn.result as BitString];
           }
         }
-      } catch (e) {
+      } catch {
         // nothing
       }
     }

@@ -32,7 +32,40 @@ import type { Utf8String } from "./Utf8String";
 import type { VideotexString } from "./VideotexString";
 import type { VisibleString } from "./VisibleString";
 
-export type AsnType = BaseBlock | EndOfContent | AsnBoolean | Integer | BitString | OctetString | Null | ObjectIdentifier | Enumerated | Utf8String | RelativeObjectIdentifier | TIME | Sequence | Set | NumericString | PrintableString | TeletexString | VideotexString | IA5String | UTCTime | GeneralizedTime | GraphicString | VisibleString | GeneralString | UniversalString | CharacterString | BmpString | DATE | TimeOfDay | DateTime | Duration | Constructed | Primitive;
+export type AsnType =
+  | BaseBlock
+  | EndOfContent
+  | AsnBoolean
+  | Integer
+  | BitString
+  | OctetString
+  | Null
+  | ObjectIdentifier
+  | Enumerated
+  | Utf8String
+  | RelativeObjectIdentifier
+  | TIME
+  | Sequence
+  | Set
+  | NumericString
+  | PrintableString
+  | TeletexString
+  | VideotexString
+  | IA5String
+  | UTCTime
+  | GeneralizedTime
+  | GraphicString
+  | VisibleString
+  | GeneralString
+  | UniversalString
+  | CharacterString
+  | BmpString
+  | DATE
+  | TimeOfDay
+  | DateTime
+  | Duration
+  | Constructed
+  | Primitive;
 
 export interface TypeStore {
   BitString: typeof BitString;

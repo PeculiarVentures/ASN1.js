@@ -18,5 +18,4 @@ export class Choice extends Any implements IChoice {
 
     this.value = value;
   }
-
 }

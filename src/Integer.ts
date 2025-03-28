@@ -1,6 +1,10 @@
 import * as pvtsutils from "pvtsutils";
-import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
-import { LocalIntegerValueBlockParams, LocalIntegerValueBlock, LocalIntegerValueBlockJson } from "./internals/LocalIntegerValueBlock";
+import {
+  BaseBlock, BaseBlockJson, BaseBlockParams,
+} from "./BaseBlock";
+import {
+  LocalIntegerValueBlockParams, LocalIntegerValueBlock, LocalIntegerValueBlockJson,
+} from "./internals/LocalIntegerValueBlock";
 import { assertBigInt } from "./internals/utils";
 import { typeStore } from "./TypeStore";
 import { ViewWriter } from "./ViewWriter";
@@ -9,7 +13,6 @@ export interface IntegerParams extends BaseBlockParams, LocalIntegerValueBlockPa
 export type IntegerJson = BaseBlockJson<LocalIntegerValueBlockJson>;
 
 export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValueBlockJson> {
-
   static {
     typeStore.Integer = this;
   }
@@ -69,9 +72,7 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
       writer.write(view);
     }
 
-    const res = new Integer({
-      valueHex: writer.final(),
-    });
+    const res = new Integer({ valueHex: writer.final() });
 
     return res;
   }
@@ -99,5 +100,4 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
   protected override onAsciiEncoding(): string {
     return `${(this.constructor as typeof Integer).NAME} : ${this.valueBlock.toString()}`;
   }
-
 }

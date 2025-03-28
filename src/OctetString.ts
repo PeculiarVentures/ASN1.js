@@ -1,7 +1,11 @@
 import * as pvtsutils from "pvtsutils";
-import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
+import {
+  BaseBlock, BaseBlockJson, BaseBlockParams,
+} from "./BaseBlock";
 import { Constructed } from "./Constructed";
-import { LocalOctetStringValueBlockParams, LocalOctetStringValueBlock, LocalOctetStringValueBlockJson } from "./internals/LocalOctetStringValueBlock";
+import {
+  LocalOctetStringValueBlockParams, LocalOctetStringValueBlock, LocalOctetStringValueBlockJson,
+} from "./internals/LocalOctetStringValueBlock";
 import { OCTET_STRING_NAME } from "./internals/constants";
 import { localFromBER } from "./parser";
 import { typeStore } from "./TypeStore";
@@ -10,7 +14,6 @@ export interface OctetStringParams extends BaseBlockParams, LocalOctetStringValu
 export type OctetStringJson = BaseBlockJson<LocalOctetStringValueBlockJson>;
 
 export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOctetStringValueBlockJson> {
-
   static {
     typeStore.OctetString = this;
   }
@@ -64,12 +67,12 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
             this.valueBlock.value = [asn.result as OctetString];
           }
         }
-      } catch (e) {
+      } catch {
         // nothing
       }
     }
 
-    return super.fromBER(inputBuffer, inputOffset, inputLength);
+    return super.fromBER(inputBuffer as Uint8Array, inputOffset, inputLength);
   }
 
   protected override onAsciiEncoding(): string {
@@ -77,7 +80,9 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
       return Constructed.prototype.onAsciiEncoding.call(this);
     }
 
-    return `${(this.constructor as typeof OctetString).NAME} : ${pvtsutils.Convert.ToHex(this.valueBlock.valueHexView)}`;
+    const name = (this.constructor as typeof OctetString).NAME;
+    const value = pvtsutils.Convert.ToHex(this.valueBlock.valueHexView);
+    return `${name} : ${value}`;
   }
 
   /**
@@ -99,5 +104,4 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
 
     return pvtsutils.BufferSourceConverter.concat(array);
   }
-
 }

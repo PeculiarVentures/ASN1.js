@@ -46,7 +46,12 @@ export function concat(buffers: ArrayBuffer[]): ArrayBuffer {
  * @param inputLength
  * @returns
  */
-export function checkBufferParams(baseBlock: LocalBaseBlock, inputBuffer: Uint8Array, inputOffset: number, inputLength: number): boolean {
+export function checkBufferParams(
+  baseBlock: LocalBaseBlock,
+  inputBuffer: Uint8Array,
+  inputOffset: number,
+  inputLength: number,
+): boolean {
   if (!(inputBuffer instanceof Uint8Array)) {
     baseBlock.error = "Wrong parameter: inputBuffer must be 'Uint8Array'";
 

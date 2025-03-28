@@ -1,20 +1,23 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
-import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
+import {
+  HexBlockJson, HexBlockParams, HexBlock,
+} from "../HexBlock";
+import {
+  ValueBlock, ValueBlockJson, ValueBlockParams,
+} from "../ValueBlock";
 import { checkBufferParams } from "./utils";
 
 export interface ILocalBooleanValueBlock {
   value: boolean;
 }
 
-export interface LocalBooleanValueBlockParams extends ValueBlockParams, HexBlockParams, Partial<ILocalBooleanValueBlock> { }
+export interface LocalBooleanValueBlockParams extends
+  ValueBlockParams, HexBlockParams, Partial<ILocalBooleanValueBlock> { }
 
 export interface LocalBooleanValueBlockJson extends ValueBlockJson, HexBlockJson, ILocalBooleanValueBlock { }
 
 export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILocalBooleanValueBlock {
-
   public static override NAME = "BooleanValueBlock";
 
   public get value(): boolean {

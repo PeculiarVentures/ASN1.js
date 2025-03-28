@@ -1,11 +1,12 @@
 import * as pvutils from "pvutils";
-import { LocalSimpleStringBlock, LocalSimpleStringBlockJson, LocalSimpleStringBlockParams } from "./LocalSimpleStringBlock";
+import {
+  LocalSimpleStringBlock, LocalSimpleStringBlockJson, LocalSimpleStringBlockParams,
+} from "./LocalSimpleStringBlock";
 
 export type LocalUniversalStringValueBlockParams = LocalSimpleStringBlockParams;
 export type LocalUniversalStringValueBlockJson = LocalSimpleStringBlockJson;
 
 export class LocalUniversalStringValueBlock extends LocalSimpleStringBlock {
-
   public static override NAME = "UniversalStringValueBlock";
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
@@ -41,5 +42,4 @@ export class LocalUniversalStringValueBlock extends LocalSimpleStringBlock {
 
     this.valueBlock.value = inputString;
   }
-
 }

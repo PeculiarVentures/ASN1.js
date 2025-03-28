@@ -12,8 +12,6 @@ export type RawDataParams = Partial<IRawData>;
  * Special class providing ability to have "toBER/fromBER" for raw ArrayBuffer
  */
 export class RawData implements IBerConvertible {
-
-
   /**
    * @deprecated Since v3.0.0
    */
@@ -44,8 +42,7 @@ export class RawData implements IBerConvertible {
     return endLength;
   }
 
-  public toBER(sizeOnly?: boolean): ArrayBuffer {
+  public toBER(_sizeOnly?: boolean): ArrayBuffer {
     return this.dataView.slice().buffer;
   }
-
 }

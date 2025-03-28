@@ -1,8 +1,11 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
-import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
+import {
+  HexBlockJson, HexBlockParams, HexBlock,
+} from "../HexBlock";
+import {
+  ValueBlock, ValueBlockJson, ValueBlockParams,
+} from "../ValueBlock";
 import { EMPTY_BUFFER } from "./constants";
 import * as utils from "./utils";
 
@@ -16,7 +19,6 @@ export interface LocalSidValueBlockParams extends HexBlockParams, ValueBlockPara
 export interface LocalSidValueBlockJson extends HexBlockJson, ValueBlockJson, ILocalSidValueBlock { }
 
 export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSidValueBlock {
-
   public static override NAME = "sidBlock";
 
   public valueDec: number;
@@ -57,7 +59,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
         break;
     }
 
-    //#region Adjust size of valueHex buffer
+    // #region Adjust size of valueHex buffer
     const tempView = new Uint8Array(this.blockLength);
 
     for (let i = 0; i < this.blockLength; i++) {
@@ -65,7 +67,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
     }
 
     this.valueHexView = tempView;
-    //#endregion
+    // #endregion
 
     if ((intBuffer[this.blockLength - 1] & 0x80) !== 0x00) {
       this.error = "End of input reached before message was fully decoded";
@@ -87,7 +89,6 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
   }
 
   public set valueBigInt(value: bigint) {
-
     utils.assertBigInt();
 
     let bits = BigInt(value).toString(2);
@@ -154,17 +155,14 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
           if (this.valueDec <= 79) {
             result = "1.";
             sidValue -= 40;
-          }
-          else {
+          } else {
             result = "2.";
             sidValue -= 80;
           }
         }
 
         result += sidValue.toString();
-      }
-
-      else
+      } else
         result = this.valueDec.toString();
     }
 
@@ -178,7 +176,6 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
       isFirstSid: this.isFirstSid,
     };
   }
-
 }
 
 export interface LocalSidValueBlock {

@@ -24,7 +24,6 @@ export interface UTCTimeJson extends BaseBlockJson<LocalSimpleStringValueBlockJs
 export type DateStringEncoding = StringEncoding | "iso";
 
 export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible {
-
   static {
     typeStore.UTCTime = this;
   }
@@ -52,7 +51,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     this.minute = 0;
     this.second = 0;
 
-    //#region Create UTCTime from ASN.1 UTC string value
+    // #region Create UTCTime from ASN.1 UTC string value
     if (value) {
       this.fromString(value);
 
@@ -61,19 +60,24 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
       for (let i = 0; i < value.length; i++)
         this.valueBlock.valueHexView[i] = value.charCodeAt(i);
     }
-    //#endregion
-    //#region Create GeneralizedTime from JavaScript Date type
+    // #endregion
+    // #region Create GeneralizedTime from JavaScript Date type
     if (valueDate) {
       this.fromDate(valueDate);
       this.valueBlock.valueHexView = new Uint8Array(this.toBuffer());
     }
-    //#endregion
+    // #endregion
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 23; // UTCTime
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
-    this.fromString(String.fromCharCode.apply(null, pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]));
+    this.fromString(
+      String.fromCharCode.apply(
+        null,
+        pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[],
+      ),
+    );
   }
 
   /**
@@ -110,7 +114,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
   }
 
   public override fromString(inputString: string): void {
-    //#region Parse input string
+    // #region Parse input string
     const parser = /(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/ig;
     const parserArray = parser.exec(inputString);
     if (parserArray === null) {
@@ -118,8 +122,8 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
 
       return;
     }
-    //#endregion
-    //#region Store parsed values
+    // #endregion
+    // #region Store parsed values
     const year = parseInt(parserArray[1], 10);
     if (year >= 50)
       this.year = 1900 + year;
@@ -132,7 +136,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     this.hour = parseInt(parserArray[4], 10);
     this.minute = parseInt(parserArray[5], 10);
     this.second = parseInt(parserArray[6], 10);
-    //#endregion
+    // #endregion
   }
 
   public override toString(encoding: DateStringEncoding = "iso"): string {
@@ -168,5 +172,4 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
       second: this.second,
     };
   }
-
 }

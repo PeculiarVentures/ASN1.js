@@ -1,7 +1,6 @@
 import * as utils from "./internals/utils";
 
 export class ViewWriter {
-
   public items: ArrayBuffer[] = [];
 
   /**

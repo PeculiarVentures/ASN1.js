@@ -1,11 +1,12 @@
 import * as pvtsutils from "pvtsutils";
-import { LocalSimpleStringBlock, LocalSimpleStringBlockJson, LocalSimpleStringBlockParams } from "./LocalSimpleStringBlock";
+import {
+  LocalSimpleStringBlock, LocalSimpleStringBlockJson, LocalSimpleStringBlockParams,
+} from "./LocalSimpleStringBlock";
 
 export type LocalBmpStringValueBlockParams = LocalSimpleStringBlockParams;
 export type LocalBmpStringValueBlockJson = LocalSimpleStringBlockJson;
 
 export class LocalBmpStringValueBlock extends LocalSimpleStringBlock {
-
   public static override NAME = "BmpStringValueBlock";
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
@@ -17,5 +18,4 @@ export class LocalBmpStringValueBlock extends LocalSimpleStringBlock {
     this.valueBlock.value = inputString;
     this.valueBlock.valueHexView = new Uint8Array(pvtsutils.Convert.FromUtf16String(inputString));
   }
-
 }
