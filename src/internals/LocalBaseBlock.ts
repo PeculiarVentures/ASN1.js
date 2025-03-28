@@ -27,7 +27,6 @@ export interface LocalBaseBlockConstructor<T extends LocalBaseBlock = LocalBaseB
  * Class used as a base block for all remaining ASN.1 classes
  */
 export class LocalBaseBlock implements ILocalBaseBlock {
-
   /**
    * Name of the block
    */
@@ -49,12 +48,14 @@ export class LocalBaseBlock implements ILocalBaseBlock {
   public get valueBeforeDecode(): ArrayBuffer {
     return this.valueBeforeDecodeView.slice().buffer;
   }
+
   /**
    * @deprecated since version 3.0.0
    */
   public set valueBeforeDecode(value: ArrayBuffer) {
     this.valueBeforeDecodeView = new Uint8Array(value);
   }
+
   /**
    * @since 3.0.0
    */
@@ -89,5 +90,4 @@ export class LocalBaseBlock implements ILocalBaseBlock {
       valueBeforeDecode: pvtsutils.Convert.ToHex(this.valueBeforeDecodeView),
     };
   }
-
 }

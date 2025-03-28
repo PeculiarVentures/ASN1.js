@@ -1,6 +1,8 @@
 import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
+import {
+  HexBlockJson, HexBlockParams, HexBlock,
+} from "../HexBlock";
 import { ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { LocalBaseBlock } from "./LocalBaseBlock";
 import { EMPTY_BUFFER } from "./constants";
@@ -10,12 +12,12 @@ export interface ILocalRelativeSidValueBlock {
   valueDec: number;
 }
 
-export interface LocalRelativeSidValueBlockParams extends HexBlockParams, ValueBlockParams, Partial<ILocalRelativeSidValueBlock> { }
+export interface LocalRelativeSidValueBlockParams extends
+  HexBlockParams, ValueBlockParams, Partial<ILocalRelativeSidValueBlock> { }
 
 export interface LocalRelativeSidValueBlockJson extends HexBlockJson, ValueBlockJson, ILocalRelativeSidValueBlock { }
 
 export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) implements ILocalRelativeSidValueBlock {
-
   public static override NAME = "relativeSidBlock";
 
   public valueDec: number;
@@ -52,14 +54,14 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
         break;
     }
 
-    //#region Adjust size of valueHex buffer
+    // #region Adjust size of valueHex buffer
     const tempView = new Uint8Array(this.blockLength);
 
     for (let i = 0; i < this.blockLength; i++)
       tempView[i] = this.valueHexView[i];
 
     this.valueHexView = tempView;
-    //#endregion
+    // #endregion
     if ((intBuffer[this.blockLength - 1] & 0x80) !== 0x00) {
       this.error = "End of input reached before message was fully decoded";
 
@@ -136,5 +138,4 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
       valueDec: this.valueDec,
     };
   }
-
 }

@@ -1,6 +1,8 @@
 import * as pvutils from "pvutils";
 import { typeStore } from "./TypeStore";
-import { IUTCTime, UTCTimeParams, UTCTimeJson, UTCTime, DateStringEncoding } from "./UTCTime";
+import {
+  IUTCTime, UTCTimeParams, UTCTimeJson, UTCTime, DateStringEncoding,
+} from "./UTCTime";
 
 export interface IGeneralizedTime extends IUTCTime {
   millisecond: number;
@@ -13,7 +15,6 @@ export interface GeneralizedTimeJson extends UTCTimeJson {
 }
 
 export class GeneralizedTime extends UTCTime {
-
   static {
     typeStore.GeneralizedTime = this;
   }
@@ -37,11 +38,20 @@ export class GeneralizedTime extends UTCTime {
   }
 
   public override toDate(): Date {
-    return (new Date(Date.UTC(this.year, this.month - 1, this.day, this.hour, this.minute, this.second, this.millisecond)));
+    const utcDate = Date.UTC(
+      this.year,
+      this.month - 1,
+      this.day,
+      this.hour,
+      this.minute,
+      this.second,
+      this.millisecond,
+    );
+    return (new Date(utcDate));
   }
 
   public override fromString(inputString: string): void {
-    //#region Initial variables
+    // #region Initial variables
     let isUTC = false;
 
     let timeString = "";
@@ -52,17 +62,15 @@ export class GeneralizedTime extends UTCTime {
 
     let hourDifference = 0;
     let minuteDifference = 0;
-    //#endregion
+    // #endregion
 
-    //#region Convert as UTC time
     if (inputString[inputString.length - 1] === "Z") {
+      // Convert as UTC time
       timeString = inputString.substring(0, inputString.length - 1);
 
       isUTC = true;
-    }
-    //#endregion
-    //#region Convert as local time
-    else {
+    } else {
+      // Convert as local time
       const number = new Number(inputString[inputString.length - 1]);
 
       if (isNaN(number.valueOf()))
@@ -70,19 +78,16 @@ export class GeneralizedTime extends UTCTime {
 
       timeString = inputString;
     }
-    //#endregion
 
-    //#region Check that we do not have a "+" and "-" symbols inside UTC time
     if (isUTC) {
+      // Check that we do not have a "+" and "-" symbols inside UTC time
       if (timeString.indexOf("+") !== -1)
         throw new Error("Wrong input string for conversion");
 
       if (timeString.indexOf("-") !== -1)
         throw new Error("Wrong input string for conversion");
-    }
-    //#endregion
-    //#region Get "UTC time difference" in case of local time
-    else {
+    } else {
+      // Convert as local time
       let multiplier = 1;
       let differencePosition = timeString.indexOf("+");
       let differenceString = "";
@@ -116,15 +121,14 @@ export class GeneralizedTime extends UTCTime {
         }
       }
     }
-    //#endregion
 
-    //#region Get position of fraction point
+    // #region Get position of fraction point
     let fractionPointPosition = timeString.indexOf("."); // Check for "full stop" symbol
     if (fractionPointPosition === -1)
       fractionPointPosition = timeString.indexOf(","); // Check for "comma" symbol
-    //#endregion
+    // #endregion
 
-    //#region Get fraction part
+    // #region Get fraction part
     if (fractionPointPosition !== -1) {
       const fractionPartCheck = new Number(`0${timeString.substring(fractionPointPosition)}`);
 
@@ -134,12 +138,11 @@ export class GeneralizedTime extends UTCTime {
       fractionPart = fractionPartCheck.valueOf();
 
       dateTimeString = timeString.substring(0, fractionPointPosition);
-    }
-    else
+    } else
       dateTimeString = timeString;
-    //#endregion
+    // #endregion
 
-    //#region Parse internal date
+    // #region Parse internal date
     switch (true) {
       case (dateTimeString.length === 8): // "YYYYMMDD"
         parser = /(\d{4})(\d{2})(\d{2})/ig;
@@ -182,9 +185,9 @@ export class GeneralizedTime extends UTCTime {
       default:
         throw new Error("Wrong input string for conversion");
     }
-    //#endregion
+    // #endregion
 
-    //#region Put parsed values at right places
+    // #region Put parsed values at right places
     const parserArray = parser.exec(dateTimeString);
     if (parserArray === null)
       throw new Error("Wrong input string for conversion");
@@ -213,9 +216,9 @@ export class GeneralizedTime extends UTCTime {
           throw new Error("Wrong input string for conversion");
       }
     }
-    //#endregion
+    // #endregion
 
-    //#region Get final date
+    // #region Get final date
     if (isUTC === false) {
       const tempDate = new Date(this.year, this.month, this.day, this.hour, this.minute, this.second, this.millisecond);
 
@@ -227,7 +230,7 @@ export class GeneralizedTime extends UTCTime {
       this.second = tempDate.getUTCSeconds();
       this.millisecond = tempDate.getUTCMilliseconds();
     }
-    //#endregion
+    // #endregion
   }
 
   public override toString(encoding: DateStringEncoding = "iso"): string {
@@ -258,5 +261,4 @@ export class GeneralizedTime extends UTCTime {
       millisecond: this.millisecond,
     };
   }
-
 }

@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @stylistic/max-len */
 import * as assert from "assert";
 import * as fs from "fs";
 import * as path from "path";
 import * as asn1js from "../src";
 
-context("ASN.1:2008 TestSuite Tests", () => {
+describe("ASN.1:2008 TestSuite Tests", () => {
   const testDir = `${__dirname}/../node_modules/asn1-test-suite/suite`;
 
   it("Test Case #1", () => {
@@ -55,73 +55,73 @@ context("ASN.1:2008 TestSuite Tests", () => {
   });
 
   it("Test Case #6", () => {
-    const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc6.ber")));
+    const _asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc6.ber")));
 
     // Tests for "REAL" type at the moment should just parse data
   });
 
   it("Test Case #7", () => {
-    const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc7.ber")));
+    const _asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc7.ber")));
 
     // Tests for "REAL" type at the moment should just parse data
   });
 
   it("Test Case #8", () => {
-    const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc8.ber")));
+    const _asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc8.ber")));
 
     // Tests for "REAL" type at the moment should just parse data
   });
 
   it("Test Case #9", () => {
-    const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc9.ber")));
+    const _asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc9.ber")));
 
     // Tests for "REAL" type at the moment should just parse data
   });
 
   it("Test Case #10", () => {
-    const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc10.ber")));
+    const _asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc10.ber")));
 
     // Tests for "REAL" type at the moment should just parse data
   });
 
   it("Test Case #11", () => {
-    const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc11.ber")));
+    const _asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc11.ber")));
 
     // Tests for "REAL" type at the moment should just parse data
   });
 
   it("Test Case #12", () => {
-    const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc12.ber")));
+    const _asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc12.ber")));
 
     // Tests for "REAL" type at the moment should just parse data
   });
 
   it("Test Case #13", () => {
-    const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc13.ber")));
+    const _asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc13.ber")));
 
     // Tests for "REAL" type at the moment should just parse data
   });
 
   it("Test Case #14", () => {
-    const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc14.ber")));
+    const _asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc14.ber")));
 
     // Tests for "REAL" type at the moment should just parse data
   });
 
   it("Test Case #15", () => {
-    const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc15.ber")));
+    const _asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc15.ber")));
 
     // Tests for "REAL" type at the moment should just parse data
   });
 
   it("Test Case #16", () => {
-    const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc16.ber")));
+    const _asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc16.ber")));
 
     // Tests for "REAL" type at the moment should just parse data
   });
 
   it("Test Case #17", () => {
-    const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc17.ber")));
+    const _asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc17.ber")));
 
     // Tests for "REAL" type at the moment should just parse data
   });

@@ -8,15 +8,11 @@ export interface IAny {
 export type AnyParams = Partial<IAny>;
 
 export class Any implements IAny {
-
   public name: string;
   public optional: boolean;
 
-  constructor({
-    name = EMPTY_STRING, optional = false,
-  }: AnyParams = {}) {
+  constructor({ name = EMPTY_STRING, optional = false }: AnyParams = {}) {
     this.name = name;
     this.optional = optional;
   }
-
 }

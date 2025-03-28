@@ -1,9 +1,15 @@
 import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
 import { IBerConvertible } from "./types";
-import { LocalBaseBlockJson, LocalBaseBlockParams, LocalBaseBlock } from "./internals/LocalBaseBlock";
-import { LocalIdentificationBlock, LocalIdentificationBlockJson, LocalIdentificationBlockParams } from "./internals/LocalIdentificationBlock";
-import { LocalLengthBlock, LocalLengthBlockJson, LocalLengthBlockParams } from "./internals/LocalLengthBlock";
+import {
+  LocalBaseBlockJson, LocalBaseBlockParams, LocalBaseBlock,
+} from "./internals/LocalBaseBlock";
+import {
+  LocalIdentificationBlock, LocalIdentificationBlockJson, LocalIdentificationBlockParams,
+} from "./internals/LocalIdentificationBlock";
+import {
+  LocalLengthBlock, LocalLengthBlockJson, LocalLengthBlockParams,
+} from "./internals/LocalLengthBlock";
 import { ViewWriter } from "./ViewWriter";
 import { ValueBlock, ValueBlockJson } from "./ValueBlock";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./internals/constants";
@@ -15,12 +21,12 @@ export interface IBaseBlock {
   primitiveSchema?: BaseBlock;
 }
 
-export interface BaseBlockParams extends LocalBaseBlockParams, LocalIdentificationBlockParams, LocalLengthBlockParams, Partial<IBaseBlock> { }
+export interface BaseBlockParams extends
+  LocalBaseBlockParams, LocalIdentificationBlockParams, LocalLengthBlockParams, Partial<IBaseBlock> { }
 
-export interface ValueBlockConstructor<T extends ValueBlock = ValueBlock> {
-  new(...args: any[]): T;
-}
+export type ValueBlockConstructor<T extends ValueBlock = ValueBlock> = new (...args: any[]) => T;
 
+// eslint-disable-next-line @stylistic/max-len
 export interface BaseBlockJson<T extends LocalBaseBlockJson = LocalBaseBlockJson> extends LocalBaseBlockJson, Omit<IBaseBlock, "primitiveSchema"> {
   idBlock: LocalIdentificationBlockJson;
   lenBlock: LocalLengthBlockJson;
@@ -30,12 +36,8 @@ export interface BaseBlockJson<T extends LocalBaseBlockJson = LocalBaseBlockJson
 
 export type StringEncoding = "ascii" | "hex";
 
+// eslint-disable-next-line @stylistic/max-len
 export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJson = ValueBlockJson> extends LocalBaseBlock implements IBaseBlock, IBerConvertible {
-
-  static {
-
-  }
-
   public static override NAME = "BaseBlock";
 
   public idBlock: LocalIdentificationBlock;
@@ -64,8 +66,10 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
     this.valueBlock = valueBlockType ? new valueBlockType(parameters) : new ValueBlock(parameters) as unknown as T;
   }
 
-  public fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, (this.lenBlock.isIndefiniteForm) ? inputLength : this.lenBlock.length);
+  public fromBER(inputBuffer: Uint8Array, inputOffset: number, inputLength: number): number {
+    const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, (this.lenBlock.isIndefiniteForm)
+      ? inputLength
+      : this.lenBlock.length);
     if (resultOffset === -1) {
       this.error = this.valueBlock.error;
 
@@ -101,8 +105,7 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
       this.valueBlock.toBER(sizeOnly, _writer);
 
       _writer.write(new ArrayBuffer(2));
-    }
-    else {
+    } else {
       const valueBlockBuf = this.valueBlock.toBER(sizeOnly);
       this.lenBlock.length = valueBlockBuf.byteLength;
       const lenBlockBuf = this.lenBlock.toBER(sizeOnly);
@@ -128,12 +131,12 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
       optional: this.optional,
     };
 
-
     if (this.primitiveSchema)
       object.primitiveSchema = this.primitiveSchema.toJSON();
 
     return object as BaseBlockJson<J>;
   }
+
   public override toString(encoding: StringEncoding = "ascii"): string {
     if (encoding === "ascii") {
       return this.onAsciiEncoding();
@@ -143,7 +146,10 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
   }
 
   protected onAsciiEncoding(): string {
-    return `${(this.constructor as typeof BaseBlock).NAME} : ${pvtsutils.Convert.ToHex(this.valueBlock.valueBeforeDecodeView)}`;
+    const name = (this.constructor as typeof BaseBlock).NAME;
+    const value = pvtsutils.Convert.ToHex(this.valueBlock.valueBeforeDecodeView);
+
+    return `${name} : ${value}`;
   }
 
   /**
@@ -165,11 +171,11 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
 
     return pvutils.isEqualBuffer(thisRaw, otherRaw);
   }
-
 }
 
 /**
- * Recursive function which checks and enables isIndefiniteForm flag for constructed blocks if any child has that flag enabled
+ * Recursive function which checks and enables isIndefiniteForm flag for constructed blocks
+ * if any child has that flag enabled
  * @param baseBlock Base ASN.1 block
  * @returns Returns `true` if incoming block is `indefinite form`
  */
@@ -182,5 +188,5 @@ function prepareIndefiniteForm(baseBlock: BaseBlock): boolean {
     }
   }
 
-  return !!baseBlock.lenBlock.isIndefiniteForm;
+  return !!baseBlock.lenBlock?.isIndefiniteForm;
 }

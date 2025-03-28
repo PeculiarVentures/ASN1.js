@@ -1,11 +1,12 @@
-import { LocalSimpleStringBlockParams, LocalSimpleStringBlock, LocalSimpleStringBlockJson } from "./internals/LocalSimpleStringBlock";
+import {
+  LocalSimpleStringBlockParams, LocalSimpleStringBlock, LocalSimpleStringBlockJson,
+} from "./internals/LocalSimpleStringBlock";
 import { typeStore } from "./TypeStore";
 
 export type TeletexStringParams = LocalSimpleStringBlockParams;
 export type TeletexStringJson = LocalSimpleStringBlockJson;
 
 export class TeletexString extends LocalSimpleStringBlock {
-
   static {
     typeStore.TeletexString = this;
   }
@@ -18,5 +19,4 @@ export class TeletexString extends LocalSimpleStringBlock {
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 20; // TeletexString
   }
-
 }

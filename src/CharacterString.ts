@@ -1,11 +1,12 @@
-import { LocalSimpleStringBlockParams, LocalSimpleStringBlock, LocalSimpleStringBlockJson } from "./internals/LocalSimpleStringBlock";
+import {
+  LocalSimpleStringBlockParams, LocalSimpleStringBlock, LocalSimpleStringBlockJson,
+} from "./internals/LocalSimpleStringBlock";
 import { typeStore } from "./TypeStore";
 
 export type CharacterStringParams = LocalSimpleStringBlockParams;
 export type CharacterStringJson = LocalSimpleStringBlockJson;
 
 export class CharacterString extends LocalSimpleStringBlock {
-
   static {
     typeStore.CharacterString = this;
   }
@@ -18,5 +19,4 @@ export class CharacterString extends LocalSimpleStringBlock {
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 29; // CharacterString
   }
-
 }

@@ -1,13 +1,14 @@
 import { ViewWriter } from "./ViewWriter";
 import { ValueBlock, ValueBlockJson } from "./ValueBlock";
-import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
+import {
+  BaseBlock, BaseBlockJson, BaseBlockParams,
+} from "./BaseBlock";
 import { typeStore } from "./TypeStore";
 
 export type NullParams = BaseBlockParams;
 export type NullJson = BaseBlockJson<ValueBlockJson>;
 
 export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
-
   static {
     typeStore.Null = this;
   }
@@ -15,7 +16,8 @@ export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
   public static override NAME = "NULL";
 
   constructor(parameters: NullParams = {}) {
-    super(parameters, ValueBlock); // We will not have a call to "Null value block" because of specified FROM_BER and TO_BER functions
+    // We will not have a call to "Null value block" because of specified FROM_BER and TO_BER functions
+    super(parameters, ValueBlock);
 
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 5; // Null
@@ -61,5 +63,4 @@ export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
   protected override onAsciiEncoding(): string {
     return `${(this.constructor as typeof Null).NAME}`;
   }
-
 }

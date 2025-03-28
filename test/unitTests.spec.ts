@@ -1,11 +1,11 @@
+/* eslint-disable @stylistic/max-len */
 import * as assert from "assert";
 import * as asn1js from "../src";
 import { BaseBlock } from "../src";
 import { checkBufferParams } from "../src/internals/utils";
 
-context("Unit tests", () => {
-
-  context("utils", () => {
+describe("Unit tests", () => {
+  describe("utils", () => {
     it("buffer incorrect type", () => {
       const buffer = "wrong";
       const block = new BaseBlock();
@@ -52,13 +52,13 @@ context("Unit tests", () => {
         valueHex: new Uint8Array([0x01]),
         tagClass: 1,
         tagNumber: 1,
-        isConstructed: false
+        isConstructed: false,
       },
       lenBlock: {
         isIndefiniteForm: false,
         longFormUsed: false,
-        length: 10
-      }
+        length: 10,
+      },
     });
 
     assert.equal(baseBlock.blockLength, 10, "Incorrect value for blockLength");
@@ -78,7 +78,7 @@ context("Unit tests", () => {
           if (!matches)
             return new ArrayBuffer(0);
 
-          return (new Uint8Array(matches.map(hex => parseInt(hex, 16)))).buffer;
+          return (new Uint8Array(matches.map((hex) => parseInt(hex, 16)))).buffer;
         }
         default:
           return value;
@@ -102,5 +102,4 @@ context("Unit tests", () => {
     // console.log(asnString);
     assert.strictEqual(asnString.length > 0, true);
   });
-
 });

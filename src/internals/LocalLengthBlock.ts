@@ -22,16 +22,13 @@ export interface LocalLengthBlockJson extends LocalBaseBlockJson, ILocalLengthBl
 }
 
 export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBlock, IBerConvertible {
-
   public static override NAME = "lengthBlock";
 
   public isIndefiniteForm: boolean;
   public longFormUsed: boolean;
   public length: number;
 
-  constructor({
-    lenBlock = {},
-  }: LocalLengthBlockParams = {}) {
+  constructor({ lenBlock = {} }: LocalLengthBlockParams = {}) {
     super();
 
     this.isIndefiniteForm = lenBlock.isIndefiniteForm ?? false;
@@ -39,17 +36,16 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
     this.length = lenBlock.length ?? 0;
   }
 
-
   public fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
     const view = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
     // Basic check for parameters
     if (!checkBufferParams(this, view, inputOffset, inputLength)) {
       return -1;
     }
-    //#region Getting Uint8Array from ArrayBuffer
+    // #region Getting Uint8Array from ArrayBuffer
     const intBuffer = view.subarray(inputOffset, inputOffset + inputLength);
-    //#endregion
-    //#region Initial checks
+    // #endregion
+    // #region Initial checks
     if (intBuffer.length === 0) {
       this.error = "Zero buffer length";
 
@@ -61,33 +57,32 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
 
       return -1;
     }
-    //#endregion
-    //#region Check for length form type
+    // #endregion
+    // #region Check for length form type
     this.isIndefiniteForm = intBuffer[0] === 0x80;
-    //#endregion
-    //#region Stop working in case of indefinite length form
+    // #endregion
+    // #region Stop working in case of indefinite length form
     if (this.isIndefiniteForm) {
       this.blockLength = 1;
 
       return (inputOffset + this.blockLength);
     }
-    //#endregion
-    //#region Check is long form of length encoding using
+    // #endregion
+    // #region Check is long form of length encoding using
     this.longFormUsed = !!(intBuffer[0] & 0x80);
-    //#endregion
-    //#region Stop working in case of short form of length value
+    // #endregion
+    // #region Stop working in case of short form of length value
     if (this.longFormUsed === false) {
       this.length = (intBuffer[0]);
       this.blockLength = 1;
 
       return (inputOffset + this.blockLength);
     }
-    //#endregion
-    //#region Calculate length value in case of long form
+    // #endregion
+    // #region Calculate length value in case of long form
     const count = intBuffer[0] & 0x7F;
 
-    if (count > 8) // Too big length value
-    {
+    if (count > 8) { // Too big length value
       this.error = "Too big integer";
 
       return -1;
@@ -111,16 +106,16 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
       this.warnings.push("Unnecessary usage of long length form");
 
     this.blockLength = count + 1;
-    //#endregion
+    // #endregion
 
     return (inputOffset + this.blockLength); // Return current offset in input buffer
   }
 
   public toBER(sizeOnly = false): ArrayBuffer {
-    //#region Initial variables
+    // #region Initial variables
     let retBuf: ArrayBuffer;
     let retView: Uint8Array;
-    //#endregion
+    // #endregion
     if (this.length > 127)
       this.longFormUsed = true;
 

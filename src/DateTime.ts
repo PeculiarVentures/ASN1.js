@@ -1,11 +1,12 @@
 import { typeStore } from "./TypeStore";
-import { Utf8StringParams, Utf8String, Utf8StringJson } from "./Utf8String";
+import {
+  Utf8StringParams, Utf8String, Utf8StringJson,
+} from "./Utf8String";
 
 export type DateTimeParams = Utf8StringParams;
 export type DateTimeJson = Utf8StringJson;
 
 export class DateTime extends Utf8String {
-
   static {
     typeStore.DateTime = this;
   }
@@ -18,5 +19,4 @@ export class DateTime extends Utf8String {
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 33; // DateTime
   }
-
 }

@@ -1,22 +1,26 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { ViewWriter } from "../ViewWriter";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
-import { END_OF_CONTENT_NAME, OCTET_STRING_NAME } from "./constants";
-import { LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock } from "./LocalConstructedValueBlock";
+import {
+  HexBlockJson, HexBlockParams, HexBlock,
+} from "../HexBlock";
 import type { OctetString } from "../OctetString";
+import { END_OF_CONTENT_NAME, OCTET_STRING_NAME } from "./constants";
+import {
+  LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock,
+} from "./LocalConstructedValueBlock";
 
 export interface ILocalOctetStringValueBlock {
   isConstructed: boolean;
 }
 
-export interface LocalOctetStringValueBlockParams extends HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalOctetStringValueBlock> {
+export interface LocalOctetStringValueBlockParams extends
+  HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalOctetStringValueBlock> {
   value?: OctetString[];
 }
 
-export interface LocalOctetStringValueBlockJson extends HexBlockJson, LocalConstructedValueBlockJson, ILocalOctetStringValueBlock { }
+export interface LocalOctetStringValueBlockJson extends
+  HexBlockJson, LocalConstructedValueBlockJson, ILocalOctetStringValueBlock { }
 
 export class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBlock) {
-
   public static override NAME = "OctetStringValueBlock";
 
   public isConstructed: boolean;
@@ -84,7 +88,6 @@ export class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBl
       isConstructed: this.isConstructed,
     } as LocalOctetStringValueBlockJson;
   }
-
 }
 
 export interface LocalOctetStringValueBlock {

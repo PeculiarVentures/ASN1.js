@@ -1,12 +1,12 @@
 import * as pvtsutils from "pvtsutils";
-import { LocalBaseBlockJson } from "./LocalBaseBlock";
-import { EMPTY_BUFFER, END_OF_CONTENT_NAME } from "./constants";
 import type { BaseBlock } from "../BaseBlock";
 import { ValueBlock, ValueBlockParams } from "../ValueBlock";
 import { ViewWriter } from "../ViewWriter";
 import { localFromBER } from "../parser";
-import { checkBufferParams } from "./utils";
 import type { Any } from "../Any";
+import { checkBufferParams } from "./utils";
+import { EMPTY_BUFFER, END_OF_CONTENT_NAME } from "./constants";
+import { LocalBaseBlockJson } from "./LocalBaseBlock";
 
 export type ConstructedItem = BaseBlock | Any;
 
@@ -30,7 +30,6 @@ function checkLen(indefiniteLength: boolean, length: number): number {
 }
 
 export class LocalConstructedValueBlock extends ValueBlock implements ILocalConstructedValueBlock {
-
   public static override NAME = "ConstructedValueBlock";
 
   public value: BaseBlock[];

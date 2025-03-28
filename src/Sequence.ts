@@ -1,11 +1,12 @@
-import { ConstructedParams, Constructed, ConstructedJson } from "./Constructed";
+import {
+  ConstructedParams, Constructed, ConstructedJson,
+} from "./Constructed";
 import { typeStore } from "./TypeStore";
 
 export type SequenceParams = ConstructedParams;
 export type SequenceJson = ConstructedJson;
 
 export class Sequence extends Constructed {
-
   static {
     typeStore.Sequence = this;
   }
@@ -18,5 +19,4 @@ export class Sequence extends Constructed {
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 16; // Sequence
   }
-
 }

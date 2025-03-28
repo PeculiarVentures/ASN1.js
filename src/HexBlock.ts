@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import * as pvtsutils from "pvtsutils";
 import { IBerConvertible } from "./types";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./internals/constants";
@@ -20,7 +19,6 @@ export type HexBlockParams = Partial<IHexBlock>;
  */
 export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
   return class Some extends BaseClass implements IHexBlock, IBerConvertible {
-
     public static override NAME = "hexBlock";
 
     public isHexOnly: boolean;
@@ -32,6 +30,7 @@ export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
     public get valueHex(): ArrayBuffer {
       return this.valueHexView.slice().buffer;
     }
+
     /**
      * Binary data in ArrayBuffer representation
      *
@@ -40,6 +39,7 @@ export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
     public set valueHex(value: ArrayBuffer) {
       this.valueHexView = new Uint8Array(value);
     }
+
     /**
      * Binary data in Uint8Array representation
      *
@@ -105,6 +105,5 @@ export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
         valueHex: pvtsutils.Convert.ToHex(this.valueHexView),
       };
     }
-
   };
 }

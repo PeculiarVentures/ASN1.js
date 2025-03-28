@@ -37,7 +37,11 @@ function localChangeType<T extends BaseBlock>(inputObject: BaseBlock, newType: n
  * @param inputLength Maximum length of array of bytes which can be using in this function
  * @returns
  */
-export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLength = inputBuffer.length): FromBerResult {
+export function localFromBER(
+  inputBuffer: Uint8Array,
+  inputOffset = 0,
+  inputLength = inputBuffer.length,
+): FromBerResult {
   const incomingOffset = inputOffset; // Need to store initial offset since "inputOffset" is changing in the function
 
   // Create a basic ASN.1 type since we need to return errors and warnings from the function
@@ -50,7 +54,7 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
 
     return {
       offset: -1,
-      result: returnObject
+      result: returnObject,
     };
   }
 
@@ -63,7 +67,7 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
 
     return {
       offset: -1,
-      result: returnObject
+      result: returnObject,
     };
   }
 
@@ -78,7 +82,7 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
 
     return {
       offset: -1,
-      result: returnObject
+      result: returnObject,
     };
   }
   // console.timeEnd("idBlock");
@@ -97,7 +101,7 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
 
     return {
       offset: -1,
-      result: returnObject
+      result: returnObject,
     };
   }
   // console.timeEnd("lengthBlock");
@@ -106,13 +110,13 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
   inputLength -= returnObject.lenBlock.blockLength;
 
   // Check for using indefinite length form in encoding for primitive types
-  if (!returnObject.idBlock.isConstructed &&
-    returnObject.lenBlock.isIndefiniteForm) {
+  if (!returnObject.idBlock.isConstructed
+    && returnObject.lenBlock.isIndefiniteForm) {
     returnObject.error = "Indefinite length form used for primitive encoding form";
 
     return {
       offset: -1,
-      result: returnObject
+      result: returnObject,
     };
   }
 
@@ -123,25 +127,25 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
     // UNIVERSAL
     case 1:
       // Check for reserved tag numbers
-      if ((returnObject.idBlock.tagNumber >= 37) &&
-        (returnObject.idBlock.isHexOnly === false)) {
+      if ((returnObject.idBlock.tagNumber >= 37)
+        && (returnObject.idBlock.isHexOnly === false)) {
         returnObject.error = "UNIVERSAL 37 and upper tags are reserved by ASN.1 standard";
 
         return {
           offset: -1,
-          result: returnObject
+          result: returnObject,
         };
       }
       switch (returnObject.idBlock.tagNumber) {
         case 0: // EndOfContent
           // Check for EndOfContent type
-          if ((returnObject.idBlock.isConstructed) &&
-            (returnObject.lenBlock.length > 0)) {
+          if ((returnObject.idBlock.isConstructed)
+            && (returnObject.lenBlock.length > 0)) {
             returnObject.error = "Type [UNIVERSAL 0] is reserved";
 
             return {
               offset: -1,
-              result: returnObject
+              result: returnObject,
             };
           }
 
@@ -183,7 +187,7 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
 
           return {
             offset: -1,
-            result: returnObject
+            result: returnObject,
           };
         case 16: // Sequence
           newASN1Type = typeStore.Sequence;
@@ -266,11 +270,14 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
     }
   }
 
-
   // Change type and perform BER decoding
   returnObject = localChangeType(returnObject, newASN1Type);
   // console.time("valueBlock");
-  resultOffset = returnObject.fromBER(inputBuffer, inputOffset, returnObject.lenBlock.isIndefiniteForm ? inputLength : returnObject.lenBlock.length);
+  resultOffset = returnObject.fromBER(
+    inputBuffer,
+    inputOffset,
+    returnObject.lenBlock.isIndefiniteForm ? inputLength : returnObject.lenBlock.length,
+  );
 
   // Coping incoming buffer for entire ASN.1 block
   returnObject.valueBeforeDecodeView = inputBuffer.subarray(incomingOffset, incomingOffset + returnObject.blockLength);
@@ -278,7 +285,7 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
 
   return {
     offset: resultOffset,
-    result: returnObject
+    result: returnObject,
   };
 }
 
@@ -293,7 +300,7 @@ export function fromBER(inputBuffer: pvtsutils.BufferSource): FromBerResult {
 
     return {
       offset: -1,
-      result
+      result,
     };
   }
 

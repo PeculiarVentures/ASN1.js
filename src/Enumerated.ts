@@ -1,11 +1,12 @@
-import { IntegerParams, Integer, IntegerJson } from "./Integer";
+import {
+  IntegerParams, Integer, IntegerJson,
+} from "./Integer";
 import { typeStore } from "./TypeStore";
 
 export type EnumeratedParams = IntegerParams;
 export type EnumeratedJson = IntegerJson;
 
 export class Enumerated extends Integer {
-
   static {
     typeStore.Enumerated = this;
   }
@@ -18,5 +19,4 @@ export class Enumerated extends Integer {
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 10; // Enumerated
   }
-
 }

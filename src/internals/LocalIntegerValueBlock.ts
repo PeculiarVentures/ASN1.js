@@ -1,12 +1,15 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as pvutils from "pvutils";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
+import {
+  HexBlockJson, HexBlockParams, HexBlock,
+} from "../HexBlock";
 import { IDerConvertible } from "../types";
-import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
+import {
+  ValueBlock, ValueBlockJson, ValueBlockParams,
+} from "../ValueBlock";
 import { powers2, digitsString } from "./constants";
 
 function viewAdd(first: Uint8Array, second: Uint8Array): Uint8Array {
-  //#region Initial variables
+  // #region Initial variables
   const c = new Uint8Array([0]);
 
   const firstView = new Uint8Array(first);
@@ -22,7 +25,7 @@ function viewAdd(first: Uint8Array, second: Uint8Array): Uint8Array {
   const max = (secondViewCopyLength < firstViewCopyLength) ? firstViewCopyLength : secondViewCopyLength;
 
   let counter = 0;
-  //#endregion
+  // #endregion
   for (let i = max; i >= 0; i--, counter++) {
     switch (true) {
       case (counter < secondViewCopy.length):
@@ -72,7 +75,7 @@ function power2(n: number): Uint8Array {
 }
 
 function viewSub(first: Uint8Array, second: Uint8Array): Uint8Array {
-  //#region Initial variables
+  // #region Initial variables
   let b = 0;
 
   const firstView = new Uint8Array(first);
@@ -86,7 +89,7 @@ function viewSub(first: Uint8Array, second: Uint8Array): Uint8Array {
   let value;
 
   let counter = 0;
-  //#endregion
+  // #endregion
   for (let i = secondViewCopyLength; i >= 0; i--, counter++) {
     value = firstViewCopy[firstViewCopyLength - counter] - secondViewCopy[secondViewCopyLength - counter] - b;
 
@@ -108,8 +111,7 @@ function viewSub(first: Uint8Array, second: Uint8Array): Uint8Array {
       if (value < 0) {
         b = 1;
         firstViewCopy[firstViewCopyLength - counter] = value + 10;
-      }
-      else {
+      } else {
         b = 0;
         firstViewCopy[firstViewCopyLength - counter] = value;
         break;
@@ -124,7 +126,8 @@ export interface ILocalIntegerValueBlock {
   value: number;
 }
 
-export interface LocalIntegerValueBlockParams extends HexBlockParams, ValueBlockParams, Partial<ILocalIntegerValueBlock> { }
+export interface LocalIntegerValueBlockParams extends
+  HexBlockParams, ValueBlockParams, Partial<ILocalIntegerValueBlock> { }
 
 export interface LocalIntegerValueBlockJson extends HexBlockJson, ValueBlockJson {
   valueDec: number;
@@ -197,8 +200,7 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
 
     if ((view[0] === 0x00) && ((view[1] & 0x80) !== 0)) {
       this.valueHexView = view.subarray(1);
-    }
-    else {
+    } else {
       if (expectedLength !== 0) {
         if (view.length < expectedLength) {
           if ((expectedLength - view.length) > 1)
@@ -262,7 +264,7 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
   }
 
   public override toString(): string {
-    //#region Initial variables
+    // #region Initial variables
     const firstBit = (this.valueHexView.length * 8) - 1;
 
     let digits = new Uint8Array((this.valueHexView.length * 8) / 3);
@@ -274,8 +276,8 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
     let result = "";
 
     let flag = false;
-    //#endregion
-    //#region Calculate number
+    // #endregion
+    // #region Calculate number
     for (let byteNumber = (asn1View.byteLength - 1); byteNumber >= 0; byteNumber--) {
       currentByte = asn1View[byteNumber];
 
@@ -295,8 +297,8 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
         currentByte >>= 1;
       }
     }
-    //#endregion
-    //#region Print number
+    // #endregion
+    // #region Print number
     for (let i = 0; i < digits.length; i++) {
       if (digits[i])
         flag = true;
@@ -307,11 +309,10 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
 
     if (flag === false)
       result += digitsString.charAt(0);
-    //#endregion
+    // #endregion
 
     return result;
   }
-
 }
 
 export interface LocalIntegerValueBlock {

@@ -8,7 +8,6 @@ export interface IRepeated extends IAny {
 export type RepeatedParams = Partial<IRepeated>;
 
 export class Repeated extends Any {
-
   public value: Any;
   public local: boolean;
 
@@ -22,5 +21,4 @@ export class Repeated extends Any {
     this.value = value;
     this.local = local; // Could local or global array to store elements
   }
-
 }

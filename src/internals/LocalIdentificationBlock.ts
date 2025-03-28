@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
+import {
+  HexBlockJson, HexBlockParams, HexBlock,
+} from "../HexBlock";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
 import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
 import { checkBufferParams } from "./utils";
-
 
 export interface ILocalIdentificationBlock {
   tagClass: number;
@@ -19,25 +19,23 @@ export interface LocalIdentificationBlockParams {
 
 export interface LocalIdentificationBlockJson extends HexBlockJson, LocalBaseBlockJson, ILocalIdentificationBlock { }
 
-
 export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implements ILocalIdentificationBlock {
-
   public static override NAME = "identificationBlock";
 
   public tagClass: number;
   public tagNumber: number;
   public isConstructed: boolean;
 
-  constructor({
-    idBlock = {},
-  }: LocalIdentificationBlockParams = {}) {
+  constructor({ idBlock = {} }: LocalIdentificationBlockParams = {}) {
     super();
 
     if (idBlock) {
-      //#region Properties from hexBlock class
+      // #region Properties from hexBlock class
       this.isHexOnly = idBlock.isHexOnly ?? false;
-      this.valueHexView = idBlock.valueHex ? pvtsutils.BufferSourceConverter.toUint8Array(idBlock.valueHex) : EMPTY_VIEW;
-      //#endregion
+      this.valueHexView = idBlock.valueHex
+        ? pvtsutils.BufferSourceConverter.toUint8Array(idBlock.valueHex)
+        : EMPTY_VIEW;
+      // #endregion
       this.tagClass = idBlock.tagClass ?? -1;
       this.tagNumber = idBlock.tagNumber ?? -1;
       this.isConstructed = idBlock.isConstructed ?? false;
@@ -139,7 +137,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       return -1;
     }
 
-    //#region Find tag class
+    // #region Find tag class
     const tagClassMask = intBuffer[0] & 0xC0;
 
     switch (tagClassMask) {
@@ -160,7 +158,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
 
         return -1;
     }
-    //#endregion
+    // #endregion
     // Find it's constructed or not
     this.isConstructed = (intBuffer[0] & 0x20) === 0x20;
 
@@ -205,8 +203,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       this.blockLength = (count + 1);
       intTagNumberBuffer[count - 1] = intBuffer[count] & 0x7F; // Write last byte to buffer
 
-
-      //#region Cut buffer
+      // #region Cut buffer
       const tempBufferView = new Uint8Array(count);
 
       for (let i = 0; i < count; i++)
@@ -214,21 +211,21 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
 
       intTagNumberBuffer = this.valueHexView = new Uint8Array(count);
       intTagNumberBuffer.set(tempBufferView);
-      //#endregion
-      //#region Try to convert long tag number to short form
+      // #endregion
+      // #region Try to convert long tag number to short form
       if (this.blockLength <= 9)
         this.tagNumber = pvutils.utilFromBase(intTagNumberBuffer, 7);
       else {
         this.isHexOnly = true;
         this.warnings.push("Tag too long, represented as hex-coded");
       }
-      //#endregion
+      // #endregion
     }
-    //#endregion
-    //#endregion
-    //#region Check if constructed encoding was using for primitive type
-    if (((this.tagClass === 1)) &&
-      (this.isConstructed)) {
+    // #endregion
+    // #endregion
+    // #region Check if constructed encoding was using for primitive type
+    if (((this.tagClass === 1))
+      && (this.isConstructed)) {
       switch (this.tagNumber) {
         case 1: // Boolean
         case 2: // REAL
@@ -249,7 +246,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
         default:
       }
     }
-    //#endregion
+    // #endregion
 
     return (inputOffset + this.blockLength); // Return current offset in input buffer
   }

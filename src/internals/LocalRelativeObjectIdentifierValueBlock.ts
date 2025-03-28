@@ -1,22 +1,25 @@
 import { ViewWriter } from "../ViewWriter";
-import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
+import {
+  ValueBlock, ValueBlockJson, ValueBlockParams,
+} from "../ValueBlock";
+import { IStringConvertible } from "../types";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./constants";
 import * as utils from "./utils";
 import { LocalRelativeSidValueBlockJson, LocalRelativeSidValueBlock } from "./LocalRelativeSidValueBlock";
-import { IStringConvertible } from "../types";
 
 export interface ILocalRelativeObjectIdentifierValueBlock {
   value: string;
 }
 
-export interface LocalRelativeObjectIdentifierValueBlockParams extends ValueBlockParams, Partial<ILocalRelativeObjectIdentifierValueBlock> { }
+export interface LocalRelativeObjectIdentifierValueBlockParams extends
+  ValueBlockParams, Partial<ILocalRelativeObjectIdentifierValueBlock> { }
 
-export interface LocalRelativeObjectIdentifierValueBlockJson extends ValueBlockJson, ILocalRelativeObjectIdentifierValueBlock {
+export interface LocalRelativeObjectIdentifierValueBlockJson extends
+  ValueBlockJson, ILocalRelativeObjectIdentifierValueBlock {
   sidArray: LocalRelativeSidValueBlockJson[];
 }
 
 export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implements IStringConvertible {
-
   public static override NAME = "RelativeObjectIdentifierValueBlock";
 
   public value: LocalRelativeSidValueBlock[] = [];
@@ -54,7 +57,7 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
     return resultOffset;
   }
 
-  public override toBER(sizeOnly?: boolean, writer?: ViewWriter): ArrayBuffer {
+  public override toBER(sizeOnly?: boolean, _writer?: ViewWriter): ArrayBuffer {
     const retBuffers: ArrayBuffer[] = [];
 
     for (let i = 0; i < this.value.length; i++) {
@@ -95,7 +98,6 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
         return true;
 
       this.value.push(sidBlock);
-
     } while (pos2 !== -1);
 
     return true;
@@ -116,8 +118,7 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
       if (isHexOnly) {
         sidStr = `{${sidStr}}`;
         result += sidStr;
-      }
-      else
+      } else
         result += sidStr;
     }
 
@@ -136,5 +137,4 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
 
     return object;
   }
-
 }

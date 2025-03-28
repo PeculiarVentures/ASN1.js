@@ -1,14 +1,17 @@
-import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
+import {
+  BaseBlock, BaseBlockJson, BaseBlockParams,
+} from "./BaseBlock";
 import { Constructed } from "./Constructed";
 import { BIT_STRING_NAME } from "./internals/constants";
-import { LocalBitStringValueBlockParams, LocalBitStringValueBlock, LocalBitStringValueBlockJson } from "./internals/LocalBitStringValueBlock";
+import {
+  LocalBitStringValueBlockParams, LocalBitStringValueBlock, LocalBitStringValueBlockJson,
+} from "./internals/LocalBitStringValueBlock";
 import { typeStore } from "./TypeStore";
 
 export interface BitStringParams extends BaseBlockParams, LocalBitStringValueBlockParams { }
 export type BitStringJson = BaseBlockJson<LocalBitStringValueBlockJson>;
 
 export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStringValueBlockJson> {
-
   static {
     typeStore.BitString = this;
   }
@@ -41,7 +44,7 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStrin
     this.valueBlock.isConstructed = this.idBlock.isConstructed;
     this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
 
-    return super.fromBER(inputBuffer, inputOffset, inputLength);
+    return super.fromBER(inputBuffer as Uint8Array, inputOffset, inputLength);
   }
 
   protected override onAsciiEncoding(): string {
@@ -56,9 +59,10 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStrin
       }
 
       const bitsStr = bits.join("");
+      const name = (this.constructor as typeof BitString).NAME;
+      const value = bitsStr.substring(0, bitsStr.length - this.valueBlock.unusedBits);
 
-      return `${(this.constructor as typeof BitString).NAME} : ${bitsStr.substring(0, bitsStr.length - this.valueBlock.unusedBits)}`;
+      return `${name} : ${value}`;
     }
   }
-
 }
