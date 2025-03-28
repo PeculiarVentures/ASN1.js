@@ -1,13 +1,17 @@
-import path from "path";
-import fs from "fs";
+import path from "node:path";
+import fs from "node:fs";
+import url from "node:url";
 import typescript from "rollup-plugin-typescript2";
 import dts from "rollup-plugin-dts";
-import pkg from "./package.json";
+import pkg from "./package.json" assert { type: "json" };
+
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const LICENSE = fs.readFileSync("LICENSE", { encoding: "utf-8" });
 const banner = [
   "/*!",
-  ...LICENSE.split("\n").map(o => ` * ${o}`),
+  ...LICENSE.split("\n").map((o) => ` * ${o}`),
   " */",
   "",
 ].join("\n");
@@ -25,8 +29,8 @@ export default [
           compilerOptions: {
             module: "ES2015",
             removeComments: true,
-          }
-        }
+          },
+        },
       }),
     ],
     external: [...external],
@@ -49,16 +53,14 @@ export default [
     plugins: [
       dts({
         tsconfig: path.resolve(__dirname, "./tsconfig.json"),
-        compilerOptions: {
-          stripInternal: true,
-        }
-      })
+        compilerOptions: { stripInternal: true },
+      }),
     ],
     output: [
       {
         banner,
         file: pkg.types,
-      }
-    ]
+      },
+    ],
   },
 ];
