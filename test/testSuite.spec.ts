@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as asn1js from "../src";
 
-context("ASN.1:2008 TestSuite Tests", () => {
+describe("ASN.1:2008 TestSuite Tests", () => {
   const testDir = `${__dirname}/../node_modules/asn1-test-suite/suite`;
 
   it("Test Case #1", () => {

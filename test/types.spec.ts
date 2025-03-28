@@ -3,8 +3,8 @@ import * as assert from "assert";
 import * as pvtsutils from "pvtsutils";
 import * as asn1js from "../src";
 
-context("ASN types", () => {
-  context("Boolean", () => {
+describe("ASN types", () => {
+  describe("Boolean", () => {
     it("empty constructor", () => {
       const asn = new asn1js.Boolean();
       assert.strictEqual(asn.getValue(), false);
@@ -63,7 +63,7 @@ context("ASN types", () => {
     });
   });
 
-  context("BmpString", () => {
+  describe("BmpString", () => {
     it("toBER/fromBER", () => {
       const testBER = pvtsutils.Convert.FromHex("1e2400740065007300740020006d006500730073006100670065002004420435043a04410442");
       const testValue = "test message текст";
@@ -78,7 +78,7 @@ context("ASN types", () => {
     });
   });
 
-  context("BitString", () => {
+  describe("BitString", () => {
     it("parse zero-length", () => {
       const asn = asn1js.fromBER(pvtsutils.Convert.FromHex("0300"));
       assert.ok(asn.result instanceof asn1js.BitString);
@@ -93,7 +93,7 @@ context("ASN types", () => {
       assert.strictEqual(asn.offset, -1);
       assert.strictEqual(asn.result.error, "Unused bits for BitString must be in range 0-7");
     });
-    context("toBER", () => {
+    describe("toBER", () => {
       it("default", () => {
         const asn = new asn1js.BitString();
         assert.strictEqual(asn.toString("hex"), "0300");
@@ -131,7 +131,7 @@ context("ASN types", () => {
     });
   });
 
-  context("Integer", () => {
+  describe("Integer", () => {
     it("from number", () => {
       const asn = new asn1js.Integer({ value: 97196 });
 
@@ -174,7 +174,7 @@ context("ASN types", () => {
       assert.strictEqual(asn.toString("hex"), "02088102030405060708");
     });
 
-    context("convert to/from BigInt", () => {
+    describe("convert to/from BigInt", () => {
       it("positive", () => {
         const num = BigInt("18591708106338011145");
         const asn = asn1js.Integer.fromBigInt(num);
@@ -189,7 +189,7 @@ context("ASN types", () => {
       });
     });
 
-    context("convert to/from DER", () => {
+    describe("convert to/from DER", () => {
       it("positive", () => {
         const asn = asn1js.Integer.fromBigInt("18591708106338011145");
 
@@ -211,7 +211,7 @@ context("ASN types", () => {
     });
   });
 
-  context("CharacterString", () => {
+  describe("CharacterString", () => {
     it("to/from BER", () => {
       const testString = "some string";
       const asn = new asn1js.CharacterString({ value: testString });
@@ -221,7 +221,7 @@ context("ASN types", () => {
     });
   });
 
-  context("UniversalString", () => {
+  describe("UniversalString", () => {
     it("to/from BER", () => {
       const testString = "My test text";
       const testHex = "1c300000004d0000007900000020000000740000006500000073000000740000002000000074000000650000007800000074";
@@ -237,7 +237,7 @@ context("ASN types", () => {
     });
   });
 
-  context("Utf8String", () => {
+  describe("Utf8String", () => {
     it("to/from BER", () => {
       const testString = "My test текст";
       const testHex = "0c124d79207465737420d182d0b5d0bad181d182";
@@ -253,7 +253,7 @@ context("ASN types", () => {
     });
   });
 
-  context("DATE", () => {
+  describe("DATE", () => {
     it("to/from BER", () => {
       const testString = "2000-01-02";
       const asn = new asn1js.DATE({ value: testString });
@@ -263,7 +263,7 @@ context("ASN types", () => {
     });
   });
 
-  context("DateTime", () => {
+  describe("DateTime", () => {
     it("to/from BER", () => {
       const testString = "2000-01-02 12:00";
       const asn = new asn1js.DateTime({ value: testString });
@@ -273,7 +273,7 @@ context("ASN types", () => {
     });
   });
 
-  context("Duration", () => {
+  describe("Duration", () => {
     it("to/from BER", () => {
       const testString = "1000";
       const asn = new asn1js.Duration({ value: testString });
@@ -283,7 +283,7 @@ context("ASN types", () => {
     });
   });
 
-  context("GeneralString", () => {
+  describe("GeneralString", () => {
     it("to/from BER", () => {
       const testString = "some text";
       const asn = new asn1js.GeneralString({ value: testString });
@@ -293,7 +293,7 @@ context("ASN types", () => {
     });
   });
 
-  context("GeneralizedTime", () => {
+  describe("GeneralizedTime", () => {
     it("to/from BER", () => {
       const value = new Date("2000-01-02T12:11:10.100Z");
       const asn = new asn1js.GeneralizedTime({ valueDate: value });
@@ -303,7 +303,7 @@ context("ASN types", () => {
       assert.ok(asn.toString().startsWith, "2000");
     });
 
-    context("fromString", () => {
+    describe("fromString", () => {
       it("YYYYMMDD", () => {
         const asn = new asn1js.GeneralizedTime({ value: "20000102" });
         assert.strictEqual(asn.toString("hex"), "18083230303030313032");
@@ -369,7 +369,7 @@ context("ASN types", () => {
     });
   });
 
-  context("GraphicString", () => {
+  describe("GraphicString", () => {
     it("to/from BER", () => {
       const testString = "some text";
       const asn = new asn1js.GraphicString({ value: testString });
@@ -379,7 +379,7 @@ context("ASN types", () => {
     });
   });
 
-  context("NumericString", () => {
+  describe("NumericString", () => {
     it("to/from BER", () => {
       const testString = "1234567890";
       const asn = new asn1js.NumericString({ value: testString });
@@ -389,7 +389,7 @@ context("ASN types", () => {
     });
   });
 
-  context("RawData", () => {
+  describe("RawData", () => {
     it("to/from BER", () => {
       const value = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
       const asn = new asn1js.RawData({ data: value });
@@ -402,8 +402,8 @@ context("ASN types", () => {
     });
   });
 
-  context("ObjectIdentifier", () => {
-    context("to/from BER", () => {
+  describe("ObjectIdentifier", () => {
+    describe("to/from BER", () => {
       it("starts with 0", () => {
         const value = "0.2.3.4.5";
         const asn = new asn1js.ObjectIdentifier({ value });
@@ -441,8 +441,8 @@ context("ASN types", () => {
     });
   });
 
-  context("RelativeObjectIdentifier", () => {
-    context("to/from BER", () => {
+  describe("RelativeObjectIdentifier", () => {
+    describe("to/from BER", () => {
       it("correct value", () => {
         const value = "12345.1234.123.12.1";
         const asn = new asn1js.RelativeObjectIdentifier({ value });
@@ -470,12 +470,12 @@ context("ASN types", () => {
     });
   });
 
-  context("OctetString", () => {
+  describe("OctetString", () => {
     it("parse zero-length", () => {
       const asn = asn1js.fromBER(pvtsutils.Convert.FromHex("0400"));
       assert.ok(asn.result instanceof asn1js.OctetString);
     });
-    context("to BER", () => {
+    describe("to BER", () => {
       it("default", () => {
         const asn = new asn1js.OctetString();
         assert.strictEqual(asn.toString("hex"), "0400");

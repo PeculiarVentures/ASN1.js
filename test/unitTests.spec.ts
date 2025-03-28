@@ -4,8 +4,8 @@ import * as asn1js from "../src";
 import { BaseBlock } from "../src";
 import { checkBufferParams } from "../src/internals/utils";
 
-context("Unit tests", () => {
-  context("utils", () => {
+describe("Unit tests", () => {
+  describe("utils", () => {
     it("buffer incorrect type", () => {
       const buffer = "wrong";
       const block = new BaseBlock();

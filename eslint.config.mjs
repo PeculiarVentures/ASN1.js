@@ -8,6 +8,8 @@ export default tseslint.config([
       "build/**/*",
       "website/**/*",
       "eslint.config.mjs",
+      "rollup.config.mjs",
+      "jest.config.js",
       "node_modules/**/*",
     ],
   },
