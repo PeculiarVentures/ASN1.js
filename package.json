@@ -70,6 +70,6 @@
     "lint:fix": "eslint --fix . --ext .ts",
     "coverage": "jest --coverage"
   },
-  "version": "3.0.5",
+  "version": "3.0.6",
   "license": "BSD-3-Clause"
 }
