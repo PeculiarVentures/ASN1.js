@@ -10,26 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
         with:
-          node-version: 18
+          node-version: 22
           cache: 'yarn'
-
-      - name: Install library dependencies
-        run: yarn install --frozen-lockfile
+      - run: yarn install --frozen-lockfile
         
-      - name: Build library
-        run: yarn build
+      - run: yarn build
+      - run: yarn --cwd website install --frozen-lockfile
+      - run: yarn --cwd website build
 
-      - name: Install website dependencies
-        run: yarn --cwd website install --frozen-lockfile
-        
-      - name: Build website
-        run: yarn --cwd website build
-
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v3
+      - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: website/build
