@@ -13,6 +13,6 @@ var asn1_schema = new asn1js.Sequence({
   ]
 });
 
-var variant1 = org.pkijs.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
+var variant1 = asn1js.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
 var variant1_verified = variant1.verified;
 var variant1_result = variant1.result; // Verified decoded data with all block names inside
