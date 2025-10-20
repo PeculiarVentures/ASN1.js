@@ -14,7 +14,7 @@ var asn1_schema_internal = new asn1js.OctetString({
   })
 });
 
-var variant6 = org.pkijs.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
+var variant6 = asn1js.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
 var variant6_verified = variant4.verified;
 var variant6_block1_tag_num = variant6.result.block1.idBlock.tagNumber;
 var variant6_block2_tag_num = variant6.result.block2.idBlock.tagNumber;
