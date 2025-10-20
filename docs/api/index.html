@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-api/index" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">asn1js</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://asn1js.org/img/card.png"><meta data-rh="true" name="twitter:image" content="https://asn1js.org/img/card.png"><meta data-rh="true" property="og:url" content="https://asn1js.org/docs/api/"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="asn1js"><meta data-rh="true" name="description" content="Classes"><meta data-rh="true" property="og:description" content="Classes"><link data-rh="true" rel="icon" href="/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://asn1js.org/docs/api/"><link data-rh="true" rel="alternate" href="https://asn1js.org/docs/api/" hreflang="en"><link data-rh="true" rel="alternate" href="https://asn1js.org/docs/api/" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Exports","item":"https://asn1js.org/docs/api/"}]}</script><link rel="stylesheet" href="/assets/css/styles.a528467f.css">
+<script src="/assets/js/runtime~main.1df05c6c.js" defer="defer"></script>
+<script src="/assets/js/main.f635a198.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>document.documentElement.setAttribute("data-theme","light"),document.documentElement.setAttribute("data-theme-choice","light"),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top navbar--dark"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/"><div class="navbar__logo"><img src="/img/logo_r3.svg" alt="asn1.js" class="themedComponent_mlkZ themedComponent--light_NVdE" width="92"><img src="/img/logo_r3.svg" alt="asn1.js" class="themedComponent_mlkZ themedComponent--dark_xIcU" width="92"></div></a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/docs/installation">Docs</a><a class="navbar__item navbar__link" href="/docs/examples/create-new-asn-structures-by-calling-constructors-with-parameters">Examples</a><a href="https://github.com/PeculiarVentures/ASN1.js" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link header-github-link" aria-label="GitHub repository"></a><div class="navbarSearchContainer_Bca1"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/docs/installation"><span title="Installation" class="linkLabel_WmDU">Installation</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/docs/api/"><span title="API" class="categoryLinkLabel_W154">API</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/docs/api/"><span title="Exports" class="linkLabel_WmDU">Exports</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/docs/api/classes/Any"><span title="Classes" class="categoryLinkLabel_W154">Classes</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" tabindex="0" href="/docs/api/interfaces/BaseBlockJson"><span title="Interfaces" class="categoryLinkLabel_W154">Interfaces</span></a></div></li></ul></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="Breadcrumbs"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="Home page" class="breadcrumbs__link" href="/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><span class="breadcrumbs__link">API</span></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">Exports</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>asn1js</h1></header>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="classes">Classes<a href="#classes" class="hash-link" aria-label="Direct link to Classes" title="Direct link to Classes" translate="no">​</a></h2>
+<ul>
+<li class=""><a class="" href="/docs/api/classes/Any">Any</a></li>
+<li class=""><a class="" href="/docs/api/classes/BaseBlock">BaseBlock</a></li>
+<li class=""><a class="" href="/docs/api/classes/BaseStringBlock">BaseStringBlock</a></li>
+<li class=""><a class="" href="/docs/api/classes/BitString">BitString</a></li>
+<li class=""><a class="" href="/docs/api/classes/BmpString">BmpString</a></li>
+<li class=""><a class="" href="/docs/api/classes/Boolean">Boolean</a></li>
+<li class=""><a class="" href="/docs/api/classes/CharacterString">CharacterString</a></li>
+<li class=""><a class="" href="/docs/api/classes/Choice">Choice</a></li>
+<li class=""><a class="" href="/docs/api/classes/Constructed">Constructed</a></li>
+<li class=""><a class="" href="/docs/api/classes/DATE">DATE</a></li>
+<li class=""><a class="" href="/docs/api/classes/DateTime">DateTime</a></li>
+<li class=""><a class="" href="/docs/api/classes/Duration">Duration</a></li>
+<li class=""><a class="" href="/docs/api/classes/EndOfContent">EndOfContent</a></li>
+<li class=""><a class="" href="/docs/api/classes/Enumerated">Enumerated</a></li>
+<li class=""><a class="" href="/docs/api/classes/GeneralizedTime">GeneralizedTime</a></li>
+<li class=""><a class="" href="/docs/api/classes/GeneralString">GeneralString</a></li>
+<li class=""><a class="" href="/docs/api/classes/GraphicString">GraphicString</a></li>
+<li class=""><a class="" href="/docs/api/classes/IA5String">IA5String</a></li>
+<li class=""><a class="" href="/docs/api/classes/Integer">Integer</a></li>
+<li class=""><a class="" href="/docs/api/classes/Null">Null</a></li>
+<li class=""><a class="" href="/docs/api/classes/NumericString">NumericString</a></li>
+<li class=""><a class="" href="/docs/api/classes/ObjectIdentifier">ObjectIdentifier</a></li>
+<li class=""><a class="" href="/docs/api/classes/OctetString">OctetString</a></li>
+<li class=""><a class="" href="/docs/api/classes/Primitive">Primitive</a></li>
+<li class=""><a class="" href="/docs/api/classes/PrintableString">PrintableString</a></li>
+<li class=""><a class="" href="/docs/api/classes/RawData">RawData</a></li>
+<li class=""><a class="" href="/docs/api/classes/RelativeObjectIdentifier">RelativeObjectIdentifier</a></li>
+<li class=""><a class="" href="/docs/api/classes/Repeated">Repeated</a></li>
+<li class=""><a class="" href="/docs/api/classes/Sequence">Sequence</a></li>
+<li class=""><a class="" href="/docs/api/classes/Set">Set</a></li>
+<li class=""><a class="" href="/docs/api/classes/TeletexString">TeletexString</a></li>
+<li class=""><a class="" href="/docs/api/classes/TIME">TIME</a></li>
+<li class=""><a class="" href="/docs/api/classes/TimeOfDay">TimeOfDay</a></li>
+<li class=""><a class="" href="/docs/api/classes/UniversalString">UniversalString</a></li>
+<li class=""><a class="" href="/docs/api/classes/UTCTime">UTCTime</a></li>
+<li class=""><a class="" href="/docs/api/classes/Utf8String">Utf8String</a></li>
+<li class=""><a class="" href="/docs/api/classes/ValueBlock">ValueBlock</a></li>
+<li class=""><a class="" href="/docs/api/classes/VideotexString">VideotexString</a></li>
+<li class=""><a class="" href="/docs/api/classes/ViewWriter">ViewWriter</a></li>
+<li class=""><a class="" href="/docs/api/classes/VisibleString">VisibleString</a></li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="interfaces">Interfaces<a href="#interfaces" class="hash-link" aria-label="Direct link to Interfaces" title="Direct link to Interfaces" translate="no">​</a></h2>
+<ul>
+<li class=""><a class="" href="/docs/api/interfaces/BaseBlockJson">BaseBlockJson</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/BaseBlockParams">BaseBlockParams</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/BaseStringBlockParams">BaseStringBlockParams</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/BitStringParams">BitStringParams</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/BooleanParams">BooleanParams</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/CompareSchemaFail">CompareSchemaFail</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/CompareSchemaSuccess">CompareSchemaSuccess</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/ConstructedParams">ConstructedParams</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/FromBerResult">FromBerResult</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/GeneralizedTimeJson">GeneralizedTimeJson</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/HexBlockJson">HexBlockJson</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/IAny">IAny</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/IBaseBlock">IBaseBlock</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/IBerConvertible">IBerConvertible</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/IChoice">IChoice</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/IDateConvertible">IDateConvertible</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/IDerConvertible">IDerConvertible</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/IGeneralizedTime">IGeneralizedTime</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/IHexBlock">IHexBlock</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/IntegerParams">IntegerParams</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/IRawData">IRawData</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/IRepeated">IRepeated</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/IStringConvertible">IStringConvertible</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/IUTCTime">IUTCTime</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/ObjectIdentifierJson">ObjectIdentifierJson</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/ObjectIdentifierParams">ObjectIdentifierParams</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/OctetStringParams">OctetStringParams</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/PrimitiveParams">PrimitiveParams</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/RelativeObjectIdentifierJson">RelativeObjectIdentifierJson</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/RelativeObjectIdentifierParams">RelativeObjectIdentifierParams</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/UTCTimeJson">UTCTimeJson</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/UTCTimeParams">UTCTimeParams</a></li>
+<li class=""><a class="" href="/docs/api/interfaces/Utf8StringParams">Utf8StringParams</a></li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="type-aliases">Type Aliases<a href="#type-aliases" class="hash-link" aria-label="Direct link to Type Aliases" title="Direct link to Type Aliases" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="anyparams">AnyParams<a href="#anyparams" class="hash-link" aria-label="Direct link to AnyParams" title="Direct link to AnyParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>AnyParams</strong> = <code>Partial</code>&lt;<a class="" href="/docs/api/interfaces/IAny"><code>IAny</code></a>&gt;</p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="asnschematype">AsnSchemaType<a href="#asnschematype" class="hash-link" aria-label="Direct link to AsnSchemaType" title="Direct link to AsnSchemaType" translate="no">​</a></h3>
+<blockquote>
+<p><strong>AsnSchemaType</strong> = <a href="#asntype" class=""><code>AsnType</code></a> | <a class="" href="/docs/api/classes/Any"><code>Any</code></a> | <a class="" href="/docs/api/classes/Choice"><code>Choice</code></a> | <a class="" href="/docs/api/classes/Repeated"><code>Repeated</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="asntype">AsnType<a href="#asntype" class="hash-link" aria-label="Direct link to AsnType" title="Direct link to AsnType" translate="no">​</a></h3>
+<blockquote>
+<p><strong>AsnType</strong> = <a class="" href="/docs/api/classes/BaseBlock"><code>BaseBlock</code></a> | <a class="" href="/docs/api/classes/EndOfContent"><code>EndOfContent</code></a> | <a class="" href="/docs/api/classes/Boolean"><code>Boolean</code></a> | <a class="" href="/docs/api/classes/Integer"><code>Integer</code></a> | <a class="" href="/docs/api/classes/BitString"><code>BitString</code></a> | <a class="" href="/docs/api/classes/OctetString"><code>OctetString</code></a> | <a class="" href="/docs/api/classes/Null"><code>Null</code></a> | <a class="" href="/docs/api/classes/ObjectIdentifier"><code>ObjectIdentifier</code></a> | <a class="" href="/docs/api/classes/Enumerated"><code>Enumerated</code></a> | <a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a> | <a class="" href="/docs/api/classes/RelativeObjectIdentifier"><code>RelativeObjectIdentifier</code></a> | <a class="" href="/docs/api/classes/TIME"><code>TIME</code></a> | <a class="" href="/docs/api/classes/Sequence"><code>Sequence</code></a> | <a class="" href="/docs/api/classes/Set"><code>Set</code></a> | <a class="" href="/docs/api/classes/NumericString"><code>NumericString</code></a> | <a class="" href="/docs/api/classes/PrintableString"><code>PrintableString</code></a> | <a class="" href="/docs/api/classes/TeletexString"><code>TeletexString</code></a> | <a class="" href="/docs/api/classes/VideotexString"><code>VideotexString</code></a> | <a class="" href="/docs/api/classes/IA5String"><code>IA5String</code></a> | <a class="" href="/docs/api/classes/UTCTime"><code>UTCTime</code></a> | <a class="" href="/docs/api/classes/GeneralizedTime"><code>GeneralizedTime</code></a> | <a class="" href="/docs/api/classes/GraphicString"><code>GraphicString</code></a> | <a class="" href="/docs/api/classes/VisibleString"><code>VisibleString</code></a> | <a class="" href="/docs/api/classes/GeneralString"><code>GeneralString</code></a> | <a class="" href="/docs/api/classes/UniversalString"><code>UniversalString</code></a> | <a class="" href="/docs/api/classes/CharacterString"><code>CharacterString</code></a> | <a class="" href="/docs/api/classes/BmpString"><code>BmpString</code></a> | <a class="" href="/docs/api/classes/DATE"><code>DATE</code></a> | <a class="" href="/docs/api/classes/TimeOfDay"><code>TimeOfDay</code></a> | <a class="" href="/docs/api/classes/DateTime"><code>DateTime</code></a> | <a class="" href="/docs/api/classes/Duration"><code>Duration</code></a> | <a class="" href="/docs/api/classes/Constructed"><code>Constructed</code></a> | <a class="" href="/docs/api/classes/Primitive"><code>Primitive</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="basestringblockjson">BaseStringBlockJson<a href="#basestringblockjson" class="hash-link" aria-label="Direct link to BaseStringBlockJson" title="Direct link to BaseStringBlockJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>BaseStringBlockJson</strong> = <code>LocalStringValueBlockJson</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="bitstringjson">BitStringJson<a href="#bitstringjson" class="hash-link" aria-label="Direct link to BitStringJson" title="Direct link to BitStringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>BitStringJson</strong> = <a class="" href="/docs/api/interfaces/BaseBlockJson"><code>BaseBlockJson</code></a>&lt;<code>LocalBitStringValueBlockJson</code>&gt;</p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="bmpstringjson">BmpStringJson<a href="#bmpstringjson" class="hash-link" aria-label="Direct link to BmpStringJson" title="Direct link to BmpStringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>BmpStringJson</strong> = <code>LocalBmpStringValueBlockJson</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="bmpstringparams">BmpStringParams<a href="#bmpstringparams" class="hash-link" aria-label="Direct link to BmpStringParams" title="Direct link to BmpStringParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>BmpStringParams</strong> = <code>LocalBmpStringValueBlockParams</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="booleanjson">BooleanJson<a href="#booleanjson" class="hash-link" aria-label="Direct link to BooleanJson" title="Direct link to BooleanJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>BooleanJson</strong> = <a class="" href="/docs/api/interfaces/BaseBlockJson"><code>BaseBlockJson</code></a>&lt;<code>LocalBooleanValueBlockJson</code>&gt;</p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="characterstringjson">CharacterStringJson<a href="#characterstringjson" class="hash-link" aria-label="Direct link to CharacterStringJson" title="Direct link to CharacterStringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>CharacterStringJson</strong> = <code>LocalSimpleStringBlockJson</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="characterstringparams">CharacterStringParams<a href="#characterstringparams" class="hash-link" aria-label="Direct link to CharacterStringParams" title="Direct link to CharacterStringParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>CharacterStringParams</strong> = <code>LocalSimpleStringBlockParams</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="choiceparams">ChoiceParams<a href="#choiceparams" class="hash-link" aria-label="Direct link to ChoiceParams" title="Direct link to ChoiceParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>ChoiceParams</strong> = <code>Partial</code>&lt;<a class="" href="/docs/api/interfaces/IChoice"><code>IChoice</code></a>&gt;</p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="compareschemaresult">CompareSchemaResult<a href="#compareschemaresult" class="hash-link" aria-label="Direct link to CompareSchemaResult" title="Direct link to CompareSchemaResult" translate="no">​</a></h3>
+<blockquote>
+<p><strong>CompareSchemaResult</strong> = <a class="" href="/docs/api/interfaces/CompareSchemaSuccess"><code>CompareSchemaSuccess</code></a> | <a class="" href="/docs/api/interfaces/CompareSchemaFail"><code>CompareSchemaFail</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="constructedjson">ConstructedJson<a href="#constructedjson" class="hash-link" aria-label="Direct link to ConstructedJson" title="Direct link to ConstructedJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>ConstructedJson</strong> = <a class="" href="/docs/api/interfaces/BaseBlockJson"><code>BaseBlockJson</code></a>&lt;<code>LocalConstructedValueBlockJson</code>&gt;</p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="datejson">DATEJson<a href="#datejson" class="hash-link" aria-label="Direct link to DATEJson" title="Direct link to DATEJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>DATEJson</strong> = <a href="#utf8stringjson" class=""><code>Utf8StringJson</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="dateparams">DATEParams<a href="#dateparams" class="hash-link" aria-label="Direct link to DATEParams" title="Direct link to DATEParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>DATEParams</strong> = <a class="" href="/docs/api/interfaces/Utf8StringParams"><code>Utf8StringParams</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="datestringencoding">DateStringEncoding<a href="#datestringencoding" class="hash-link" aria-label="Direct link to DateStringEncoding" title="Direct link to DateStringEncoding" translate="no">​</a></h3>
+<blockquote>
+<p><strong>DateStringEncoding</strong> = <a href="#stringencoding" class=""><code>StringEncoding</code></a> | <code>&quot;iso&quot;</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="datetimejson">DateTimeJson<a href="#datetimejson" class="hash-link" aria-label="Direct link to DateTimeJson" title="Direct link to DateTimeJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>DateTimeJson</strong> = <a href="#utf8stringjson" class=""><code>Utf8StringJson</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="datetimeparams">DateTimeParams<a href="#datetimeparams" class="hash-link" aria-label="Direct link to DateTimeParams" title="Direct link to DateTimeParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>DateTimeParams</strong> = <a class="" href="/docs/api/interfaces/Utf8StringParams"><code>Utf8StringParams</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="durationjson">DurationJson<a href="#durationjson" class="hash-link" aria-label="Direct link to DurationJson" title="Direct link to DurationJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>DurationJson</strong> = <a href="#utf8stringjson" class=""><code>Utf8StringJson</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="durationparams">DurationParams<a href="#durationparams" class="hash-link" aria-label="Direct link to DurationParams" title="Direct link to DurationParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>DurationParams</strong> = <a class="" href="/docs/api/interfaces/Utf8StringParams"><code>Utf8StringParams</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="endofcontentjson">EndOfContentJson<a href="#endofcontentjson" class="hash-link" aria-label="Direct link to EndOfContentJson" title="Direct link to EndOfContentJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>EndOfContentJson</strong> = <a class="" href="/docs/api/interfaces/BaseBlockJson"><code>BaseBlockJson</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="endofcontentparams">EndOfContentParams<a href="#endofcontentparams" class="hash-link" aria-label="Direct link to EndOfContentParams" title="Direct link to EndOfContentParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>EndOfContentParams</strong> = <a class="" href="/docs/api/interfaces/BaseBlockParams"><code>BaseBlockParams</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="enumeratedjson">EnumeratedJson<a href="#enumeratedjson" class="hash-link" aria-label="Direct link to EnumeratedJson" title="Direct link to EnumeratedJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>EnumeratedJson</strong> = <a href="#integerjson" class=""><code>IntegerJson</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="enumeratedparams">EnumeratedParams<a href="#enumeratedparams" class="hash-link" aria-label="Direct link to EnumeratedParams" title="Direct link to EnumeratedParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>EnumeratedParams</strong> = <a class="" href="/docs/api/interfaces/IntegerParams"><code>IntegerParams</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="generalizedtimeparams">GeneralizedTimeParams<a href="#generalizedtimeparams" class="hash-link" aria-label="Direct link to GeneralizedTimeParams" title="Direct link to GeneralizedTimeParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>GeneralizedTimeParams</strong> = <a class="" href="/docs/api/interfaces/UTCTimeParams"><code>UTCTimeParams</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="generalstringjson">GeneralStringJson<a href="#generalstringjson" class="hash-link" aria-label="Direct link to GeneralStringJson" title="Direct link to GeneralStringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>GeneralStringJson</strong> = <code>LocalSimpleStringBlockJson</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="generalstringparams">GeneralStringParams<a href="#generalstringparams" class="hash-link" aria-label="Direct link to GeneralStringParams" title="Direct link to GeneralStringParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>GeneralStringParams</strong> = <code>LocalSimpleStringBlockParams</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="graphicstringjson">GraphicStringJson<a href="#graphicstringjson" class="hash-link" aria-label="Direct link to GraphicStringJson" title="Direct link to GraphicStringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>GraphicStringJson</strong> = <code>LocalSimpleStringBlockJson</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="graphicstringparams">GraphicStringParams<a href="#graphicstringparams" class="hash-link" aria-label="Direct link to GraphicStringParams" title="Direct link to GraphicStringParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>GraphicStringParams</strong> = <code>LocalSimpleStringBlockParams</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="hexblockparams">HexBlockParams<a href="#hexblockparams" class="hash-link" aria-label="Direct link to HexBlockParams" title="Direct link to HexBlockParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>HexBlockParams</strong> = <code>Partial</code>&lt;<a class="" href="/docs/api/interfaces/IHexBlock"><code>IHexBlock</code></a>&gt;</p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ia5stringjson">IA5StringJson<a href="#ia5stringjson" class="hash-link" aria-label="Direct link to IA5StringJson" title="Direct link to IA5StringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>IA5StringJson</strong> = <code>LocalSimpleStringBlockJson</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ia5stringparams">IA5StringParams<a href="#ia5stringparams" class="hash-link" aria-label="Direct link to IA5StringParams" title="Direct link to IA5StringParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>IA5StringParams</strong> = <code>LocalSimpleStringBlockParams</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="integerjson">IntegerJson<a href="#integerjson" class="hash-link" aria-label="Direct link to IntegerJson" title="Direct link to IntegerJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>IntegerJson</strong> = <a class="" href="/docs/api/interfaces/BaseBlockJson"><code>BaseBlockJson</code></a>&lt;<code>LocalIntegerValueBlockJson</code>&gt;</p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="ivalueblock">IValueBlock<a href="#ivalueblock" class="hash-link" aria-label="Direct link to IValueBlock" title="Direct link to IValueBlock" translate="no">​</a></h3>
+<blockquote>
+<p><strong>IValueBlock</strong> = <code>internals.ILocalBaseBlock</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="nulljson">NullJson<a href="#nulljson" class="hash-link" aria-label="Direct link to NullJson" title="Direct link to NullJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>NullJson</strong> = <a class="" href="/docs/api/interfaces/BaseBlockJson"><code>BaseBlockJson</code></a>&lt;<a href="#valueblockjson" class=""><code>ValueBlockJson</code></a>&gt;</p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="nullparams">NullParams<a href="#nullparams" class="hash-link" aria-label="Direct link to NullParams" title="Direct link to NullParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>NullParams</strong> = <a class="" href="/docs/api/interfaces/BaseBlockParams"><code>BaseBlockParams</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="numericstringjson">NumericStringJson<a href="#numericstringjson" class="hash-link" aria-label="Direct link to NumericStringJson" title="Direct link to NumericStringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>NumericStringJson</strong> = <code>LocalSimpleStringBlockJson</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="numericstringparams">NumericStringParams<a href="#numericstringparams" class="hash-link" aria-label="Direct link to NumericStringParams" title="Direct link to NumericStringParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>NumericStringParams</strong> = <code>LocalSimpleStringBlockParams</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="octetstringjson">OctetStringJson<a href="#octetstringjson" class="hash-link" aria-label="Direct link to OctetStringJson" title="Direct link to OctetStringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>OctetStringJson</strong> = <a class="" href="/docs/api/interfaces/BaseBlockJson"><code>BaseBlockJson</code></a>&lt;<code>LocalOctetStringValueBlockJson</code>&gt;</p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="primitivejson">PrimitiveJson<a href="#primitivejson" class="hash-link" aria-label="Direct link to PrimitiveJson" title="Direct link to PrimitiveJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>PrimitiveJson</strong> = <a class="" href="/docs/api/interfaces/BaseBlockJson"><code>BaseBlockJson</code></a>&lt;<code>LocalPrimitiveValueBlockJson</code>&gt;</p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="printablestringjson">PrintableStringJson<a href="#printablestringjson" class="hash-link" aria-label="Direct link to PrintableStringJson" title="Direct link to PrintableStringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>PrintableStringJson</strong> = <code>LocalSimpleStringBlockJson</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="printablestringparams">PrintableStringParams<a href="#printablestringparams" class="hash-link" aria-label="Direct link to PrintableStringParams" title="Direct link to PrintableStringParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>PrintableStringParams</strong> = <code>LocalSimpleStringBlockParams</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="rawdataparams">RawDataParams<a href="#rawdataparams" class="hash-link" aria-label="Direct link to RawDataParams" title="Direct link to RawDataParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>RawDataParams</strong> = <code>Partial</code>&lt;<a class="" href="/docs/api/interfaces/IRawData"><code>IRawData</code></a>&gt;</p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="repeatedparams">RepeatedParams<a href="#repeatedparams" class="hash-link" aria-label="Direct link to RepeatedParams" title="Direct link to RepeatedParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>RepeatedParams</strong> = <code>Partial</code>&lt;<a class="" href="/docs/api/interfaces/IRepeated"><code>IRepeated</code></a>&gt;</p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="sequencejson">SequenceJson<a href="#sequencejson" class="hash-link" aria-label="Direct link to SequenceJson" title="Direct link to SequenceJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>SequenceJson</strong> = <a href="#constructedjson" class=""><code>ConstructedJson</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="sequenceparams">SequenceParams<a href="#sequenceparams" class="hash-link" aria-label="Direct link to SequenceParams" title="Direct link to SequenceParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>SequenceParams</strong> = <a class="" href="/docs/api/interfaces/ConstructedParams"><code>ConstructedParams</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="setjson">SetJson<a href="#setjson" class="hash-link" aria-label="Direct link to SetJson" title="Direct link to SetJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>SetJson</strong> = <a href="#constructedjson" class=""><code>ConstructedJson</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="setparams">SetParams<a href="#setparams" class="hash-link" aria-label="Direct link to SetParams" title="Direct link to SetParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>SetParams</strong> = <a class="" href="/docs/api/interfaces/ConstructedParams"><code>ConstructedParams</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="stringencoding">StringEncoding<a href="#stringencoding" class="hash-link" aria-label="Direct link to StringEncoding" title="Direct link to StringEncoding" translate="no">​</a></h3>
+<blockquote>
+<p><strong>StringEncoding</strong> = <code>&quot;ascii&quot;</code> | <code>&quot;hex&quot;</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="teletexstringjson">TeletexStringJson<a href="#teletexstringjson" class="hash-link" aria-label="Direct link to TeletexStringJson" title="Direct link to TeletexStringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>TeletexStringJson</strong> = <code>LocalSimpleStringBlockJson</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="teletexstringparams">TeletexStringParams<a href="#teletexstringparams" class="hash-link" aria-label="Direct link to TeletexStringParams" title="Direct link to TeletexStringParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>TeletexStringParams</strong> = <code>LocalSimpleStringBlockParams</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="timejson">TIMEJson<a href="#timejson" class="hash-link" aria-label="Direct link to TIMEJson" title="Direct link to TIMEJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>TIMEJson</strong> = <a href="#utf8stringjson" class=""><code>Utf8StringJson</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="timeofdayjson">TimeOfDayJson<a href="#timeofdayjson" class="hash-link" aria-label="Direct link to TimeOfDayJson" title="Direct link to TimeOfDayJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>TimeOfDayJson</strong> = <a href="#utf8stringjson" class=""><code>Utf8StringJson</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="timeofdayparams">TimeOfDayParams<a href="#timeofdayparams" class="hash-link" aria-label="Direct link to TimeOfDayParams" title="Direct link to TimeOfDayParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>TimeOfDayParams</strong> = <a class="" href="/docs/api/interfaces/Utf8StringParams"><code>Utf8StringParams</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="timeparams">TIMEParams<a href="#timeparams" class="hash-link" aria-label="Direct link to TIMEParams" title="Direct link to TIMEParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>TIMEParams</strong> = <a class="" href="/docs/api/interfaces/Utf8StringParams"><code>Utf8StringParams</code></a></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="universalstringjson">UniversalStringJson<a href="#universalstringjson" class="hash-link" aria-label="Direct link to UniversalStringJson" title="Direct link to UniversalStringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>UniversalStringJson</strong> = <code>LocalUniversalStringValueBlockJson</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="universalstringparams">UniversalStringParams<a href="#universalstringparams" class="hash-link" aria-label="Direct link to UniversalStringParams" title="Direct link to UniversalStringParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>UniversalStringParams</strong> = <code>LocalUniversalStringValueBlockParams</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="utf8stringjson">Utf8StringJson<a href="#utf8stringjson" class="hash-link" aria-label="Direct link to Utf8StringJson" title="Direct link to Utf8StringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>Utf8StringJson</strong> = <a class="" href="/docs/api/interfaces/BaseBlockJson"><code>BaseBlockJson</code></a>&lt;<code>LocalUtf8StringValueBlockJson</code>&gt;</p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="valueblockconstructor">ValueBlockConstructor()<a href="#valueblockconstructor" class="hash-link" aria-label="Direct link to ValueBlockConstructor()" title="Direct link to ValueBlockConstructor()" translate="no">​</a></h3>
+<blockquote>
+<p><strong>ValueBlockConstructor</strong>&lt;<code>T</code>&gt; = (...<code>args</code>) =&gt; <code>T</code></p>
+</blockquote>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="type-parameters">Type Parameters<a href="#type-parameters" class="hash-link" aria-label="Direct link to Type Parameters" title="Direct link to Type Parameters" translate="no">​</a></h4>
+<h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="t">T<a href="#t" class="hash-link" aria-label="Direct link to T" title="Direct link to T" translate="no">​</a></h5>
+<p><code>T</code> <em>extends</em> <a class="" href="/docs/api/classes/ValueBlock"><code>ValueBlock</code></a> = <a class="" href="/docs/api/classes/ValueBlock"><code>ValueBlock</code></a></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters">Parameters<a href="#parameters" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
+<h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="args">args<a href="#args" class="hash-link" aria-label="Direct link to args" title="Direct link to args" translate="no">​</a></h5>
+<p>...<code>any</code>[]</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns">Returns<a href="#returns" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<p><code>T</code></p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="valueblockjson">ValueBlockJson<a href="#valueblockjson" class="hash-link" aria-label="Direct link to ValueBlockJson" title="Direct link to ValueBlockJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>ValueBlockJson</strong> = <code>internals.LocalBaseBlockJson</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="valueblockparams">ValueBlockParams<a href="#valueblockparams" class="hash-link" aria-label="Direct link to ValueBlockParams" title="Direct link to ValueBlockParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>ValueBlockParams</strong> = <code>internals.LocalBaseBlockParams</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="videotexstringjson">VideotexStringJson<a href="#videotexstringjson" class="hash-link" aria-label="Direct link to VideotexStringJson" title="Direct link to VideotexStringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>VideotexStringJson</strong> = <code>LocalSimpleStringBlockJson</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="videotexstringparams">VideotexStringParams<a href="#videotexstringparams" class="hash-link" aria-label="Direct link to VideotexStringParams" title="Direct link to VideotexStringParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>VideotexStringParams</strong> = <code>LocalSimpleStringBlockParams</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="visiblestringjson">VisibleStringJson<a href="#visiblestringjson" class="hash-link" aria-label="Direct link to VisibleStringJson" title="Direct link to VisibleStringJson" translate="no">​</a></h3>
+<blockquote>
+<p><strong>VisibleStringJson</strong> = <code>LocalSimpleStringBlockJson</code></p>
+</blockquote>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="visiblestringparams">VisibleStringParams<a href="#visiblestringparams" class="hash-link" aria-label="Direct link to VisibleStringParams" title="Direct link to VisibleStringParams" translate="no">​</a></h3>
+<blockquote>
+<p><strong>VisibleStringParams</strong> = <code>LocalSimpleStringBlockParams</code></p>
+</blockquote>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="functions">Functions<a href="#functions" class="hash-link" aria-label="Direct link to Functions" title="Direct link to Functions" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="compareschema">compareSchema()<a href="#compareschema" class="hash-link" aria-label="Direct link to compareSchema()" title="Direct link to compareSchema()" translate="no">​</a></h3>
+<blockquote>
+<p><strong>compareSchema</strong>(<code>root</code>, <code>inputData</code>, <code>inputSchema</code>): <a href="#compareschemaresult" class=""><code>CompareSchemaResult</code></a></p>
+</blockquote>
+<p>Compare of two ASN.1 object trees</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-1">Parameters<a href="#parameters-1" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
+<h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="root">root<a href="#root" class="hash-link" aria-label="Direct link to root" title="Direct link to root" translate="no">​</a></h5>
+<p><a href="#asntype" class=""><code>AsnType</code></a></p>
+<p>Root of input ASN.1 object tree</p>
+<h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="inputdata">inputData<a href="#inputdata" class="hash-link" aria-label="Direct link to inputData" title="Direct link to inputData" translate="no">​</a></h5>
+<p><a href="#asntype" class=""><code>AsnType</code></a></p>
+<p>Input ASN.1 object tree</p>
+<h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="inputschema">inputSchema<a href="#inputschema" class="hash-link" aria-label="Direct link to inputSchema" title="Direct link to inputSchema" translate="no">​</a></h5>
+<p><a href="#asnschematype" class=""><code>AsnSchemaType</code></a></p>
+<p>Input ASN.1 schema to compare with</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-1">Returns<a href="#returns-1" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<p><a href="#compareschemaresult" class=""><code>CompareSchemaResult</code></a></p>
+<p>Returns result of comparison</p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="fromber">fromBER()<a href="#fromber" class="hash-link" aria-label="Direct link to fromBER()" title="Direct link to fromBER()" translate="no">​</a></h3>
+<blockquote>
+<p><strong>fromBER</strong>(<code>inputBuffer</code>): <a class="" href="/docs/api/interfaces/FromBerResult"><code>FromBerResult</code></a></p>
+</blockquote>
+<p>Major function for decoding ASN.1 BER array into internal library structures</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-2">Parameters<a href="#parameters-2" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
+<h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="inputbuffer">inputBuffer<a href="#inputbuffer" class="hash-link" aria-label="Direct link to inputBuffer" title="Direct link to inputBuffer" translate="no">​</a></h5>
+<p><code>BufferSource</code></p>
+<p>ASN.1 BER encoded array of bytes</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-2">Returns<a href="#returns-2" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<p><a class="" href="/docs/api/interfaces/FromBerResult"><code>FromBerResult</code></a></p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="hexblock">HexBlock()<a href="#hexblock" class="hash-link" aria-label="Direct link to HexBlock()" title="Direct link to HexBlock()" translate="no">​</a></h3>
+<blockquote>
+<p><strong>HexBlock</strong>&lt;<code>T</code>&gt;(<code>BaseClass</code>): {(...<code>args</code>): <code>Some</code>&lt;<code>T</code>&gt;; <code>NAME</code>: <code>string</code>; <code>prototype</code>: <code>Some</code>&lt;<code>any</code>&gt;; <code>blockName</code>: <code>string</code>; } &amp; <code>T</code></p>
+</blockquote>
+<p>Class used as a base block for all remaining ASN.1 classes</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="type-parameters-1">Type Parameters<a href="#type-parameters-1" class="hash-link" aria-label="Direct link to Type Parameters" title="Direct link to Type Parameters" translate="no">​</a></h4>
+<h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="t-1">T<a href="#t-1" class="hash-link" aria-label="Direct link to T" title="Direct link to T" translate="no">​</a></h5>
+<p><code>T</code> <em>extends</em> <code>LocalBaseBlockConstructor</code>&lt;<code>LocalBaseBlock</code>&gt;</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-3">Parameters<a href="#parameters-3" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
+<h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="baseclass">BaseClass<a href="#baseclass" class="hash-link" aria-label="Direct link to BaseClass" title="Direct link to BaseClass" translate="no">​</a></h5>
+<p><code>T</code></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-3">Returns<a href="#returns-3" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="verifyschema">verifySchema()<a href="#verifyschema" class="hash-link" aria-label="Direct link to verifySchema()" title="Direct link to verifySchema()" translate="no">​</a></h3>
+<blockquote>
+<p><strong>verifySchema</strong>(<code>inputBuffer</code>, <code>inputSchema</code>): <a href="#compareschemaresult" class=""><code>CompareSchemaResult</code></a></p>
+</blockquote>
+<p>ASN.1 schema verification for ArrayBuffer data</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-4">Parameters<a href="#parameters-4" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
+<h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="inputbuffer-1">inputBuffer<a href="#inputbuffer-1" class="hash-link" aria-label="Direct link to inputBuffer" title="Direct link to inputBuffer" translate="no">​</a></h5>
+<p><code>BufferSource</code></p>
+<p>Input BER-encoded ASN.1 data</p>
+<h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="inputschema-1">inputSchema<a href="#inputschema-1" class="hash-link" aria-label="Direct link to inputSchema" title="Direct link to inputSchema" translate="no">​</a></h5>
+<p><a href="#asnschematype" class=""><code>AsnSchemaType</code></a></p>
+<p>Input ASN.1 schema to verify against to</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-4">Returns<a href="#returns-4" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<p><a href="#compareschemaresult" class=""><code>CompareSchemaResult</code></a></p></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/docs/installation"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Installation</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/docs/api/classes/Any"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Any</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#classes" class="table-of-contents__link toc-highlight">Classes</a></li><li><a href="#interfaces" class="table-of-contents__link toc-highlight">Interfaces</a></li><li><a href="#type-aliases" class="table-of-contents__link toc-highlight">Type Aliases</a><ul><li><a href="#anyparams" class="table-of-contents__link toc-highlight">AnyParams</a></li><li><a href="#asnschematype" class="table-of-contents__link toc-highlight">AsnSchemaType</a></li><li><a href="#asntype" class="table-of-contents__link toc-highlight">AsnType</a></li><li><a href="#basestringblockjson" class="table-of-contents__link toc-highlight">BaseStringBlockJson</a></li><li><a href="#bitstringjson" class="table-of-contents__link toc-highlight">BitStringJson</a></li><li><a href="#bmpstringjson" class="table-of-contents__link toc-highlight">BmpStringJson</a></li><li><a href="#bmpstringparams" class="table-of-contents__link toc-highlight">BmpStringParams</a></li><li><a href="#booleanjson" class="table-of-contents__link toc-highlight">BooleanJson</a></li><li><a href="#characterstringjson" class="table-of-contents__link toc-highlight">CharacterStringJson</a></li><li><a href="#characterstringparams" class="table-of-contents__link toc-highlight">CharacterStringParams</a></li><li><a href="#choiceparams" class="table-of-contents__link toc-highlight">ChoiceParams</a></li><li><a href="#compareschemaresult" class="table-of-contents__link toc-highlight">CompareSchemaResult</a></li><li><a href="#constructedjson" class="table-of-contents__link toc-highlight">ConstructedJson</a></li><li><a href="#datejson" class="table-of-contents__link toc-highlight">DATEJson</a></li><li><a href="#dateparams" class="table-of-contents__link toc-highlight">DATEParams</a></li><li><a href="#datestringencoding" class="table-of-contents__link toc-highlight">DateStringEncoding</a></li><li><a href="#datetimejson" class="table-of-contents__link toc-highlight">DateTimeJson</a></li><li><a href="#datetimeparams" class="table-of-contents__link toc-highlight">DateTimeParams</a></li><li><a href="#durationjson" class="table-of-contents__link toc-highlight">DurationJson</a></li><li><a href="#durationparams" class="table-of-contents__link toc-highlight">DurationParams</a></li><li><a href="#endofcontentjson" class="table-of-contents__link toc-highlight">EndOfContentJson</a></li><li><a href="#endofcontentparams" class="table-of-contents__link toc-highlight">EndOfContentParams</a></li><li><a href="#enumeratedjson" class="table-of-contents__link toc-highlight">EnumeratedJson</a></li><li><a href="#enumeratedparams" class="table-of-contents__link toc-highlight">EnumeratedParams</a></li><li><a href="#generalizedtimeparams" class="table-of-contents__link toc-highlight">GeneralizedTimeParams</a></li><li><a href="#generalstringjson" class="table-of-contents__link toc-highlight">GeneralStringJson</a></li><li><a href="#generalstringparams" class="table-of-contents__link toc-highlight">GeneralStringParams</a></li><li><a href="#graphicstringjson" class="table-of-contents__link toc-highlight">GraphicStringJson</a></li><li><a href="#graphicstringparams" class="table-of-contents__link toc-highlight">GraphicStringParams</a></li><li><a href="#hexblockparams" class="table-of-contents__link toc-highlight">HexBlockParams</a></li><li><a href="#ia5stringjson" class="table-of-contents__link toc-highlight">IA5StringJson</a></li><li><a href="#ia5stringparams" class="table-of-contents__link toc-highlight">IA5StringParams</a></li><li><a href="#integerjson" class="table-of-contents__link toc-highlight">IntegerJson</a></li><li><a href="#ivalueblock" class="table-of-contents__link toc-highlight">IValueBlock</a></li><li><a href="#nulljson" class="table-of-contents__link toc-highlight">NullJson</a></li><li><a href="#nullparams" class="table-of-contents__link toc-highlight">NullParams</a></li><li><a href="#numericstringjson" class="table-of-contents__link toc-highlight">NumericStringJson</a></li><li><a href="#numericstringparams" class="table-of-contents__link toc-highlight">NumericStringParams</a></li><li><a href="#octetstringjson" class="table-of-contents__link toc-highlight">OctetStringJson</a></li><li><a href="#primitivejson" class="table-of-contents__link toc-highlight">PrimitiveJson</a></li><li><a href="#printablestringjson" class="table-of-contents__link toc-highlight">PrintableStringJson</a></li><li><a href="#printablestringparams" class="table-of-contents__link toc-highlight">PrintableStringParams</a></li><li><a href="#rawdataparams" class="table-of-contents__link toc-highlight">RawDataParams</a></li><li><a href="#repeatedparams" class="table-of-contents__link toc-highlight">RepeatedParams</a></li><li><a href="#sequencejson" class="table-of-contents__link toc-highlight">SequenceJson</a></li><li><a href="#sequenceparams" class="table-of-contents__link toc-highlight">SequenceParams</a></li><li><a href="#setjson" class="table-of-contents__link toc-highlight">SetJson</a></li><li><a href="#setparams" class="table-of-contents__link toc-highlight">SetParams</a></li><li><a href="#stringencoding" class="table-of-contents__link toc-highlight">StringEncoding</a></li><li><a href="#teletexstringjson" class="table-of-contents__link toc-highlight">TeletexStringJson</a></li><li><a href="#teletexstringparams" class="table-of-contents__link toc-highlight">TeletexStringParams</a></li><li><a href="#timejson" class="table-of-contents__link toc-highlight">TIMEJson</a></li><li><a href="#timeofdayjson" class="table-of-contents__link toc-highlight">TimeOfDayJson</a></li><li><a href="#timeofdayparams" class="table-of-contents__link toc-highlight">TimeOfDayParams</a></li><li><a href="#timeparams" class="table-of-contents__link toc-highlight">TIMEParams</a></li><li><a href="#universalstringjson" class="table-of-contents__link toc-highlight">UniversalStringJson</a></li><li><a href="#universalstringparams" class="table-of-contents__link toc-highlight">UniversalStringParams</a></li><li><a href="#utf8stringjson" class="table-of-contents__link toc-highlight">Utf8StringJson</a></li><li><a href="#valueblockconstructor" class="table-of-contents__link toc-highlight">ValueBlockConstructor()</a></li><li><a href="#valueblockjson" class="table-of-contents__link toc-highlight">ValueBlockJson</a></li><li><a href="#valueblockparams" class="table-of-contents__link toc-highlight">ValueBlockParams</a></li><li><a href="#videotexstringjson" class="table-of-contents__link toc-highlight">VideotexStringJson</a></li><li><a href="#videotexstringparams" class="table-of-contents__link toc-highlight">VideotexStringParams</a></li><li><a href="#visiblestringjson" class="table-of-contents__link toc-highlight">VisibleStringJson</a></li><li><a href="#visiblestringparams" class="table-of-contents__link toc-highlight">VisibleStringParams</a></li></ul></li><li><a href="#functions" class="table-of-contents__link toc-highlight">Functions</a><ul><li><a href="#compareschema" class="table-of-contents__link toc-highlight">compareSchema()</a></li><li><a href="#fromber" class="table-of-contents__link toc-highlight">fromBER()</a></li><li><a href="#hexblock" class="table-of-contents__link toc-highlight">HexBlock()</a></li><li><a href="#verifyschema" class="table-of-contents__link toc-highlight">verifySchema()</a></li></ul></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Learn</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/docs/installation">Installation</a></li><li class="footer__item"><a class="footer__link-item" href="/docs/examples/create-new-asn-structures-by-calling-constructors-with-parameters">Examples</a></li><li class="footer__item"><a class="footer__link-item" href="/docs/api/">API</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/PeculiarVentures/ASN1.js" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="mailto:info@peculiarventures.com" target="_blank" rel="noopener noreferrer" class="footer__link-item">Contact us<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Version: 3.0.6</div><ul class="footer__items clean-list"></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Made with ❤️ across the globe</div></div></div></footer></div>
+</body>
+</html>
