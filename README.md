@@ -1,8 +1,16 @@
-## ASN1js
+<h1 align="center">
+  ASN1js
+</h1>
 
-[![License](https://img.shields.io/badge/license-BSD-green.svg?style=flat)](https://raw.githubusercontent.com/PeculiarVentures/ASN1.js/master/LICENSE) [![Test](https://github.com/PeculiarVentures/ASN1.js/actions/workflows/test.yml/badge.svg)](https://github.com/PeculiarVentures/ASN1.js/actions/workflows/test.yml) [![NPM version](https://badge.fury.io/js/asn1js.svg)](http://badge.fury.io/js/asn1js) [![Coverage Status](https://coveralls.io/repos/github/PeculiarVentures/ASN1.js/badge.svg?branch=master)](https://coveralls.io/github/PeculiarVentures/ASN1.js?branch=master)
+<div align="center">
 
-[![NPM](https://nodei.co/npm-dl/asn1js.png?months=3&height=2)](https://nodei.co/npm/asn1js/)
+![NPM License](https://img.shields.io/npm/l/asn1js)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/PeculiarVentures/ASN1.js/test.yml?label=test)
+[![npm version](https://img.shields.io/npm/v/asn1js.svg)](https://www.npmjs.com/package/asn1js)
+![Coveralls](https://img.shields.io/coverallsCoverage/github/PeculiarVentures/ASN1.js)
+[![npm downloads](https://img.shields.io/npm/dm/asn1js.svg)](https://www.npmjs.com/package/asn1js)
+
+</div>
 
 Abstract Syntax Notation One (ASN.1) is a standard and notation that describes rules and structures for representing, encoding, transmitting, and decoding data in telecommunications and computer networking. [ASN1js] is a pure JavaScript library implementing this standard.  ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web.
 
