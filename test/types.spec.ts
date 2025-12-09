@@ -86,7 +86,7 @@ describe("ASN types", () => {
     it("parse empty", () => {
       const asn = asn1js.fromBER(pvtsutils.Convert.FromHex("030100"));
       assert.ok(asn.result instanceof asn1js.BitString);
-    });    
+    });
     it("incorrect unused bits", () => {
       const asn = asn1js.fromBER(pvtsutils.Convert.FromHex("030208ff"));
       assert.strictEqual(asn.offset, -1);

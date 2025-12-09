@@ -5,9 +5,7 @@ import {
 } from "../HexBlock";
 import { localFromBER } from "../parser";
 import type { BitString } from "../BitString";
-import {
-  BIT_STRING_NAME, END_OF_CONTENT_NAME,
-} from "./constants";
+import { BIT_STRING_NAME, END_OF_CONTENT_NAME } from "./constants";
 import {
   LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock,
 } from "./LocalConstructedValueBlock";
