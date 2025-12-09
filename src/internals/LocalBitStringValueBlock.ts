@@ -6,7 +6,7 @@ import {
 import { localFromBER } from "../parser";
 import type { BitString } from "../BitString";
 import {
-  BIT_STRING_NAME, EMPTY_BUFFER, END_OF_CONTENT_NAME,
+  BIT_STRING_NAME, END_OF_CONTENT_NAME,
 } from "./constants";
 import {
   LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock,
@@ -139,7 +139,9 @@ export class LocalBitStringValueBlock extends
     }
 
     if (!this.valueHexView.byteLength) {
-      return EMPTY_BUFFER;
+      const empty = new Uint8Array(1);
+      empty[0] = 0; // unusedBits
+      return empty.buffer;
     }
 
     const retView = new Uint8Array(this.valueHexView.length + 1);

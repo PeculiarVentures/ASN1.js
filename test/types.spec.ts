@@ -83,6 +83,10 @@ describe("ASN types", () => {
       const asn = asn1js.fromBER(pvtsutils.Convert.FromHex("0300"));
       assert.ok(asn.result instanceof asn1js.BitString);
     });
+    it("parse empty", () => {
+      const asn = asn1js.fromBER(pvtsutils.Convert.FromHex("030100"));
+      assert.ok(asn.result instanceof asn1js.BitString);
+    });    
     it("incorrect unused bits", () => {
       const asn = asn1js.fromBER(pvtsutils.Convert.FromHex("030208ff"));
       assert.strictEqual(asn.offset, -1);
@@ -96,7 +100,7 @@ describe("ASN types", () => {
     describe("toBER", () => {
       it("default", () => {
         const asn = new asn1js.BitString();
-        assert.strictEqual(asn.toString("hex"), "0300");
+        assert.strictEqual(asn.toString("hex"), "030100");
       });
 
       it("primitive", () => {
