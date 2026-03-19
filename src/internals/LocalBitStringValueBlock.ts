@@ -3,8 +3,12 @@ import { ViewWriter } from "../ViewWriter";
 import {
   HexBlockJson, HexBlockParams, HexBlock,
 } from "../HexBlock";
-import { localFromBER } from "../parser";
+import {
+  createFromBerContext,
+  localFromBERWithChildContext,
+} from "../parser";
 import type { BitString } from "../BitString";
+import type { FromBerContext } from "../parser";
 import { BIT_STRING_NAME, END_OF_CONTENT_NAME } from "./constants";
 import {
   LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock,
@@ -43,7 +47,12 @@ export class LocalBitStringValueBlock extends
     this.blockLength = this.valueHexView.byteLength;
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+  public override fromBER(
+    inputBuffer: ArrayBuffer | Uint8Array,
+    inputOffset: number,
+    inputLength: number,
+    context?: FromBerContext,
+  ): number {
     // Ability to decode zero-length BitString value
     if (!inputLength) {
       return inputOffset;
@@ -53,7 +62,13 @@ export class LocalBitStringValueBlock extends
 
     // If the BIT STRING supposed to be a constructed value
     if (this.isConstructed) {
-      resultOffset = LocalConstructedValueBlock.prototype.fromBER.call(this, inputBuffer, inputOffset, inputLength);
+      resultOffset = LocalConstructedValueBlock.prototype.fromBER.call(
+        this,
+        inputBuffer,
+        inputOffset,
+        inputLength,
+        context,
+      );
       if (resultOffset === -1)
         return resultOffset;
 
@@ -110,7 +125,8 @@ export class LocalBitStringValueBlock extends
       const buf = intBuffer.subarray(1);
       try {
         if (buf.byteLength) {
-          const asn = localFromBER(buf, 0, buf.byteLength);
+          const parseContext = context ?? createFromBerContext();
+          const asn = localFromBERWithChildContext(buf, 0, buf.byteLength, parseContext);
           if (asn.offset !== -1 && asn.offset === (inputLength - 1)) {
             this.value = [asn.result as BitString];
           }

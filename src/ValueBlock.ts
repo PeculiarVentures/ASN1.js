@@ -9,7 +9,12 @@ export type ValueBlockJson = internals.LocalBaseBlockJson;
 export class ValueBlock extends internals.LocalBaseBlock implements IValueBlock, IBerConvertible {
   public static override NAME = "valueBlock";
 
-  public fromBER(_inputBuffer: ArrayBuffer | Uint8Array, _inputOffset: number, _inputLength: number): number {
+  public fromBER(
+    _inputBuffer: ArrayBuffer | Uint8Array,
+    _inputOffset: number,
+    _inputLength: number,
+    _context?: unknown,
+  ): number {
     throw TypeError("User need to make a specific function in a class which extends 'ValueBlock'");
   }
 

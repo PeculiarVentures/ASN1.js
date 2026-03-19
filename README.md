@@ -15,11 +15,12 @@
 Abstract Syntax Notation One (ASN.1) is a standard and notation that describes rules and structures for representing, encoding, transmitting, and decoding data in telecommunications and computer networking. [ASN1js] is a pure JavaScript library implementing this standard.  ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web.
 
 ## Important Information for ASN1.js V1 Users
+
 ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
 
 ## Introduction
 
-[ASN1js] is the first library for [BER] encoding/decoding in Javascript designed for browser use. [BER] is the basic encoding rules for [ASN.1] that all others are based on, [DER] is the encoding rules used by PKI applications - it is a subset of [BER]. The [ASN1js] library was tested against [freely available ASN.1:2008 test suite], with some limitations related to JavaScript language. 
+[ASN1js] is the first library for [BER] encoding/decoding in Javascript designed for browser use. [BER] is the basic encoding rules for [ASN.1] that all others are based on, [DER] is the encoding rules used by PKI applications - it is a subset of [BER]. The [ASN1js] library was tested against [freely available ASN.1:2008 test suite], with some limitations related to JavaScript language.
 
 ## Features of the library
 
@@ -39,7 +40,7 @@ ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
 * Has special types to work with ASN.1 schemas:
   * Any
   * Choice
-  * Repeated 
+  * Repeated
 * User can name any block inside ASN.1 schema and easily get information by name;
 * Ability to parse internal data inside a primitively encoded data types and automatically validate it against special schema;
 * All types inside library are dynamic;
@@ -49,6 +50,7 @@ ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
 ## Examples
 
 ### How to create new ASN. structures
+
 ```javascript
 var sequence = new asn1js.Sequence();
 sequence.valueBlock.value.push(new asn1js.Integer({ value: 1 }));
@@ -77,6 +79,7 @@ current_size = sequence_buffer.byteLength;
 ```
 
 ### How to create new ASN.1 structures by calling constructors with parameters
+
 ```javascript
 var sequence2 = new asn1js.Sequence({
   value: [
@@ -89,7 +92,8 @@ var sequence2 = new asn1js.Sequence({
 });
 ```
 
-### How to validate ASN.1 against pre-defined schema 
+### How to validate ASN.1 against pre-defined schema
+
 ```javascript
 var asn1_schema = new asn1js.Sequence({
   name: "block1",
@@ -110,7 +114,8 @@ var variant1_result = variant1.result; // Verified decoded data with all block n
 ```
 
 ### How to use "internal schemas" for primitively encoded data types
-```javascript 
+
+```javascript
 var primitive_octetstring = new asn1js.OctetString({ valueHex: encoded_sequence }); // Create a primitively encoded OctetString where internal data is an encoded Sequence
 
 var asn1_schema_internal = new asn1js.OctetString({
@@ -133,13 +138,28 @@ var variant6_block2_tag_num = variant6.result.block2.idBlock.tagNumber;
 
 More examples could be found in "examples" directory or inside [PKIjs] library.
 
-## Related source code 
+## Parsing Untrusted Input
+
+`fromBER()` accepts optional parser resource limits for untrusted ASN.1 input.
+
+```typescript
+const asn1 = asn1js.fromBER(inputBuffer, {
+  maxDepth: 100,
+  maxNodes: 10000,
+  maxContentLength: 16 * 1024 * 1024,
+});
+```
+
+When any limit is exceeded the parser returns a normal `FromBerResult` error instead of exhausting the JavaScript stack or continuing to parse excessive input.
+
+## Related source code
 
 * [C++ ASN1:2008 BER coder/decoder](https://github.com/YuryStrozhevsky/C-plus-plus-ASN.1-2008-coder-decoder) - the "father" of [ASN1js] project;
 * [Freely available ASN.1:2008 test suite](https://github.com/YuryStrozhevsky/ASN1-2008-free-test-suite) - the suite which can help you to validate (and better understand) any ASN.1 coder/decoder;
 * [NPM package for ASN.1:2008 test suite](https://github.com/YuryStrozhevsky/asn1-test-suite)
 
 ## Suitability
+
 There are several commercial products, enterprise solutions as well as open source project based on versions of ASN1js. You should, however, do your own code and security review before utilization in a production application before utilizing any open source library to ensure it will meet your needs.
 
 ## License
@@ -150,31 +170,30 @@ All rights reserved.
 
 Author 2014-2018, [Yury Strozhevsky](http://www.strozhevsky.com/).
 
-Redistribution and use in source and binary forms, with or without modification, 
+Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, 
+1. Redistributions of source code must retain the above copyright notice,
    this list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, 
-   this list of conditions and the following disclaimer in the documentation 
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
    and/or other materials provided with the distribution.
 
-3. Neither the name of the copyright holder nor the names of its contributors 
-   may be used to endorse or promote products derived from this software without 
+3. Neither the name of the copyright holder nor the names of its contributors
+   may be used to endorse or promote products derived from this software without
    specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
-OF SUCH DAMAGE. 
-
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+OF SUCH DAMAGE.
 
 [ASN.1]: http://en.wikipedia.org/wiki/Abstract_Syntax_Notation_One
 [ASN1js]: http://asn1js.org/

@@ -7,8 +7,12 @@ import {
   LocalOctetStringValueBlockParams, LocalOctetStringValueBlock, LocalOctetStringValueBlockJson,
 } from "./internals/LocalOctetStringValueBlock";
 import { OCTET_STRING_NAME } from "./internals/constants";
-import { localFromBER } from "./parser";
+import {
+  createFromBerContext,
+  localFromBERWithChildContext,
+} from "./parser";
 import { typeStore } from "./TypeStore";
+import type { FromBerContext } from "./parser";
 
 export interface OctetStringParams extends BaseBlockParams, LocalOctetStringValueBlockParams { }
 export type OctetStringJson = BaseBlockJson<LocalOctetStringValueBlockJson>;
@@ -42,7 +46,12 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
     this.idBlock.tagNumber = 4; // OctetString
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+  public override fromBER(
+    inputBuffer: ArrayBuffer | Uint8Array,
+    inputOffset: number,
+    inputLength: number,
+    context?: FromBerContext,
+  ): number {
     this.valueBlock.isConstructed = this.idBlock.isConstructed;
     this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
 
@@ -62,7 +71,8 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
       const buf = view.subarray(inputOffset, inputOffset + inputLength);
       try {
         if (buf.byteLength) {
-          const asn = localFromBER(buf, 0, buf.byteLength);
+          const parseContext = context ?? createFromBerContext();
+          const asn = localFromBERWithChildContext(buf, 0, buf.byteLength, parseContext);
           if (asn.offset !== -1 && asn.offset === inputLength) {
             this.valueBlock.value = [asn.result as OctetString];
           }
@@ -72,7 +82,7 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
       }
     }
 
-    return super.fromBER(inputBuffer as Uint8Array, inputOffset, inputLength);
+    return super.fromBER(inputBuffer as Uint8Array, inputOffset, inputLength, context);
   }
 
   protected override onAsciiEncoding(): string {
