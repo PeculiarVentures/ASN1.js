@@ -30,12 +30,11 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
     super();
 
     if (idBlock) {
-      // #region Properties from hexBlock class
+      // Properties from hexBlock class
       this.isHexOnly = idBlock.isHexOnly ?? false;
       this.valueHexView = idBlock.valueHex
         ? pvtsutils.BufferSourceConverter.toUint8Array(idBlock.valueHex)
         : EMPTY_VIEW;
-      // #endregion
       this.tagClass = idBlock.tagClass ?? -1;
       this.tagNumber = idBlock.tagNumber ?? -1;
       this.isConstructed = idBlock.isConstructed ?? false;
@@ -137,7 +136,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       return -1;
     }
 
-    // #region Find tag class
+    // Find tag class
     const tagClassMask = intBuffer[0] & 0xC0;
 
     switch (tagClassMask) {
@@ -158,7 +157,6 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
 
         return -1;
     }
-    // #endregion
     // Find it's constructed or not
     this.isConstructed = (intBuffer[0] & 0x20) === 0x20;
 
@@ -172,58 +170,39 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       this.blockLength = 1;
     } else {
       // Tag number bigger or equal to 31
-      let count = 1;
+      let count = 0;
 
-      let intTagNumberBuffer = this.valueHexView = new Uint8Array(255);
-      let tagNumberBufferMaxLength = 255;
+      while (true) {
+        const tagByteIndex = count + 1;
 
-      while (intBuffer[count] & 0x80) {
-        intTagNumberBuffer[count - 1] = intBuffer[count] & 0x7F;
-        count++;
-
-        if (count >= intBuffer.length) {
+        if (tagByteIndex >= intBuffer.length) {
           this.error = "End of input reached before message was fully decoded";
 
           return -1;
         }
 
-        // In case if tag number length is greater than 255 bytes (rare but possible case)
-        if (count === tagNumberBufferMaxLength) {
-          tagNumberBufferMaxLength += 255;
+        count++;
 
-          const tempBufferView = new Uint8Array(tagNumberBufferMaxLength);
-
-          for (let i = 0; i < intTagNumberBuffer.length; i++)
-            tempBufferView[i] = intTagNumberBuffer[i];
-
-          intTagNumberBuffer = this.valueHexView = new Uint8Array(tagNumberBufferMaxLength);
-        }
+        if ((intBuffer[tagByteIndex] & 0x80) === 0x00)
+          break;
       }
 
       this.blockLength = (count + 1);
-      intTagNumberBuffer[count - 1] = intBuffer[count] & 0x7F; // Write last byte to buffer
 
-      // #region Cut buffer
-      const tempBufferView = new Uint8Array(count);
+      const intTagNumberBuffer = this.valueHexView = new Uint8Array(count);
 
       for (let i = 0; i < count; i++)
-        tempBufferView[i] = intTagNumberBuffer[i];
+        intTagNumberBuffer[i] = intBuffer[i + 1] & 0x7F;
 
-      intTagNumberBuffer = this.valueHexView = new Uint8Array(count);
-      intTagNumberBuffer.set(tempBufferView);
-      // #endregion
-      // #region Try to convert long tag number to short form
+      // Try to convert long tag number to short form
       if (this.blockLength <= 9)
         this.tagNumber = pvutils.utilFromBase(intTagNumberBuffer, 7);
       else {
         this.isHexOnly = true;
         this.warnings.push("Tag too long, represented as hex-coded");
       }
-      // #endregion
     }
-    // #endregion
-    // #endregion
-    // #region Check if constructed encoding was using for primitive type
+    // Check if constructed encoding was using for primitive type
     if (((this.tagClass === 1))
       && (this.isConstructed)) {
       switch (this.tagNumber) {
@@ -246,7 +225,6 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
         default:
       }
     }
-    // #endregion
 
     return (inputOffset + this.blockLength); // Return current offset in input buffer
   }
