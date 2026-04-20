@@ -14,6 +14,7 @@ import { ViewWriter } from "./ViewWriter";
 import { ValueBlock, ValueBlockJson } from "./ValueBlock";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./internals/constants";
 import { typeStore } from "./TypeStore";
+import type { FromBerContext } from "./parser";
 
 export interface IBaseBlock {
   name: string;
@@ -66,10 +67,10 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
     this.valueBlock = valueBlockType ? new valueBlockType(parameters) : new ValueBlock(parameters) as unknown as T;
   }
 
-  public fromBER(inputBuffer: Uint8Array, inputOffset: number, inputLength: number): number {
+  public fromBER(inputBuffer: Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
     const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, (this.lenBlock.isIndefiniteForm)
       ? inputLength
-      : this.lenBlock.length);
+      : this.lenBlock.length, context);
     if (resultOffset === -1) {
       this.error = this.valueBlock.error;
 

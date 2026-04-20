@@ -55,7 +55,12 @@ export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
       this.valueHexView = params.valueHex ? pvtsutils.BufferSourceConverter.toUint8Array(params.valueHex) : EMPTY_VIEW;
     }
 
-    public fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+    public fromBER(
+      inputBuffer: ArrayBuffer | Uint8Array,
+      inputOffset: number,
+      inputLength: number,
+      _context?: unknown,
+    ): number {
       // Basic check for parameters
       const view = inputBuffer instanceof ArrayBuffer ? new Uint8Array(inputBuffer) : inputBuffer;
       if (!checkBufferParams(this, view, inputOffset, inputLength)) {

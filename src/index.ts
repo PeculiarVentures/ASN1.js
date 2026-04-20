@@ -54,6 +54,13 @@ export * from "./Repeated";
 // special
 export * from "./RawData";
 
-export { FromBerResult, fromBER } from "./parser";
+export {
+  DEFAULT_MAX_CONTENT_LENGTH,
+  DEFAULT_MAX_DEPTH,
+  DEFAULT_MAX_NODES,
+  FromBerOptions,
+  FromBerResult,
+  fromBER,
+} from "./parser";
 export * from "./schema";
 export { AsnType } from "./TypeStore";

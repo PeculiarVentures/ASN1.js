@@ -2,8 +2,12 @@ import * as pvtsutils from "pvtsutils";
 import type { BaseBlock } from "../BaseBlock";
 import { ValueBlock, ValueBlockParams } from "../ValueBlock";
 import { ViewWriter } from "../ViewWriter";
-import { localFromBER } from "../parser";
+import {
+  createFromBerContext,
+  localFromBERWithChildContext,
+} from "../parser";
 import type { Any } from "../Any";
+import type { FromBerContext } from "../parser";
 import { checkBufferParams } from "./utils";
 import { EMPTY_BUFFER, END_OF_CONTENT_NAME } from "./constants";
 import { LocalBaseBlockJson } from "./LocalBaseBlock";
@@ -46,8 +50,14 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
     this.isIndefiniteForm = isIndefiniteForm;
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+  public override fromBER(
+    inputBuffer: ArrayBuffer | Uint8Array,
+    inputOffset: number,
+    inputLength: number,
+    context?: FromBerContext,
+  ): number {
     const view = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
+    const parseContext = context ?? createFromBerContext();
 
     // Basic check for parameters
     if (!checkBufferParams(this, view, inputOffset, inputLength)) {
@@ -66,7 +76,7 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
     let currentOffset = inputOffset;
 
     while (checkLen(this.isIndefiniteForm, inputLength) > 0) {
-      const returnObject = localFromBER(view, currentOffset, inputLength);
+      const returnObject = localFromBERWithChildContext(view, currentOffset, inputLength, parseContext);
       if (returnObject.offset === -1) {
         this.error = returnObject.result.error;
         this.warnings.concat(returnObject.result.warnings);

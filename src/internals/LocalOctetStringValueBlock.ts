@@ -3,6 +3,7 @@ import {
   HexBlockJson, HexBlockParams, HexBlock,
 } from "../HexBlock";
 import type { OctetString } from "../OctetString";
+import type { FromBerContext } from "../parser";
 import { END_OF_CONTENT_NAME, OCTET_STRING_NAME } from "./constants";
 import {
   LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock,
@@ -34,13 +35,24 @@ export class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBl
     this.isConstructed = isConstructed;
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
+  public override fromBER(
+    inputBuffer: ArrayBuffer,
+    inputOffset: number,
+    inputLength: number,
+    context?: FromBerContext,
+  ): number {
     let resultOffset = 0;
 
     if (this.isConstructed) {
       this.isHexOnly = false;
 
-      resultOffset = LocalConstructedValueBlock.prototype.fromBER.call(this, inputBuffer, inputOffset, inputLength);
+      resultOffset = LocalConstructedValueBlock.prototype.fromBER.call(
+        this,
+        inputBuffer,
+        inputOffset,
+        inputLength,
+        context,
+      );
       if (resultOffset === -1)
         return resultOffset;
 
