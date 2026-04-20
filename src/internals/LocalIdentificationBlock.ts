@@ -30,12 +30,11 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
     super();
 
     if (idBlock) {
-      // #region Properties from hexBlock class
+      // Properties from hexBlock class
       this.isHexOnly = idBlock.isHexOnly ?? false;
       this.valueHexView = idBlock.valueHex
         ? pvtsutils.BufferSourceConverter.toUint8Array(idBlock.valueHex)
         : EMPTY_VIEW;
-      // #endregion
       this.tagClass = idBlock.tagClass ?? -1;
       this.tagNumber = idBlock.tagNumber ?? -1;
       this.isConstructed = idBlock.isConstructed ?? false;
@@ -137,7 +136,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       return -1;
     }
 
-    // #region Find tag class
+    // Find tag class
     const tagClassMask = intBuffer[0] & 0xC0;
 
     switch (tagClassMask) {
@@ -158,7 +157,6 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
 
         return -1;
     }
-    // #endregion
     // Find it's constructed or not
     this.isConstructed = (intBuffer[0] & 0x20) === 0x20;
 
@@ -196,18 +194,15 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       for (let i = 0; i < count; i++)
         intTagNumberBuffer[i] = intBuffer[i + 1] & 0x7F;
 
-      // #region Try to convert long tag number to short form
+      // Try to convert long tag number to short form
       if (this.blockLength <= 9)
         this.tagNumber = pvutils.utilFromBase(intTagNumberBuffer, 7);
       else {
         this.isHexOnly = true;
         this.warnings.push("Tag too long, represented as hex-coded");
       }
-      // #endregion
     }
-    // #endregion
-    // #endregion
-    // #region Check if constructed encoding was using for primitive type
+    // Check if constructed encoding was using for primitive type
     if (((this.tagClass === 1))
       && (this.isConstructed)) {
       switch (this.tagNumber) {
@@ -230,7 +225,6 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
         default:
       }
     }
-    // #endregion
 
     return (inputOffset + this.blockLength); // Return current offset in input buffer
   }
