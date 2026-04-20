@@ -7,6 +7,7 @@ import {
   LocalBitStringValueBlockParams, LocalBitStringValueBlock, LocalBitStringValueBlockJson,
 } from "./internals/LocalBitStringValueBlock";
 import { typeStore } from "./TypeStore";
+import type { FromBerContext } from "./parser";
 
 export interface BitStringParams extends BaseBlockParams, LocalBitStringValueBlockParams { }
 export type BitStringJson = BaseBlockJson<LocalBitStringValueBlockJson>;
@@ -40,11 +41,16 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStrin
     this.idBlock.tagNumber = 3; // BitString
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+  public override fromBER(
+    inputBuffer: ArrayBuffer | Uint8Array,
+    inputOffset: number,
+    inputLength: number,
+    context?: FromBerContext,
+  ): number {
     this.valueBlock.isConstructed = this.idBlock.isConstructed;
     this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
 
-    return super.fromBER(inputBuffer as Uint8Array, inputOffset, inputLength);
+    return super.fromBER(inputBuffer as Uint8Array, inputOffset, inputLength, context);
   }
 
   protected override onAsciiEncoding(): string {

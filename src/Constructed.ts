@@ -5,6 +5,7 @@ import {
   LocalConstructedValueBlock, LocalConstructedValueBlockJson, LocalConstructedValueBlockParams,
 } from "./internals/LocalConstructedValueBlock";
 import { typeStore } from "./TypeStore";
+import type { FromBerContext } from "./parser";
 
 export interface ConstructedParams extends BaseBlockParams, LocalConstructedValueBlockParams { }
 export type ConstructedJson = BaseBlockJson<LocalConstructedValueBlockJson>;
@@ -22,13 +23,19 @@ export class Constructed extends BaseBlock<LocalConstructedValueBlock, LocalCons
     this.idBlock.isConstructed = true;
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+  public override fromBER(
+    inputBuffer: ArrayBuffer | Uint8Array,
+    inputOffset: number,
+    inputLength: number,
+    context?: FromBerContext,
+  ): number {
     this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
 
     const resultOffset = this.valueBlock.fromBER(
       inputBuffer,
       inputOffset,
-      (this.lenBlock.isIndefiniteForm) ? inputLength : this.lenBlock.length);
+      (this.lenBlock.isIndefiniteForm) ? inputLength : this.lenBlock.length,
+      context);
     if (resultOffset === -1) {
       this.error = this.valueBlock.error;
 

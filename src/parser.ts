@@ -10,6 +10,85 @@ export interface FromBerResult {
   result: AsnType;
 }
 
+export interface FromBerOptions {
+  maxDepth?: number;
+  maxNodes?: number;
+  maxContentLength?: number;
+}
+
+export interface FromBerContext {
+  depth: number;
+  maxDepth: number;
+  nodesCount: number;
+  maxNodes: number;
+  maxContentLength: number;
+}
+
+export const DEFAULT_MAX_DEPTH = 100;
+export const DEFAULT_MAX_NODES = 10000;
+export const DEFAULT_MAX_CONTENT_LENGTH = 16 * 1024 * 1024;
+
+export const MAX_DEPTH_EXCEEDED_ERROR = "Maximum ASN.1 nesting depth exceeded";
+export const MAX_NODES_EXCEEDED_ERROR = "Maximum ASN.1 node count exceeded";
+export const MAX_CONTENT_LENGTH_EXCEEDED_ERROR = "Maximum ASN.1 content length exceeded";
+
+export function createFromBerContext(options: FromBerOptions = {}): FromBerContext {
+  return {
+    depth: 0,
+    maxDepth: options.maxDepth ?? DEFAULT_MAX_DEPTH,
+    nodesCount: 0,
+    maxNodes: options.maxNodes ?? DEFAULT_MAX_NODES,
+    maxContentLength: options.maxContentLength ?? DEFAULT_MAX_CONTENT_LENGTH,
+  };
+}
+
+function createErrorResult(error: string): FromBerResult {
+  const result = new BaseBlock({}, ValueBlock);
+  result.error = error;
+
+  return {
+    offset: -1,
+    result,
+  };
+}
+
+function checkNodesLimit(context: FromBerContext): string | undefined {
+  context.nodesCount += 1;
+  if (context.nodesCount > context.maxNodes) {
+    return MAX_NODES_EXCEEDED_ERROR;
+  }
+
+  return undefined;
+}
+
+function checkContentLengthLimit(inputLength: number, context: FromBerContext): string | undefined {
+  if (inputLength > context.maxContentLength) {
+    return MAX_CONTENT_LENGTH_EXCEEDED_ERROR;
+  }
+
+  return undefined;
+}
+
+export function localFromBERWithChildContext(
+  inputBuffer: Uint8Array,
+  inputOffset: number,
+  inputLength: number,
+  context: FromBerContext,
+): FromBerResult {
+  const childDepth = context.depth + 1;
+  if (childDepth > context.maxDepth) {
+    return createErrorResult(MAX_DEPTH_EXCEEDED_ERROR);
+  }
+
+  context.depth = childDepth;
+
+  try {
+    return localFromBER(inputBuffer, inputOffset, inputLength, context);
+  } finally {
+    context.depth -= 1;
+  }
+}
+
 /**
  * Local function changing a type for ASN.1 classes
  * @param inputObject Incoming object
@@ -41,6 +120,7 @@ export function localFromBER(
   inputBuffer: Uint8Array,
   inputOffset = 0,
   inputLength = inputBuffer.length,
+  context: FromBerContext = createFromBerContext(),
 ): FromBerResult {
   const incomingOffset = inputOffset; // Need to store initial offset since "inputOffset" is changing in the function
 
@@ -64,6 +144,16 @@ export function localFromBER(
   // Initial checks
   if (!intBuffer.length) {
     returnObject.error = "Zero buffer length";
+
+    return {
+      offset: -1,
+      result: returnObject,
+    };
+  }
+
+  const nodesLimitError = checkNodesLimit(context);
+  if (nodesLimitError) {
+    returnObject.error = nodesLimitError;
 
     return {
       offset: -1,
@@ -108,6 +198,17 @@ export function localFromBER(
 
   inputOffset = resultOffset;
   inputLength -= returnObject.lenBlock.blockLength;
+
+  const valueLength = returnObject.lenBlock.isIndefiniteForm ? inputLength : returnObject.lenBlock.length;
+  const contentLengthError = checkContentLengthLimit(valueLength, context);
+  if (contentLengthError) {
+    returnObject.error = contentLengthError;
+
+    return {
+      offset: -1,
+      result: returnObject,
+    };
+  }
 
   // Check for using indefinite length form in encoding for primitive types
   if (!returnObject.idBlock.isConstructed
@@ -276,7 +377,8 @@ export function localFromBER(
   resultOffset = returnObject.fromBER(
     inputBuffer,
     inputOffset,
-    returnObject.lenBlock.isIndefiniteForm ? inputLength : returnObject.lenBlock.length,
+    valueLength,
+    context,
   );
 
   // Coping incoming buffer for entire ASN.1 block
@@ -292,8 +394,9 @@ export function localFromBER(
 /**
  * Major function for decoding ASN.1 BER array into internal library structures
  * @param inputBuffer ASN.1 BER encoded array of bytes
+ * @param options Parser resource limits for untrusted input
  */
-export function fromBER(inputBuffer: pvtsutils.BufferSource): FromBerResult {
+export function fromBER(inputBuffer: pvtsutils.BufferSource, options: FromBerOptions = {}): FromBerResult {
   if (!inputBuffer.byteLength) {
     const result = new BaseBlock({}, ValueBlock);
     result.error = "Input buffer has zero length";
@@ -304,5 +407,10 @@ export function fromBER(inputBuffer: pvtsutils.BufferSource): FromBerResult {
     };
   }
 
-  return localFromBER(pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer).slice(), 0, inputBuffer.byteLength);
+  return localFromBER(
+    pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer).slice(),
+    0,
+    inputBuffer.byteLength,
+    createFromBerContext(options),
+  );
 }
