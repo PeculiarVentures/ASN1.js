@@ -2,7 +2,7 @@ name: Node.js Package
 on:
   push:
     tags:
-      - v*
+      - "v*"
 
 permissions:
   id-token: write
@@ -19,7 +19,6 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: "22.x"
           cache: "npm"
           registry-url: "https://registry.npmjs.org"
 
@@ -33,7 +32,7 @@ jobs:
         run: npm test
 
       - name: Publish to NPM
-        run: npm publish
+        run: npm publish --provenance --access public
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
