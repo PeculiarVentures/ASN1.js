@@ -4,6 +4,17 @@ import * as asn1js from "../src";
 import { BaseBlock } from "../src";
 import { checkBufferParams } from "../src/internals/utils";
 
+function createLongFormTag(continuationOctets: number): Uint8Array {
+  const input = new Uint8Array(continuationOctets + 3);
+
+  input[0] = 0x1F;
+  input.fill(0x81, 1, continuationOctets + 1);
+  input[continuationOctets + 1] = 0x01;
+  input[continuationOctets + 2] = 0x00;
+
+  return input;
+}
+
 describe("Unit tests", () => {
   describe("utils", () => {
     it("buffer incorrect type", () => {
@@ -101,5 +112,23 @@ describe("Unit tests", () => {
     const asnString = result.toString();
     // console.log(asnString);
     assert.strictEqual(asnString.length > 0, true);
+  });
+
+  it("accepts long-form tags up to the limit", () => {
+    const asn1 = asn1js.fromBER(createLongFormTag(15));
+
+    assert.notEqual(asn1.offset, -1, "Long-form tag at the configured limit must be accepted");
+    assert.equal(asn1.result.idBlock.tagNumber, -1, "Tag number must stay in hex-only mode");
+    assert.equal(asn1.result.idBlock.isHexOnly, true, "Tag should be represented as hex-only");
+    assert.equal(asn1.result.idBlock.valueHexView.byteLength, 16, "Hexadecimal representation of ID block must keep all tag bytes");
+  });
+
+  it("preserves large long-form tag parsing", () => {
+    const asn1 = asn1js.fromBER(createLongFormTag(16));
+
+    assert.notEqual(asn1.offset, -1, "Long-form tag parsing must preserve compatibility for large values");
+    assert.equal(asn1.result.idBlock.tagNumber, -1, "Large tag number must stay in hex-only mode");
+    assert.equal(asn1.result.idBlock.isHexOnly, true, "Large tag should be represented as hex-only");
+    assert.equal(asn1.result.idBlock.valueHexView.byteLength, 17, "Hexadecimal representation of ID block must keep all tag bytes");
   });
 });

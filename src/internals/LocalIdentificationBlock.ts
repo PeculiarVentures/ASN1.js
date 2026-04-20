@@ -172,46 +172,30 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       this.blockLength = 1;
     } else {
       // Tag number bigger or equal to 31
-      let count = 1;
+      let count = 0;
 
-      let intTagNumberBuffer = this.valueHexView = new Uint8Array(255);
-      let tagNumberBufferMaxLength = 255;
+      while (true) {
+        const tagByteIndex = count + 1;
 
-      while (intBuffer[count] & 0x80) {
-        intTagNumberBuffer[count - 1] = intBuffer[count] & 0x7F;
-        count++;
-
-        if (count >= intBuffer.length) {
+        if (tagByteIndex >= intBuffer.length) {
           this.error = "End of input reached before message was fully decoded";
 
           return -1;
         }
 
-        // In case if tag number length is greater than 255 bytes (rare but possible case)
-        if (count === tagNumberBufferMaxLength) {
-          tagNumberBufferMaxLength += 255;
+        count++;
 
-          const tempBufferView = new Uint8Array(tagNumberBufferMaxLength);
-
-          for (let i = 0; i < intTagNumberBuffer.length; i++)
-            tempBufferView[i] = intTagNumberBuffer[i];
-
-          intTagNumberBuffer = this.valueHexView = new Uint8Array(tagNumberBufferMaxLength);
-        }
+        if ((intBuffer[tagByteIndex] & 0x80) === 0x00)
+          break;
       }
 
       this.blockLength = (count + 1);
-      intTagNumberBuffer[count - 1] = intBuffer[count] & 0x7F; // Write last byte to buffer
 
-      // #region Cut buffer
-      const tempBufferView = new Uint8Array(count);
+      const intTagNumberBuffer = this.valueHexView = new Uint8Array(count);
 
       for (let i = 0; i < count; i++)
-        tempBufferView[i] = intTagNumberBuffer[i];
+        intTagNumberBuffer[i] = intBuffer[i + 1] & 0x7F;
 
-      intTagNumberBuffer = this.valueHexView = new Uint8Array(count);
-      intTagNumberBuffer.set(tempBufferView);
-      // #endregion
       // #region Try to convert long tag number to short form
       if (this.blockLength <= 9)
         this.tagNumber = pvutils.utilFromBase(intTagNumberBuffer, 7);
