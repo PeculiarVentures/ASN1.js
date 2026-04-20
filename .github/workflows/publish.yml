@@ -6,8 +6,8 @@ on:
 
 permissions:
   id-token: write
-  contents: read
-  # packages: write
+  contents: write
+  packages: write
 
 jobs:
   publish:
@@ -34,13 +34,13 @@ jobs:
 
       - name: Publish to NPM
         run: npm publish --provenance --access public
-      # - name: Create GitHub Release
-      #   uses: softprops/action-gh-release@v2
-      #   with:
-      #     tag_name: ${{ github.ref_name }}
-      #     name: Release ${{ github.ref_name }}
-      #     generate_release_notes: true
-      #     draft: false
-      #     prerelease: false
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
