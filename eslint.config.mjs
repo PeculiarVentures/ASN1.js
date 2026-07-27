@@ -9,7 +9,7 @@ export default tseslint.config([
       "website/**/*",
       "eslint.config.mjs",
       "rollup.config.mjs",
-      "jest.config.js",
+      "vitest.config.ts",
       "node_modules/**/*",
     ],
   },
