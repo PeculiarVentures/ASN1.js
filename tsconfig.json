@@ -11,7 +11,11 @@
     "noImplicitOverride": true,
     "skipLibCheck": true,
     "noErrorTruncation": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "types": [
+      "node",
+      "vitest/globals"
+    ]
   },
   "exclude": [
     "website"
