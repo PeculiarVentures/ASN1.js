@@ -129,7 +129,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
 
   public override toString(encoding: DateStringEncoding = "iso"): string {
     if (encoding === "iso") {
-      const outputArray = new Array(7);
+      const outputArray = Array.from<string>({ length: 7 });
 
       outputArray[0] = pvutils.padNumber(this.year < 2000 ? this.year - 1900 : this.year - 2000, 2);
       outputArray[1] = pvutils.padNumber(this.month, 2);

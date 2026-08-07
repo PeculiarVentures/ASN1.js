@@ -72,7 +72,7 @@ function makeNestedIndefiniteSequence(depth: number): Uint8Array {
 }
 
 function makeSequenceOfNulls(count: number, isIndefiniteForm = false): Uint8Array {
-  const items = new Array<Uint8Array>(count).fill(Uint8Array.of(0x05, 0x00));
+  const items = Array.from<Uint8Array>({ length: count }).fill(Uint8Array.of(0x05, 0x00));
   const content = concatArrays(...items);
 
   return isIndefiniteForm
