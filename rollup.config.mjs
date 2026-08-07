@@ -9,12 +9,7 @@ const __dirname = path.dirname(__filename);
 
 const LICENSE = fs.readFileSync("LICENSE", { encoding: "utf-8" });
 const pkg = JSON.parse(fs.readFileSync("package.json", { encoding: "utf-8" }));
-const banner = [
-  "/*!",
-  ...LICENSE.split("\n").map((o) => ` * ${o}`),
-  " */",
-  "",
-].join("\n");
+const banner = ["/*!", ...LICENSE.split("\n").map(o => ` * ${o}`), " */", ""].join("\n");
 const input = "src/index.ts";
 const external = Object.keys(pkg.dependencies || {});
 
@@ -28,24 +23,24 @@ export default [
         tsconfigOverride: {
           compilerOptions: {
             module: "ES2015",
-            removeComments: true,
-          },
-        },
-      }),
+            removeComments: true
+          }
+        }
+      })
     ],
     external: [...external],
     output: [
       {
         banner,
         file: pkg.main,
-        format: "cjs",
+        format: "cjs"
       },
       {
         banner,
         file: pkg.module,
-        format: "es",
-      },
-    ],
+        format: "es"
+      }
+    ]
   },
   {
     input,
@@ -53,14 +48,14 @@ export default [
     plugins: [
       dts({
         tsconfig: path.resolve(__dirname, "./tsconfig.json"),
-        compilerOptions: { stripInternal: true },
-      }),
+        compilerOptions: { stripInternal: true }
+      })
     ],
     output: [
       {
         banner,
-        file: pkg.types,
-      },
-    ],
-  },
+        file: pkg.types
+      }
+    ]
+  }
 ];

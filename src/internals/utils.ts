@@ -50,7 +50,7 @@ export function checkBufferParams(
   baseBlock: LocalBaseBlock,
   inputBuffer: Uint8Array,
   inputOffset: number,
-  inputLength: number,
+  inputLength: number
 ): boolean {
   if (!(inputBuffer instanceof Uint8Array)) {
     baseBlock.error = "Wrong parameter: inputBuffer must be 'Uint8Array'";
@@ -76,7 +76,7 @@ export function checkBufferParams(
     return false;
   }
 
-  if ((inputBuffer.byteLength - inputOffset - inputLength) < 0) {
+  if (inputBuffer.byteLength - inputOffset - inputLength < 0) {
     baseBlock.error = "End of input reached before message was fully decoded (inconsistent offset and length values)";
 
     return false;

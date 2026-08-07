@@ -19,7 +19,7 @@ export interface UTCTimeParams extends VisibleStringParams {
   value?: string;
   valueDate?: Date;
 }
-export interface UTCTimeJson extends BaseBlockJson<LocalSimpleStringValueBlockJson>, IUTCTime { }
+export interface UTCTimeJson extends BaseBlockJson<LocalSimpleStringValueBlockJson>, IUTCTime {}
 
 export type DateStringEncoding = StringEncoding | "iso";
 
@@ -37,11 +37,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
   public minute: number;
   public second: number;
 
-  constructor({
-    value,
-    valueDate,
-    ...parameters
-  }: UTCTimeParams = {}) {
+  constructor({ value, valueDate, ...parameters }: UTCTimeParams = {}) {
     super(parameters);
 
     this.year = 0;
@@ -57,8 +53,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
 
       this.valueBlock.valueHexView = new Uint8Array(value.length);
 
-      for (let i = 0; i < value.length; i++)
-        this.valueBlock.valueHexView[i] = value.charCodeAt(i);
+      for (let i = 0; i < value.length; i++) this.valueBlock.valueHexView[i] = value.charCodeAt(i);
     }
     // #endregion
     // #region Create GeneralizedTime from JavaScript Date type
@@ -73,10 +68,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
     this.fromString(
-      String.fromCharCode.apply(
-        null,
-        pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[],
-      ),
+      String.fromCharCode.apply(null, pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[])
     );
   }
 
@@ -90,8 +82,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     const buffer = new ArrayBuffer(str.length);
     const view = new Uint8Array(buffer);
 
-    for (let i = 0; i < str.length; i++)
-      view[i] = str.charCodeAt(i);
+    for (let i = 0; i < str.length; i++) view[i] = str.charCodeAt(i);
 
     return buffer;
   }
@@ -110,12 +101,12 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
   }
 
   public toDate(): Date {
-    return (new Date(Date.UTC(this.year, this.month - 1, this.day, this.hour, this.minute, this.second)));
+    return new Date(Date.UTC(this.year, this.month - 1, this.day, this.hour, this.minute, this.second));
   }
 
   public override fromString(inputString: string): void {
     // #region Parse input string
-    const parser = /(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/ig;
+    const parser = /(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/gi;
     const parserArray = parser.exec(inputString);
     if (parserArray === null) {
       this.error = "Wrong input string for conversion";
@@ -125,11 +116,8 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     // #endregion
     // #region Store parsed values
     const year = parseInt(parserArray[1], 10);
-    if (year >= 50)
-      this.year = 1900 + year;
-
-    else
-      this.year = 2000 + year;
+    if (year >= 50) this.year = 1900 + year;
+    else this.year = 2000 + year;
 
     this.month = parseInt(parserArray[2], 10);
     this.day = parseInt(parserArray[3], 10);
@@ -143,7 +131,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     if (encoding === "iso") {
       const outputArray = new Array(7);
 
-      outputArray[0] = pvutils.padNumber(((this.year < 2000) ? (this.year - 1900) : (this.year - 2000)), 2);
+      outputArray[0] = pvutils.padNumber(this.year < 2000 ? this.year - 1900 : this.year - 2000, 2);
       outputArray[1] = pvutils.padNumber(this.month, 2);
       outputArray[2] = pvutils.padNumber(this.day, 2);
       outputArray[3] = pvutils.padNumber(this.hour, 2);
@@ -169,7 +157,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
       day: this.day,
       hour: this.hour,
       minute: this.minute,
-      second: this.second,
+      second: this.second
     };
   }
 }

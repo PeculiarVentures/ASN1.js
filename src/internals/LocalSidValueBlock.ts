@@ -1,11 +1,7 @@
 import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
-import {
-  HexBlockJson, HexBlockParams, HexBlock,
-} from "../HexBlock";
-import {
-  ValueBlock, ValueBlockJson, ValueBlockParams,
-} from "../ValueBlock";
+import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
+import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { EMPTY_BUFFER } from "./constants";
 import * as utils from "./utils";
 
@@ -14,9 +10,9 @@ export interface ILocalSidValueBlock {
   isFirstSid: boolean;
 }
 
-export interface LocalSidValueBlockParams extends HexBlockParams, ValueBlockParams, Partial<ILocalSidValueBlock> { }
+export interface LocalSidValueBlockParams extends HexBlockParams, ValueBlockParams, Partial<ILocalSidValueBlock> {}
 
-export interface LocalSidValueBlockJson extends HexBlockJson, ValueBlockJson, ILocalSidValueBlock { }
+export interface LocalSidValueBlockJson extends HexBlockJson, ValueBlockJson, ILocalSidValueBlock {}
 
 export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSidValueBlock {
   public static override NAME = "sidBlock";
@@ -24,11 +20,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
   public valueDec: number;
   public isFirstSid: boolean;
 
-  constructor({
-    valueDec = -1,
-    isFirstSid = false,
-    ...parameters
-  }: LocalSidValueBlockParams = {}) {
+  constructor({ valueDec = -1, isFirstSid = false, ...parameters }: LocalSidValueBlockParams = {}) {
     super(parameters);
 
     this.valueDec = valueDec;
@@ -51,12 +43,11 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
     this.valueHexView = new Uint8Array(inputLength);
 
     for (let i = 0; i < inputLength; i++) {
-      this.valueHexView[i] = intBuffer[i] & 0x7F;
+      this.valueHexView[i] = intBuffer[i] & 0x7f;
 
       this.blockLength++;
 
-      if ((intBuffer[i] & 0x80) === 0x00)
-        break;
+      if ((intBuffer[i] & 0x80) === 0x00) break;
     }
 
     // #region Adjust size of valueHex buffer
@@ -75,17 +66,15 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
       return -1;
     }
 
-    if (this.valueHexView[0] === 0x00)
-      this.warnings.push("Needlessly long format of SID encoding");
+    if (this.valueHexView[0] === 0x00) this.warnings.push("Needlessly long format of SID encoding");
 
-    if (this.blockLength <= 8)
-      this.valueDec = pvutils.utilFromBase(this.valueHexView, 7);
+    if (this.blockLength <= 8) this.valueDec = pvutils.utilFromBase(this.valueHexView, 7);
     else {
       this.isHexOnly = true;
       this.warnings.push("Too big SID for decoding, hex only");
     }
 
-    return (inputOffset + this.blockLength);
+    return inputOffset + this.blockLength;
   }
 
   public set valueBigInt(value: bigint) {
@@ -104,14 +93,12 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
 
   public override toBER(sizeOnly?: boolean): ArrayBuffer {
     if (this.isHexOnly) {
-      if (sizeOnly)
-        return (new ArrayBuffer(this.valueHexView.byteLength));
+      if (sizeOnly) return new ArrayBuffer(this.valueHexView.byteLength);
 
       const curView = this.valueHexView;
       const retView = new Uint8Array(this.blockLength);
 
-      for (let i = 0; i < (this.blockLength - 1); i++)
-        retView[i] = curView[i] | 0x80;
+      for (let i = 0; i < this.blockLength - 1; i++) retView[i] = curView[i] | 0x80;
 
       retView[this.blockLength - 1] = curView[this.blockLength - 1];
 
@@ -131,8 +118,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
       const encodedView = new Uint8Array(encodedBuf);
       const len = encodedBuf.byteLength - 1;
 
-      for (let i = 0; i < len; i++)
-        retView[i] = encodedView[i] | 0x80;
+      for (let i = 0; i < len; i++) retView[i] = encodedView[i] | 0x80;
 
       retView[len] = encodedView[len];
     }
@@ -143,14 +129,12 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
   public override toString(): string {
     let result = "";
 
-    if (this.isHexOnly)
-      result = pvtsutils.Convert.ToHex(this.valueHexView);
+    if (this.isHexOnly) result = pvtsutils.Convert.ToHex(this.valueHexView);
     else {
       if (this.isFirstSid) {
         let sidValue = this.valueDec;
 
-        if (this.valueDec <= 39)
-          result = "0.";
+        if (this.valueDec <= 39) result = "0.";
         else {
           if (this.valueDec <= 79) {
             result = "1.";
@@ -162,8 +146,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
         }
 
         result += sidValue.toString();
-      } else
-        result = this.valueDec.toString();
+      } else result = this.valueDec.toString();
     }
 
     return result;
@@ -173,7 +156,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
     return {
       ...super.toJSON(),
       valueDec: this.valueDec,
-      isFirstSid: this.isFirstSid,
+      isFirstSid: this.isFirstSid
     };
   }
 }

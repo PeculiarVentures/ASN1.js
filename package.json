@@ -13,16 +13,15 @@
     "node": ">=12.0.0"
   },
   "devDependencies": {
-    "@peculiar/eslint-config-base": "^0.2.9",
     "@types/node": "^25.6.0",
     "@vitest/coverage-v8": "^4.1.10",
     "asn1-test-suite": "^1.0.2",
-    "eslint": "^10.2.1",
+    "oxfmt": "^0.62.0",
+    "oxlint": "^1.77.0",
     "rollup": "^4.60.2",
     "rollup-plugin-dts": "^6.4.1",
     "rollup-plugin-typescript2": "^0.37.0",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.58.2",
     "vitest": "^4.1.10"
   },
   "repository": {
@@ -64,8 +63,10 @@
     "build": "rollup -c",
     "test": "vitest run",
     "prepublishOnly": "npm run build",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint --fix . --ext .ts",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "coverage": "vitest run --coverage"
   },
   "version": "3.0.10",

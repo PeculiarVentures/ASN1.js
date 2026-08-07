@@ -17,7 +17,7 @@ export interface LocalBaseBlockParams extends Partial<ILocalBaseBlock> {
 }
 
 export interface LocalBaseBlockConstructor<T extends LocalBaseBlock = LocalBaseBlock> {
-  new(...args: any[]): T;
+  new (...args: any[]): T;
   prototype: T;
   NAME: string;
   blockName(): string;
@@ -69,7 +69,7 @@ export class LocalBaseBlock implements ILocalBaseBlock {
     blockLength = 0,
     error = EMPTY_STRING,
     warnings = [],
-    valueBeforeDecode = EMPTY_VIEW,
+    valueBeforeDecode = EMPTY_VIEW
   }: LocalBaseBlockParams = {}) {
     this.blockLength = blockLength;
     this.error = error;
@@ -87,7 +87,7 @@ export class LocalBaseBlock implements ILocalBaseBlock {
       blockLength: this.blockLength,
       error: this.error,
       warnings: this.warnings,
-      valueBeforeDecode: pvtsutils.Convert.ToHex(this.valueBeforeDecodeView),
+      valueBeforeDecode: pvtsutils.Convert.ToHex(this.valueBeforeDecodeView)
     };
   }
 }

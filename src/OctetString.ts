@@ -1,20 +1,17 @@
 import * as pvtsutils from "pvtsutils";
-import {
-  BaseBlock, BaseBlockJson, BaseBlockParams,
-} from "./BaseBlock";
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { Constructed } from "./Constructed";
 import {
-  LocalOctetStringValueBlockParams, LocalOctetStringValueBlock, LocalOctetStringValueBlockJson,
+  LocalOctetStringValueBlockParams,
+  LocalOctetStringValueBlock,
+  LocalOctetStringValueBlockJson
 } from "./internals/LocalOctetStringValueBlock";
 import { OCTET_STRING_NAME } from "./internals/constants";
-import {
-  createFromBerContext,
-  localFromBERWithChildContext,
-} from "./parser";
+import { createFromBerContext, localFromBERWithChildContext } from "./parser";
 import { typeStore } from "./TypeStore";
 import type { FromBerContext } from "./parser";
 
-export interface OctetStringParams extends BaseBlockParams, LocalOctetStringValueBlockParams { }
+export interface OctetStringParams extends BaseBlockParams, LocalOctetStringValueBlockParams {}
 export type OctetStringJson = BaseBlockJson<LocalOctetStringValueBlockJson>;
 
 export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOctetStringValueBlockJson> {
@@ -24,23 +21,22 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
 
   public static override NAME = OCTET_STRING_NAME;
 
-  constructor({
-    idBlock = {},
-    lenBlock = {},
-    ...parameters
-  }: OctetStringParams = {}) {
+  constructor({ idBlock = {}, lenBlock = {}, ...parameters }: OctetStringParams = {}) {
     parameters.isConstructed ??= !!parameters.value?.length;
-    super({
-      idBlock: {
-        isConstructed: parameters.isConstructed,
-        ...idBlock,
+    super(
+      {
+        idBlock: {
+          isConstructed: parameters.isConstructed,
+          ...idBlock
+        },
+        lenBlock: {
+          ...lenBlock,
+          isIndefiniteForm: !!parameters.isIndefiniteForm
+        },
+        ...parameters
       },
-      lenBlock: {
-        ...lenBlock,
-        isIndefiniteForm: !!parameters.isIndefiniteForm,
-      },
-      ...parameters,
-    }, LocalOctetStringValueBlock);
+      LocalOctetStringValueBlock
+    );
 
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 4; // OctetString
@@ -50,18 +46,16 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
     inputBuffer: ArrayBuffer | Uint8Array,
     inputOffset: number,
     inputLength: number,
-    context?: FromBerContext,
+    context?: FromBerContext
   ): number {
     this.valueBlock.isConstructed = this.idBlock.isConstructed;
     this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
 
     // Ability to encode empty OCTET STRING
     if (inputLength === 0) {
-      if (this.idBlock.error.length === 0)
-        this.blockLength += this.idBlock.blockLength;
+      if (this.idBlock.error.length === 0) this.blockLength += this.idBlock.blockLength;
 
-      if (this.lenBlock.error.length === 0)
-        this.blockLength += this.lenBlock.blockLength;
+      if (this.lenBlock.error.length === 0) this.blockLength += this.lenBlock.blockLength;
 
       return inputOffset;
     }

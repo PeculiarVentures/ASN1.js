@@ -3,21 +3,14 @@
     "target": "ES2019",
     "module": "CommonJS",
     "moduleResolution": "node",
-    "lib": [
-      "ES2019"
-    ],
+    "lib": ["ES2019"],
     "strict": true,
     "importHelpers": true,
     "noImplicitOverride": true,
     "skipLibCheck": true,
     "noErrorTruncation": true,
     "experimentalDecorators": true,
-    "types": [
-      "node",
-      "vitest/globals"
-    ]
+    "types": ["node", "vitest/globals"]
   },
-  "exclude": [
-    "website"
-  ]
+  "exclude": ["website"]
 }

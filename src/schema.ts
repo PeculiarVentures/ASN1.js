@@ -1,7 +1,16 @@
 import * as pvtsutils from "pvtsutils";
 import {
-  IS_CONSTRUCTED, EMPTY_STRING, NAME, ID_BLOCK, FROM_BER, TO_BER,
-  TAG_CLASS, TAG_NUMBER, IS_HEX_ONLY, LOCAL, VALUE_HEX_VIEW,
+  IS_CONSTRUCTED,
+  EMPTY_STRING,
+  NAME,
+  ID_BLOCK,
+  FROM_BER,
+  TO_BER,
+  TAG_CLASS,
+  TAG_NUMBER,
+  IS_HEX_ONLY,
+  LOCAL,
+  VALUE_HEX_VIEW
 } from "./internals/constants";
 import { Any } from "./Any";
 import { Choice } from "./Choice";
@@ -19,9 +28,11 @@ export interface CompareSchemaSuccess {
 export interface CompareSchemaFail {
   verified: false;
   name?: string;
-  result: AsnType | {
-    error: string;
-  };
+  result:
+    | AsnType
+    | {
+        error: string;
+      };
 }
 
 export type CompareSchemaResult = CompareSchemaSuccess | CompareSchemaFail;
@@ -43,7 +54,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
       if (result.verified) {
         return {
           verified: true,
-          result: root,
+          result: root
         };
       }
     }
@@ -51,11 +62,10 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
     if (choiceResult === false) {
       const _result: CompareSchemaResult = {
         verified: false,
-        result: { error: "Wrong values for Choice type" },
+        result: { error: "Wrong values for Choice type" }
       };
 
-      if (inputSchema.hasOwnProperty(NAME))
-        _result.name = inputSchema.name;
+      if (inputSchema.hasOwnProperty(NAME)) _result.name = inputSchema.name;
 
       return _result;
     }
@@ -71,53 +81,53 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
     // #endregion
     return {
       verified: true,
-      result: root,
+      result: root
     };
   }
   // #endregion
   // #region Initial check
-  if ((root instanceof Object) === false) {
+  if (root instanceof Object === false) {
     return {
       verified: false,
-      result: { error: "Wrong root object" },
+      result: { error: "Wrong root object" }
     };
   }
 
-  if ((inputData instanceof Object) === false) {
+  if (inputData instanceof Object === false) {
     return {
       verified: false,
-      result: { error: "Wrong ASN.1 data" },
+      result: { error: "Wrong ASN.1 data" }
     };
   }
 
-  if ((inputSchema instanceof Object) === false) {
+  if (inputSchema instanceof Object === false) {
     return {
       verified: false,
-      result: { error: "Wrong ASN.1 schema" },
+      result: { error: "Wrong ASN.1 schema" }
     };
   }
 
-  if ((ID_BLOCK in inputSchema) === false) {
+  if (ID_BLOCK in inputSchema === false) {
     return {
       verified: false,
-      result: { error: "Wrong ASN.1 schema" },
+      result: { error: "Wrong ASN.1 schema" }
     };
   }
   // #endregion
   // #region Comparing idBlock properties in ASN.1 data and ASN.1 schema
   // #region Encode and decode ASN.1 schema idBlock
   /// <remarks>This encoding/decoding is necessary because could be an errors in schema definition</remarks>
-  if ((FROM_BER in inputSchema.idBlock) === false) {
+  if (FROM_BER in inputSchema.idBlock === false) {
     return {
       verified: false,
-      result: { error: "Wrong ASN.1 schema" },
+      result: { error: "Wrong ASN.1 schema" }
     };
   }
 
-  if ((TO_BER in inputSchema.idBlock) === false) {
+  if (TO_BER in inputSchema.idBlock === false) {
     return {
       verified: false,
-      result: { error: "Wrong ASN.1 schema" },
+      result: { error: "Wrong ASN.1 schema" }
     };
   }
 
@@ -125,7 +135,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
   if (encodedId.byteLength === 0) {
     return {
       verified: false,
-      result: { error: "Error encoding idBlock for ASN.1 schema" },
+      result: { error: "Error encoding idBlock for ASN.1 schema" }
     };
   }
 
@@ -133,7 +143,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
   if (decodedOffset === -1) {
     return {
       verified: false,
-      result: { error: "Error decoding idBlock for ASN.1 schema" },
+      result: { error: "Error decoding idBlock for ASN.1 schema" }
     };
   }
   // #endregion
@@ -141,14 +151,14 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
   if (inputSchema.idBlock.hasOwnProperty(TAG_CLASS) === false) {
     return {
       verified: false,
-      result: { error: "Wrong ASN.1 schema" },
+      result: { error: "Wrong ASN.1 schema" }
     };
   }
 
   if (inputSchema.idBlock.tagClass !== inputData.idBlock.tagClass) {
     return {
       verified: false,
-      result: root,
+      result: root
     };
   }
   // #endregion
@@ -156,14 +166,14 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
   if (inputSchema.idBlock.hasOwnProperty(TAG_NUMBER) === false) {
     return {
       verified: false,
-      result: { error: "Wrong ASN.1 schema" },
+      result: { error: "Wrong ASN.1 schema" }
     };
   }
 
   if (inputSchema.idBlock.tagNumber !== inputData.idBlock.tagNumber) {
     return {
       verified: false,
-      result: root,
+      result: root
     };
   }
   // #endregion
@@ -171,14 +181,14 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
   if (inputSchema.idBlock.hasOwnProperty(IS_CONSTRUCTED) === false) {
     return {
       verified: false,
-      result: { error: "Wrong ASN.1 schema" },
+      result: { error: "Wrong ASN.1 schema" }
     };
   }
 
   if (inputSchema.idBlock.isConstructed !== inputData.idBlock.isConstructed) {
     return {
       verified: false,
-      result: root,
+      result: root
     };
   }
   // #endregion
@@ -187,24 +197,24 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
     // Since 'isHexOnly' is an inherited property
     return {
       verified: false,
-      result: { error: "Wrong ASN.1 schema" },
+      result: { error: "Wrong ASN.1 schema" }
     };
   }
 
   if (inputSchema.idBlock.isHexOnly !== inputData.idBlock.isHexOnly) {
     return {
       verified: false,
-      result: root,
+      result: root
     };
   }
   // #endregion
   // #region valueHex
   if (inputSchema.idBlock.isHexOnly) {
-    if ((VALUE_HEX_VIEW in inputSchema.idBlock) === false) {
+    if (VALUE_HEX_VIEW in inputSchema.idBlock === false) {
       // Since 'valueHex' is an inherited property
       return {
         verified: false,
-        result: { error: "Wrong ASN.1 schema" },
+        result: { error: "Wrong ASN.1 schema" }
       };
     }
 
@@ -214,7 +224,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
     if (schemaView.length !== asn1View.length) {
       return {
         verified: false,
-        result: root,
+        result: root
       };
     }
 
@@ -222,7 +232,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
       if (schemaView[i] !== asn1View[1]) {
         return {
           verified: false,
-          result: root,
+          result: root
         };
       }
     }
@@ -232,8 +242,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
   // #region Add named component of ASN.1 schema
   if (inputSchema.name) {
     inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
-    if (inputSchema.name)
-      (root as any)[inputSchema.name] = inputData; // TODO check field existence. If exists throw an error
+    if (inputSchema.name) (root as any)[inputSchema.name] = inputData; // TODO check field existence. If exists throw an error
   }
   // #endregion
   // #region Getting next ASN.1 block for comparison
@@ -243,7 +252,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
     let admission = 0;
     let result: CompareSchemaResult = {
       verified: false,
-      result: { error: "Unknown error" },
+      result: { error: "Unknown error" }
     };
 
     let maxLength = inputSchema.valueBlock.value.length;
@@ -259,15 +268,14 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
     if (maxLength === 0) {
       return {
         verified: true,
-        result: root,
+        result: root
       };
     }
     // #endregion
     // #region Special case when "inputData" has no values and "inputSchema" has all optional values
     // @ts-ignore
     // TODO debug it
-    if ((inputData.valueBlock.value.length === 0)
-      && (inputSchema.valueBlock.value.length !== 0)) {
+    if (inputData.valueBlock.value.length === 0 && inputSchema.valueBlock.value.length !== 0) {
       let _optional = true;
 
       for (let i = 0; i < inputSchema.valueBlock.value.length; i++)
@@ -276,33 +284,32 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
       if (_optional) {
         return {
           verified: true,
-          result: root,
+          result: root
         };
       }
 
       // #region Delete early added name of block
       if (inputSchema.name) {
         inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
-        if (inputSchema.name)
-          delete (root as any)[inputSchema.name];
+        if (inputSchema.name) delete (root as any)[inputSchema.name];
       }
       // #endregion
       root.error = "Inconsistent object length";
 
       return {
         verified: false,
-        result: root,
+        result: root
       };
     }
     // #endregion
     for (let i = 0; i < maxLength; i++) {
       // @ts-ignore
-      if ((i - admission) >= inputData.valueBlock.value.length) {
+      if (i - admission >= inputData.valueBlock.value.length) {
         // Special case when there is an OPTIONAL element of ASN.1 schema at the end
         if (inputSchema.valueBlock.value[i].optional === false) {
           const _result: CompareSchemaResult = {
             verified: false,
-            result: root,
+            result: root
           };
 
           root.error = "Inconsistent length between ASN.1 data and schema";
@@ -325,14 +332,12 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
           // @ts-ignore
           result = compareSchema(root, inputData.valueBlock.value[i], inputSchema.valueBlock.value[0].value);
           if (result.verified === false) {
-            if (inputSchema.valueBlock.value[0].optional)
-              admission++;
+            if (inputSchema.valueBlock.value[0].optional) admission++;
             else {
               // #region Delete early added name of block
               if (inputSchema.name) {
                 inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
-                if (inputSchema.name)
-                  delete (root as any)[inputSchema.name];
+                if (inputSchema.name) delete (root as any)[inputSchema.name];
               }
               // #endregion
 
@@ -340,14 +345,12 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
             }
           }
 
-          if ((NAME in inputSchema.valueBlock.value[0]) && (inputSchema.valueBlock.value[0].name.length > 0)) {
+          if (NAME in inputSchema.valueBlock.value[0] && inputSchema.valueBlock.value[0].name.length > 0) {
             let arrayRoot: Record<string, any> = {};
 
-            if ((LOCAL in inputSchema.valueBlock.value[0]) && (inputSchema.valueBlock.value[0].local))
+            if (LOCAL in inputSchema.valueBlock.value[0] && inputSchema.valueBlock.value[0].local)
               arrayRoot = inputData;
-
-            else
-              arrayRoot = root;
+            else arrayRoot = root;
 
             if (typeof arrayRoot[inputSchema.valueBlock.value[0].name] === "undefined")
               arrayRoot[inputSchema.valueBlock.value[0].name] = [];
@@ -359,14 +362,12 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
           // @ts-ignore
           result = compareSchema(root, inputData.valueBlock.value[i - admission], inputSchema.valueBlock.value[i]);
           if (result.verified === false) {
-            if (inputSchema.valueBlock.value[i].optional)
-              admission++;
+            if (inputSchema.valueBlock.value[i].optional) admission++;
             else {
               // #region Delete early added name of block
               if (inputSchema.name) {
                 inputSchema.name = inputSchema.name.replace(/^\s+|\s+$/g, EMPTY_STRING);
-                if (inputSchema.name)
-                  delete (root as any)[inputSchema.name];
+                if (inputSchema.name) delete (root as any)[inputSchema.name];
               }
               // #endregion
 
@@ -381,7 +382,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
       // The situation may take place if last element is OPTIONAL and verification failed
       const _result: CompareSchemaResult = {
         verified: false,
-        result: root,
+        result: root
       };
 
       // #region Delete early added name of block
@@ -399,19 +400,18 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
 
     return {
       verified: true,
-      result: root,
+      result: root
     };
   }
   // #endregion
   // #region Ability to parse internal value for primitive-encoded value (value of OctetString, for example)
-  if (inputSchema.primitiveSchema
-    && (VALUE_HEX_VIEW in inputData.valueBlock)) {
+  if (inputSchema.primitiveSchema && VALUE_HEX_VIEW in inputData.valueBlock) {
     // #region Decoding of raw ASN.1 data
     const asn1 = localFromBER(inputData.valueBlock.valueHexView);
     if (asn1.offset === -1) {
       const _result: CompareSchemaResult = {
         verified: false,
-        result: asn1.result,
+        result: asn1.result
       };
 
       // #region Delete early added name of block
@@ -433,7 +433,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
 
   return {
     verified: true,
-    result: root,
+    result: root
   };
   // #endregion
 }
@@ -446,10 +446,10 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
 
 export function verifySchema(inputBuffer: pvtsutils.BufferSource, inputSchema: AsnSchemaType): CompareSchemaResult {
   // #region Initial check
-  if ((inputSchema instanceof Object) === false) {
+  if (inputSchema instanceof Object === false) {
     return {
       verified: false,
-      result: { error: "Wrong ASN.1 schema type" },
+      result: { error: "Wrong ASN.1 schema type" }
     };
   }
   // #endregion
@@ -458,7 +458,7 @@ export function verifySchema(inputBuffer: pvtsutils.BufferSource, inputSchema: A
   if (asn1.offset === -1) {
     return {
       verified: false,
-      result: asn1.result,
+      result: asn1.result
     };
   }
   // #endregion
