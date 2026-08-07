@@ -1,5 +1,7 @@
 import {
-  LocalSimpleStringBlockParams, LocalSimpleStringBlock, LocalSimpleStringBlockJson,
+  LocalSimpleStringBlockParams,
+  LocalSimpleStringBlock,
+  LocalSimpleStringBlockJson
 } from "./internals/LocalSimpleStringBlock";
 import { typeStore } from "./TypeStore";
 

@@ -1,6 +1,8 @@
 import * as pvutils from "pvutils";
 import {
-  LocalSimpleStringBlock, LocalSimpleStringBlockJson, LocalSimpleStringBlockParams,
+  LocalSimpleStringBlock,
+  LocalSimpleStringBlockJson,
+  LocalSimpleStringBlockParams
 } from "./LocalSimpleStringBlock";
 
 export type LocalUniversalStringValueBlockParams = LocalSimpleStringBlockParams;
@@ -26,18 +28,16 @@ export class LocalUniversalStringValueBlock extends LocalSimpleStringBlock {
   public override fromString(inputString: string): void {
     const strLength = inputString.length;
 
-    const valueHexView = this.valueBlock.valueHexView = new Uint8Array(strLength * 4);
+    const valueHexView = (this.valueBlock.valueHexView = new Uint8Array(strLength * 4));
 
     for (let i = 0; i < strLength; i++) {
       const codeBuf = pvutils.utilToBase(inputString.charCodeAt(i), 8);
       const codeView = new Uint8Array(codeBuf);
-      if (codeView.length > 4)
-        continue;
+      if (codeView.length > 4) continue;
 
       const dif = 4 - codeView.length;
 
-      for (let j = (codeView.length - 1); j >= 0; j--)
-        valueHexView[i * 4 + j + dif] = codeView[j];
+      for (let j = codeView.length - 1; j >= 0; j--) valueHexView[i * 4 + j + dif] = codeView[j];
     }
 
     this.valueBlock.value = inputString;

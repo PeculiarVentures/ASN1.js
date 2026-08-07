@@ -1,5 +1,8 @@
 import {
-  ILocalStringValueBlock, LocalStringValueBlockParams, LocalStringValueBlockJson, LocalStringValueBlock,
+  ILocalStringValueBlock,
+  LocalStringValueBlockParams,
+  LocalStringValueBlockJson,
+  LocalStringValueBlock
 } from "./LocalStringValueBlock";
 
 export type ILocalSimpleStringValueBlock = ILocalStringValueBlock;

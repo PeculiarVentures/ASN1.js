@@ -1,9 +1,5 @@
-import {
-  HexBlockJson, HexBlockParams, HexBlock,
-} from "../HexBlock";
-import {
-  ValueBlock, ValueBlockJson, ValueBlockParams,
-} from "../ValueBlock";
+import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
+import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { EMPTY_STRING } from "./constants";
 import { LocalUtf8StringValueBlockParams, LocalUtf8StringValueBlockJson } from "./LocalUtf8StringValueBlock";
 
@@ -11,10 +7,10 @@ export interface ILocalStringValueBlock {
   value: string;
 }
 
-export interface LocalStringValueBlockParams extends
-  Omit<HexBlockParams, "isHexOnly">, ValueBlockParams, Partial<ILocalStringValueBlock> { }
+export interface LocalStringValueBlockParams
+  extends Omit<HexBlockParams, "isHexOnly">, ValueBlockParams, Partial<ILocalStringValueBlock> {}
 
-export interface LocalStringValueBlockJson extends HexBlockJson, ValueBlockJson, ILocalStringValueBlock { }
+export interface LocalStringValueBlockJson extends HexBlockJson, ValueBlockJson, ILocalStringValueBlock {}
 
 export abstract class LocalStringValueBlock extends HexBlock(ValueBlock) implements ILocalStringValueBlock {
   public static override NAME = "StringValueBlock";
@@ -31,7 +27,7 @@ export abstract class LocalStringValueBlock extends HexBlock(ValueBlock) impleme
   public override toJSON(): LocalUtf8StringValueBlockJson {
     return {
       ...super.toJSON(),
-      value: this.value,
+      value: this.value
     };
   }
 }

@@ -1,17 +1,14 @@
 import * as pvtsutils from "pvtsutils";
 import { ViewWriter } from "../ViewWriter";
-import {
-  HexBlockJson, HexBlockParams, HexBlock,
-} from "../HexBlock";
-import {
-  createFromBerContext,
-  localFromBERWithChildContext,
-} from "../parser";
+import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
+import { createFromBerContext, localFromBERWithChildContext } from "../parser";
 import type { BitString } from "../BitString";
 import type { FromBerContext } from "../parser";
 import { BIT_STRING_NAME, END_OF_CONTENT_NAME } from "./constants";
 import {
-  LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock,
+  LocalConstructedValueBlockParams,
+  LocalConstructedValueBlockJson,
+  LocalConstructedValueBlock
 } from "./LocalConstructedValueBlock";
 import { checkBufferParams } from "./utils";
 
@@ -20,26 +17,24 @@ export interface ILocalBitStringValueBlock {
   isConstructed: boolean;
 }
 
-export interface LocalBitStringValueBlockParams extends
-  HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalBitStringValueBlock> {
+export interface LocalBitStringValueBlockParams
+  extends HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalBitStringValueBlock> {
   value?: BitString[];
 }
 
-export interface LocalBitStringValueBlockJson extends
-  HexBlockJson, LocalConstructedValueBlockJson, ILocalBitStringValueBlock { }
+export interface LocalBitStringValueBlockJson
+  extends HexBlockJson, LocalConstructedValueBlockJson, ILocalBitStringValueBlock {}
 
-export class LocalBitStringValueBlock extends
-  HexBlock(LocalConstructedValueBlock) implements ILocalBitStringValueBlock {
+export class LocalBitStringValueBlock
+  extends HexBlock(LocalConstructedValueBlock)
+  implements ILocalBitStringValueBlock
+{
   public static override NAME = "BitStringValueBlock";
 
   public unusedBits: number;
   public isConstructed: boolean;
 
-  constructor({
-    unusedBits = 0,
-    isConstructed = false,
-    ...parameters
-  }: LocalBitStringValueBlockParams = {}) {
+  constructor({ unusedBits = 0, isConstructed = false, ...parameters }: LocalBitStringValueBlockParams = {}) {
     super(parameters);
 
     this.unusedBits = unusedBits;
@@ -51,7 +46,7 @@ export class LocalBitStringValueBlock extends
     inputBuffer: ArrayBuffer | Uint8Array,
     inputOffset: number,
     inputLength: number,
-    context?: FromBerContext,
+    context?: FromBerContext
   ): number {
     // Ability to decode zero-length BitString value
     if (!inputLength) {
@@ -67,17 +62,15 @@ export class LocalBitStringValueBlock extends
         inputBuffer,
         inputOffset,
         inputLength,
-        context,
+        context
       );
-      if (resultOffset === -1)
-        return resultOffset;
+      if (resultOffset === -1) return resultOffset;
 
       for (const value of this.value) {
         const currentBlockName = (value.constructor as typeof LocalBitStringValueBlock).NAME;
 
         if (currentBlockName === END_OF_CONTENT_NAME) {
-          if (this.isIndefiniteForm)
-            break;
+          if (this.isIndefiniteForm) break;
           else {
             this.error = "EndOfContent is unexpected, BIT STRING may consists of BIT STRINGs only";
 
@@ -92,8 +85,8 @@ export class LocalBitStringValueBlock extends
         }
 
         const valueBlock = value.valueBlock as unknown as LocalBitStringValueBlock;
-        if ((this.unusedBits > 0) && (valueBlock.unusedBits > 0)) {
-          this.error = "Using of \"unused bits\" inside constructive BIT STRING allowed for least one only";
+        if (this.unusedBits > 0 && valueBlock.unusedBits > 0) {
+          this.error = 'Using of "unused bits" inside constructive BIT STRING allowed for least one only';
 
           return -1;
         }
@@ -127,7 +120,7 @@ export class LocalBitStringValueBlock extends
         if (buf.byteLength) {
           const parseContext = context ?? createFromBerContext();
           const asn = localFromBERWithChildContext(buf, 0, buf.byteLength, parseContext);
-          if (asn.offset !== -1 && asn.offset === (inputLength - 1)) {
+          if (asn.offset !== -1 && asn.offset === inputLength - 1) {
             this.value = [asn.result as BitString];
           }
         }
@@ -140,7 +133,7 @@ export class LocalBitStringValueBlock extends
     this.valueHexView = intBuffer.subarray(1);
     this.blockLength = intBuffer.length;
 
-    return (inputOffset + inputLength);
+    return inputOffset + inputLength;
   }
 
   public override toBER(sizeOnly?: boolean, writer?: ViewWriter): ArrayBuffer {
@@ -170,7 +163,7 @@ export class LocalBitStringValueBlock extends
     return {
       ...super.toJSON(),
       unusedBits: this.unusedBits,
-      isConstructed: this.isConstructed,
+      isConstructed: this.isConstructed
     } as LocalBitStringValueBlockJson;
   }
 }

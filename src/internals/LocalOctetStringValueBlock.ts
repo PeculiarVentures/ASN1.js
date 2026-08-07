@@ -1,35 +1,32 @@
 import { ViewWriter } from "../ViewWriter";
-import {
-  HexBlockJson, HexBlockParams, HexBlock,
-} from "../HexBlock";
+import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import type { OctetString } from "../OctetString";
 import type { FromBerContext } from "../parser";
 import { END_OF_CONTENT_NAME, OCTET_STRING_NAME } from "./constants";
 import {
-  LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock,
+  LocalConstructedValueBlockParams,
+  LocalConstructedValueBlockJson,
+  LocalConstructedValueBlock
 } from "./LocalConstructedValueBlock";
 
 export interface ILocalOctetStringValueBlock {
   isConstructed: boolean;
 }
 
-export interface LocalOctetStringValueBlockParams extends
-  HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalOctetStringValueBlock> {
+export interface LocalOctetStringValueBlockParams
+  extends HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalOctetStringValueBlock> {
   value?: OctetString[];
 }
 
-export interface LocalOctetStringValueBlockJson extends
-  HexBlockJson, LocalConstructedValueBlockJson, ILocalOctetStringValueBlock { }
+export interface LocalOctetStringValueBlockJson
+  extends HexBlockJson, LocalConstructedValueBlockJson, ILocalOctetStringValueBlock {}
 
 export class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBlock) {
   public static override NAME = "OctetStringValueBlock";
 
   public isConstructed: boolean;
 
-  constructor({
-    isConstructed = false,
-    ...parameters
-  }: LocalOctetStringValueBlockParams = {}) {
+  constructor({ isConstructed = false, ...parameters }: LocalOctetStringValueBlockParams = {}) {
     super(parameters);
 
     this.isConstructed = isConstructed;
@@ -39,7 +36,7 @@ export class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBl
     inputBuffer: ArrayBuffer,
     inputOffset: number,
     inputLength: number,
-    context?: FromBerContext,
+    context?: FromBerContext
   ): number {
     let resultOffset = 0;
 
@@ -51,17 +48,15 @@ export class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBl
         inputBuffer,
         inputOffset,
         inputLength,
-        context,
+        context
       );
-      if (resultOffset === -1)
-        return resultOffset;
+      if (resultOffset === -1) return resultOffset;
 
       for (let i = 0; i < this.value.length; i++) {
         const currentBlockName = (this.value[i].constructor as typeof LocalOctetStringValueBlock).NAME;
 
         if (currentBlockName === END_OF_CONTENT_NAME) {
-          if (this.isIndefiniteForm)
-            break;
+          if (this.isIndefiniteForm) break;
           else {
             this.error = "EndOfContent is unexpected, OCTET STRING may consists of OCTET STRINGs only";
 
@@ -86,18 +81,15 @@ export class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBl
   }
 
   public override toBER(sizeOnly?: boolean, writer?: ViewWriter): ArrayBuffer {
-    if (this.isConstructed)
-      return LocalConstructedValueBlock.prototype.toBER.call(this, sizeOnly, writer);
+    if (this.isConstructed) return LocalConstructedValueBlock.prototype.toBER.call(this, sizeOnly, writer);
 
-    return sizeOnly
-      ? new ArrayBuffer(this.valueHexView.byteLength)
-      : this.valueHexView.slice().buffer;
+    return sizeOnly ? new ArrayBuffer(this.valueHexView.byteLength) : this.valueHexView.slice().buffer;
   }
 
   public override toJSON(): LocalOctetStringValueBlockJson {
     return {
       ...super.toJSON(),
-      isConstructed: this.isConstructed,
+      isConstructed: this.isConstructed
     } as LocalOctetStringValueBlockJson;
   }
 }

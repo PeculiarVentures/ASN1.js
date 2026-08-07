@@ -1,8 +1,6 @@
 import * as pvutils from "pvutils";
 import { typeStore } from "./TypeStore";
-import {
-  IUTCTime, UTCTimeParams, UTCTimeJson, UTCTime, DateStringEncoding,
-} from "./UTCTime";
+import { IUTCTime, UTCTimeParams, UTCTimeJson, UTCTime, DateStringEncoding } from "./UTCTime";
 
 export interface IGeneralizedTime extends IUTCTime {
   millisecond: number;
@@ -45,9 +43,9 @@ export class GeneralizedTime extends UTCTime {
       this.hour,
       this.minute,
       this.second,
-      this.millisecond,
+      this.millisecond
     );
-    return (new Date(utcDate));
+    return new Date(utcDate);
   }
 
   public override fromString(inputString: string): void {
@@ -73,19 +71,16 @@ export class GeneralizedTime extends UTCTime {
       // Convert as local time
       const number = new Number(inputString[inputString.length - 1]);
 
-      if (isNaN(number.valueOf()))
-        throw new Error("Wrong input string for conversion");
+      if (isNaN(number.valueOf())) throw new Error("Wrong input string for conversion");
 
       timeString = inputString;
     }
 
     if (isUTC) {
       // Check that we do not have a "+" and "-" symbols inside UTC time
-      if (timeString.indexOf("+") !== -1)
-        throw new Error("Wrong input string for conversion");
+      if (timeString.indexOf("+") !== -1) throw new Error("Wrong input string for conversion");
 
-      if (timeString.indexOf("-") !== -1)
-        throw new Error("Wrong input string for conversion");
+      if (timeString.indexOf("-") !== -1) throw new Error("Wrong input string for conversion");
     } else {
       // Convert as local time
       let multiplier = 1;
@@ -101,21 +96,19 @@ export class GeneralizedTime extends UTCTime {
         differenceString = timeString.substring(differencePosition + 1);
         timeString = timeString.substring(0, differencePosition);
 
-        if ((differenceString.length !== 2) && (differenceString.length !== 4))
+        if (differenceString.length !== 2 && differenceString.length !== 4)
           throw new Error("Wrong input string for conversion");
 
         let number = parseInt(differenceString.substring(0, 2), 10);
 
-        if (isNaN(number.valueOf()))
-          throw new Error("Wrong input string for conversion");
+        if (isNaN(number.valueOf())) throw new Error("Wrong input string for conversion");
 
         hourDifference = multiplier * number;
 
         if (differenceString.length === 4) {
           number = parseInt(differenceString.substring(2, 4), 10);
 
-          if (isNaN(number.valueOf()))
-            throw new Error("Wrong input string for conversion");
+          if (isNaN(number.valueOf())) throw new Error("Wrong input string for conversion");
 
           minuteDifference = multiplier * number;
         }
@@ -124,33 +117,29 @@ export class GeneralizedTime extends UTCTime {
 
     // #region Get position of fraction point
     let fractionPointPosition = timeString.indexOf("."); // Check for "full stop" symbol
-    if (fractionPointPosition === -1)
-      fractionPointPosition = timeString.indexOf(","); // Check for "comma" symbol
+    if (fractionPointPosition === -1) fractionPointPosition = timeString.indexOf(","); // Check for "comma" symbol
     // #endregion
 
     // #region Get fraction part
     if (fractionPointPosition !== -1) {
       const fractionPartCheck = new Number(`0${timeString.substring(fractionPointPosition)}`);
 
-      if (isNaN(fractionPartCheck.valueOf()))
-        throw new Error("Wrong input string for conversion");
+      if (isNaN(fractionPartCheck.valueOf())) throw new Error("Wrong input string for conversion");
 
       fractionPart = fractionPartCheck.valueOf();
 
       dateTimeString = timeString.substring(0, fractionPointPosition);
-    } else
-      dateTimeString = timeString;
+    } else dateTimeString = timeString;
     // #endregion
 
     // #region Parse internal date
     switch (true) {
-      case (dateTimeString.length === 8): // "YYYYMMDD"
-        parser = /(\d{4})(\d{2})(\d{2})/ig;
-        if (fractionPointPosition !== -1)
-          throw new Error("Wrong input string for conversion"); // Here we should not have a "fraction point"
+      case dateTimeString.length === 8: // "YYYYMMDD"
+        parser = /(\d{4})(\d{2})(\d{2})/gi;
+        if (fractionPointPosition !== -1) throw new Error("Wrong input string for conversion"); // Here we should not have a "fraction point"
         break;
-      case (dateTimeString.length === 10): // "YYYYMMDDHH"
-        parser = /(\d{4})(\d{2})(\d{2})(\d{2})/ig;
+      case dateTimeString.length === 10: // "YYYYMMDDHH"
+        parser = /(\d{4})(\d{2})(\d{2})(\d{2})/gi;
 
         if (fractionPointPosition !== -1) {
           let fractionResult = 60 * fractionPart;
@@ -163,8 +152,8 @@ export class GeneralizedTime extends UTCTime {
           this.millisecond = Math.floor(fractionResult);
         }
         break;
-      case (dateTimeString.length === 12): // "YYYYMMDDHHMM"
-        parser = /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/ig;
+      case dateTimeString.length === 12: // "YYYYMMDDHHMM"
+        parser = /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/gi;
 
         if (fractionPointPosition !== -1) {
           let fractionResult = 60 * fractionPart;
@@ -174,8 +163,8 @@ export class GeneralizedTime extends UTCTime {
           this.millisecond = Math.floor(fractionResult);
         }
         break;
-      case (dateTimeString.length === 14): // "YYYYMMDDHHMMSS"
-        parser = /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/ig;
+      case dateTimeString.length === 14: // "YYYYMMDDHHMMSS"
+        parser = /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/gi;
 
         if (fractionPointPosition !== -1) {
           const fractionResult = 1000 * fractionPart;
@@ -189,8 +178,7 @@ export class GeneralizedTime extends UTCTime {
 
     // #region Put parsed values at right places
     const parserArray = parser.exec(dateTimeString);
-    if (parserArray === null)
-      throw new Error("Wrong input string for conversion");
+    if (parserArray === null) throw new Error("Wrong input string for conversion");
 
     for (let j = 1; j < parserArray.length; j++) {
       switch (j) {
@@ -258,7 +246,7 @@ export class GeneralizedTime extends UTCTime {
   public override toJSON(): GeneralizedTimeJson {
     return {
       ...super.toJSON(),
-      millisecond: this.millisecond,
+      millisecond: this.millisecond
     };
   }
 }

@@ -1,21 +1,17 @@
 import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
-import {
-  HexBlockJson, HexBlockParams, HexBlock,
-} from "../HexBlock";
-import {
-  ValueBlock, ValueBlockJson, ValueBlockParams,
-} from "../ValueBlock";
+import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
+import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { checkBufferParams } from "./utils";
 
 export interface ILocalBooleanValueBlock {
   value: boolean;
 }
 
-export interface LocalBooleanValueBlockParams extends
-  ValueBlockParams, HexBlockParams, Partial<ILocalBooleanValueBlock> { }
+export interface LocalBooleanValueBlockParams
+  extends ValueBlockParams, HexBlockParams, Partial<ILocalBooleanValueBlock> {}
 
-export interface LocalBooleanValueBlockJson extends ValueBlockJson, HexBlockJson, ILocalBooleanValueBlock { }
+export interface LocalBooleanValueBlockJson extends ValueBlockJson, HexBlockJson, ILocalBooleanValueBlock {}
 
 export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILocalBooleanValueBlock {
   public static override NAME = "BooleanValueBlock";
@@ -31,13 +27,10 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
   }
 
   public set value(value: boolean) {
-    this.valueHexView[0] = value ? 0xFF : 0x00;
+    this.valueHexView[0] = value ? 0xff : 0x00;
   }
 
-  constructor({
-    value,
-    ...parameters
-  }: LocalBooleanValueBlockParams = {}) {
+  constructor({ value, ...parameters }: LocalBooleanValueBlockParams = {}) {
     super(parameters);
 
     if (parameters.valueHex) {
@@ -61,14 +54,13 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
     // Getting Uint8Array
     this.valueHexView = inputView.subarray(inputOffset, inputOffset + inputLength);
 
-    if (inputLength > 1)
-      this.warnings.push("Boolean value encoded in more then 1 octet");
+    if (inputLength > 1) this.warnings.push("Boolean value encoded in more then 1 octet");
 
     this.isHexOnly = true;
     pvutils.utilDecodeTC.call(this);
     this.blockLength = inputLength;
 
-    return (inputOffset + inputLength);
+    return inputOffset + inputLength;
   }
 
   public override toBER(): ArrayBuffer {
@@ -78,7 +70,7 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
   public override toJSON(): LocalBooleanValueBlockJson {
     return {
       ...super.toJSON(),
-      value: this.value,
+      value: this.value
     };
   }
 }

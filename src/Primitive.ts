@@ -1,12 +1,12 @@
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import {
-  BaseBlock, BaseBlockJson, BaseBlockParams,
-} from "./BaseBlock";
-import {
-  LocalPrimitiveValueBlock, LocalPrimitiveValueBlockJson, LocalPrimitiveValueBlockParams,
+  LocalPrimitiveValueBlock,
+  LocalPrimitiveValueBlockJson,
+  LocalPrimitiveValueBlockParams
 } from "./internals/LocalPrimitiveValueBlock";
 import { typeStore } from "./TypeStore";
 
-export interface PrimitiveParams extends BaseBlockParams, LocalPrimitiveValueBlockParams { }
+export interface PrimitiveParams extends BaseBlockParams, LocalPrimitiveValueBlockParams {}
 export type PrimitiveJson = BaseBlockJson<LocalPrimitiveValueBlockJson>;
 
 export class Primitive extends BaseBlock<LocalPrimitiveValueBlock, LocalPrimitiveValueBlockJson> {

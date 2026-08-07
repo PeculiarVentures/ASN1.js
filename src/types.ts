@@ -1,5 +1,4 @@
 export interface IBerConvertible {
-
   /**
    * Base function for converting block from BER encoded array of bytes
    * @param inputBuffer ASN.1 BER encoded array

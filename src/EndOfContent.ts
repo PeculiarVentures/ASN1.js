@@ -1,6 +1,4 @@
-import {
-  BaseBlock, BaseBlockJson, BaseBlockParams,
-} from "./BaseBlock";
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { END_OF_CONTENT_NAME } from "./internals/constants";
 import { LocalEndOfContentValueBlock } from "./internals/LocalEndOfContentValueBlock";
 import { typeStore } from "./TypeStore";
