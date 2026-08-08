@@ -17,7 +17,7 @@ export function assertBigInt(): void {
  * @param buffers List of buffers
  * @returns Concatenated buffer
  */
-export function concat(buffers: ArrayBuffer[]): ArrayBuffer {
+export function concat(buffers: (ArrayBuffer | Uint8Array)[]): ArrayBuffer {
   let outputLength = 0;
   let prevLength = 0;
 

@@ -94,9 +94,11 @@ export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
       }
 
       // Don't copy data if View is not offset
-      return this.valueHexView.byteLength === this.valueHexView.buffer.byteLength
-        ? this.valueHexView.buffer
-        : this.valueHexView.slice().buffer;
+      return (
+        this.valueHexView.byteLength === this.valueHexView.buffer.byteLength
+          ? this.valueHexView.buffer
+          : this.valueHexView.slice().buffer
+      ) as ArrayBuffer;
     }
 
     /**

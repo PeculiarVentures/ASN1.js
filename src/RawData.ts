@@ -3,7 +3,7 @@ import { IBerConvertible } from "./types";
 import { EMPTY_VIEW } from "./internals/constants";
 
 export interface IRawData {
-  data: ArrayBuffer;
+  data: ArrayBuffer | Uint8Array;
 }
 
 export type RawDataParams = Partial<IRawData>;
@@ -22,7 +22,7 @@ export class RawData implements IBerConvertible {
   /**
    * @deprecated Since v3.0.0
    */
-  public set data(value: ArrayBuffer) {
+  public set data(value: ArrayBuffer | Uint8Array) {
     this.dataView = pvtsutils.BufferSourceConverter.toUint8Array(value);
   }
 

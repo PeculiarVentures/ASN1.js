@@ -64,7 +64,7 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
   }
 
   public override toBER(): ArrayBuffer {
-    return this.valueHexView.slice();
+    return this.valueHexView.slice().buffer;
   }
 
   public override toJSON(): LocalBooleanValueBlockJson {

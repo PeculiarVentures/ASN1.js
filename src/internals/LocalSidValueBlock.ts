@@ -123,7 +123,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
       retView[len] = encodedView[len];
     }
 
-    return retView;
+    return retView.buffer;
   }
 
   public override toString(): string {

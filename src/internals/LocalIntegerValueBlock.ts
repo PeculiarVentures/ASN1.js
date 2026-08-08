@@ -11,7 +11,7 @@ function viewAdd(first: Uint8Array, second: Uint8Array): Uint8Array {
   const firstView = new Uint8Array(first);
   const secondView = new Uint8Array(second);
 
-  let firstViewCopy = firstView.slice(0);
+  let firstViewCopy: Uint8Array = firstView.slice(0);
   const firstViewCopyLength = firstViewCopy.length - 1;
   const secondViewCopy = secondView.slice(0);
   const secondViewCopyLength = secondViewCopy.length - 1;
@@ -51,7 +51,7 @@ function power2(n: number): Uint8Array {
   if (n >= powers2.length) {
     for (let p = powers2.length; p <= n; p++) {
       const c = new Uint8Array([0]);
-      let digits = powers2[p - 1].slice(0);
+      let digits: Uint8Array = powers2[p - 1].slice(0);
 
       for (let i = digits.length - 1; i >= 0; i--) {
         const newValue = new Uint8Array([(digits[i] << 1) + c[0]]);
@@ -254,7 +254,7 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
     // #region Initial variables
     const firstBit = this.valueHexView.length * 8 - 1;
 
-    let digits = new Uint8Array((this.valueHexView.length * 8) / 3);
+    let digits: Uint8Array = new Uint8Array((this.valueHexView.length * 8) / 3);
     let bitNumber = 0;
     let currentByte;
 
