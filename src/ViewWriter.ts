@@ -1,14 +1,14 @@
 import * as utils from "./internals/utils";
 
 export class ViewWriter {
-  public items: (ArrayBuffer | Uint8Array)[] = [];
+  public items: ArrayBuffer[] = [];
 
   /**
    * Writes buffer
    * @param buf
    */
   public write(buf: ArrayBuffer | Uint8Array): void {
-    this.items.push(buf);
+    this.items.push(buf instanceof ArrayBuffer ? buf : utils.concat([buf]));
   }
 
   /**

@@ -3,10 +3,12 @@ import { IBerConvertible } from "./types";
 import { EMPTY_VIEW } from "./internals/constants";
 
 export interface IRawData {
-  data: ArrayBuffer | Uint8Array;
+  data: ArrayBuffer;
 }
 
-export type RawDataParams = Partial<IRawData>;
+export type RawDataParams = {
+  data?: ArrayBuffer | Uint8Array;
+};
 
 /**
  * Special class providing ability to have "toBER/fromBER" for raw ArrayBuffer
