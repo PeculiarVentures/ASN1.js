@@ -102,7 +102,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
 
       retView[this.blockLength - 1] = curView[this.blockLength - 1];
 
-      return retView.buffer;
+      return pvtsutils.BufferSourceConverter.toArrayBuffer(retView);
     }
 
     const encodedBuf = pvutils.utilToBase(this.valueDec, 7);
@@ -123,7 +123,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
       retView[len] = encodedView[len];
     }
 
-    return retView;
+    return pvtsutils.BufferSourceConverter.toArrayBuffer(retView);
   }
 
   public override toString(): string {

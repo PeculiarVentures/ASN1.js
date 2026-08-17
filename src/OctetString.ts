@@ -99,7 +99,7 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
       return this.valueBlock.valueHexView.slice().buffer;
     }
 
-    const array: ArrayBuffer[] = [];
+    const array: (ArrayBuffer | Uint8Array)[] = [];
     for (const content of this.valueBlock.value) {
       if (content instanceof OctetString) {
         array.push(content.valueBlock.valueHexView);
