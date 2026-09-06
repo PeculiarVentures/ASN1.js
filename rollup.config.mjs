@@ -21,8 +21,10 @@ export default [
         check: true,
         clean: true,
         tsconfigOverride: {
+          include: ["src/**/*.ts"],
           compilerOptions: {
             module: "ES2015",
+            rootDir: ".",
             removeComments: true
           }
         }
