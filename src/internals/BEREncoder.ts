@@ -120,8 +120,7 @@ function intrinsicPayloadByteLength(value: unknown): number | undefined {
   if (!intrinsicTypedArrayByteLength || !value || typeof value !== "object") return undefined;
 
   try {
-    if (Object.getPrototypeOf(value) !== Uint8Array.prototype) return undefined;
-    const byteLength = Reflect.apply(intrinsicTypedArrayByteLength, value, []);
+    const byteLength = intrinsicTypedArrayByteLength.call(value);
     return typeof byteLength === "number" ? byteLength : undefined;
   } catch {
     return undefined;

@@ -180,6 +180,35 @@ describe("built-in BER encoder dispatch heuristic", () => {
     }
   });
 
+  it("leaves unsupported typed-array and ordinary payloads to full validation", () => {
+    const uint16Value = octet(1);
+    const uint16Payload = new Uint16Array(DISPATCH_THRESHOLD / Uint16Array.BYTES_PER_ELEMENT);
+    uint16Value.valueBlock.valueHexView = uint16Payload as unknown as Uint8Array;
+    assert.strictEqual(shouldUseBuiltinEncoder(uint16Value), true);
+    assert.strictEqual(tryEncodeBuiltin(uint16Value), undefined);
+
+    class Uint8ArraySubclass extends Uint8Array {}
+    const subclassValue = octet(1);
+    const subclassPayload = new Uint8ArraySubclass(DISPATCH_THRESHOLD);
+    subclassValue.valueBlock.valueHexView = subclassPayload;
+    assert.strictEqual(shouldUseBuiltinEncoder(subclassValue), true);
+    assert.strictEqual(tryEncodeBuiltin(subclassValue), undefined);
+
+    let fakeReads = 0;
+    const fakePayload = {
+      get byteLength(): number {
+        fakeReads += 1;
+        return DISPATCH_THRESHOLD;
+      }
+    };
+    const fakeValue = octet(1);
+    fakeValue.valueBlock.valueHexView = fakePayload as unknown as Uint8Array;
+    assert.strictEqual(shouldUseBuiltinEncoder(fakeValue), false);
+    assert.strictEqual(fakeReads, 0);
+    assert.strictEqual(tryEncodeBuiltin(fakeValue), undefined);
+    assert.strictEqual(fakeReads, 0);
+  });
+
   it("falls back safely for a large leaf with an own backing byteLength property", () => {
     const value = octet(DISPATCH_THRESHOLD);
     const view = value.valueBlock.valueHexView;
