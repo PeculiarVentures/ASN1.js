@@ -214,6 +214,8 @@ function plainPayload(value: unknown, allowEmpty = false): Uint8Array | undefine
   try {
     const buffer = value.buffer;
     if (!(buffer instanceof ArrayBuffer) || Object.getPrototypeOf(buffer) !== ArrayBuffer.prototype) return undefined;
+    // Avoid invoking caller-defined backing-buffer byteLength accessors.
+    if (Object.prototype.hasOwnProperty.call(buffer, "byteLength")) return undefined;
     if (value.byteLength !== value.length || (!allowEmpty && value.byteLength === 0)) return undefined;
     if (value.byteOffset < 0 || value.byteOffset + value.byteLength > buffer.byteLength) return undefined;
   } catch {
