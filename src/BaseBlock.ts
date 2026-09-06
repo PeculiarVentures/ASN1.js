@@ -13,7 +13,7 @@ import { ValueBlock, ValueBlockJson } from "./ValueBlock";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./internals/constants";
 import { typeStore } from "./TypeStore";
 import type { FromBerContext } from "./parser";
-import { tryEncodeBuiltin } from "./internals/BEREncoder";
+import { shouldUseBuiltinEncoder, tryEncodeBuiltin } from "./internals/BEREncoder";
 
 export interface IBaseBlock {
   name: string;
@@ -97,8 +97,10 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
       prepareIndefiniteForm(this);
 
       if (sizeOnly === true || sizeOnly === false || sizeOnly === undefined) {
-        const encoded = tryEncodeBuiltin(this, sizeOnly === true);
-        if (encoded) return encoded;
+        if (shouldUseBuiltinEncoder(this)) {
+          const encoded = tryEncodeBuiltin(this, sizeOnly === true);
+          if (encoded) return encoded;
+        }
       }
     }
 

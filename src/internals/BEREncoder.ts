@@ -87,6 +87,13 @@ interface BuiltinRegistry extends BuiltinConstructors, BuiltinInternals {}
 const originalUint8ArraySliceInfo = findMethod(Uint8Array.prototype, "slice");
 const originalUint8ArrayConstructor = Object.getOwnPropertyDescriptor(Uint8Array.prototype, "constructor")?.value;
 const originalArrayIterator = Object.getOwnPropertyDescriptor(Array.prototype, Symbol.iterator)?.value;
+const intrinsicTypedArrayByteLength = Object.getOwnPropertyDescriptor(
+  Object.getPrototypeOf(Uint8Array.prototype),
+  "byteLength"
+)?.get;
+// Small payloads do not amortize full validation; this only gates that validator.
+const BUILTIN_DISPATCH_PAYLOAD_THRESHOLD = 16384;
+const BUILTIN_DISPATCH_MAX_DEPTH = 64;
 
 let builtinRegistry: BuiltinRegistry | undefined;
 
@@ -107,6 +114,53 @@ function dataProperty<T>(object: object, name: string): T | undefined {
   if (!descriptor || !("value" in descriptor)) return undefined;
 
   return descriptor.value as T;
+}
+
+function intrinsicPayloadByteLength(value: unknown): number | undefined {
+  if (!intrinsicTypedArrayByteLength || !value || typeof value !== "object") return undefined;
+
+  try {
+    if (Object.getPrototypeOf(value) !== Uint8Array.prototype) return undefined;
+    const byteLength = Reflect.apply(intrinsicTypedArrayByteLength, value, []);
+    return typeof byteLength === "number" ? byteLength : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function largePayloadOrChain(block: unknown, depth: number): boolean {
+  if (depth > BUILTIN_DISPATCH_MAX_DEPTH || !block || typeof block !== "object") return false;
+
+  const valueBlockDescriptor = Object.getOwnPropertyDescriptor(block, "valueBlock");
+  if (!valueBlockDescriptor || !("value" in valueBlockDescriptor)) return false;
+  const valueBlock = valueBlockDescriptor.value;
+  if (!valueBlock || typeof valueBlock !== "object") return false;
+
+  const payloadDescriptor = Object.getOwnPropertyDescriptor(valueBlock, "valueHexView");
+  if (payloadDescriptor) {
+    if (!("value" in payloadDescriptor)) return false;
+    const byteLength = intrinsicPayloadByteLength(payloadDescriptor.value);
+    return byteLength !== undefined && byteLength >= BUILTIN_DISPATCH_PAYLOAD_THRESHOLD;
+  }
+
+  const valuesDescriptor = Object.getOwnPropertyDescriptor(valueBlock, "value");
+  if (!valuesDescriptor || !("value" in valuesDescriptor) || !Array.isArray(valuesDescriptor.value)) return false;
+  const values = valuesDescriptor.value;
+  const lengthDescriptor = Object.getOwnPropertyDescriptor(values, "length");
+  if (!lengthDescriptor || !("value" in lengthDescriptor) || lengthDescriptor.value !== 1) return false;
+  const indexDescriptor = Object.getOwnPropertyDescriptor(values, "0");
+  if (!indexDescriptor || !("value" in indexDescriptor)) return false;
+
+  return largePayloadOrChain(indexDescriptor.value, depth + 1);
+}
+
+/** @internal */
+export function shouldUseBuiltinEncoder(block: BaseBlock): boolean {
+  try {
+    return largePayloadOrChain(block, 0);
+  } catch {
+    return false;
+  }
 }
 
 function sameDataMethod(current: PropertyDescriptor | undefined, original: Function): current is PropertyDescriptor {
