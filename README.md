@@ -148,11 +148,17 @@ More examples could be found in "examples" directory or inside [PKIjs] library.
 const asn1 = asn1js.fromBER(inputBuffer, {
   maxDepth: 100,
   maxNodes: 10000,
-  maxContentLength: 16 * 1024 * 1024
+  maxContentLength: 16 * 1024 * 1024,
+  parseEmbedded: false,
+  copyInput: false
 });
 ```
 
 When any limit is exceeded the parser returns a normal `FromBerResult` error instead of exhausting the JavaScript stack or continuing to parse excessive input.
+
+By default, primitive OCTET STRING values and primitive BIT STRING values with zero unused bits are also checked for a complete embedded ASN.1 value. Set `parseEmbedded: false` to keep those values as raw bytes without that heuristic interpretation; constructed children continue to be parsed normally.
+
+Input is copied by default. Set `copyInput: false` to retain a normalized view over the exact input range without copying. The caller must keep the backing storage unchanged and must not detach it while the parsed tree is in use: mutations are visible through parsed byte views and can make them inconsistent with decoded fields. The entire backing buffer remains retained. This option provides no protection against shared-memory races.
 
 ## Related source code
 

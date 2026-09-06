@@ -114,7 +114,7 @@ export class LocalBitStringValueBlock
       return -1;
     }
 
-    if (!this.unusedBits) {
+    if (!this.unusedBits && context?.parseEmbedded !== false) {
       const buf = intBuffer.subarray(1);
       try {
         if (buf.byteLength) {
@@ -167,6 +167,9 @@ export class LocalBitStringValueBlock
     } as LocalBitStringValueBlockJson;
   }
 }
+
+/** @internal */
+export const ORIGINAL_LOCAL_BIT_STRING_TO_BER = LocalBitStringValueBlock.prototype.toBER;
 
 export interface LocalBitStringValueBlock {
   /**

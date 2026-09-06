@@ -60,7 +60,7 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
       return inputOffset;
     }
 
-    if (!this.valueBlock.isConstructed) {
+    if (!this.valueBlock.isConstructed && context?.parseEmbedded !== false) {
       const view = inputBuffer instanceof ArrayBuffer ? new Uint8Array(inputBuffer) : inputBuffer;
       const buf = view.subarray(inputOffset, inputOffset + inputLength);
       try {

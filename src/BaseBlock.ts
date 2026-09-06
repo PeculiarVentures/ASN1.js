@@ -13,6 +13,7 @@ import { ValueBlock, ValueBlockJson } from "./ValueBlock";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./internals/constants";
 import { typeStore } from "./TypeStore";
 import type { FromBerContext } from "./parser";
+import { tryEncodeBuiltin } from "./internals/BEREncoder";
 
 export interface IBaseBlock {
   name: string;
@@ -94,6 +95,11 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
 
     if (!writer) {
       prepareIndefiniteForm(this);
+
+      if (sizeOnly === true || sizeOnly === false || sizeOnly === undefined) {
+        const encoded = tryEncodeBuiltin(this, sizeOnly === true);
+        if (encoded) return encoded;
+      }
     }
 
     const idBlockBuf = this.idBlock.toBER(sizeOnly);
@@ -172,6 +178,9 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
     return pvutils.isEqualBuffer(thisRaw, otherRaw);
   }
 }
+
+/** @internal */
+export const ORIGINAL_BASE_BLOCK_TO_BER = BaseBlock.prototype.toBER;
 
 /**
  * Recursive function which checks and enables isIndefiniteForm flag for constructed blocks

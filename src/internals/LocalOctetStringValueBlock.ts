@@ -94,6 +94,9 @@ export class LocalOctetStringValueBlock extends HexBlock(LocalConstructedValueBl
   }
 }
 
+/** @internal */
+export const ORIGINAL_LOCAL_OCTET_STRING_TO_BER = LocalOctetStringValueBlock.prototype.toBER;
+
 export interface LocalOctetStringValueBlock {
   /**
    * @deprecated since version 3.0.0
