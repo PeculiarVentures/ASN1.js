@@ -42,24 +42,25 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
     if (!checkBufferParams(this, view, inputOffset, inputLength)) {
       return -1;
     }
-    // #region Getting Uint8Array from ArrayBuffer
-    const intBuffer = view.subarray(inputOffset, inputOffset + inputLength);
-    // #endregion
+    const fastArgs = Number.isInteger(inputOffset) && Number.isInteger(inputLength);
+    const intBuffer = fastArgs ? view : view.subarray(inputOffset, inputOffset + inputLength);
+    const baseIndex = fastArgs ? inputOffset : 0;
+    const bufferLength = fastArgs ? inputLength : intBuffer.length;
     // #region Initial checks
-    if (intBuffer.length === 0) {
+    if (bufferLength === 0) {
       this.error = "Zero buffer length";
 
       return -1;
     }
 
-    if (intBuffer[0] === 0xff) {
+    if (intBuffer[baseIndex] === 0xff) {
       this.error = "Length block 0xFF is reserved by standard";
 
       return -1;
     }
     // #endregion
     // #region Check for length form type
-    this.isIndefiniteForm = intBuffer[0] === 0x80;
+    this.isIndefiniteForm = intBuffer[baseIndex] === 0x80;
     // #endregion
     // #region Stop working in case of indefinite length form
     if (this.isIndefiniteForm) {
@@ -69,18 +70,18 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
     }
     // #endregion
     // #region Check is long form of length encoding using
-    this.longFormUsed = !!(intBuffer[0] & 0x80);
+    this.longFormUsed = !!(intBuffer[baseIndex] & 0x80);
     // #endregion
     // #region Stop working in case of short form of length value
     if (this.longFormUsed === false) {
-      this.length = intBuffer[0];
+      this.length = intBuffer[baseIndex];
       this.blockLength = 1;
 
       return inputOffset + this.blockLength;
     }
     // #endregion
     // #region Calculate length value in case of long form
-    const count = intBuffer[0] & 0x7f;
+    const count = intBuffer[baseIndex] & 0x7f;
 
     if (count > 8) {
       // Too big length value
@@ -89,7 +90,7 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
       return -1;
     }
 
-    if (count + 1 > intBuffer.length) {
+    if (count + 1 > bufferLength) {
       this.error = "End of input reached before message was fully decoded";
 
       return -1;
@@ -171,3 +172,9 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
     };
   }
 }
+
+/** @internal */
+export const ORIGINAL_LOCAL_LENGTH_TO_BER = LocalLengthBlock.prototype.toBER;
+
+/** @internal */
+export const ORIGINAL_LOCAL_LENGTH_FROM_BER = LocalLengthBlock.prototype.fromBER;

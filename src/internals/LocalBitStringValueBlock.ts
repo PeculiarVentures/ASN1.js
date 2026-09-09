@@ -114,7 +114,7 @@ export class LocalBitStringValueBlock
       return -1;
     }
 
-    if (!this.unusedBits) {
+    if (!this.unusedBits && context?.parseEmbedded !== false) {
       const buf = intBuffer.subarray(1);
       try {
         if (buf.byteLength) {
@@ -168,17 +168,20 @@ export class LocalBitStringValueBlock
   }
 }
 
+/** @internal */
+export const ORIGINAL_LOCAL_BIT_STRING_TO_BER = LocalBitStringValueBlock.prototype.toBER;
+
 export interface LocalBitStringValueBlock {
   /**
    * @deprecated since version 3.0.0
    */
-  // @ts-ignore
-  valueBeforeDecode: ArrayBuffer;
+  get valueBeforeDecode(): ArrayBuffer;
+  set valueBeforeDecode(value: ArrayBuffer);
   /**
    * Binary data in ArrayBuffer representation
    *
    * @deprecated since version 3.0.0
    */
-  // @ts-ignore
-  valueHex: ArrayBuffer;
+  get valueHex(): ArrayBuffer;
+  set valueHex(value: ArrayBuffer);
 }

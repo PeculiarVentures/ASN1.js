@@ -31,7 +31,7 @@ export function concat(buffers: (ArrayBuffer | Uint8Array)[]): ArrayBuffer {
 
   for (let i = 0; i < buffers.length; i++) {
     const buffer = buffers[i];
-    retView.set(new Uint8Array(buffer), prevLength);
+    retView.set(buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer), prevLength);
     prevLength += buffer.byteLength;
   }
 

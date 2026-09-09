@@ -14,17 +14,23 @@ export class LocalPrimitiveValueBlock extends HexBlock(ValueBlock) {
   }
 }
 
+/** @internal */
+export const ORIGINAL_LOCAL_PRIMITIVE_TO_BER = Object.getOwnPropertyDescriptor(
+  Object.getPrototypeOf(LocalPrimitiveValueBlock.prototype),
+  "toBER"
+)?.value as Function;
+
 export interface LocalPrimitiveValueBlock {
   /**
    * @deprecated since version 3.0.0
    */
-  // @ts-ignore
-  valueBeforeDecode: ArrayBuffer;
+  get valueBeforeDecode(): ArrayBuffer;
+  set valueBeforeDecode(value: ArrayBuffer);
   /**
    * Binary data in ArrayBuffer representation
    *
    * @deprecated since version 3.0.0
    */
-  // @ts-ignore
-  valueHex: ArrayBuffer;
+  get valueHex(): ArrayBuffer;
+  set valueHex(value: ArrayBuffer);
 }
