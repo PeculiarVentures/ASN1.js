@@ -35,24 +35,37 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
     if (!checkBufferParams(this, inputView, inputOffset, inputLength)) return -1;
 
     const intBuffer = inputView.subarray(inputOffset, inputOffset + inputLength);
+    const fastPath = this.blockLength === 0 && Number.isInteger(inputOffset) && Number.isInteger(inputLength);
 
-    this.valueHexView = new Uint8Array(inputLength);
+    if (fastPath) {
+      let sidLength = 0;
+      while (sidLength < inputLength) {
+        const octet = intBuffer[sidLength];
+        sidLength++;
+        if ((octet & 0x80) === 0x00) break;
+      }
+      this.blockLength = sidLength;
+      this.valueHexView = new Uint8Array(sidLength);
+      for (let i = 0; i < sidLength; i++) this.valueHexView[i] = intBuffer[i] & 0x7f;
+    } else {
+      this.valueHexView = new Uint8Array(inputLength);
 
-    for (let i = 0; i < inputLength; i++) {
-      this.valueHexView[i] = intBuffer[i] & 0x7f;
+      for (let i = 0; i < inputLength; i++) {
+        this.valueHexView[i] = intBuffer[i] & 0x7f;
 
-      this.blockLength++;
+        this.blockLength++;
 
-      if ((intBuffer[i] & 0x80) === 0x00) break;
+        if ((intBuffer[i] & 0x80) === 0x00) break;
+      }
+
+      // #region Adjust size of valueHex buffer
+      const tempView = new Uint8Array(this.blockLength);
+
+      for (let i = 0; i < this.blockLength; i++) tempView[i] = this.valueHexView[i];
+
+      this.valueHexView = tempView;
+      // #endregion
     }
-
-    // #region Adjust size of valueHex buffer
-    const tempView = new Uint8Array(this.blockLength);
-
-    for (let i = 0; i < this.blockLength; i++) tempView[i] = this.valueHexView[i];
-
-    this.valueHexView = tempView;
-    // #endregion
     if ((intBuffer[this.blockLength - 1] & 0x80) !== 0x00) {
       this.error = "End of input reached before message was fully decoded";
 

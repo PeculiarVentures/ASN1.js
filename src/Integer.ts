@@ -3,9 +3,11 @@ import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import {
   LocalIntegerValueBlockParams,
   LocalIntegerValueBlock,
-  LocalIntegerValueBlockJson
+  LocalIntegerValueBlockJson,
+  ORIGINAL_LOCAL_INTEGER_TO_STRING
 } from "./internals/LocalIntegerValueBlock";
 import { assertBigInt } from "./internals/utils";
+import { bytesToSignedBigInt } from "./internals/integerUtils";
 import { typeStore } from "./TypeStore";
 import { ViewWriter } from "./ViewWriter";
 
@@ -34,7 +36,12 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
   public toBigInt(): bigint {
     assertBigInt();
 
-    return BigInt(this.valueBlock.toString());
+    const valueBlock = this.valueBlock;
+    const toString = valueBlock.toString;
+
+    if (toString === ORIGINAL_LOCAL_INTEGER_TO_STRING) return bytesToSignedBigInt(valueBlock.valueHexView);
+
+    return BigInt(Reflect.apply(toString, valueBlock, []));
   }
 
   /**

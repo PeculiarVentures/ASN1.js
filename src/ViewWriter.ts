@@ -19,3 +19,9 @@ export class ViewWriter {
     return utils.concat(this.items);
   }
 }
+
+/** @internal */
+export const ORIGINAL_VIEW_WRITER_WRITE = ViewWriter.prototype.write;
+
+/** @internal */
+export const ORIGINAL_VIEW_WRITER_FINAL = ViewWriter.prototype.final;

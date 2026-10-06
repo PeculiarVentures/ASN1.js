@@ -128,3 +128,6 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
     return object;
   }
 }
+
+/** @internal */
+export const ORIGINAL_LOCAL_CONSTRUCTED_TO_BER = LocalConstructedValueBlock.prototype.toBER;

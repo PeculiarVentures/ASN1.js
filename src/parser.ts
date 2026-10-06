@@ -1,9 +1,13 @@
 import * as pvtsutils from "pvtsutils";
 import { ValueBlock } from "./ValueBlock";
 import { BaseBlock } from "./BaseBlock";
-import { LocalBaseBlock } from "./internals/LocalBaseBlock";
 import { AsnType, typeStore } from "./TypeStore";
 import { checkBufferParams } from "./internals/utils";
+import { LocalIdentificationBlock, ORIGINAL_LOCAL_IDENTIFICATION_FROM_BER } from "./internals/LocalIdentificationBlock";
+import { LocalLengthBlock, ORIGINAL_LOCAL_LENGTH_FROM_BER } from "./internals/LocalLengthBlock";
+import type { Integer } from "./Integer";
+import type { Null } from "./Null";
+import type { Sequence } from "./Sequence";
 
 export interface FromBerResult {
   offset: number;
@@ -14,6 +18,8 @@ export interface FromBerOptions {
   maxDepth?: number;
   maxNodes?: number;
   maxContentLength?: number;
+  parseEmbedded?: boolean;
+  copyInput?: boolean;
 }
 
 export interface FromBerContext {
@@ -22,6 +28,129 @@ export interface FromBerContext {
   nodesCount: number;
   maxNodes: number;
   maxContentLength: number;
+  parseEmbedded?: boolean;
+}
+
+interface FastParserRegistry {
+  Integer: new () => AsnType;
+  Null: new () => AsnType;
+  Sequence: new () => AsnType;
+}
+
+interface FastParserConstructors {
+  Integer: typeof Integer;
+  Null: typeof Null;
+  Sequence: typeof Sequence;
+}
+
+let fastParserRegistry: FastParserRegistry | undefined;
+
+/** @internal */
+export function registerFastParser(constructors: FastParserConstructors): void {
+  fastParserRegistry = {
+    Integer: constructors.Integer,
+    Null: constructors.Null,
+    Sequence: constructors.Sequence
+  };
+}
+
+function fastParserContext(context: FromBerContext): boolean {
+  const nodes = Object.getOwnPropertyDescriptor(context, "nodesCount");
+  const maxNodes = Object.getOwnPropertyDescriptor(context, "maxNodes");
+  const maxContentLength = Object.getOwnPropertyDescriptor(context, "maxContentLength");
+  if (!nodes || !("value" in nodes) || nodes.writable !== true) return false;
+  if (!maxNodes || !("value" in maxNodes) || !maxContentLength || !("value" in maxContentLength)) return false;
+
+  return (
+    typeof nodes.value === "number" &&
+    Number.isSafeInteger(nodes.value) &&
+    nodes.value >= 0 &&
+    typeof maxNodes.value === "number" &&
+    Number.isSafeInteger(maxNodes.value) &&
+    maxNodes.value >= 0 &&
+    typeof maxContentLength.value === "number" &&
+    Number.isSafeInteger(maxContentLength.value) &&
+    maxContentLength.value >= 0 &&
+    nodes.value < maxNodes.value
+  );
+}
+
+function fastParserType(
+  store: typeof typeStore,
+  name: "Integer" | "Null" | "Sequence",
+  value: (new () => AsnType) | undefined
+): boolean {
+  const descriptor = Object.getOwnPropertyDescriptor(store, name);
+  return !!descriptor && "value" in descriptor && descriptor.value === value;
+}
+
+function tryFastFromBER(
+  inputBuffer: Uint8Array,
+  inputOffset: number,
+  inputLength: number,
+  context: FromBerContext
+): FromBerResult | undefined {
+  const registry = fastParserRegistry;
+  if (!registry) return undefined;
+
+  let Constructor: (new () => AsnType) | undefined;
+  let length = 0;
+  try {
+    if (Object.getPrototypeOf(inputBuffer) !== Uint8Array.prototype) return undefined;
+    if (
+      !Number.isSafeInteger(inputOffset) ||
+      inputOffset < 0 ||
+      !Number.isSafeInteger(inputLength) ||
+      inputLength < 2
+    ) {
+      return undefined;
+    }
+    if (inputOffset > inputBuffer.byteLength || inputLength > inputBuffer.byteLength - inputOffset) return undefined;
+    const tag = inputBuffer[inputOffset];
+    if (tag !== 0x02 && tag !== 0x05 && tag !== 0x30) return undefined;
+    length = inputBuffer[inputOffset + 1];
+    if (length >= 0x80 || length > inputLength - 2) return undefined;
+    if (tag === 0x05 && length !== 0) return undefined;
+    if (!fastParserContext(context)) return undefined;
+    if (length > (Object.getOwnPropertyDescriptor(context, "maxContentLength") as PropertyDescriptor).value) {
+      return undefined;
+    }
+
+    const constructorName = tag === 0x02 ? "Integer" : tag === 0x05 ? "Null" : "Sequence";
+    Constructor = registry[constructorName];
+    if (!fastParserType(typeStore, constructorName, Constructor)) return undefined;
+
+    const identificationFromBER = Object.getOwnPropertyDescriptor(LocalIdentificationBlock.prototype, "fromBER");
+    const lengthFromBER = Object.getOwnPropertyDescriptor(LocalLengthBlock.prototype, "fromBER");
+    if (
+      !identificationFromBER ||
+      !("value" in identificationFromBER) ||
+      identificationFromBER.value !== ORIGINAL_LOCAL_IDENTIFICATION_FROM_BER ||
+      !lengthFromBER ||
+      !("value" in lengthFromBER) ||
+      lengthFromBER.value !== ORIGINAL_LOCAL_LENGTH_FROM_BER
+    )
+      return undefined;
+  } catch {
+    return undefined;
+  }
+
+  if (!Constructor) return undefined;
+  const result = new Constructor() as BaseBlock;
+  result.idBlock.tagClass = 1;
+  result.idBlock.tagNumber = (inputBuffer[inputOffset] as number) & 0x1f;
+  result.idBlock.isConstructed = (inputBuffer[inputOffset] as number) === 0x30;
+  result.idBlock.isHexOnly = false;
+  result.idBlock.blockLength = 1;
+  result.lenBlock.isIndefiniteForm = false;
+  result.lenBlock.longFormUsed = false;
+  result.lenBlock.length = length;
+  result.lenBlock.blockLength = 1;
+  context.nodesCount += 1;
+  const resultOffset = result.fromBER(inputBuffer, inputOffset + 2, length, context);
+  result.valueBeforeDecodeView = inputBuffer.subarray(inputOffset, inputOffset + result.blockLength);
+
+  return { offset: resultOffset, result };
 }
 
 export const DEFAULT_MAX_DEPTH = 100;
@@ -38,7 +167,8 @@ export function createFromBerContext(options: FromBerOptions = {}): FromBerConte
     maxDepth: options.maxDepth ?? DEFAULT_MAX_DEPTH,
     nodesCount: 0,
     maxNodes: options.maxNodes ?? DEFAULT_MAX_NODES,
-    maxContentLength: options.maxContentLength ?? DEFAULT_MAX_CONTENT_LENGTH
+    maxContentLength: options.maxContentLength ?? DEFAULT_MAX_CONTENT_LENGTH,
+    parseEmbedded: options.parseEmbedded ?? true
   };
 }
 
@@ -122,27 +252,25 @@ export function localFromBER(
   inputLength = inputBuffer.length,
   context: FromBerContext = createFromBerContext()
 ): FromBerResult {
+  const fastResult = tryFastFromBER(inputBuffer, inputOffset, inputLength, context);
+  if (fastResult) return fastResult;
+
   const incomingOffset = inputOffset; // Need to store initial offset since "inputOffset" is changing in the function
 
   // Create a basic ASN.1 type since we need to return errors and warnings from the function
   let returnObject = new BaseBlock({}, ValueBlock);
 
   // Basic check for parameters
-  const baseBlock = new LocalBaseBlock();
-  if (!checkBufferParams(baseBlock, inputBuffer, inputOffset, inputLength)) {
-    returnObject.error = baseBlock.error;
-
+  if (!checkBufferParams(returnObject, inputBuffer, inputOffset, inputLength)) {
     return {
       offset: -1,
       result: returnObject
     };
   }
 
-  // Getting Uint8Array subarray
-  const intBuffer = inputBuffer.subarray(inputOffset, inputOffset + inputLength);
-
   // Initial checks
-  if (!intBuffer.length) {
+  const fastArgs = Number.isInteger(inputOffset) && Number.isInteger(inputLength);
+  if (fastArgs ? inputLength === 0 : inputBuffer.subarray(inputOffset, inputOffset + inputLength).length === 0) {
     returnObject.error = "Zero buffer length";
 
     return {
@@ -397,10 +525,8 @@ export function fromBER(inputBuffer: pvtsutils.BufferSource, options: FromBerOpt
     };
   }
 
-  return localFromBER(
-    pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer).slice(),
-    0,
-    inputBuffer.byteLength,
-    createFromBerContext(options)
-  );
+  const inputView = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
+  const normalizedInput = options.copyInput === false ? inputView : inputView.slice();
+
+  return localFromBER(normalizedInput, 0, inputBuffer.byteLength, createFromBerContext(options));
 }
