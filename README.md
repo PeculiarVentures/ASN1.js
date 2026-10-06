@@ -12,7 +12,7 @@
 
 </div>
 
-Abstract Syntax Notation One (ASN.1) is a standard and notation that describes rules and structures for representing, encoding, transmitting, and decoding data in telecommunications and computer networking. [ASN1js] is a pure JavaScript library implementing this standard.  ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web.
+Abstract Syntax Notation One (ASN.1) is a standard and notation that describes rules and structures for representing, encoding, transmitting, and decoding data in telecommunications and computer networking. [ASN1js] is a pure JavaScript library implementing this standard. ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web.
 
 ## Important Information for ASN1.js V1 Users
 
@@ -24,28 +24,28 @@ ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
 
 ## Features of the library
 
-* Based on latest features of JavaScript language from ES2015 standard;
-* [ASN1js] is a "base layer" for full-featured JS library [PKIjs], which is using Web Cryptography API and has all classes, necessary to work with PKI-related data;
-* Fully object-oriented library. Inheritance is using everywhere inside the lib;
-* Working with HTML5 data objects (ArrayBuffer, Uint8Array etc.);
-* Working with all ASN.1:2008 types;
-* Working with [BER] encoded data;
-* All types inside the library constantly stores information about all ASN.1 sub blocks (tag block, length block or value block);
-* User may have access to any byte inside any ASN.1 sub-block;
-* Any sub-block may have unlimited length, as it described in ASN.1 standard (even "tag block");
-* Ability to work with ASN.1 string date types (including all "international" strings like UniversalString, BMPString, UTF8String) by passing native JavaScript strings into constructors. And vice versa - all initially parsed data of ASN.1 string types right after decoding automatically converts into native JavaScript strings;
-* Same with ASN.1 date-time types: for major types like UTCTime and GeneralizedTime there are automatic conversion between "JS date type - ASN.1 date-time type" + vice versa;
-* Same with ASN.1 OBJECT-IDENTIFIER (OID) data-type: you can initialize OID by JavaScript string and can get string representation via calling "oid.valueBlock.toString()";
-* Working with "easy-to-understand" ASN.1 schemas (pre-defined or built by user);
-* Has special types to work with ASN.1 schemas:
-  * Any
-  * Choice
-  * Repeated
-* User can name any block inside ASN.1 schema and easily get information by name;
-* Ability to parse internal data inside a primitively encoded data types and automatically validate it against special schema;
-* All types inside library are dynamic;
-* All types can be initialized in static or dynamic ways.
-* [ASN1js] fully tested against [ASN.1:2008 TestSuite].
+- Based on latest features of JavaScript language from ES2015 standard;
+- [ASN1js] is a "base layer" for full-featured JS library [PKIjs], which is using Web Cryptography API and has all classes, necessary to work with PKI-related data;
+- Fully object-oriented library. Inheritance is using everywhere inside the lib;
+- Working with HTML5 data objects (ArrayBuffer, Uint8Array etc.);
+- Working with all ASN.1:2008 types;
+- Working with [BER] encoded data;
+- All types inside the library constantly stores information about all ASN.1 sub blocks (tag block, length block or value block);
+- User may have access to any byte inside any ASN.1 sub-block;
+- Any sub-block may have unlimited length, as it described in ASN.1 standard (even "tag block");
+- Ability to work with ASN.1 string date types (including all "international" strings like UniversalString, BMPString, UTF8String) by passing native JavaScript strings into constructors. And vice versa - all initially parsed data of ASN.1 string types right after decoding automatically converts into native JavaScript strings;
+- Same with ASN.1 date-time types: for major types like UTCTime and GeneralizedTime there are automatic conversion between "JS date type - ASN.1 date-time type" + vice versa;
+- Same with ASN.1 OBJECT-IDENTIFIER (OID) data-type: you can initialize OID by JavaScript string and can get string representation via calling "oid.valueBlock.toString()";
+- Working with "easy-to-understand" ASN.1 schemas (pre-defined or built by user);
+- Has special types to work with ASN.1 schemas:
+  - Any
+  - Choice
+  - Repeated
+- User can name any block inside ASN.1 schema and easily get information by name;
+- Ability to parse internal data inside a primitively encoded data types and automatically validate it against special schema;
+- All types inside library are dynamic;
+- All types can be initialized in static or dynamic ways.
+- [ASN1js] fully tested against [ASN.1:2008 TestSuite].
 
 ## Examples
 
@@ -69,10 +69,12 @@ integer_view[5] = 0x01;
 integer_view[6] = 0x01;
 integer_view[7] = 0x01;
 
-sequence.valueBlock.value.push(new asn1js.Integer({
-  isHexOnly: true,
-  valueHex: integer_data,
-})); // Put too long for decoding Integer value
+sequence.valueBlock.value.push(
+  new asn1js.Integer({
+    isHexOnly: true,
+    valueHex: integer_data
+  })
+); // Put too long for decoding Integer value
 
 sequence_buffer = sequence.toBER();
 current_size = sequence_buffer.byteLength;
@@ -87,7 +89,7 @@ var sequence2 = new asn1js.Sequence({
     new asn1js.Integer({
       isHexOnly: true,
       valueHex: integer_data
-    }),
+    })
   ]
 });
 ```
@@ -146,7 +148,7 @@ More examples could be found in "examples" directory or inside [PKIjs] library.
 const asn1 = asn1js.fromBER(inputBuffer, {
   maxDepth: 100,
   maxNodes: 10000,
-  maxContentLength: 16 * 1024 * 1024,
+  maxContentLength: 16 * 1024 * 1024
 });
 ```
 
@@ -154,9 +156,9 @@ When any limit is exceeded the parser returns a normal `FromBerResult` error ins
 
 ## Related source code
 
-* [C++ ASN1:2008 BER coder/decoder](https://github.com/YuryStrozhevsky/C-plus-plus-ASN.1-2008-coder-decoder) - the "father" of [ASN1js] project;
-* [Freely available ASN.1:2008 test suite](https://github.com/YuryStrozhevsky/ASN1-2008-free-test-suite) - the suite which can help you to validate (and better understand) any ASN.1 coder/decoder;
-* [NPM package for ASN.1:2008 test suite](https://github.com/YuryStrozhevsky/asn1-test-suite)
+- [C++ ASN1:2008 BER coder/decoder](https://github.com/YuryStrozhevsky/C-plus-plus-ASN.1-2008-coder-decoder) - the "father" of [ASN1js] project;
+- [Freely available ASN.1:2008 test suite](https://github.com/YuryStrozhevsky/ASN1-2008-free-test-suite) - the suite which can help you to validate (and better understand) any ASN.1 coder/decoder;
+- [NPM package for ASN.1:2008 test suite](https://github.com/YuryStrozhevsky/asn1-test-suite)
 
 ## Suitability
 

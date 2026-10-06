@@ -32,7 +32,8 @@ import type { Utf8String } from "./Utf8String";
 import type { VideotexString } from "./VideotexString";
 import type { VisibleString } from "./VisibleString";
 
-export type AsnType = BaseBlock
+export type AsnType =
+  | BaseBlock
   | EndOfContent
   | AsnBoolean
   | Integer

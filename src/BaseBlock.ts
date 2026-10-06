@@ -1,15 +1,13 @@
 import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
 import { IBerConvertible } from "./types";
+import { LocalBaseBlockJson, LocalBaseBlockParams, LocalBaseBlock } from "./internals/LocalBaseBlock";
 import {
-  LocalBaseBlockJson, LocalBaseBlockParams, LocalBaseBlock,
-} from "./internals/LocalBaseBlock";
-import {
-  LocalIdentificationBlock, LocalIdentificationBlockJson, LocalIdentificationBlockParams,
+  LocalIdentificationBlock,
+  LocalIdentificationBlockJson,
+  LocalIdentificationBlockParams
 } from "./internals/LocalIdentificationBlock";
-import {
-  LocalLengthBlock, LocalLengthBlockJson, LocalLengthBlockParams,
-} from "./internals/LocalLengthBlock";
+import { LocalLengthBlock, LocalLengthBlockJson, LocalLengthBlockParams } from "./internals/LocalLengthBlock";
 import { ViewWriter } from "./ViewWriter";
 import { ValueBlock, ValueBlockJson } from "./ValueBlock";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./internals/constants";
@@ -22,13 +20,14 @@ export interface IBaseBlock {
   primitiveSchema?: BaseBlock;
 }
 
-export interface BaseBlockParams extends
-  LocalBaseBlockParams, LocalIdentificationBlockParams, LocalLengthBlockParams, Partial<IBaseBlock> { }
+export interface BaseBlockParams
+  extends LocalBaseBlockParams, LocalIdentificationBlockParams, LocalLengthBlockParams, Partial<IBaseBlock> {}
 
 export type ValueBlockConstructor<T extends ValueBlock = ValueBlock> = new (...args: any[]) => T;
 
 // eslint-disable-next-line @stylistic/max-len
-export interface BaseBlockJson<T extends LocalBaseBlockJson = LocalBaseBlockJson> extends LocalBaseBlockJson, Omit<IBaseBlock, "primitiveSchema"> {
+export interface BaseBlockJson<T extends LocalBaseBlockJson = LocalBaseBlockJson>
+  extends LocalBaseBlockJson, Omit<IBaseBlock, "primitiveSchema"> {
   idBlock: LocalIdentificationBlockJson;
   lenBlock: LocalLengthBlockJson;
   valueBlock: T;
@@ -38,7 +37,10 @@ export interface BaseBlockJson<T extends LocalBaseBlockJson = LocalBaseBlockJson
 export type StringEncoding = "ascii" | "hex";
 
 // eslint-disable-next-line @stylistic/max-len
-export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJson = ValueBlockJson> extends LocalBaseBlock implements IBaseBlock, IBerConvertible {
+export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJson = ValueBlockJson>
+  extends LocalBaseBlock
+  implements IBaseBlock, IBerConvertible
+{
   public static override NAME = "BaseBlock";
 
   public idBlock: LocalIdentificationBlock;
@@ -48,12 +50,10 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
   public optional: boolean;
   public primitiveSchema?: BaseBlock;
 
-  constructor({
-    name = EMPTY_STRING,
-    optional = false,
-    primitiveSchema,
-    ...parameters
-  }: BaseBlockParams = {}, valueBlockType?: ValueBlockConstructor<T>) {
+  constructor(
+    { name = EMPTY_STRING, optional = false, primitiveSchema, ...parameters }: BaseBlockParams = {},
+    valueBlockType?: ValueBlockConstructor<T>
+  ) {
     super(parameters);
 
     this.name = name;
@@ -64,27 +64,27 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
 
     this.idBlock = new LocalIdentificationBlock(parameters);
     this.lenBlock = new LocalLengthBlock(parameters);
-    this.valueBlock = valueBlockType ? new valueBlockType(parameters) : new ValueBlock(parameters) as unknown as T;
+    this.valueBlock = valueBlockType ? new valueBlockType(parameters) : (new ValueBlock(parameters) as unknown as T);
   }
 
   public fromBER(inputBuffer: Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
-    const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, (this.lenBlock.isIndefiniteForm)
-      ? inputLength
-      : this.lenBlock.length, context);
+    const resultOffset = this.valueBlock.fromBER(
+      inputBuffer,
+      inputOffset,
+      this.lenBlock.isIndefiniteForm ? inputLength : this.lenBlock.length,
+      context
+    );
     if (resultOffset === -1) {
       this.error = this.valueBlock.error;
 
       return resultOffset;
     }
 
-    if (!this.idBlock.error.length)
-      this.blockLength += this.idBlock.blockLength;
+    if (!this.idBlock.error.length) this.blockLength += this.idBlock.blockLength;
 
-    if (!this.lenBlock.error.length)
-      this.blockLength += this.lenBlock.blockLength;
+    if (!this.lenBlock.error.length) this.blockLength += this.lenBlock.blockLength;
 
-    if (!this.valueBlock.error.length)
-      this.blockLength += this.valueBlock.blockLength;
+    if (!this.valueBlock.error.length) this.blockLength += this.valueBlock.blockLength;
 
     return resultOffset;
   }
@@ -129,11 +129,10 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
       lenBlock: this.lenBlock.toJSON(),
       valueBlock: this.valueBlock.toJSON(),
       name: this.name,
-      optional: this.optional,
+      optional: this.optional
     };
 
-    if (this.primitiveSchema)
-      object.primitiveSchema = this.primitiveSchema.toJSON();
+    if (this.primitiveSchema) object.primitiveSchema = this.primitiveSchema.toJSON();
 
     return object as BaseBlockJson<J>;
   }

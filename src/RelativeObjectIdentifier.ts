@@ -1,20 +1,21 @@
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import {
-  BaseBlock, BaseBlockJson, BaseBlockParams,
-} from "./BaseBlock";
-import {
-  LocalRelativeObjectIdentifierValueBlockParams, LocalRelativeObjectIdentifierValueBlock,
-  LocalRelativeObjectIdentifierValueBlockJson,
+  LocalRelativeObjectIdentifierValueBlockParams,
+  LocalRelativeObjectIdentifierValueBlock,
+  LocalRelativeObjectIdentifierValueBlockJson
 } from "./internals/LocalRelativeObjectIdentifierValueBlock";
 import { typeStore } from "./TypeStore";
 
-export interface RelativeObjectIdentifierParams extends
-  BaseBlockParams, LocalRelativeObjectIdentifierValueBlockParams { }
+export interface RelativeObjectIdentifierParams
+  extends BaseBlockParams, LocalRelativeObjectIdentifierValueBlockParams {}
 export interface RelativeObjectIdentifierJson extends BaseBlockJson<LocalRelativeObjectIdentifierValueBlockJson> {
   value: string;
 }
 
-export class RelativeObjectIdentifier extends
-  BaseBlock<LocalRelativeObjectIdentifierValueBlock, LocalRelativeObjectIdentifierValueBlockJson> {
+export class RelativeObjectIdentifier extends BaseBlock<
+  LocalRelativeObjectIdentifierValueBlock,
+  LocalRelativeObjectIdentifierValueBlockJson
+> {
   static {
     typeStore.RelativeObjectIdentifier = this;
   }
@@ -52,7 +53,7 @@ export class RelativeObjectIdentifier extends
   public override toJSON(): RelativeObjectIdentifierJson {
     return {
       ...super.toJSON(),
-      value: this.getValue(),
+      value: this.getValue()
     };
   }
 }

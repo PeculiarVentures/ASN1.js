@@ -1,4 +1,4 @@
-import * as asn1js from 'asn1js';
+import * as asn1js from "asn1js";
 
 var sequence2 = new asn1js.Sequence({
   value: [
@@ -6,6 +6,6 @@ var sequence2 = new asn1js.Sequence({
     new asn1js.Integer({
       isHexOnly: true,
       valueHex: integer_data
-    }),
+    })
   ]
 });

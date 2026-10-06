@@ -2,14 +2,22 @@ import { BaseBlock, BaseBlockParams } from "./BaseBlock";
 import { IStringConvertible } from "./types";
 import { EMPTY_STRING } from "./internals/constants";
 import {
-  LocalStringValueBlock, LocalStringValueBlockJson, LocalStringValueBlockParams,
+  LocalStringValueBlock,
+  LocalStringValueBlockJson,
+  LocalStringValueBlockParams
 } from "./internals/LocalStringValueBlock";
 
-export interface BaseStringBlockParams extends BaseBlockParams, LocalStringValueBlockParams { }
+export interface BaseStringBlockParams extends BaseBlockParams, LocalStringValueBlockParams {}
 export type BaseStringBlockJson = LocalStringValueBlockJson;
 
 // eslint-disable-next-line @stylistic/max-len
-export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStringValueBlock, J extends BaseStringBlockJson = BaseStringBlockJson> extends BaseBlock<T, J> implements IStringConvertible {
+export abstract class BaseStringBlock<
+  T extends LocalStringValueBlock = LocalStringValueBlock,
+  J extends BaseStringBlockJson = BaseStringBlockJson
+>
+  extends BaseBlock<T, J>
+  implements IStringConvertible
+{
   public static override NAME = "BaseStringBlock";
 
   /**
@@ -29,10 +37,7 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
     this.valueBlock.value = value;
   }
 
-  constructor({
-    value = EMPTY_STRING,
-    ...parameters
-  }: BaseStringBlockParams = {}, stringValueBlockType: new () => T) {
+  constructor({ value = EMPTY_STRING, ...parameters }: BaseStringBlockParams = {}, stringValueBlockType: new () => T) {
     super(parameters, stringValueBlockType);
 
     if (value) {
@@ -41,9 +46,11 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, (this.lenBlock.isIndefiniteForm)
-      ? inputLength
-      : this.lenBlock.length);
+    const resultOffset = this.valueBlock.fromBER(
+      inputBuffer,
+      inputOffset,
+      this.lenBlock.isIndefiniteForm ? inputLength : this.lenBlock.length
+    );
     if (resultOffset === -1) {
       this.error = this.valueBlock.error;
 
@@ -52,14 +59,11 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
 
     this.fromBuffer(this.valueBlock.valueHexView);
 
-    if (!this.idBlock.error.length)
-      this.blockLength += this.idBlock.blockLength;
+    if (!this.idBlock.error.length) this.blockLength += this.idBlock.blockLength;
 
-    if (!this.lenBlock.error.length)
-      this.blockLength += this.lenBlock.blockLength;
+    if (!this.lenBlock.error.length) this.blockLength += this.lenBlock.blockLength;
 
-    if (!this.valueBlock.error.length)
-      this.blockLength += this.valueBlock.blockLength;
+    if (!this.valueBlock.error.length) this.blockLength += this.valueBlock.blockLength;
 
     return resultOffset;
   }

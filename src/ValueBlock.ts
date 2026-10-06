@@ -13,7 +13,7 @@ export class ValueBlock extends internals.LocalBaseBlock implements IValueBlock,
     _inputBuffer: ArrayBuffer | Uint8Array,
     _inputOffset: number,
     _inputLength: number,
-    _context?: unknown,
+    _context?: unknown
   ): number {
     throw TypeError("User need to make a specific function in a class which extends 'ValueBlock'");
   }

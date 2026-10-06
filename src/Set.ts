@@ -1,6 +1,4 @@
-import {
-  ConstructedParams, Constructed, ConstructedJson,
-} from "./Constructed";
+import { ConstructedParams, Constructed, ConstructedJson } from "./Constructed";
 import { typeStore } from "./TypeStore";
 
 export type SetParams = ConstructedParams;

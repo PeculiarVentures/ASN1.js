@@ -1,8 +1,6 @@
 import * as pvtsutils from "pvtsutils";
 import * as pvutils from "pvutils";
-import {
-  HexBlockJson, HexBlockParams, HexBlock,
-} from "../HexBlock";
+import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
 import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
 import { checkBufferParams } from "./utils";
@@ -17,7 +15,7 @@ export interface LocalIdentificationBlockParams {
   idBlock?: Partial<ILocalIdentificationBlock> & HexBlockParams;
 }
 
-export interface LocalIdentificationBlockJson extends HexBlockJson, LocalBaseBlockJson, ILocalIdentificationBlock { }
+export interface LocalIdentificationBlockJson extends HexBlockJson, LocalBaseBlockJson, ILocalIdentificationBlock {}
 
 export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implements ILocalIdentificationBlock {
   public static override NAME = "identificationBlock";
@@ -59,7 +57,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
         firstOctet |= 0x80; // CONTEXT-SPECIFIC
         break;
       case 4:
-        firstOctet |= 0xC0; // PRIVATE
+        firstOctet |= 0xc0; // PRIVATE
         break;
       default:
         this.error = "Unknown tag class";
@@ -67,15 +65,14 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
         return EMPTY_BUFFER;
     }
 
-    if (this.isConstructed)
-      firstOctet |= 0x20;
+    if (this.isConstructed) firstOctet |= 0x20;
 
     if (this.tagNumber < 31 && !this.isHexOnly) {
       const retView = new Uint8Array(1);
 
       if (!sizeOnly) {
         let number = this.tagNumber;
-        number &= 0x1F;
+        number &= 0x1f;
         firstOctet |= number;
 
         retView[0] = firstOctet;
@@ -90,11 +87,10 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       const size = encodedBuf.byteLength;
 
       const retView = new Uint8Array(size + 1);
-      retView[0] = (firstOctet | 0x1F);
+      retView[0] = firstOctet | 0x1f;
 
       if (!sizeOnly) {
-        for (let i = 0; i < (size - 1); i++)
-          retView[i + 1] = encodedView[i] | 0x80;
+        for (let i = 0; i < size - 1; i++) retView[i + 1] = encodedView[i] | 0x80;
 
         retView[size] = encodedView[size - 1];
       }
@@ -104,13 +100,12 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
 
     const retView = new Uint8Array(this.valueHexView.byteLength + 1);
 
-    retView[0] = (firstOctet | 0x1F);
+    retView[0] = firstOctet | 0x1f;
 
     if (!sizeOnly) {
       const curView = this.valueHexView;
 
-      for (let i = 0; i < (curView.length - 1); i++)
-        retView[i + 1] = curView[i] | 0x80;
+      for (let i = 0; i < curView.length - 1; i++) retView[i + 1] = curView[i] | 0x80;
 
       retView[this.valueHexView.byteLength] = curView[curView.length - 1];
     }
@@ -137,20 +132,20 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
     }
 
     // Find tag class
-    const tagClassMask = intBuffer[0] & 0xC0;
+    const tagClassMask = intBuffer[0] & 0xc0;
 
     switch (tagClassMask) {
       case 0x00:
-        this.tagClass = (1); // UNIVERSAL
+        this.tagClass = 1; // UNIVERSAL
         break;
       case 0x40:
-        this.tagClass = (2); // APPLICATION
+        this.tagClass = 2; // APPLICATION
         break;
       case 0x80:
-        this.tagClass = (3); // CONTEXT-SPECIFIC
+        this.tagClass = 3; // CONTEXT-SPECIFIC
         break;
-      case 0xC0:
-        this.tagClass = (4); // PRIVATE
+      case 0xc0:
+        this.tagClass = 4; // PRIVATE
         break;
       default:
         this.error = "Unknown tag class";
@@ -162,11 +157,11 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
 
     // Find tag number
     this.isHexOnly = false;
-    const tagNumberMask = intBuffer[0] & 0x1F;
+    const tagNumberMask = intBuffer[0] & 0x1f;
 
-    if (tagNumberMask !== 0x1F) {
+    if (tagNumberMask !== 0x1f) {
       // Simple case (tag number < 31)
-      this.tagNumber = (tagNumberMask);
+      this.tagNumber = tagNumberMask;
       this.blockLength = 1;
     } else {
       // Tag number bigger or equal to 31
@@ -183,28 +178,24 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
 
         count++;
 
-        if ((intBuffer[tagByteIndex] & 0x80) === 0x00)
-          break;
+        if ((intBuffer[tagByteIndex] & 0x80) === 0x00) break;
       }
 
-      this.blockLength = (count + 1);
+      this.blockLength = count + 1;
 
-      const intTagNumberBuffer = this.valueHexView = new Uint8Array(count);
+      const intTagNumberBuffer = (this.valueHexView = new Uint8Array(count));
 
-      for (let i = 0; i < count; i++)
-        intTagNumberBuffer[i] = intBuffer[i + 1] & 0x7F;
+      for (let i = 0; i < count; i++) intTagNumberBuffer[i] = intBuffer[i + 1] & 0x7f;
 
       // Try to convert long tag number to short form
-      if (this.blockLength <= 9)
-        this.tagNumber = pvutils.utilFromBase(intTagNumberBuffer, 7);
+      if (this.blockLength <= 9) this.tagNumber = pvutils.utilFromBase(intTagNumberBuffer, 7);
       else {
         this.isHexOnly = true;
         this.warnings.push("Tag too long, represented as hex-coded");
       }
     }
     // Check if constructed encoding was using for primitive type
-    if (((this.tagClass === 1))
-      && (this.isConstructed)) {
+    if (this.tagClass === 1 && this.isConstructed) {
       switch (this.tagNumber) {
         case 1: // Boolean
         case 2: // REAL
@@ -226,7 +217,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       }
     }
 
-    return (inputOffset + this.blockLength); // Return current offset in input buffer
+    return inputOffset + this.blockLength; // Return current offset in input buffer
   }
 
   public override toJSON(): LocalIdentificationBlockJson {
@@ -234,7 +225,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       ...super.toJSON(),
       tagClass: this.tagClass,
       tagNumber: this.tagNumber,
-      isConstructed: this.isConstructed,
+      isConstructed: this.isConstructed
     };
   }
 }

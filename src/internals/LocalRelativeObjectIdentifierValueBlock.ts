@@ -1,7 +1,5 @@
 import { ViewWriter } from "../ViewWriter";
-import {
-  ValueBlock, ValueBlockJson, ValueBlockParams,
-} from "../ValueBlock";
+import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { IStringConvertible } from "../types";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./constants";
 import * as utils from "./utils";
@@ -11,11 +9,11 @@ export interface ILocalRelativeObjectIdentifierValueBlock {
   value: string;
 }
 
-export interface LocalRelativeObjectIdentifierValueBlockParams extends
-  ValueBlockParams, Partial<ILocalRelativeObjectIdentifierValueBlock> { }
+export interface LocalRelativeObjectIdentifierValueBlockParams
+  extends ValueBlockParams, Partial<ILocalRelativeObjectIdentifierValueBlock> {}
 
-export interface LocalRelativeObjectIdentifierValueBlockJson extends
-  ValueBlockJson, ILocalRelativeObjectIdentifierValueBlock {
+export interface LocalRelativeObjectIdentifierValueBlockJson
+  extends ValueBlockJson, ILocalRelativeObjectIdentifierValueBlock {
   sidArray: LocalRelativeSidValueBlockJson[];
 }
 
@@ -24,10 +22,7 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
 
   public value: LocalRelativeSidValueBlock[] = [];
 
-  constructor({
-    value = EMPTY_STRING,
-    ...parameters
-  }: LocalRelativeObjectIdentifierValueBlockParams = {}) {
+  constructor({ value = EMPTY_STRING, ...parameters }: LocalRelativeObjectIdentifierValueBlockParams = {}) {
     super(parameters);
 
     if (value) {
@@ -84,18 +79,14 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
 
     do {
       pos2 = string.indexOf(".", pos1);
-      if (pos2 === -1)
-        sid = string.substring(pos1);
-
-      else
-        sid = string.substring(pos1, pos2);
+      if (pos2 === -1) sid = string.substring(pos1);
+      else sid = string.substring(pos1, pos2);
 
       pos1 = pos2 + 1;
 
       const sidBlock = new LocalRelativeSidValueBlock();
       sidBlock.valueDec = parseInt(sid, 10);
-      if (isNaN(sidBlock.valueDec))
-        return true;
+      if (isNaN(sidBlock.valueDec)) return true;
 
       this.value.push(sidBlock);
     } while (pos2 !== -1);
@@ -112,14 +103,12 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
 
       let sidStr = this.value[i].toString();
 
-      if (i !== 0)
-        result = `${result}.`;
+      if (i !== 0) result = `${result}.`;
 
       if (isHexOnly) {
         sidStr = `{${sidStr}}`;
         result += sidStr;
-      } else
-        result += sidStr;
+      } else result += sidStr;
     }
 
     return result;
@@ -129,11 +118,10 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
     const object: LocalRelativeObjectIdentifierValueBlockJson = {
       ...super.toJSON(),
       value: this.toString(),
-      sidArray: [],
+      sidArray: []
     };
 
-    for (let i = 0; i < this.value.length; i++)
-      object.sidArray.push(this.value[i].toJSON());
+    for (let i = 0; i < this.value.length; i++) object.sidArray.push(this.value[i].toJSON());
 
     return object;
   }

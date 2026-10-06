@@ -1,8 +1,6 @@
 import { ViewWriter } from "./ViewWriter";
 import { ValueBlock, ValueBlockJson } from "./ValueBlock";
-import {
-  BaseBlock, BaseBlockJson, BaseBlockParams,
-} from "./BaseBlock";
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { typeStore } from "./TypeStore";
 
 export type NullParams = BaseBlockParams;
@@ -24,24 +22,21 @@ export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    if (this.lenBlock.length > 0)
-      this.warnings.push("Non-zero length of value block for Null type");
+    if (this.lenBlock.length > 0) this.warnings.push("Non-zero length of value block for Null type");
 
-    if (!this.idBlock.error.length)
-      this.blockLength += this.idBlock.blockLength;
+    if (!this.idBlock.error.length) this.blockLength += this.idBlock.blockLength;
 
-    if (!this.lenBlock.error.length)
-      this.blockLength += this.lenBlock.blockLength;
+    if (!this.lenBlock.error.length) this.blockLength += this.lenBlock.blockLength;
 
     this.blockLength += inputLength;
 
-    if ((inputOffset + inputLength) > inputBuffer.byteLength) {
+    if (inputOffset + inputLength > inputBuffer.byteLength) {
       this.error = "End of input reached before message was fully decoded (inconsistent offset and length values)";
 
       return -1;
     }
 
-    return (inputOffset + inputLength);
+    return inputOffset + inputLength;
   }
 
   public override toBER(sizeOnly?: boolean, writer?: ViewWriter): ArrayBuffer {

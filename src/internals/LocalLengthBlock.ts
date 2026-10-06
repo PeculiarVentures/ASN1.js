@@ -52,7 +52,7 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
       return -1;
     }
 
-    if (intBuffer[0] === 0xFF) {
+    if (intBuffer[0] === 0xff) {
       this.error = "Length block 0xFF is reserved by standard";
 
       return -1;
@@ -65,7 +65,7 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
     if (this.isIndefiniteForm) {
       this.blockLength = 1;
 
-      return (inputOffset + this.blockLength);
+      return inputOffset + this.blockLength;
     }
     // #endregion
     // #region Check is long form of length encoding using
@@ -73,22 +73,23 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
     // #endregion
     // #region Stop working in case of short form of length value
     if (this.longFormUsed === false) {
-      this.length = (intBuffer[0]);
+      this.length = intBuffer[0];
       this.blockLength = 1;
 
-      return (inputOffset + this.blockLength);
+      return inputOffset + this.blockLength;
     }
     // #endregion
     // #region Calculate length value in case of long form
-    const count = intBuffer[0] & 0x7F;
+    const count = intBuffer[0] & 0x7f;
 
-    if (count > 8) { // Too big length value
+    if (count > 8) {
+      // Too big length value
       this.error = "Too big integer";
 
       return -1;
     }
 
-    if ((count + 1) > intBuffer.length) {
+    if (count + 1 > intBuffer.length) {
       this.error = "End of input reached before message was fully decoded";
 
       return -1;
@@ -97,18 +98,16 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
     const lenOffset = inputOffset + 1;
     const lengthBufferView = view.subarray(lenOffset, lenOffset + count);
 
-    if (lengthBufferView[count - 1] === 0x00)
-      this.warnings.push("Needlessly long encoded length");
+    if (lengthBufferView[count - 1] === 0x00) this.warnings.push("Needlessly long encoded length");
 
     this.length = pvutils.utilFromBase(lengthBufferView, 8);
 
-    if (this.longFormUsed && (this.length <= 127))
-      this.warnings.push("Unnecessary usage of long length form");
+    if (this.longFormUsed && this.length <= 127) this.warnings.push("Unnecessary usage of long length form");
 
     this.blockLength = count + 1;
     // #endregion
 
-    return (inputOffset + this.blockLength); // Return current offset in input buffer
+    return inputOffset + this.blockLength; // Return current offset in input buffer
   }
 
   public toBER(sizeOnly = false): ArrayBuffer {
@@ -116,8 +115,7 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
     let retBuf: ArrayBuffer;
     let retView: Uint8Array;
     // #endregion
-    if (this.length > 127)
-      this.longFormUsed = true;
+    if (this.length > 127) this.longFormUsed = true;
 
     if (this.isIndefiniteForm) {
       retBuf = new ArrayBuffer(1);
@@ -136,21 +134,19 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
       if (encodedBuf.byteLength > 127) {
         this.error = "Too big length";
 
-        return (EMPTY_BUFFER);
+        return EMPTY_BUFFER;
       }
 
       retBuf = new ArrayBuffer(encodedBuf.byteLength + 1);
 
-      if (sizeOnly)
-        return retBuf;
+      if (sizeOnly) return retBuf;
 
       const encodedView = new Uint8Array(encodedBuf);
       retView = new Uint8Array(retBuf);
 
       retView[0] = encodedBuf.byteLength | 0x80;
 
-      for (let i = 0; i < encodedBuf.byteLength; i++)
-        retView[i + 1] = encodedView[i];
+      for (let i = 0; i < encodedBuf.byteLength; i++) retView[i + 1] = encodedView[i];
 
       return retBuf;
     }
@@ -171,7 +167,7 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
       ...super.toJSON(),
       isIndefiniteForm: this.isIndefiniteForm,
       longFormUsed: this.longFormUsed,
-      length: this.length,
+      length: this.length
     };
   }
 }

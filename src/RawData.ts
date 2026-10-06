@@ -6,7 +6,9 @@ export interface IRawData {
   data: ArrayBuffer;
 }
 
-export type RawDataParams = Partial<IRawData>;
+export type RawDataParams = {
+  data?: ArrayBuffer | Uint8Array;
+};
 
 /**
  * Special class providing ability to have "toBER/fromBER" for raw ArrayBuffer
@@ -22,7 +24,7 @@ export class RawData implements IBerConvertible {
   /**
    * @deprecated Since v3.0.0
    */
-  public set data(value: ArrayBuffer) {
+  public set data(value: ArrayBuffer | Uint8Array) {
     this.dataView = pvtsutils.BufferSourceConverter.toUint8Array(value);
   }
 

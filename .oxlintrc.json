@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": ["build/**/*", "website/**/*", "rollup.config.mjs", "vitest.config.ts", "node_modules/**/*"],
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-prototype-builtins": "off",
+    "typescript/no-explicit-any": "off",
+    "typescript/prefer-for-of": "off",
+    "typescript/ban-ts-comment": "off",
+    "typescript/no-dynamic-delete": "off",
+    "typescript/no-unsafe-declaration-merging": "off"
+  }
+}

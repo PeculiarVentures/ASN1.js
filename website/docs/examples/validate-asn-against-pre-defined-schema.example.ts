@@ -1,4 +1,4 @@
-import * as asn1js from 'asn1js';
+import * as asn1js from "asn1js";
 
 var asn1_schema = new asn1js.Sequence({
   name: "block1",

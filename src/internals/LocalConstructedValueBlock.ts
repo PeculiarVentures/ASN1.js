@@ -2,10 +2,7 @@ import * as pvtsutils from "pvtsutils";
 import type { BaseBlock } from "../BaseBlock";
 import { ValueBlock, ValueBlockParams } from "../ValueBlock";
 import { ViewWriter } from "../ViewWriter";
-import {
-  createFromBerContext,
-  localFromBERWithChildContext,
-} from "../parser";
+import { createFromBerContext, localFromBERWithChildContext } from "../parser";
 import type { Any } from "../Any";
 import type { FromBerContext } from "../parser";
 import { checkBufferParams } from "./utils";
@@ -19,7 +16,7 @@ export interface ILocalConstructedValueBlock {
   isIndefiniteForm: boolean;
 }
 
-export interface LocalConstructedValueBlockParams extends ValueBlockParams, Partial<ILocalConstructedValueBlock> { }
+export interface LocalConstructedValueBlockParams extends ValueBlockParams, Partial<ILocalConstructedValueBlock> {}
 
 export interface LocalConstructedValueBlockJson extends LocalBaseBlockJson, Omit<ILocalConstructedValueBlock, "value"> {
   value: LocalBaseBlockJson[];
@@ -39,11 +36,7 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
   public value: BaseBlock[];
   public isIndefiniteForm: boolean;
 
-  constructor({
-    value = [],
-    isIndefiniteForm = false,
-    ...parameters
-  }: LocalConstructedValueBlockParams = {}) {
+  constructor({ value = [], isIndefiniteForm = false, ...parameters }: LocalConstructedValueBlockParams = {}) {
     super(parameters);
 
     this.value = value as BaseBlock[]; // It's possible to set Any type for Schema declaration
@@ -54,7 +47,7 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
     inputBuffer: ArrayBuffer | Uint8Array,
     inputOffset: number,
     inputLength: number,
-    context?: FromBerContext,
+    context?: FromBerContext
   ): number {
     const view = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
     const parseContext = context ?? createFromBerContext();
@@ -125,7 +118,7 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
     const object: LocalConstructedValueBlockJson = {
       ...super.toJSON(),
       isIndefiniteForm: this.isIndefiniteForm,
-      value: [],
+      value: []
     };
 
     for (const value of this.value) {

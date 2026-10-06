@@ -1,4 +1,4 @@
-import * as asn1js from 'asn1js';
+import * as asn1js from "asn1js";
 
 var primitive_octetstring = new asn1js.OctetString({ valueHex: encoded_sequence }); // Create a primitively encoded OctetString where internal data is an encoded Sequence
 

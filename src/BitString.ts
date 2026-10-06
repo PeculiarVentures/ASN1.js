@@ -1,15 +1,15 @@
-import {
-  BaseBlock, BaseBlockJson, BaseBlockParams,
-} from "./BaseBlock";
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { Constructed } from "./Constructed";
 import { BIT_STRING_NAME } from "./internals/constants";
 import {
-  LocalBitStringValueBlockParams, LocalBitStringValueBlock, LocalBitStringValueBlockJson,
+  LocalBitStringValueBlockParams,
+  LocalBitStringValueBlock,
+  LocalBitStringValueBlockJson
 } from "./internals/LocalBitStringValueBlock";
 import { typeStore } from "./TypeStore";
 import type { FromBerContext } from "./parser";
 
-export interface BitStringParams extends BaseBlockParams, LocalBitStringValueBlockParams { }
+export interface BitStringParams extends BaseBlockParams, LocalBitStringValueBlockParams {}
 export type BitStringJson = BaseBlockJson<LocalBitStringValueBlockJson>;
 
 export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStringValueBlockJson> {
@@ -19,23 +19,22 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStrin
 
   public static override NAME = BIT_STRING_NAME;
 
-  constructor({
-    idBlock = {},
-    lenBlock = {},
-    ...parameters
-  }: BitStringParams = {}) {
+  constructor({ idBlock = {}, lenBlock = {}, ...parameters }: BitStringParams = {}) {
     parameters.isConstructed ??= !!parameters.value?.length;
-    super({
-      idBlock: {
-        isConstructed: parameters.isConstructed,
-        ...idBlock,
+    super(
+      {
+        idBlock: {
+          isConstructed: parameters.isConstructed,
+          ...idBlock
+        },
+        lenBlock: {
+          ...lenBlock,
+          isIndefiniteForm: !!parameters.isIndefiniteForm
+        },
+        ...parameters
       },
-      lenBlock: {
-        ...lenBlock,
-        isIndefiniteForm: !!parameters.isIndefiniteForm,
-      },
-      ...parameters,
-    }, LocalBitStringValueBlock);
+      LocalBitStringValueBlock
+    );
 
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 3; // BitString
@@ -45,7 +44,7 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStrin
     inputBuffer: ArrayBuffer | Uint8Array,
     inputOffset: number,
     inputLength: number,
-    context?: FromBerContext,
+    context?: FromBerContext
   ): number {
     this.valueBlock.isConstructed = this.idBlock.isConstructed;
     this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;

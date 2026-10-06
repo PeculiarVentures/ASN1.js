@@ -11,11 +11,7 @@ export class Repeated extends Any {
   public value: Any;
   public local: boolean;
 
-  constructor({
-    value = new Any(),
-    local = false,
-    ...parameters
-  }: RepeatedParams = {}) {
+  constructor({ value = new Any(), local = false, ...parameters }: RepeatedParams = {}) {
     super(parameters);
 
     this.value = value;

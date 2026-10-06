@@ -1,7 +1,5 @@
 import { typeStore } from "./TypeStore";
-import {
-  Utf8StringParams, Utf8String, Utf8StringJson,
-} from "./Utf8String";
+import { Utf8StringParams, Utf8String, Utf8StringJson } from "./Utf8String";
 
 export type TIMEParams = Utf8StringParams;
 export type TIMEJson = Utf8StringJson;

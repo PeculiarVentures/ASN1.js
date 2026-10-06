@@ -60,7 +60,7 @@ export {
   DEFAULT_MAX_NODES,
   FromBerOptions,
   FromBerResult,
-  fromBER,
+  fromBER
 } from "./parser";
 export * from "./schema";
 export { AsnType } from "./TypeStore";

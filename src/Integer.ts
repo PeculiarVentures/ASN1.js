@@ -1,15 +1,15 @@
 import * as pvtsutils from "pvtsutils";
+import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import {
-  BaseBlock, BaseBlockJson, BaseBlockParams,
-} from "./BaseBlock";
-import {
-  LocalIntegerValueBlockParams, LocalIntegerValueBlock, LocalIntegerValueBlockJson,
+  LocalIntegerValueBlockParams,
+  LocalIntegerValueBlock,
+  LocalIntegerValueBlockJson
 } from "./internals/LocalIntegerValueBlock";
 import { assertBigInt } from "./internals/utils";
 import { typeStore } from "./TypeStore";
 import { ViewWriter } from "./ViewWriter";
 
-export interface IntegerParams extends BaseBlockParams, LocalIntegerValueBlockParams { }
+export interface IntegerParams extends BaseBlockParams, LocalIntegerValueBlockParams {}
 export type IntegerJson = BaseBlockJson<LocalIntegerValueBlockJson>;
 
 export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValueBlockJson> {
@@ -91,9 +91,8 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
    */
   public convertFromDER(): Integer {
     return new Integer({
-      valueHex: this.valueBlock.valueHexView[0] === 0
-        ? this.valueBlock.valueHexView.subarray(1)
-        : this.valueBlock.valueHexView,
+      valueHex:
+        this.valueBlock.valueHexView[0] === 0 ? this.valueBlock.valueHexView.subarray(1) : this.valueBlock.valueHexView
     });
   }
 

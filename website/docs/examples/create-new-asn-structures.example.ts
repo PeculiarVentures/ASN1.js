@@ -1,4 +1,4 @@
-import * as asn1js from 'asn1js';
+import * as asn1js from "asn1js";
 
 var sequence = new asn1js.Sequence();
 sequence.valueBlock.value.push(new asn1js.Integer({ value: 1 }));
@@ -17,10 +17,12 @@ integer_view[5] = 0x01;
 integer_view[6] = 0x01;
 integer_view[7] = 0x01;
 
-sequence.valueBlock.value.push(new asn1js.Integer({
-  isHexOnly: true,
-  valueHex: integer_data,
-})); // Put too long for decoding Integer value
+sequence.valueBlock.value.push(
+  new asn1js.Integer({
+    isHexOnly: true,
+    valueHex: integer_data
+  })
+); // Put too long for decoding Integer value
 
 sequence_buffer = sequence.toBER();
 current_size = sequence_buffer.byteLength;

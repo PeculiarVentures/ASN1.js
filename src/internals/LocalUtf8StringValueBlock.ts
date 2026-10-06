@@ -1,6 +1,8 @@
 import * as pvtsutils from "pvtsutils";
 import {
-  LocalSimpleStringBlock, LocalSimpleStringBlockJson, LocalSimpleStringBlockParams,
+  LocalSimpleStringBlock,
+  LocalSimpleStringBlockJson,
+  LocalSimpleStringBlockParams
 } from "./LocalSimpleStringBlock";
 
 export type LocalUtf8StringValueBlockParams = LocalSimpleStringBlockParams;

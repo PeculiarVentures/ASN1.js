@@ -7,8 +7,8 @@ export class ViewWriter {
    * Writes buffer
    * @param buf
    */
-  public write(buf: ArrayBuffer): void {
-    this.items.push(buf);
+  public write(buf: ArrayBuffer | Uint8Array): void {
+    this.items.push(buf instanceof ArrayBuffer ? buf : utils.concat([buf]));
   }
 
   /**

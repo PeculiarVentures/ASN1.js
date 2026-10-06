@@ -10,10 +10,7 @@ export type ChoiceParams = Partial<IChoice>;
 export class Choice extends Any implements IChoice {
   public value: BaseBlock[];
 
-  constructor({
-    value = [],
-    ...parameters
-  }: ChoiceParams = {}) {
+  constructor({ value = [], ...parameters }: ChoiceParams = {}) {
     super(parameters);
 
     this.value = value;

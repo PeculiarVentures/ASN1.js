@@ -1,5 +1,7 @@
 import {
-  LocalUniversalStringValueBlockParams, LocalUniversalStringValueBlock, LocalUniversalStringValueBlockJson,
+  LocalUniversalStringValueBlockParams,
+  LocalUniversalStringValueBlock,
+  LocalUniversalStringValueBlockJson
 } from "./internals/LocalUniversalStringValueBlockParams";
 import { typeStore } from "./TypeStore";
 

@@ -1,6 +1,4 @@
-import {
-  ValueBlock, ValueBlockJson, ValueBlockParams,
-} from "../ValueBlock";
+import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { IStringConvertible } from "../types";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./constants";
 import * as utils from "./utils";
@@ -10,8 +8,8 @@ export interface ILocalObjectIdentifierValueBlock {
   value: string;
 }
 
-export interface LocalObjectIdentifierValueBlockParams extends
-  ValueBlockParams, Partial<ILocalObjectIdentifierValueBlock> { }
+export interface LocalObjectIdentifierValueBlockParams
+  extends ValueBlockParams, Partial<ILocalObjectIdentifierValueBlock> {}
 
 export interface LocalObjectIdentifierValueBlockJson extends ValueBlockJson, ILocalObjectIdentifierValueBlock {
   sidArray: LocalSidValueBlockJson[];
@@ -22,10 +20,7 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
 
   public value: LocalSidValueBlock[] = [];
 
-  constructor({
-    value = EMPTY_STRING,
-    ...parameters
-  }: LocalObjectIdentifierValueBlockParams = {}) {
+  constructor({ value = EMPTY_STRING, ...parameters }: LocalObjectIdentifierValueBlockParams = {}) {
     super(parameters);
 
     if (value) {
@@ -46,8 +41,7 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
         return resultOffset;
       }
 
-      if (this.value.length === 0)
-        sidBlock.isFirstSid = true;
+      if (this.value.length === 0) sidBlock.isFirstSid = true;
 
       this.blockLength += sidBlock.blockLength;
       inputLength -= sidBlock.blockLength;
@@ -91,11 +85,8 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
     // }
     do {
       pos2 = string.indexOf(".", pos1);
-      if (pos2 === -1)
-        sid = string.substring(pos1);
-
-      else
-        sid = string.substring(pos1, pos2);
+      if (pos2 === -1) sid = string.substring(pos1);
+      else sid = string.substring(pos1, pos2);
 
       pos1 = pos2 + 1;
 
@@ -120,22 +111,21 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
         }
 
         const parsedSID = parseInt(sid, 10);
-        if (isNaN(parsedSID))
-          return;
+        if (isNaN(parsedSID)) return;
 
         sidBlock.valueDec = parsedSID + plus;
 
         flag = false;
       } else {
         const sidBlock = new LocalSidValueBlock();
-        if ((sid as any) > Number.MAX_SAFE_INTEGER) { // TODO remove as any
+        if ((sid as any) > Number.MAX_SAFE_INTEGER) {
+          // TODO remove as any
           utils.assertBigInt();
           const sidValue = BigInt(sid);
           sidBlock.valueBigInt = sidValue;
         } else {
           sidBlock.valueDec = parseInt(sid, 10);
-          if (isNaN(sidBlock.valueDec))
-            return;
+          if (isNaN(sidBlock.valueDec)) return;
         }
 
         if (!this.value.length) {
@@ -157,19 +147,14 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
 
       let sidStr = this.value[i].toString();
 
-      if (i !== 0)
-        result = `${result}.`;
+      if (i !== 0) result = `${result}.`;
 
       if (isHexOnly) {
         sidStr = `{${sidStr}}`;
 
-        if (this.value[i].isFirstSid)
-          result = `2.{${sidStr} - 80}`;
-
-        else
-          result += sidStr;
-      } else
-        result += sidStr;
+        if (this.value[i].isFirstSid) result = `2.{${sidStr} - 80}`;
+        else result += sidStr;
+      } else result += sidStr;
     }
 
     return result;
@@ -179,7 +164,7 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
     const object: LocalObjectIdentifierValueBlockJson = {
       ...super.toJSON(),
       value: this.toString(),
-      sidArray: [],
+      sidArray: []
     };
 
     for (let i = 0; i < this.value.length; i++) {
