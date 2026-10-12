@@ -1,4 +1,4 @@
-import * as pvtsutils from "pvtsutils";
+import { type BufferSource, toUint8Array } from "@peculiar/utils";
 import { ValueBlock } from "./ValueBlock";
 import { BaseBlock } from "./BaseBlock";
 import { LocalBaseBlock } from "./internals/LocalBaseBlock";
@@ -386,7 +386,7 @@ export function localFromBER(
  * @param inputBuffer ASN.1 BER encoded array of bytes
  * @param options Parser resource limits for untrusted input
  */
-export function fromBER(inputBuffer: pvtsutils.BufferSource, options: FromBerOptions = {}): FromBerResult {
+export function fromBER(inputBuffer: BufferSource, options: FromBerOptions = {}): FromBerResult {
   if (!inputBuffer.byteLength) {
     const result = new BaseBlock({}, ValueBlock);
     result.error = "Input buffer has zero length";
@@ -397,10 +397,5 @@ export function fromBER(inputBuffer: pvtsutils.BufferSource, options: FromBerOpt
     };
   }
 
-  return localFromBER(
-    pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer).slice(),
-    0,
-    inputBuffer.byteLength,
-    createFromBerContext(options)
-  );
+  return localFromBER(toUint8Array(inputBuffer).slice(), 0, inputBuffer.byteLength, createFromBerContext(options));
 }

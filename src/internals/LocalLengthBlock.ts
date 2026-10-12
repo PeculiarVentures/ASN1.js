@@ -1,4 +1,4 @@
-import * as pvtsutils from "pvtsutils";
+import { toUint8Array } from "@peculiar/utils";
 import * as pvutils from "pvutils";
 import { IBerConvertible } from "../types";
 import { EMPTY_BUFFER } from "./constants";
@@ -37,7 +37,7 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
   }
 
   public fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    const view = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
+    const view = toUint8Array(inputBuffer);
     // Basic check for parameters
     if (!checkBufferParams(this, view, inputOffset, inputLength)) {
       return -1;

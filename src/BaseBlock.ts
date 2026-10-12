@@ -1,5 +1,4 @@
-import * as pvtsutils from "pvtsutils";
-import * as pvutils from "pvutils";
+import { equal, hex } from "@peculiar/utils";
 import { IBerConvertible } from "./types";
 import { LocalBaseBlockJson, LocalBaseBlockParams, LocalBaseBlock } from "./internals/LocalBaseBlock";
 import {
@@ -142,12 +141,12 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
       return this.onAsciiEncoding();
     }
 
-    return pvtsutils.Convert.ToHex(this.toBER());
+    return hex.encode(this.toBER());
   }
 
   protected onAsciiEncoding(): string {
     const name = (this.constructor as typeof BaseBlock).NAME;
-    const value = pvtsutils.Convert.ToHex(this.valueBlock.valueBeforeDecodeView);
+    const value = hex.encode(this.valueBlock.valueBeforeDecodeView);
 
     return `${name} : ${value}`;
   }
@@ -169,7 +168,7 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
     const thisRaw = this.toBER();
     const otherRaw = (other as BaseBlock).toBER();
 
-    return pvutils.isEqualBuffer(thisRaw, otherRaw);
+    return equal(thisRaw, otherRaw);
   }
 }
 

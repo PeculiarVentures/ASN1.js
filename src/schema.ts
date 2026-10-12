@@ -1,4 +1,4 @@
-import * as pvtsutils from "pvtsutils";
+import { type BufferSource, toUint8Array } from "@peculiar/utils";
 import {
   IS_CONSTRUCTED,
   EMPTY_STRING,
@@ -444,7 +444,7 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
  * @return
  */
 
-export function verifySchema(inputBuffer: pvtsutils.BufferSource, inputSchema: AsnSchemaType): CompareSchemaResult {
+export function verifySchema(inputBuffer: BufferSource, inputSchema: AsnSchemaType): CompareSchemaResult {
   // #region Initial check
   if (inputSchema instanceof Object === false) {
     return {
@@ -454,7 +454,7 @@ export function verifySchema(inputBuffer: pvtsutils.BufferSource, inputSchema: A
   }
   // #endregion
   // #region Decoding of raw ASN.1 data
-  const asn1 = localFromBER(pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer));
+  const asn1 = localFromBER(toUint8Array(inputBuffer));
   if (asn1.offset === -1) {
     return {
       verified: false,

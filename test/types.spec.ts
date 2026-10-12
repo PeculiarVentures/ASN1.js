@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import * as pvtsutils from "pvtsutils";
+import { hex } from "@peculiar/utils";
 import * as asn1js from "../src";
 
 describe("ASN types", () => {
@@ -11,12 +11,12 @@ describe("ASN types", () => {
     });
 
     it("toBER/fromBER", () => {
-      const testBER = pvtsutils.Convert.FromHex("0101ff");
+      const testBER = hex.decode("0101ff");
       const testValue = true;
 
       const asn = new asn1js.Boolean({ value: true });
       const ber = asn.toBER();
-      assert.strictEqual(pvtsutils.Convert.ToHex(ber), pvtsutils.Convert.ToHex(testBER));
+      assert.strictEqual(hex.encode(ber), hex.encode(testBER));
 
       const asnParsed = asn1js.fromBER(ber);
       assert.ok(asnParsed.result instanceof asn1js.Boolean);
@@ -24,14 +24,14 @@ describe("ASN types", () => {
     });
 
     it("encode parsed value without changes", () => {
-      const testBER = pvtsutils.Convert.FromHex("010101");
+      const testBER = hex.decode("010101");
 
       const asn = asn1js.fromBER(testBER);
       assert.ok(asn.result instanceof asn1js.Boolean);
       assert.strictEqual(asn.result.getValue(), true);
 
       const ber = asn.result.toBER();
-      assert.strictEqual(pvtsutils.Convert.ToHex(ber), "010101");
+      assert.strictEqual(hex.encode(ber), "010101");
     });
 
     it("from valueHex", () => {
@@ -64,14 +64,12 @@ describe("ASN types", () => {
 
   describe("BmpString", () => {
     it("toBER/fromBER", () => {
-      const testBER = pvtsutils.Convert.FromHex(
-        "1e2400740065007300740020006d006500730073006100670065002004420435043a04410442"
-      );
+      const testBER = hex.decode("1e2400740065007300740020006d006500730073006100670065002004420435043a04410442");
       const testValue = "test message текст";
 
       const asn = new asn1js.BmpString({ value: testValue });
       const ber = asn.toBER();
-      assert.strictEqual(pvtsutils.Convert.ToHex(ber), pvtsutils.Convert.ToHex(testBER));
+      assert.strictEqual(hex.encode(ber), hex.encode(testBER));
 
       const asnParsed = asn1js.fromBER(ber);
       assert.ok(asnParsed.result instanceof asn1js.BmpString);
@@ -81,20 +79,20 @@ describe("ASN types", () => {
 
   describe("BitString", () => {
     it("parse zero-length", () => {
-      const asn = asn1js.fromBER(pvtsutils.Convert.FromHex("0300"));
+      const asn = asn1js.fromBER(hex.decode("0300"));
       assert.ok(asn.result instanceof asn1js.BitString);
     });
     it("parse empty", () => {
-      const asn = asn1js.fromBER(pvtsutils.Convert.FromHex("030100"));
+      const asn = asn1js.fromBER(hex.decode("030100"));
       assert.ok(asn.result instanceof asn1js.BitString);
     });
     it("incorrect unused bits", () => {
-      const asn = asn1js.fromBER(pvtsutils.Convert.FromHex("030208ff"));
+      const asn = asn1js.fromBER(hex.decode("030208ff"));
       assert.strictEqual(asn.offset, -1);
       assert.strictEqual(asn.result.error, "Unused bits for BitString must be in range 0-7");
     });
     it("incorrect unused bits in constructed BitString", () => {
-      const asn = asn1js.fromBER(pvtsutils.Convert.FromHex("230403020800"));
+      const asn = asn1js.fromBER(hex.decode("230403020800"));
       assert.strictEqual(asn.offset, -1);
       assert.strictEqual(asn.result.error, "Unused bits for BitString must be in range 0-7");
     });
@@ -237,7 +235,7 @@ describe("ASN types", () => {
       assert.strictEqual(asn.toString("hex"), testHex);
       assert.strictEqual(asn.toString(), `UniversalString : '${testString}'`);
 
-      const parsedAsn = asn1js.fromBER(pvtsutils.Convert.FromHex(testHex));
+      const parsedAsn = asn1js.fromBER(hex.decode(testHex));
       assert.ok(parsedAsn.result instanceof asn1js.UniversalString);
       assert.strictEqual(parsedAsn.result.getValue(), testString);
     });
@@ -253,7 +251,7 @@ describe("ASN types", () => {
       assert.strictEqual(asn.toString("hex"), testHex);
       assert.strictEqual(asn.toString(), `UTF8String : '${testString}'`);
 
-      const parsedAsn = asn1js.fromBER(pvtsutils.Convert.FromHex(testHex));
+      const parsedAsn = asn1js.fromBER(hex.decode(testHex));
       assert.ok(parsedAsn.result instanceof asn1js.Utf8String);
       assert.strictEqual(parsedAsn.result.getValue(), testString);
     });
@@ -399,12 +397,12 @@ describe("ASN types", () => {
     it("to/from BER", () => {
       const value = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
       const asn = new asn1js.RawData({ data: value });
-      assert.strictEqual(pvtsutils.Convert.ToHex(asn.dataView), "01020304050607080900");
-      assert.strictEqual(pvtsutils.Convert.ToHex(asn.toBER()), "01020304050607080900");
+      assert.strictEqual(hex.encode(asn.dataView), "01020304050607080900");
+      assert.strictEqual(hex.encode(asn.toBER()), "01020304050607080900");
 
       const rawFromBER = new asn1js.RawData();
       rawFromBER.fromBER(value, 0, value.byteLength);
-      assert.strictEqual(pvtsutils.Convert.ToHex(rawFromBER.toBER()), "01020304050607080900");
+      assert.strictEqual(hex.encode(rawFromBER.toBER()), "01020304050607080900");
     });
   });
 
@@ -478,7 +476,7 @@ describe("ASN types", () => {
 
   describe("OctetString", () => {
     it("parse zero-length", () => {
-      const asn = asn1js.fromBER(pvtsutils.Convert.FromHex("0400"));
+      const asn = asn1js.fromBER(hex.decode("0400"));
       assert.ok(asn.result instanceof asn1js.OctetString);
     });
     describe("to BER", () => {

@@ -1,4 +1,4 @@
-import * as pvtsutils from "pvtsutils";
+import { type BufferSource, hex, toArrayBuffer, toUint8Array } from "@peculiar/utils";
 import { IBerConvertible } from "./types";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./internals/constants";
 import { LocalBaseBlockConstructor } from "./internals/LocalBaseBlock";
@@ -6,7 +6,7 @@ import { checkBufferParams } from "./internals/utils";
 
 export interface IHexBlock {
   isHexOnly: boolean;
-  valueHex: pvtsutils.BufferSource;
+  valueHex: BufferSource;
 }
 
 export interface HexBlockJson extends Omit<IHexBlock, "valueHex"> {
@@ -52,7 +52,7 @@ export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
 
       const params: HexBlockParams = args[0] || {};
       this.isHexOnly = params.isHexOnly ?? false;
-      this.valueHexView = params.valueHex ? pvtsutils.BufferSourceConverter.toUint8Array(params.valueHex) : EMPTY_VIEW;
+      this.valueHexView = params.valueHex ? toUint8Array(params.valueHex) : EMPTY_VIEW;
     }
 
     public fromBER(
@@ -101,7 +101,7 @@ export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
         return this.valueHexView.buffer;
       }
 
-      return pvtsutils.BufferSourceConverter.toArrayBuffer(this.valueHexView);
+      return toArrayBuffer(this.valueHexView);
     }
 
     /**
@@ -112,7 +112,7 @@ export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
       return {
         ...super.toJSON(),
         isHexOnly: this.isHexOnly,
-        valueHex: pvtsutils.Convert.ToHex(this.valueHexView)
+        valueHex: hex.encode(this.valueHexView)
       };
     }
   };

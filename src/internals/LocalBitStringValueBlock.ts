@@ -1,4 +1,4 @@
-import * as pvtsutils from "pvtsutils";
+import { toUint8Array } from "@peculiar/utils";
 import { ViewWriter } from "../ViewWriter";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { createFromBerContext, localFromBERWithChildContext } from "../parser";
@@ -97,7 +97,7 @@ export class LocalBitStringValueBlock
       return resultOffset;
     }
 
-    const inputView = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
+    const inputView = toUint8Array(inputBuffer);
 
     // If the BitString supposed to be a primitive value
     if (!checkBufferParams(this, inputView, inputOffset, inputLength)) {

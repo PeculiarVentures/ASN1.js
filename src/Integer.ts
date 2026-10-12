@@ -1,4 +1,4 @@
-import * as pvtsutils from "pvtsutils";
+import { hex } from "@peculiar/utils";
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import {
   LocalIntegerValueBlockParams,
@@ -50,17 +50,16 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
     const bigIntValue = BigInt(value);
     const writer = new ViewWriter();
 
-    const hex = bigIntValue.toString(16).replace(/^-/, "");
-    const view = new Uint8Array(pvtsutils.Convert.FromHex(hex));
+    const view = hex.decode(bigIntValue.toString(16).replace(/^-/, ""), { allowOddLength: true });
 
     if (bigIntValue < 0) {
       // a negative number
       const first = new Uint8Array(view.length + (view[0] & 0x80 ? 1 : 0));
       first[0] |= 0x80;
 
-      const firstInt = BigInt(`0x${pvtsutils.Convert.ToHex(first)}`);
+      const firstInt = BigInt(`0x${hex.encode(first)}`);
       const secondInt = firstInt + bigIntValue;
-      const second = pvtsutils.BufferSourceConverter.toUint8Array(pvtsutils.Convert.FromHex(secondInt.toString(16)));
+      const second = hex.decode(secondInt.toString(16), { allowOddLength: true });
       second[0] |= 0x80;
 
       writer.write(second);

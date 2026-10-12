@@ -1,4 +1,5 @@
-import * as pvtsutils from "pvtsutils";
+import { hex } from "@peculiar/utils";
+import { concat } from "./internals/utils";
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { Constructed } from "./Constructed";
 import {
@@ -85,7 +86,7 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
     }
 
     const name = (this.constructor as typeof OctetString).NAME;
-    const value = pvtsutils.Convert.ToHex(this.valueBlock.valueHexView);
+    const value = hex.encode(this.valueBlock.valueHexView);
     return `${name} : ${value}`;
   }
 
@@ -106,6 +107,6 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
       }
     }
 
-    return pvtsutils.BufferSourceConverter.concat(array);
+    return concat(array);
   }
 }

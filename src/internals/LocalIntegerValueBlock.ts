@@ -1,3 +1,4 @@
+import { concatToUint8Array } from "@peculiar/utils";
 import * as pvutils from "pvutils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { IDerConvertible } from "../types";
@@ -35,14 +36,14 @@ function viewAdd(first: Uint8Array, second: Uint8Array): Uint8Array {
 
     switch (true) {
       case counter >= firstViewCopy.length:
-        firstViewCopy = pvutils.utilConcatView(new Uint8Array([value % 10]), firstViewCopy);
+        firstViewCopy = concatToUint8Array([new Uint8Array([value % 10]), firstViewCopy]);
         break;
       default:
         firstViewCopy[firstViewCopyLength - counter] = value % 10;
     }
   }
 
-  if (c[0] > 0) firstViewCopy = pvutils.utilConcatView(c, firstViewCopy);
+  if (c[0] > 0) firstViewCopy = concatToUint8Array([c, firstViewCopy]);
 
   return firstViewCopy;
 }
@@ -59,7 +60,7 @@ function power2(n: number): Uint8Array {
         digits[i] = newValue[0] % 10;
       }
 
-      if (c[0] > 0) digits = pvutils.utilConcatView(c, digits);
+      if (c[0] > 0) digits = concatToUint8Array([c, digits]);
 
       powers2.push(digits);
     }
