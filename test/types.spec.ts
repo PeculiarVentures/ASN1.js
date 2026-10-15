@@ -304,9 +304,32 @@ describe("ASN types", () => {
       const value = new Date("2000-01-02T12:11:10.100Z");
       const asn = new asn1js.GeneralizedTime({ valueDate: value });
       assert.ok(asn.getValue().startsWith, "2000");
-      assert.strictEqual(asn.toString("hex"), "181332303030303130323132313131302e3130305a");
+      assert.strictEqual(asn.toString("hex"), "181132303030303130323132313131302e315a");
       assert.ok(asn.toString("ascii").startsWith("GeneralizedTime : 2000"));
       assert.ok(asn.toString().startsWith, "2000");
+    });
+
+    describe("fraction encoding from Date", () => {
+      for (const [iso, expected] of [
+        ["2000-01-02T12:11:10.120Z", "20000102121110.12Z"],
+        ["2000-01-02T12:11:10.100Z", "20000102121110.1Z"],
+        ["2000-01-02T12:11:10.123Z", "20000102121110.123Z"],
+        ["2000-01-02T12:11:10.001Z", "20000102121110.001Z"],
+        ["2000-01-02T12:11:10.010Z", "20000102121110.01Z"],
+        ["2000-01-02T12:11:10.000Z", "20000102121110Z"]
+      ]) {
+        it(`${iso} -> ${expected}`, () => {
+          const asn = new asn1js.GeneralizedTime({ valueDate: new Date(iso) });
+          assert.strictEqual(asn.toString(), expected);
+          assert.strictEqual(String.fromCharCode(...asn.valueBlock.valueHexView), expected);
+          assert.strictEqual(asn.toDate().toISOString(), iso);
+        });
+      }
+    });
+
+    it("parses a fraction without trailing zeros", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "20000102121110.12Z" });
+      assert.strictEqual(asn.toDate().toISOString(), "2000-01-02T12:11:10.120Z");
     });
 
     describe("fromString", () => {
