@@ -1,7 +1,6 @@
 import * as assert from "assert";
-import * as asn1js from "../src";
-import { BaseBlock } from "../src";
-import { checkBufferParams } from "../src/internals/utils";
+import * as asn1js from "./index";
+import { describe, it } from "vitest";
 
 function createLongFormTag(continuationOctets: number): Uint8Array {
   const input = new Uint8Array(continuationOctets + 3);
@@ -82,40 +81,80 @@ function makeOctetString(length: number): Uint8Array {
   return concatArrays(Uint8Array.of(0x04), encodeLength(length), new Uint8Array(length));
 }
 
-describe("Unit tests", () => {
-  describe("utils", () => {
-    it("buffer incorrect type", () => {
-      const buffer = "wrong";
-      const block = new BaseBlock();
-      const res = checkBufferParams(block, buffer as unknown as Uint8Array, 0, 0);
-      assert.strictEqual(res, false);
-    });
-    it("buffer 0 length", () => {
-      const buffer = new Uint8Array();
-      const block = new BaseBlock();
-      const res = checkBufferParams(block, buffer, 0, 0);
-      assert.strictEqual(res, false);
-    });
-    it("offset is negative", () => {
-      const buffer = new Uint8Array(10);
-      const block = new BaseBlock();
-      const res = checkBufferParams(block, buffer, -1, 0);
-      assert.strictEqual(res, false);
-    });
-    it("length is negative", () => {
-      const buffer = new Uint8Array(10);
-      const block = new BaseBlock();
-      const res = checkBufferParams(block, buffer, 0, -1);
-      assert.strictEqual(res, false);
-    });
-    it("out of range", () => {
-      const buffer = new Uint8Array(10);
-      const block = new BaseBlock();
-      const res = checkBufferParams(block, buffer, 8, 3);
-      assert.strictEqual(res, false);
-    });
+describe("public API", () => {
+  it("exports the runtime API", () => {
+    assert.deepStrictEqual(Object.keys(asn1js).sort(), [
+      "Any",
+      "BaseBlock",
+      "BaseStringBlock",
+      "BitString",
+      "BmpString",
+      "Boolean",
+      "CharacterString",
+      "Choice",
+      "Constructed",
+      "DATE",
+      "DEFAULT_MAX_CONTENT_LENGTH",
+      "DEFAULT_MAX_DEPTH",
+      "DEFAULT_MAX_NODES",
+      "DateTime",
+      "Duration",
+      "EndOfContent",
+      "Enumerated",
+      "GeneralString",
+      "GeneralizedTime",
+      "GraphicString",
+      "HexBlock",
+      "IA5String",
+      "Integer",
+      "Null",
+      "NumericString",
+      "ObjectIdentifier",
+      "OctetString",
+      "Primitive",
+      "PrintableString",
+      "RawData",
+      "RelativeObjectIdentifier",
+      "Repeated",
+      "Sequence",
+      "Set",
+      "TIME",
+      "TeletexString",
+      "TimeOfDay",
+      "UTCTime",
+      "UniversalString",
+      "Utf8String",
+      "ValueBlock",
+      "VideotexString",
+      "ViewWriter",
+      "VisibleString",
+      "compareSchema",
+      "fromBER",
+      "verifySchema",
+    ]);
   });
 
+  it("round-trips a SEQUENCE through toBER and fromBER", () => {
+    const sequence = new asn1js.Sequence({
+      value: [new asn1js.Integer({ value: 42 }), new asn1js.ObjectIdentifier({ value: "1.2.840.113549.1.1.11" }), new asn1js.Utf8String({ value: "asn1js" })],
+    });
+    const der = sequence.toBER();
+    const { offset, result } = asn1js.fromBER(der);
+
+    assert.notStrictEqual(offset, -1);
+    assert.ok(result instanceof asn1js.Sequence);
+    const [integer, oid, text] = result.valueBlock.value;
+    assert.ok(integer instanceof asn1js.Integer);
+    assert.strictEqual(integer.valueBlock.valueDec, 42);
+    assert.ok(oid instanceof asn1js.ObjectIdentifier);
+    assert.strictEqual(oid.getValue(), "1.2.840.113549.1.1.11");
+    assert.ok(text instanceof asn1js.Utf8String);
+    assert.strictEqual(text.getValue(), "asn1js");
+    assert.deepStrictEqual(new Uint8Array(result.toBER()), new Uint8Array(der));
+  });
+});
+
+describe("Unit tests", () => {
   it("LocalBaseBlock", () => {
     const baseBlock = new asn1js.BaseBlock({
       blockLength: 10,

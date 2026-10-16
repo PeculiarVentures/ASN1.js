@@ -3,7 +3,8 @@ import * as assert from "assert";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import * as asn1js from "../src";
+import * as asn1js from "./index";
+import { describe, it } from "vitest";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

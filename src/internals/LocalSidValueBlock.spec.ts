@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { LocalRelativeSidValueBlock } from "../src/internals/LocalRelativeSidValueBlock";
-import { LocalSidValueBlock } from "../src/internals/LocalSidValueBlock";
+import { describe, it, expect } from "vitest";
+import { LocalRelativeSidValueBlock } from "./LocalRelativeSidValueBlock";
+import { LocalSidValueBlock } from "./LocalSidValueBlock";
 
 const bytes = (...values: number[]) => new Uint8Array(values);
 const sidBytes = (length: number) => Uint8Array.from({ length }, (_, i) => (i === length - 1 ? 1 : 0x81));
