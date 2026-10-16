@@ -1,11 +1,11 @@
 import { BufferSourceConverter } from "@peculiar/utils";
-import { ViewWriter } from "../ViewWriter";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
+import type { ViewWriter } from "../ViewWriter";
+import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
 import { createFromBerContext, localFromBERWithChildContext } from "../parser";
 import type { BitString } from "../BitString";
 import type { FromBerContext } from "../parser";
 import { BIT_STRING_NAME, END_OF_CONTENT_NAME } from "./constants";
-import { LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock } from "./LocalConstructedValueBlock";
+import { type LocalConstructedValueBlockParams, type LocalConstructedValueBlockJson, LocalConstructedValueBlock } from "./LocalConstructedValueBlock";
 import { checkBufferParams } from "./utils";
 
 export interface ILocalBitStringValueBlock {

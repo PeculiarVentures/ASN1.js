@@ -1,5 +1,5 @@
 import { BufferSourceConverter } from "@peculiar/utils";
-import { IBerConvertible } from "./types";
+import type { IBerConvertible } from "./types";
 import { EMPTY_VIEW } from "./internals/constants";
 
 export interface IRawData {

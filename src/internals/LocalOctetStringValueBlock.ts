@@ -1,9 +1,9 @@
-import { ViewWriter } from "../ViewWriter";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
+import type { ViewWriter } from "../ViewWriter";
+import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
 import type { OctetString } from "../OctetString";
 import type { FromBerContext } from "../parser";
 import { END_OF_CONTENT_NAME, OCTET_STRING_NAME } from "./constants";
-import { LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock } from "./LocalConstructedValueBlock";
+import { type LocalConstructedValueBlockParams, type LocalConstructedValueBlockJson, LocalConstructedValueBlock } from "./LocalConstructedValueBlock";
 
 export interface ILocalOctetStringValueBlock {
   isConstructed: boolean;

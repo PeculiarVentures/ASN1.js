@@ -1,7 +1,7 @@
 import { BufferSourceConverter, type BufferSource } from "@peculiar/utils";
 import { ValueBlock } from "./ValueBlock";
 import { BaseBlock } from "./BaseBlock";
-import { AsnType, typeStore } from "./TypeStore";
+import { type AsnType, typeStore } from "./TypeStore";
 import { checkBufferParams } from "./internals/utils";
 import { LocalIdentificationBlock, ORIGINAL_LOCAL_IDENTIFICATION_FROM_BER } from "./internals/LocalIdentificationBlock";
 import { LocalLengthBlock, ORIGINAL_LOCAL_LENGTH_FROM_BER } from "./internals/LocalLengthBlock";

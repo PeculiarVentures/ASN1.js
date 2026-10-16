@@ -1,7 +1,7 @@
 import { BufferSourceConverter, Convert } from "@peculiar/utils";
 import * as pvutils from "pvutils";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
-import { ValueBlockJson, ValueBlockParams } from "../ValueBlock";
+import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
+import type { ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { LocalBaseBlock } from "./LocalBaseBlock";
 import { EMPTY_BUFFER } from "./constants";
 import { checkBufferParams } from "./utils";

@@ -1,4 +1,4 @@
-import { LocalSimpleStringBlockParams, LocalSimpleStringBlock, LocalSimpleStringBlockJson } from "./internals/LocalSimpleStringBlock";
+import { type LocalSimpleStringBlockParams, LocalSimpleStringBlock, type LocalSimpleStringBlockJson } from "./internals/LocalSimpleStringBlock";
 import { typeStore } from "./TypeStore";
 
 export type CharacterStringParams = LocalSimpleStringBlockParams;

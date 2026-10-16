@@ -1,7 +1,7 @@
 import { BufferSourceConverter } from "@peculiar/utils";
-import { BaseBlockParams } from "../BaseBlock";
+import type { BaseBlockParams } from "../BaseBlock";
 import { BaseStringBlock } from "../BaseStringBlock";
-import { LocalSimpleStringValueBlock, LocalSimpleStringValueBlockJson, LocalSimpleStringValueBlockParams } from "./LocalSimpleStringValueBlock";
+import { LocalSimpleStringValueBlock, type LocalSimpleStringValueBlockJson, type LocalSimpleStringValueBlockParams } from "./LocalSimpleStringValueBlock";
 
 export interface LocalSimpleStringBlockParams extends BaseBlockParams, LocalSimpleStringValueBlockParams {}
 export type LocalSimpleStringBlockJson = LocalSimpleStringValueBlockJson;

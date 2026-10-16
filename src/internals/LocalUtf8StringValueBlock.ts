@@ -1,5 +1,5 @@
 import { BufferSourceConverter, Convert } from "@peculiar/utils";
-import { LocalSimpleStringBlock, LocalSimpleStringBlockJson, LocalSimpleStringBlockParams } from "./LocalSimpleStringBlock";
+import { LocalSimpleStringBlock, type LocalSimpleStringBlockJson, type LocalSimpleStringBlockParams } from "./LocalSimpleStringBlock";
 
 export type LocalUtf8StringValueBlockParams = LocalSimpleStringBlockParams;
 export type LocalUtf8StringValueBlockJson = LocalSimpleStringBlockJson;

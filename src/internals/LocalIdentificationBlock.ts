@@ -1,8 +1,8 @@
 import { BufferSourceConverter } from "@peculiar/utils";
 import * as pvutils from "pvutils";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
+import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
-import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
+import { LocalBaseBlock, type LocalBaseBlockJson } from "./LocalBaseBlock";
 import { checkBufferParams } from "./utils";
 
 export interface ILocalIdentificationBlock {
