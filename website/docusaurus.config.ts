@@ -11,7 +11,11 @@ const config: Config = {
   url: "https://asn1js.org",
   baseUrl: "/",
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: "warn"
+    }
+  },
   i18n: {
     defaultLocale: "en",
     locales: ["en"]
