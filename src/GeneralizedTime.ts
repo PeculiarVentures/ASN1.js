@@ -233,7 +233,8 @@ export class GeneralizedTime extends UTCTime {
       outputArray.push(pvutils.padNumber(this.second, 2));
       if (this.millisecond !== 0) {
         outputArray.push(".");
-        outputArray.push(pvutils.padNumber(this.millisecond, 3));
+        // DER (X.690 11.7.3) forbids trailing zeros in the fractional seconds
+        outputArray.push(pvutils.padNumber(this.millisecond, 3).replace(/0+$/, ""));
       }
       outputArray.push("Z");
 
