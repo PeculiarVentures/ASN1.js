@@ -1,5 +1,5 @@
-import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
-import { LocalIntegerValueBlockParams, LocalIntegerValueBlock, LocalIntegerValueBlockJson, ORIGINAL_LOCAL_INTEGER_TO_STRING } from "./internals/LocalIntegerValueBlock";
+import { BaseBlock, type BaseBlockJson, type BaseBlockParams } from "./BaseBlock";
+import { type LocalIntegerValueBlockParams, LocalIntegerValueBlock, type LocalIntegerValueBlockJson, ORIGINAL_LOCAL_INTEGER_TO_STRING } from "./internals/LocalIntegerValueBlock";
 import { bytesToSignedBigInt, signedBigIntToBytes } from "./internals/integerUtils";
 import { typeStore } from "./TypeStore";
 

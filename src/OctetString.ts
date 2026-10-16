@@ -1,7 +1,7 @@
 import { hex } from "@peculiar/utils";
-import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
+import { BaseBlock, type BaseBlockJson, type BaseBlockParams } from "./BaseBlock";
 import { Constructed } from "./Constructed";
-import { LocalOctetStringValueBlockParams, LocalOctetStringValueBlock, LocalOctetStringValueBlockJson } from "./internals/LocalOctetStringValueBlock";
+import { type LocalOctetStringValueBlockParams, LocalOctetStringValueBlock, type LocalOctetStringValueBlockJson } from "./internals/LocalOctetStringValueBlock";
 import { OCTET_STRING_NAME } from "./internals/constants";
 import * as utils from "./internals/utils";
 import { createFromBerContext, localFromBERWithChildContext } from "./parser";

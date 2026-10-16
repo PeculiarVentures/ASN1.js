@@ -1,7 +1,7 @@
 import { hex, toArrayBuffer, toUint8Array, type BufferSource } from "@peculiar/utils";
-import { IBerConvertible } from "./types";
+import type { IBerConvertible } from "./types";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./internals/constants";
-import { LocalBaseBlockConstructor } from "./internals/LocalBaseBlock";
+import type { LocalBaseBlockConstructor } from "./internals/LocalBaseBlock";
 import { checkBufferParams } from "./internals/utils";
 
 export interface IHexBlock {

@@ -1,9 +1,9 @@
 import { toUint8Array } from "@peculiar/utils";
-import { BaseBlockJson, StringEncoding } from "./BaseBlock";
-import { LocalSimpleStringValueBlockJson } from "./internals/LocalSimpleStringValueBlock";
-import { IDateConvertible } from "./types";
+import type { BaseBlockJson, StringEncoding } from "./BaseBlock";
+import type { LocalSimpleStringValueBlockJson } from "./internals/LocalSimpleStringValueBlock";
+import type { IDateConvertible } from "./types";
 import { typeStore } from "./TypeStore";
-import { VisibleStringParams, VisibleString } from "./VisibleString";
+import { type VisibleStringParams, VisibleString } from "./VisibleString";
 
 export interface IUTCTime {
   year: number;

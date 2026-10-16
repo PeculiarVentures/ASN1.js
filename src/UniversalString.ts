@@ -1,4 +1,4 @@
-import { LocalUniversalStringValueBlockParams, LocalUniversalStringValueBlock, LocalUniversalStringValueBlockJson } from "./internals/LocalUniversalStringValueBlockParams";
+import { type LocalUniversalStringValueBlockParams, LocalUniversalStringValueBlock, type LocalUniversalStringValueBlockJson } from "./internals/LocalUniversalStringValueBlockParams";
 import { typeStore } from "./TypeStore";
 
 export type UniversalStringParams = LocalUniversalStringValueBlockParams;

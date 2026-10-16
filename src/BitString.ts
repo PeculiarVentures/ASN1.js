@@ -1,7 +1,7 @@
-import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
+import { BaseBlock, type BaseBlockJson, type BaseBlockParams } from "./BaseBlock";
 import { Constructed } from "./Constructed";
 import { BIT_STRING_NAME } from "./internals/constants";
-import { LocalBitStringValueBlockParams, LocalBitStringValueBlock, LocalBitStringValueBlockJson } from "./internals/LocalBitStringValueBlock";
+import { type LocalBitStringValueBlockParams, LocalBitStringValueBlock, type LocalBitStringValueBlockJson } from "./internals/LocalBitStringValueBlock";
 import { typeStore } from "./TypeStore";
 import type { FromBerContext } from "./parser";
 

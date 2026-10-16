@@ -1,8 +1,8 @@
 import { toUint8Array } from "@peculiar/utils";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
+import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
 import { decodeBase128, encodeBase128 } from "./integerUtils";
-import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
+import { LocalBaseBlock, type LocalBaseBlockJson } from "./LocalBaseBlock";
 import { checkBufferParams } from "./utils";
 
 export interface ILocalIdentificationBlock {
