@@ -1,9 +1,9 @@
 import * as assert from "assert";
 import { describe, it } from "vitest";
-import * as asn1js from "../src";
-import { BaseBlock, BitString, Constructed, Integer, OctetString, Primitive, Sequence, Set, ViewWriter, fromBER } from "../src";
-import { registerBuiltinEncoder, tryEncodeBuiltin } from "../src/internals/BEREncoder";
-import { LocalOctetStringValueBlock } from "../src/internals/LocalOctetStringValueBlock";
+import * as asn1js from "../index";
+import { BaseBlock, BitString, Constructed, Integer, OctetString, Primitive, Sequence, Set, ViewWriter, fromBER } from "../index";
+import { registerBuiltinEncoder, tryEncodeBuiltin } from "./BEREncoder";
+import { LocalOctetStringValueBlock } from "./LocalOctetStringValueBlock";
 
 function bytes(buffer: ArrayBuffer): number[] {
   return Array.from(new Uint8Array(buffer));

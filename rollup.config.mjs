@@ -22,6 +22,7 @@ export default [
         clean: true,
         tsconfigOverride: {
           include: ["src/**/*.ts"],
+          exclude: ["src/**/*.spec.ts"],
           compilerOptions: {
             module: "ES2015",
             rootDir: ".",

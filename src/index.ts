@@ -4,7 +4,7 @@ export * from "./types";
 export { ViewWriter } from "./ViewWriter";
 export * from "./HexBlock";
 export * from "./ValueBlock";
-export { BaseBlock, IBaseBlock, BaseBlockParams, ValueBlockConstructor, BaseBlockJson, StringEncoding } from "./BaseBlock";
+export { BaseBlock, type IBaseBlock, type BaseBlockParams, type ValueBlockConstructor, type BaseBlockJson, type StringEncoding } from "./BaseBlock";
 export * from "./BaseStringBlock";
 
 export * from "./Primitive";
@@ -54,9 +54,9 @@ export * from "./Repeated";
 // special
 export * from "./RawData";
 
-export { DEFAULT_MAX_CONTENT_LENGTH, DEFAULT_MAX_DEPTH, DEFAULT_MAX_NODES, FromBerOptions, FromBerResult, fromBER } from "./parser";
+export { DEFAULT_MAX_CONTENT_LENGTH, DEFAULT_MAX_DEPTH, DEFAULT_MAX_NODES, type FromBerOptions, type FromBerResult, fromBER } from "./parser";
 export * from "./schema";
-export { AsnType } from "./TypeStore";
+export type { AsnType } from "./TypeStore";
 
 import { registerBuiltinEncoder } from "./internals/BEREncoder";
 import { registerFastParser } from "./parser";
