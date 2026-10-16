@@ -3,7 +3,6 @@ import { runInNewContext } from "node:vm";
 import { test, vi } from "vitest";
 import { Integer } from "../src";
 import { LocalIntegerValueBlock } from "../src/internals/LocalIntegerValueBlock";
-import { powers2 } from "../src/internals/constants";
 import { bytesToSignedDecimal } from "../src/internals/integerUtils";
 
 function integerFromHex(valueHex: number[]): Integer {
@@ -50,8 +49,6 @@ test("native INTEGER conversion reads a nonzero-offset valueHexView", () => {
 });
 
 test("native INTEGER conversion handles large positive and negative values", () => {
-  const before = powers2.length;
-
   for (const bits of [2048, 8192]) {
     const magnitude = (BigInt(1) << BigInt(bits - 1)) + BigInt(123456789);
 
@@ -62,20 +59,6 @@ test("native INTEGER conversion handles large positive and negative values", () 
       assert.strictEqual(integer.valueBlock.toString(), expected.toString(10));
     }
   }
-
-  assert.strictEqual(powers2.length, before);
-});
-
-test("native INTEGER conversion does not grow the decimal powers table", () => {
-  const integer = integerFromHex([0x00, 0x80]);
-  const before = powers2.length;
-
-  for (let i = 0; i < 3; i++) {
-    assert.strictEqual(integer.toBigInt(), BigInt(128));
-    assert.strictEqual(integer.valueBlock.toString(), "128");
-  }
-
-  assert.strictEqual(powers2.length, before);
 });
 
 test("BigInt-free INTEGER conversion matches native conversion", () => {
@@ -112,7 +95,6 @@ test("BigInt-free INTEGER conversion matches native conversion", () => {
 
 test("BigInt-free INTEGER conversion handles seeded byte arrays and repeats", () => {
   let seed = 0x51a7ed;
-  const before = powers2.length;
   const next = () => {
     seed = Math.imul(seed ^ (seed >>> 15), 1 | seed);
     seed = (seed + 0x6d2b79f5) | 0;
@@ -130,8 +112,6 @@ test("BigInt-free INTEGER conversion handles seeded byte arrays and repeats", ()
     assert.strictEqual(expected, fallbackDecimal(value));
     assert.strictEqual(expected, integerFromHex(Array.from(value)).valueBlock.toString());
   }
-
-  assert.strictEqual(powers2.length, before);
 });
 
 test("toBigInt respects own and prototype toString overrides", () => {

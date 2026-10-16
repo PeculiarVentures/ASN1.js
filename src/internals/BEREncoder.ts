@@ -449,7 +449,7 @@ function isConstructed(block: BaseBlock, registry: BuiltinRegistry): boolean {
 }
 
 function inspectNode(block: BaseBlock, depth: number, registry: BuiltinRegistry): ValidatedNode | undefined {
-  if (depth > 64 || !block || typeof block !== "object") return undefined;
+  if (depth > BUILTIN_DISPATCH_MAX_DEPTH || !block || typeof block !== "object") return undefined;
 
   try {
     if (!validOuterMethod(block, registry)) return undefined;
