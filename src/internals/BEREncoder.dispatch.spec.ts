@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import { describe, it } from "vitest";
-import { BaseBlock, OctetString, Sequence, ViewWriter } from "../src";
-import { shouldUseBuiltinEncoder, tryEncodeBuiltin } from "../src/internals/BEREncoder";
+import { BaseBlock, OctetString, Sequence, ViewWriter } from "../index";
+import { shouldUseBuiltinEncoder, tryEncodeBuiltin } from "./BEREncoder";
 
 const DISPATCH_THRESHOLD = 16_384;
 

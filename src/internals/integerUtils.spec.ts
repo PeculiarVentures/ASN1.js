@@ -1,9 +1,9 @@
 import * as assert from "assert";
 import { runInNewContext } from "node:vm";
 import { test, vi } from "vitest";
-import { Integer } from "../src";
-import { LocalIntegerValueBlock } from "../src/internals/LocalIntegerValueBlock";
-import { bytesToSignedDecimal } from "../src/internals/integerUtils";
+import { Integer } from "../index";
+import { LocalIntegerValueBlock } from "./LocalIntegerValueBlock";
+import { bytesToSignedDecimal } from "./integerUtils";
 
 function integerFromHex(valueHex: number[]): Integer {
   return new Integer({ valueHex: Uint8Array.from(valueHex) });
@@ -182,7 +182,7 @@ test("toBigInt reads a toString getter once with the value block as this", () =>
 
 test("captures the original value-block serializer before Integer initializes", async () => {
   vi.resetModules();
-  const isolatedLocal = await vi.importActual<typeof import("../src/internals/LocalIntegerValueBlock")>("../src/internals/LocalIntegerValueBlock");
+  const isolatedLocal = await vi.importActual<typeof import("./LocalIntegerValueBlock")>("./LocalIntegerValueBlock");
   const isolatedInteger = isolatedLocal.LocalIntegerValueBlock;
   const descriptor = Object.getOwnPropertyDescriptor(isolatedInteger.prototype, "toString");
   assert.ok(descriptor && "value" in descriptor);
@@ -197,7 +197,7 @@ test("captures the original value-block serializer before Integer initializes", 
     },
   });
   try {
-    const { Integer: IsolatedInteger } = await vi.importActual<typeof import("../src/Integer")>("../src/Integer");
+    const { Integer: IsolatedInteger } = await vi.importActual<typeof import("../Integer")>("../Integer");
     const integer = new IsolatedInteger({ valueHex: Uint8Array.of(0x2a) });
     assert.strictEqual(integer.toBigInt(), BigInt("12345678901234567890"));
     assert.strictEqual(calls, 1);

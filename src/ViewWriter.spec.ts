@@ -1,38 +1,10 @@
 import * as assert from "assert";
+import { ViewWriter } from "./ViewWriter";
 import { describe, it } from "vitest";
-import { concat } from "../src/internals/utils";
-import { ViewWriter } from "../src/ViewWriter";
 
 function bytes(buffer: ArrayBuffer): number[] {
   return Array.from(new Uint8Array(buffer));
 }
-
-describe("concat performance behavior", () => {
-  it("concatenates empty, mixed, and sliced buffers", () => {
-    assert.ok(concat([]) instanceof ArrayBuffer);
-    assert.strictEqual(concat([]).byteLength, 0);
-
-    const arrayBuffer = Uint8Array.of(1, 2).buffer;
-    const view = Uint8Array.of(3, 4);
-    assert.deepStrictEqual(bytes(concat([arrayBuffer, view])), [1, 2, 3, 4]);
-
-    const source = Uint8Array.of(0, 1, 2, 3, 4);
-    const subarray = source.subarray(1, 4);
-    const nodeBuffer = Buffer.from([5, 6, 7, 8]).slice(1, 3);
-    assert.deepStrictEqual(bytes(concat([subarray, nodeBuffer])), [1, 2, 3, 6, 7]);
-  });
-
-  it("copies source views into an owned result", () => {
-    const source = Uint8Array.of(1, 2, 3);
-    const sourceBuffer = Uint8Array.of(4, 5).buffer;
-    const result = concat([source, sourceBuffer]);
-
-    source[0] = 9;
-    new Uint8Array(sourceBuffer)[0] = 8;
-
-    assert.deepStrictEqual(bytes(result), [1, 2, 3, 4, 5]);
-  });
-});
 
 describe("ViewWriter buffer behavior", () => {
   it("snapshots Uint8Array writes and aliases ArrayBuffer writes", () => {

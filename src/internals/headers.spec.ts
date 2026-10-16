@@ -1,8 +1,8 @@
 import * as assert from "assert";
 import { test } from "vitest";
-import { fromBER, Integer } from "../src";
-import { LocalIdentificationBlock } from "../src/internals/LocalIdentificationBlock";
-import { LocalLengthBlock } from "../src/internals/LocalLengthBlock";
+import { fromBER, Integer } from "../index";
+import { LocalIdentificationBlock } from "./LocalIdentificationBlock";
+import { LocalLengthBlock } from "./LocalLengthBlock";
 
 type Input = ArrayBuffer | Uint8Array;
 

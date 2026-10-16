@@ -1,9 +1,9 @@
 import * as assert from "assert";
 import { describe, it } from "vitest";
-import { Integer, Null, Sequence, fromBER } from "../src";
-import { DEFAULT_MAX_CONTENT_LENGTH, createFromBerContext, localFromBER, registerFastParser } from "../src/parser";
-import { typeStore } from "../src/TypeStore";
-import { LocalIdentificationBlock } from "../src/internals/LocalIdentificationBlock";
+import { Integer, Null, Sequence, fromBER } from "./index";
+import { DEFAULT_MAX_CONTENT_LENGTH, createFromBerContext, localFromBER, registerFastParser } from "./parser";
+import { typeStore } from "./TypeStore";
+import { LocalIdentificationBlock } from "./internals/LocalIdentificationBlock";
 
 function parse(input: number[], options = {}) {
   return fromBER(Uint8Array.from(input), options);

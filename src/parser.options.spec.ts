@@ -1,7 +1,8 @@
 import * as assert from "assert";
-import { BitString, OctetString, fromBER } from "../src";
-import { type FromBerContext, localFromBER } from "../src/parser";
-import { LocalBitStringValueBlock } from "../src/internals/LocalBitStringValueBlock";
+import { BitString, OctetString, fromBER } from "./index";
+import { type FromBerContext, localFromBER } from "./parser";
+import { LocalBitStringValueBlock } from "./internals/LocalBitStringValueBlock";
+import { describe, it } from "vitest";
 
 function parse(input: number[], options?: { parseEmbedded?: boolean; maxDepth?: number; maxNodes?: number }) {
   return fromBER(Uint8Array.from(input), options);

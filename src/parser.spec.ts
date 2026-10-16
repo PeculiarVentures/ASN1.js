@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { BaseBlock, fromBER } from "../src";
-import { localFromBER } from "../src/parser";
+import { describe, it, expect } from "vitest";
+import { BaseBlock, fromBER } from "./index";
+import { localFromBER } from "./parser";
 
 const errors = {
   type: "Wrong parameter: inputBuffer must be 'Uint8Array'",

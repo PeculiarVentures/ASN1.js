@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import { describe, it } from "vitest";
-import { OctetString, Sequence, ViewWriter } from "../src";
-import { tryEncodeBuiltin } from "../src/internals/BEREncoder";
+import { OctetString, Sequence, ViewWriter } from "../index";
+import { tryEncodeBuiltin } from "./BEREncoder";
 
 const OCTET_BER = [0x04, 0x01, 0x11];
 const SEQUENCE_BER = [0x30, 0x03, 0x04, 0x01, 0x11];
