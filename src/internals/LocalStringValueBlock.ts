@@ -36,13 +36,13 @@ export interface LocalStringValueBlock {
   /**
    * @deprecated since version 3.0.0
    */
-  // @ts-ignore
-  valueBeforeDecode: ArrayBuffer;
+  get valueBeforeDecode(): ArrayBuffer;
+  set valueBeforeDecode(value: ArrayBuffer);
   /**
    * Binary data in ArrayBuffer representation
    *
    * @deprecated since version 3.0.0
    */
-  // @ts-ignore
-  valueHex: ArrayBuffer;
+  get valueHex(): ArrayBuffer;
+  set valueHex(value: ArrayBuffer);
 }

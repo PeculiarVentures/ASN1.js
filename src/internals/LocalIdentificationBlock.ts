@@ -121,18 +121,20 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       return -1;
     }
 
-    // Getting Uint8Array from ArrayBuffer
-    const intBuffer = inputView.subarray(inputOffset, inputOffset + inputLength);
+    const fastArgs = Number.isInteger(inputOffset) && Number.isInteger(inputLength);
+    const intBuffer = fastArgs ? inputView : inputView.subarray(inputOffset, inputOffset + inputLength);
+    const baseIndex = fastArgs ? inputOffset : 0;
+    const bufferLength = fastArgs ? inputLength : intBuffer.length;
 
     // Initial checks
-    if (intBuffer.length === 0) {
+    if (bufferLength === 0) {
       this.error = "Zero buffer length";
 
       return -1;
     }
 
     // Find tag class
-    const tagClassMask = intBuffer[0] & 0xc0;
+    const tagClassMask = intBuffer[baseIndex] & 0xc0;
 
     switch (tagClassMask) {
       case 0x00:
@@ -153,11 +155,11 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
         return -1;
     }
     // Find it's constructed or not
-    this.isConstructed = (intBuffer[0] & 0x20) === 0x20;
+    this.isConstructed = (intBuffer[baseIndex] & 0x20) === 0x20;
 
     // Find tag number
     this.isHexOnly = false;
-    const tagNumberMask = intBuffer[0] & 0x1f;
+    const tagNumberMask = intBuffer[baseIndex] & 0x1f;
 
     if (tagNumberMask !== 0x1f) {
       // Simple case (tag number < 31)
@@ -170,7 +172,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       while (true) {
         const tagByteIndex = count + 1;
 
-        if (tagByteIndex >= intBuffer.length) {
+        if (tagByteIndex >= bufferLength) {
           this.error = "End of input reached before message was fully decoded";
 
           return -1;
@@ -178,14 +180,14 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
 
         count++;
 
-        if ((intBuffer[tagByteIndex] & 0x80) === 0x00) break;
+        if ((intBuffer[baseIndex + tagByteIndex] & 0x80) === 0x00) break;
       }
 
       this.blockLength = count + 1;
 
       const intTagNumberBuffer = (this.valueHexView = new Uint8Array(count));
 
-      for (let i = 0; i < count; i++) intTagNumberBuffer[i] = intBuffer[i + 1] & 0x7f;
+      for (let i = 0; i < count; i++) intTagNumberBuffer[i] = intBuffer[baseIndex + i + 1] & 0x7f;
 
       // Try to convert long tag number to short form
       if (this.blockLength <= 9) this.tagNumber = pvutils.utilFromBase(intTagNumberBuffer, 7);
@@ -230,17 +232,23 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
   }
 }
 
+/** @internal */
+export const ORIGINAL_LOCAL_IDENTIFICATION_TO_BER = LocalIdentificationBlock.prototype.toBER;
+
+/** @internal */
+export const ORIGINAL_LOCAL_IDENTIFICATION_FROM_BER = LocalIdentificationBlock.prototype.fromBER;
+
 export interface LocalIdentificationBlock {
   /**
    * @deprecated since version 3.0.0
    */
-  // @ts-ignore
-  valueBeforeDecode: ArrayBuffer;
+  get valueBeforeDecode(): ArrayBuffer;
+  set valueBeforeDecode(value: ArrayBuffer);
   /**
    * Binary data in ArrayBuffer representation
    *
    * @deprecated since version 3.0.0
    */
-  // @ts-ignore
-  valueHex: ArrayBuffer;
+  get valueHex(): ArrayBuffer;
+  set valueHex(value: ArrayBuffer);
 }

@@ -1,7 +1,5 @@
 // Declaration of global variables
 
-export const powers2: Uint8Array[] = [new Uint8Array([1])];
-export const digitsString = "0123456789";
 export const NAME = "name";
 export const VALUE_HEX_VIEW = "valueHexView";
 export const IS_HEX_ONLY = "isHexOnly";
