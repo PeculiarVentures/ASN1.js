@@ -1,4 +1,4 @@
-import * as pvtsutils from "pvtsutils";
+import { BufferSourceConverter, Convert, type BufferSource } from "@peculiar/utils";
 import { EMPTY_STRING, EMPTY_VIEW } from "./constants";
 
 export interface ILocalBaseBlock {
@@ -13,7 +13,7 @@ export interface LocalBaseBlockJson extends ILocalBaseBlock {
 }
 
 export interface LocalBaseBlockParams extends Partial<ILocalBaseBlock> {
-  valueBeforeDecode?: pvtsutils.BufferSource;
+  valueBeforeDecode?: BufferSource;
 }
 
 export interface LocalBaseBlockConstructor<T extends LocalBaseBlock = LocalBaseBlock> {
@@ -69,7 +69,7 @@ export class LocalBaseBlock implements ILocalBaseBlock {
     this.blockLength = blockLength;
     this.error = error;
     this.warnings = warnings;
-    this.valueBeforeDecodeView = pvtsutils.BufferSourceConverter.toUint8Array(valueBeforeDecode);
+    this.valueBeforeDecodeView = BufferSourceConverter.toUint8Array(valueBeforeDecode);
   }
 
   /**
@@ -82,7 +82,7 @@ export class LocalBaseBlock implements ILocalBaseBlock {
       blockLength: this.blockLength,
       error: this.error,
       warnings: this.warnings,
-      valueBeforeDecode: pvtsutils.Convert.ToHex(this.valueBeforeDecodeView),
+      valueBeforeDecode: Convert.ToHex(this.valueBeforeDecodeView),
     };
   }
 }

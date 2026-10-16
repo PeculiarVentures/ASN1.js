@@ -1,4 +1,4 @@
-import * as pvtsutils from "pvtsutils";
+import { BufferSourceConverter } from "@peculiar/utils";
 import { IBerConvertible } from "./types";
 import { EMPTY_VIEW } from "./internals/constants";
 
@@ -25,7 +25,7 @@ export class RawData implements IBerConvertible {
    * @deprecated Since v3.0.0
    */
   public set data(value: ArrayBuffer | Uint8Array) {
-    this.dataView = pvtsutils.BufferSourceConverter.toUint8Array(value);
+    this.dataView = BufferSourceConverter.toUint8Array(value);
   }
 
   /**
@@ -34,12 +34,12 @@ export class RawData implements IBerConvertible {
   public dataView: Uint8Array;
 
   constructor({ data = EMPTY_VIEW }: RawDataParams = {}) {
-    this.dataView = pvtsutils.BufferSourceConverter.toUint8Array(data);
+    this.dataView = BufferSourceConverter.toUint8Array(data);
   }
 
   public fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
     const endLength = inputOffset + inputLength;
-    this.dataView = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer).subarray(inputOffset, endLength);
+    this.dataView = BufferSourceConverter.toUint8Array(inputBuffer).subarray(inputOffset, endLength);
 
     return endLength;
   }

@@ -1,4 +1,4 @@
-import * as pvtsutils from "pvtsutils";
+import { BufferSourceConverter, Convert } from "@peculiar/utils";
 import * as pvutils from "pvutils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
@@ -31,7 +31,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
     if (!inputLength) {
       return inputOffset;
     }
-    const inputView = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
+    const inputView = BufferSourceConverter.toUint8Array(inputBuffer);
 
     // Basic check for parameters
     if (!utils.checkBufferParams(this, inputView, inputOffset, inputLength)) {
@@ -115,7 +115,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
 
       retView[this.blockLength - 1] = curView[this.blockLength - 1];
 
-      return pvtsutils.BufferSourceConverter.toArrayBuffer(retView);
+      return BufferSourceConverter.toArrayBuffer(retView);
     }
 
     const encodedBuf = pvutils.utilToBase(this.valueDec, 7);
@@ -136,13 +136,13 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
       retView[len] = encodedView[len];
     }
 
-    return pvtsutils.BufferSourceConverter.toArrayBuffer(retView);
+    return BufferSourceConverter.toArrayBuffer(retView);
   }
 
   public override toString(): string {
     let result = "";
 
-    if (this.isHexOnly) result = pvtsutils.Convert.ToHex(this.valueHexView);
+    if (this.isHexOnly) result = Convert.ToHex(this.valueHexView);
     else {
       if (this.isFirstSid) {
         let sidValue = this.valueDec;

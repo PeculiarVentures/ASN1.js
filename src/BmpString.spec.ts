@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { Convert } from "pvtsutils";
+import { Convert } from "@peculiar/utils";
 import * as asn1js from "./index";
 import { describe, it } from "vitest";
 
