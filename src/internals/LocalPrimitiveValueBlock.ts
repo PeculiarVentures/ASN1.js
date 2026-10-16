@@ -1,5 +1,5 @@
-import { HexBlock, HexBlockJson, HexBlockParams } from "../HexBlock";
-import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
+import { HexBlock, type HexBlockJson, type HexBlockParams } from "../HexBlock";
+import { ValueBlock, type ValueBlockJson, type ValueBlockParams } from "../ValueBlock";
 
 export interface LocalPrimitiveValueBlockParams extends HexBlockParams, ValueBlockParams {}
 export interface LocalPrimitiveValueBlockJson extends HexBlockJson, ValueBlockJson {}

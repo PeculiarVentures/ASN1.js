@@ -1,7 +1,7 @@
 import * as pvutils from "pvutils";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
-import { IDerConvertible } from "../types";
-import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
+import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
+import type { IDerConvertible } from "../types";
+import { ValueBlock, type ValueBlockJson, type ValueBlockParams } from "../ValueBlock";
 import { bytesToSignedDecimal } from "./integerUtils";
 
 export interface ILocalIntegerValueBlock {

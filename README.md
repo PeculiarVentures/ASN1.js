@@ -14,6 +14,21 @@
 
 Abstract Syntax Notation One (ASN.1) is a standard and notation that describes rules and structures for representing, encoding, transmitting, and decoding data in telecommunications and computer networking. [ASN1js] is a pure JavaScript library implementing this standard. ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web.
 
+## Install
+
+```bash
+npm install asn1js
+```
+
+## Breaking Changes In v4
+
+v4 is ESM-only and requires Node.js `^20.19.0 || >=22.12.0` (was `>=12.0.0`). CommonJS code can still `require("asn1js")` on these versions; Node.js 22.0–22.11 can't. The public API is unchanged.
+
+- **TypeScript compiling to CommonJS:** use `"module": "node20"` or `"nodenext"` (`node16` fails with TS1479). ESM and bundler setups need no changes.
+- **Jest in CommonJS mode:** switch to ESM mode or Vitest, or add `asn1js` to `transformIgnorePatterns`.
+- **Deep imports** (`asn1js/build/index.js`, `asn1js/build/index.es.js`) are blocked by `exports`; import from `asn1js`.
+- **One asn1js per app:** libraries such as `pkijs` and `@peculiar/asn1-schema` check `instanceof asn1js.Sequence` and similar, so objects from asn1js 4 fail those checks in a library that still depends on asn1js 3. Upgrade them together.
+
 ## Important Information for ASN1.js V1 Users
 
 ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
@@ -179,6 +194,10 @@ const asn1 = asn1js.fromBER(inputBuffer, {
 ## Suitability
 
 There are several commercial products, enterprise solutions as well as open source project based on versions of ASN1js. You should, however, do your own code and security review before utilization in a production application before utilizing any open source library to ensure it will meet your needs.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, commit conventions and the release flow.
 
 ## License
 

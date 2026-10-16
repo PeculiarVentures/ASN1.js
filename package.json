@@ -1,38 +1,6 @@
 {
-  "author": {
-    "email": "yury@strozhevsky.com",
-    "name": "Yury Strozhevsky"
-  },
-  "contributors": [
-    {
-      "email": "rmh@unmitigatedrisk.com",
-      "name": "Ryan Hurst"
-    }
-  ],
-  "engines": {
-    "node": ">=12.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^26.6.4",
-    "@vitest/coverage-v8": "^5.0.5",
-    "asn1-test-suite": "^1.0.2",
-    "oxfmt": "^0.73.0",
-    "oxlint": "^1.88.0",
-    "rollup": "^4.63.1",
-    "rollup-plugin-dts": "^6.5.1",
-    "rollup-plugin-typescript2": "^0.37.0",
-    "typescript": "^6.0.3",
-    "vitest": "^5.0.5"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/PeculiarVentures/ASN1.js"
-  },
-  "dependencies": {
-    "@peculiar/utils": "^4.0.0",
-    "pvutils": "^2.0.0",
-    "tslib": "^2.8.1"
-  },
+  "name": "asn1js",
+  "version": "3.1.0",
   "description": "asn1js is a pure JavaScript library implementing this standard. ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web",
   "keywords": [
     "asn1",
@@ -50,28 +18,64 @@
     "universalstring",
     "generalizedtime"
   ],
-  "main": "build/index.js",
-  "module": "build/index.es.js",
-  "types": "build/index.d.ts",
-  "name": "asn1js",
-  "files": [
-    "build",
-    "LICENSE",
-    "README.md"
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "sideEffects": false,
+  "author": {
+    "email": "yury@strozhevsky.com",
+    "name": "Yury Strozhevsky"
+  },
+  "contributors": [
+    {
+      "email": "rmh@unmitigatedrisk.com",
+      "name": "Ryan Hurst"
+    }
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PeculiarVentures/ASN1.js"
+  },
+  "files": [
+    "build/",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./build/index.js",
+  "module": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "exports": {
+    ".": "./build/index.js",
+    "./package.json": "./package.json"
+  },
   "scripts": {
-    "build": "rollup -c",
     "test": "vitest run",
-    "prepublishOnly": "npm run build",
+    "coverage": "vitest run --coverage",
+    "build": "tsdown",
+    "prepack": "npm run build",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt",
-    "format:check": "oxfmt --check",
-    "coverage": "vitest run --coverage"
+    "format:check": "oxfmt --check"
   },
-  "version": "3.1.0",
-  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@peculiar/utils": "^4.0.0",
+    "pvutils": "^2.0.0"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.5",
+    "@types/node": "^26.6.5",
+    "@vitest/coverage-v8": "^5.0.5",
+    "asn1-test-suite": "^1.0.2",
+    "oxfmt": "^0.73.0",
+    "oxlint": "^1.88.0",
+    "tsdown": "^0.23.1",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "devEngines": {
     "runtime": {
       "name": "node",

@@ -1,8 +1,8 @@
-import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
-import { IStringConvertible } from "../types";
+import { ValueBlock, type ValueBlockJson, type ValueBlockParams } from "../ValueBlock";
+import type { IStringConvertible } from "../types";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./constants";
 import * as utils from "./utils";
-import { LocalSidValueBlockJson, LocalSidValueBlock } from "./LocalSidValueBlock";
+import { type LocalSidValueBlockJson, LocalSidValueBlock } from "./LocalSidValueBlock";
 
 export interface ILocalObjectIdentifierValueBlock {
   value: string;

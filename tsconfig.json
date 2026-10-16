@@ -1,17 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES2019",
-    "module": "ES2020",
-    "moduleResolution": "node",
-    "lib": ["ES2019"],
+    "target": "es2023",
+    "lib": ["es2023"],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "types": [],
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
     "strict": true,
-    "importHelpers": true,
-    "noImplicitOverride": true,
     "skipLibCheck": true,
+    "noImplicitOverride": true,
     "noErrorTruncation": true,
-    "experimentalDecorators": true,
-    "types": ["node", "vitest/globals"],
-    "ignoreDeprecations": "6.0"
+    "noEmit": true,
+    "stripInternal": true,
+    "useDefineForClassFields": false
   },
-  "exclude": ["website"]
+  "include": ["src", "*.config.ts"]
 }

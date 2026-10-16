@@ -1,8 +1,8 @@
-import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
+import { BaseBlock, type BaseBlockJson, type BaseBlockParams } from "./BaseBlock";
 import {
-  LocalRelativeObjectIdentifierValueBlockParams,
+  type LocalRelativeObjectIdentifierValueBlockParams,
   LocalRelativeObjectIdentifierValueBlock,
-  LocalRelativeObjectIdentifierValueBlockJson,
+  type LocalRelativeObjectIdentifierValueBlockJson,
 } from "./internals/LocalRelativeObjectIdentifierValueBlock";
 import { typeStore } from "./TypeStore";
 

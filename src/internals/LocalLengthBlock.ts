@@ -1,8 +1,8 @@
 import { BufferSourceConverter } from "@peculiar/utils";
 import * as pvutils from "pvutils";
-import { IBerConvertible } from "../types";
+import type { IBerConvertible } from "../types";
 import { EMPTY_BUFFER } from "./constants";
-import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
+import { LocalBaseBlock, type LocalBaseBlockJson } from "./LocalBaseBlock";
 import { checkBufferParams } from "./utils";
 
 export interface ILocalLengthBlock {

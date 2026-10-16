@@ -1,6 +1,6 @@
-import { ViewWriter } from "./ViewWriter";
-import { ValueBlock, ValueBlockJson } from "./ValueBlock";
-import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
+import type { ViewWriter } from "./ViewWriter";
+import { ValueBlock, type ValueBlockJson } from "./ValueBlock";
+import { BaseBlock, type BaseBlockJson, type BaseBlockParams } from "./BaseBlock";
 import { typeStore } from "./TypeStore";
 
 export type NullParams = BaseBlockParams;

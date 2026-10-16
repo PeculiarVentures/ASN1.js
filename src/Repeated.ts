@@ -1,4 +1,4 @@
-import { IAny, Any } from "./Any";
+import { type IAny, Any } from "./Any";
 
 export interface IRepeated extends IAny {
   value: Any;

@@ -1,6 +1,6 @@
 import * as pvutils from "pvutils";
 import { typeStore } from "./TypeStore";
-import { IUTCTime, UTCTimeParams, UTCTimeJson, UTCTime, DateStringEncoding } from "./UTCTime";
+import { type IUTCTime, type UTCTimeParams, type UTCTimeJson, UTCTime, type DateStringEncoding } from "./UTCTime";
 
 export interface IGeneralizedTime extends IUTCTime {
   millisecond: number;

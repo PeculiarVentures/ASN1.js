@@ -1,11 +1,11 @@
 import { Convert } from "@peculiar/utils";
 import * as pvutils from "pvutils";
-import { IBerConvertible } from "./types";
-import { LocalBaseBlockJson, LocalBaseBlockParams, LocalBaseBlock } from "./internals/LocalBaseBlock";
-import { LocalIdentificationBlock, LocalIdentificationBlockJson, LocalIdentificationBlockParams } from "./internals/LocalIdentificationBlock";
-import { LocalLengthBlock, LocalLengthBlockJson, LocalLengthBlockParams } from "./internals/LocalLengthBlock";
+import type { IBerConvertible } from "./types";
+import { type LocalBaseBlockJson, type LocalBaseBlockParams, LocalBaseBlock } from "./internals/LocalBaseBlock";
+import { LocalIdentificationBlock, type LocalIdentificationBlockJson, type LocalIdentificationBlockParams } from "./internals/LocalIdentificationBlock";
+import { LocalLengthBlock, type LocalLengthBlockJson, type LocalLengthBlockParams } from "./internals/LocalLengthBlock";
 import { ViewWriter } from "./ViewWriter";
-import { ValueBlock, ValueBlockJson } from "./ValueBlock";
+import { ValueBlock, type ValueBlockJson } from "./ValueBlock";
 import { EMPTY_BUFFER, EMPTY_STRING } from "./internals/constants";
 import { typeStore } from "./TypeStore";
 import type { FromBerContext } from "./parser";
