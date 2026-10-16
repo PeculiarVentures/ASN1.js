@@ -72,8 +72,8 @@ integer_view[7] = 0x01;
 sequence.valueBlock.value.push(
   new asn1js.Integer({
     isHexOnly: true,
-    valueHex: integer_data
-  })
+    valueHex: integer_data,
+  }),
 ); // Put too long for decoding Integer value
 
 sequence_buffer = sequence.toBER();
@@ -88,9 +88,9 @@ var sequence2 = new asn1js.Sequence({
     new asn1js.Integer({ value: 1 }),
     new asn1js.Integer({
       isHexOnly: true,
-      valueHex: integer_data
-    })
-  ]
+      valueHex: integer_data,
+    }),
+  ],
 });
 ```
 
@@ -101,13 +101,13 @@ var asn1_schema = new asn1js.Sequence({
   name: "block1",
   value: [
     new asn1js.Null({
-      name: "block2"
+      name: "block2",
     }),
     new asn1js.Integer({
       name: "block3",
-      optional: true // This block is absent inside data, but it's "optional". Hence verification against the schema will be passed.
-    })
-  ]
+      optional: true, // This block is absent inside data, but it's "optional". Hence verification against the schema will be passed.
+    }),
+  ],
 });
 
 var variant1 = asn1js.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
@@ -126,10 +126,10 @@ var asn1_schema_internal = new asn1js.OctetString({
     name: "block1",
     value: [
       new asn1js.Null({
-        name: "block2"
-      })
-    ]
-  })
+        name: "block2",
+      }),
+    ],
+  }),
 });
 
 var variant6 = asn1js.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
@@ -148,7 +148,7 @@ More examples could be found in "examples" directory or inside [PKIjs] library.
 const asn1 = asn1js.fromBER(inputBuffer, {
   maxDepth: 100,
   maxNodes: 10000,
-  maxContentLength: 16 * 1024 * 1024
+  maxContentLength: 16 * 1024 * 1024,
 });
 ```
 
@@ -166,7 +166,7 @@ const asn1 = asn1js.fromBER(inputBuffer, {
   maxNodes: 10000,
   maxContentLength: 16 * 1024 * 1024,
   parseEmbedded: false,
-  copyInput: false
+  copyInput: false,
 });
 ```
 

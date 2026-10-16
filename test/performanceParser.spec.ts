@@ -8,7 +8,7 @@ const errors = {
   offset: "Wrong parameter: inputOffset less than zero",
   length: "Wrong parameter: inputLength less than zero",
   range: "End of input reached before message was fully decoded (inconsistent offset and length values)",
-  zero: "Zero buffer length"
+  zero: "Zero buffer length",
 };
 
 describe("localFromBER parameter validation", () => {

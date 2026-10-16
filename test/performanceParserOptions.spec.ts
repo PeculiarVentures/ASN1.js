@@ -26,7 +26,7 @@ describe("parseEmbedded parser option", () => {
       { name: "BIT STRING trailing payload", input: [0x03, 0x05, 0x00, 0x02, 0x01, 0x01, 0xff] },
       { name: "BIT STRING non-ASN.1 payload", input: [0x03, 0x04, 0x00, 0xff, 0xff, 0xff] },
       { name: "BIT STRING nested TLV", input: [0x03, 0x06, 0x00, 0x30, 0x03, 0x02, 0x01, 0x01], expectedChildren: 1 },
-      { name: "BIT STRING nonzero unused bits", input: [0x03, 0x03, 0x01, 0x02, 0x01] }
+      { name: "BIT STRING nonzero unused bits", input: [0x03, 0x03, 0x01, 0x02, 0x01] },
     ];
 
     for (const { name, input, expectedChildren } of cases) {
@@ -37,18 +37,13 @@ describe("parseEmbedded parser option", () => {
       assert.deepStrictEqual(explicitResult, defaultResult, name);
       assert.strictEqual(defaultResult.offset, input.length, name);
       assert.strictEqual(disabledResult.offset, input.length, name);
-      if (expectedChildren !== undefined)
-        assert.strictEqual(valueChildren(defaultResult).length, expectedChildren, name);
+      if (expectedChildren !== undefined) assert.strictEqual(valueChildren(defaultResult).length, expectedChildren, name);
       assert.deepStrictEqual(valueChildren(disabledResult), [], name);
-      assert.deepStrictEqual(
-        Array.from((disabledResult.result as OctetString | BitString).valueBeforeDecodeView),
-        input,
-        name
-      );
+      assert.deepStrictEqual(Array.from((disabledResult.result as OctetString | BitString).valueBeforeDecodeView), input, name);
       assert.deepStrictEqual(
         Array.from((disabledResult.result as OctetString | BitString).valueBlock.valueHexView),
         Array.from((defaultResult.result as OctetString | BitString).valueBlock.valueHexView),
-        name
+        name,
       );
       assert.deepStrictEqual(bytes(disabledResult.result as OctetString | BitString), input, name);
     }
@@ -59,7 +54,7 @@ describe("parseEmbedded parser option", () => {
       [0x24, 0x03, 0x04, 0x01, 0x01],
       [0x24, 0x80, 0x04, 0x01, 0x01, 0x00, 0x00],
       [0x23, 0x03, 0x03, 0x01, 0x00],
-      [0x23, 0x80, 0x03, 0x01, 0x00, 0x00, 0x00]
+      [0x23, 0x80, 0x03, 0x01, 0x00, 0x00, 0x00],
     ];
 
     for (const input of cases) {
@@ -99,7 +94,7 @@ describe("parseEmbedded parser option", () => {
       maxDepth: 100,
       nodesCount: 0,
       maxNodes: 10,
-      maxContentLength: 100
+      maxContentLength: 100,
     };
     const result = localFromBER(Uint8Array.of(0x04, 0x03, 0x02, 0x01, 0x01), 0, 5, context);
     assert.strictEqual(result.offset, 5);
@@ -120,14 +115,14 @@ describe("copyInput parser option", () => {
         create: () => {
           const backing = Uint8Array.from(seed);
           return { input: backing.buffer, backing };
-        }
+        },
       },
       {
         name: "Uint8Array subview",
         create: () => {
           const backing = Uint8Array.of(0xee, ...seed, 0xdd);
           return { input: backing.subarray(1, 6), backing };
-        }
+        },
       },
       {
         name: "Buffer slice",
@@ -135,17 +130,17 @@ describe("copyInput parser option", () => {
           const backing = Buffer.from([0xee, ...seed, 0xdd]);
           return {
             input: backing.subarray(1, 6),
-            backing: new Uint8Array(backing.buffer, backing.byteOffset, backing.byteLength)
+            backing: new Uint8Array(backing.buffer, backing.byteOffset, backing.byteLength),
           };
-        }
+        },
       },
       {
         name: "DataView",
         create: () => {
           const backing = Uint8Array.of(0xee, ...seed, 0xdd);
           return { input: new DataView(backing.buffer, 1, seed.length), backing };
-        }
-      }
+        },
+      },
     ];
   }
 
@@ -157,7 +152,7 @@ describe("copyInput parser option", () => {
       valueHexView: Array.from(block.valueBlock.valueHexView),
       valueBeforeDecode: Array.from(new Uint8Array(block.valueBeforeDecode)),
       valueHex: Array.from(new Uint8Array(block.valueBlock.valueHex)),
-      ber: bytes(block)
+      ber: bytes(block),
     };
   }
 
@@ -183,9 +178,9 @@ describe("copyInput parser option", () => {
           valueHexView: seed.slice(2),
           valueBeforeDecode: seed,
           valueHex: seed.slice(2),
-          ber: seed
+          ber: seed,
         },
-        name
+        name,
       );
 
       const aliasedInput = create();
@@ -199,11 +194,7 @@ describe("copyInput parser option", () => {
       assert.deepStrictEqual(observable(aliasedResult).ber, [0x04, 0x03, 0x99, 0xbb, 0xcc], name);
       assert.deepStrictEqual(Array.from(new Uint8Array(borrowedBeforeDecode)), seed, name);
       assert.deepStrictEqual(Array.from(new Uint8Array(borrowedValueHex)), seed.slice(2), name);
-      assert.deepStrictEqual(
-        Array.from(new Uint8Array(aliasedBlock.valueBeforeDecode)),
-        [0x04, 0x03, 0x99, 0xbb, 0xcc],
-        name
-      );
+      assert.deepStrictEqual(Array.from(new Uint8Array(aliasedBlock.valueBeforeDecode)), [0x04, 0x03, 0x99, 0xbb, 0xcc], name);
       assert.deepStrictEqual(Array.from(new Uint8Array(aliasedBlock.valueBlock.valueHex)), [0x99, 0xbb, 0xcc], name);
       assert.strictEqual(aliasedBlock.valueBeforeDecodeView.buffer, aliasedInput.backing.buffer, name);
       assert.strictEqual(aliasedBlock.valueBlock.valueHexView.buffer, aliasedInput.backing.buffer, name);

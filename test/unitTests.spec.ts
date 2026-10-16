@@ -75,9 +75,7 @@ function makeSequenceOfNulls(count: number, isIndefiniteForm = false): Uint8Arra
   const items = Array.from<Uint8Array>({ length: count }).fill(Uint8Array.of(0x05, 0x00));
   const content = concatArrays(...items);
 
-  return isIndefiniteForm
-    ? concatArrays(Uint8Array.of(0x30, 0x80), content, Uint8Array.of(0x00, 0x00))
-    : wrapSequence(content);
+  return isIndefiniteForm ? concatArrays(Uint8Array.of(0x30, 0x80), content, Uint8Array.of(0x00, 0x00)) : wrapSequence(content);
 }
 
 function makeOctetString(length: number): Uint8Array {
@@ -132,24 +130,20 @@ describe("Unit tests", () => {
         valueHex: new Uint8Array([0x01]),
         tagClass: 1,
         tagNumber: 1,
-        isConstructed: false
+        isConstructed: false,
       },
       lenBlock: {
         isIndefiniteForm: false,
         longFormUsed: false,
-        length: 10
-      }
+        length: 10,
+      },
     });
 
     assert.equal(baseBlock.blockLength, 10, "Incorrect value for blockLength");
     assert.equal(baseBlock.error, "error", "Incorrect value for error");
     assert.equal(baseBlock.warnings.length, 2, "Incorrect value for warnings");
     assert.equal(baseBlock.valueBeforeDecodeView.byteLength, 10, "Incorrect value for valueBeforeDecode");
-    assert.equal(
-      (baseBlock.constructor as typeof asn1js.BaseBlock).blockName(),
-      "BaseBlock",
-      "Incorrect value for blockName"
-    );
+    assert.equal((baseBlock.constructor as typeof asn1js.BaseBlock).blockName(), "BaseBlock", "Incorrect value for blockName");
 
     const parseFunction = (key: string, value: any): any => {
       switch (key) {
@@ -161,7 +155,7 @@ describe("Unit tests", () => {
           const matches = value.match(/[\da-f]{2}/gi);
           if (!matches) return new ArrayBuffer(0);
 
-          return new Uint8Array(matches.map(hex => parseInt(hex, 16))).buffer;
+          return new Uint8Array(matches.map((hex) => parseInt(hex, 16))).buffer;
         }
         default:
           return value;
@@ -174,7 +168,7 @@ describe("Unit tests", () => {
     new asn1js.BaseBlock(object);
 
     const octetString = new asn1js.OctetString({
-      valueHex: new Uint8Array([0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01]).buffer
+      valueHex: new Uint8Array([0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01]).buffer,
     });
 
     new asn1js.OctetString(JSON.parse(JSON.stringify(octetString), parseFunction));
@@ -193,11 +187,7 @@ describe("Unit tests", () => {
     assert.notEqual(asn1.offset, -1, "Long-form tag at the configured limit must be accepted");
     assert.equal(asn1.result.idBlock.tagNumber, -1, "Tag number must stay in hex-only mode");
     assert.equal(asn1.result.idBlock.isHexOnly, true, "Tag should be represented as hex-only");
-    assert.equal(
-      asn1.result.idBlock.valueHexView.byteLength,
-      16,
-      "Hexadecimal representation of ID block must keep all tag bytes"
-    );
+    assert.equal(asn1.result.idBlock.valueHexView.byteLength, 16, "Hexadecimal representation of ID block must keep all tag bytes");
   });
 
   it("preserves large long-form tag parsing", () => {
@@ -206,11 +196,7 @@ describe("Unit tests", () => {
     assert.notEqual(asn1.offset, -1, "Long-form tag parsing must preserve compatibility for large values");
     assert.equal(asn1.result.idBlock.tagNumber, -1, "Large tag number must stay in hex-only mode");
     assert.equal(asn1.result.idBlock.isHexOnly, true, "Large tag should be represented as hex-only");
-    assert.equal(
-      asn1.result.idBlock.valueHexView.byteLength,
-      17,
-      "Hexadecimal representation of ID block must keep all tag bytes"
-    );
+    assert.equal(asn1.result.idBlock.valueHexView.byteLength, 17, "Hexadecimal representation of ID block must keep all tag bytes");
   });
 
   describe("fromBER resource limits", () => {
@@ -219,7 +205,7 @@ describe("Unit tests", () => {
       const result = asn1js.fromBER(certificate, {
         maxDepth: 32,
         maxNodes: 512,
-        maxContentLength: 64 * 1024
+        maxContentLength: 64 * 1024,
       });
 
       assert.notEqual(result.offset, -1, "Certificate should parse within configured limits");
@@ -229,7 +215,7 @@ describe("Unit tests", () => {
       const result = asn1js.fromBER(makeNestedSequence(11), {
         maxDepth: 10,
         maxNodes: 64,
-        maxContentLength: 4096
+        maxContentLength: 4096,
       });
 
       assert.equal(result.offset, -1, "Deep nesting should fail");
@@ -241,7 +227,7 @@ describe("Unit tests", () => {
         const result = asn1js.fromBER(makeNestedSequence(2000), {
           maxDepth: 100,
           maxNodes: 5000,
-          maxContentLength: 1024 * 1024
+          maxContentLength: 1024 * 1024,
         });
 
         assert.equal(result.offset, -1, "Very deep nesting should fail with a parse error");
@@ -253,7 +239,7 @@ describe("Unit tests", () => {
       const result = asn1js.fromBER(makeSequenceOfNulls(6), {
         maxDepth: 8,
         maxNodes: 6,
-        maxContentLength: 4096
+        maxContentLength: 4096,
       });
 
       assert.equal(result.offset, -1, "Wide input should fail once node budget is exhausted");
@@ -264,7 +250,7 @@ describe("Unit tests", () => {
       const result = asn1js.fromBER(makeOctetString(5), {
         maxDepth: 8,
         maxNodes: 32,
-        maxContentLength: 4
+        maxContentLength: 4,
       });
 
       assert.equal(result.offset, -1, "Primitive content length limit should be enforced");
@@ -275,7 +261,7 @@ describe("Unit tests", () => {
       const result = asn1js.fromBER(makeSequenceOfNulls(3), {
         maxDepth: 8,
         maxNodes: 32,
-        maxContentLength: 5
+        maxContentLength: 5,
       });
 
       assert.equal(result.offset, -1, "Constructed content length limit should be enforced");
@@ -286,7 +272,7 @@ describe("Unit tests", () => {
       const result = asn1js.fromBER(makeNestedIndefiniteSequence(11), {
         maxDepth: 10,
         maxNodes: 64,
-        maxContentLength: 4096
+        maxContentLength: 4096,
       });
 
       assert.equal(result.offset, -1, "Indefinite nested input should fail by depth");
@@ -297,7 +283,7 @@ describe("Unit tests", () => {
       const result = asn1js.fromBER(makeSequenceOfNulls(6, true), {
         maxDepth: 8,
         maxNodes: 6,
-        maxContentLength: 4096
+        maxContentLength: 4096,
       });
 
       assert.equal(result.offset, -1, "Indefinite wide input should fail by node count");

@@ -1,20 +1,13 @@
 import { BaseBlock, BaseBlockParams } from "./BaseBlock";
 import { IStringConvertible } from "./types";
 import { EMPTY_STRING } from "./internals/constants";
-import {
-  LocalStringValueBlock,
-  LocalStringValueBlockJson,
-  LocalStringValueBlockParams
-} from "./internals/LocalStringValueBlock";
+import { LocalStringValueBlock, LocalStringValueBlockJson, LocalStringValueBlockParams } from "./internals/LocalStringValueBlock";
 
 export interface BaseStringBlockParams extends BaseBlockParams, LocalStringValueBlockParams {}
 export type BaseStringBlockJson = LocalStringValueBlockJson;
 
 // eslint-disable-next-line @stylistic/max-len
-export abstract class BaseStringBlock<
-  T extends LocalStringValueBlock = LocalStringValueBlock,
-  J extends BaseStringBlockJson = BaseStringBlockJson
->
+export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStringValueBlock, J extends BaseStringBlockJson = BaseStringBlockJson>
   extends BaseBlock<T, J>
   implements IStringConvertible
 {
@@ -46,11 +39,7 @@ export abstract class BaseStringBlock<
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    const resultOffset = this.valueBlock.fromBER(
-      inputBuffer,
-      inputOffset,
-      this.lenBlock.isIndefiniteForm ? inputLength : this.lenBlock.length
-    );
+    const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, this.lenBlock.isIndefiniteForm ? inputLength : this.lenBlock.length);
     if (resultOffset === -1) {
       this.error = this.valueBlock.error;
 

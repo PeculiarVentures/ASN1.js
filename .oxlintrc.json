@@ -1,13 +1,21 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "ignorePatterns": ["build/**/*", "website/**/*", "rollup.config.mjs", "vitest.config.ts", "node_modules/**/*"],
+  "plugins": ["eslint", "import", "oxc", "typescript", "unicorn"],
+  "categories": {
+    "correctness": "error",
+    "perf": "warn",
+    "suspicious": "warn"
+  },
   "rules": {
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
-    "no-prototype-builtins": "off",
+    "eslint/no-shadow": "off",
     "typescript/no-explicit-any": "off",
+    "typescript/no-extraneous-class": "off",
+    "typescript/no-non-null-assertion": "off",
+    "typescript/no-unsafe-declaration-merging": "off",
     "typescript/prefer-for-of": "off",
-    "typescript/ban-ts-comment": "off",
-    "typescript/no-dynamic-delete": "off",
-    "typescript/no-unsafe-declaration-merging": "off"
-  }
+    "typescript/unified-signatures": "off",
+    "unicorn/no-array-reverse": "off",
+    "unicorn/no-array-sort": "off"
+  },
+  "ignorePatterns": ["**/build/**", "coverage/**", "website/**"]
 }

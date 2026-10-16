@@ -1,18 +1,7 @@
 import * as assert from "assert";
 import { describe, it } from "vitest";
 import * as asn1js from "../src";
-import {
-  BaseBlock,
-  BitString,
-  Constructed,
-  Integer,
-  OctetString,
-  Primitive,
-  Sequence,
-  Set,
-  ViewWriter,
-  fromBER
-} from "../src";
+import { BaseBlock, BitString, Constructed, Integer, OctetString, Primitive, Sequence, Set, ViewWriter, fromBER } from "../src";
 import { registerBuiltinEncoder, tryEncodeBuiltin } from "../src/internals/BEREncoder";
 import { LocalOctetStringValueBlock } from "../src/internals/LocalOctetStringValueBlock";
 
@@ -125,7 +114,7 @@ describe("built-in BER encoder", () => {
       get: () => {
         getterCalls += 1;
         return original;
-      }
+      },
     });
 
     assert.deepStrictEqual(bytes(root.toBER()), [0x30, 0x03, 0x04, 0x01, 0x01]);
@@ -141,7 +130,7 @@ describe("built-in BER encoder", () => {
       get: () => {
         constructorCalls += 1;
         return Uint8Array;
-      }
+      },
     });
 
     assert.strictEqual(tryEncodeBuiltin(root), undefined);
@@ -183,21 +172,21 @@ describe("built-in BER encoder", () => {
       value: function (this: BaseBlock, ...args: Parameters<BaseBlock["toBER"]>) {
         baseCalls += 1;
         return Reflect.apply(originalBase, this, args);
-      }
+      },
     });
     Object.defineProperty(LocalOctetStringValueBlock.prototype, "toBER", {
       ...valueDescriptor,
       value: function (this: LocalOctetStringValueBlock, ...args: Parameters<LocalOctetStringValueBlock["toBER"]>) {
         valueCalls += 1;
         return Reflect.apply(originalValue, this, args);
-      }
+      },
     });
     Object.defineProperty(ViewWriter.prototype, "write", {
       ...writerDescriptor,
       value: function (this: ViewWriter, ...args: Parameters<ViewWriter["write"]>) {
         writerCalls += 1;
         return Reflect.apply(originalWrite, this, args);
-      }
+      },
     });
     try {
       registerBuiltinEncoder({ BitString, Integer, OctetString, Primitive, Constructed, Sequence, Set });
@@ -215,7 +204,7 @@ describe("built-in BER encoder", () => {
         "ORIGINAL_LOCAL_OCTET_STRING_TO_BER",
         "ORIGINAL_LOCAL_CONSTRUCTED_TO_BER",
         "ORIGINAL_LOCAL_BIT_STRING_TO_BER",
-        "ORIGINAL_LOCAL_PRIMITIVE_TO_BER"
+        "ORIGINAL_LOCAL_PRIMITIVE_TO_BER",
       ]) {
         assert.strictEqual(Object.prototype.hasOwnProperty.call(asn1js, name), false, name);
       }
@@ -278,10 +267,7 @@ describe("built-in BER encoder", () => {
     assert.strictEqual(mixedValue.lenBlock.length, 7);
     assert.strictEqual(child.lenBlock.length, 0);
 
-    assert.deepStrictEqual(
-      bytes(mixedValue.toBER(true)),
-      [0x00, 0x80, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
-    );
+    assert.deepStrictEqual(bytes(mixedValue.toBER(true)), [0x00, 0x80, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
   });
 
   it("encodes primitive BIT STRING prefixes without joining the payload", () => {
@@ -351,12 +337,12 @@ describe("built-in BER encoder", () => {
       const value = fromBER(source).result as Sequence | OctetString;
       assert.deepStrictEqual(
         bytes(value.toBER(true)),
-        Array.from({ length: source.byteLength }, () => 0)
+        Array.from({ length: source.byteLength }, () => 0),
       );
       const length = value.lenBlock.length;
       assert.deepStrictEqual(
         bytes(value.toBER(true)),
-        Array.from({ length: source.byteLength }, () => 0)
+        Array.from({ length: source.byteLength }, () => 0),
       );
       assert.strictEqual(value.lenBlock.length, length);
     }
@@ -364,13 +350,13 @@ describe("built-in BER encoder", () => {
     const large = fromBER(octetString(256)).result as OctetString;
     assert.deepStrictEqual(
       bytes(large.toBER(true)),
-      Array.from({ length: 260 }, () => 0)
+      Array.from({ length: 260 }, () => 0),
     );
 
     const longTag = new Primitive({
       idBlock: { tagClass: 2, tagNumber: 31 },
       valueHex: Uint8Array.of(1, 2),
-      isHexOnly: true
+      isHexOnly: true,
     });
     assert.deepStrictEqual(bytes(longTag.toBER(true)), [0x5f, 0x00, 0x00, 0x00, 0x00]);
 
@@ -388,7 +374,7 @@ describe("built-in BER encoder", () => {
       value: function (this: ViewWriter, buffer: ArrayBuffer | Uint8Array): void {
         calls += 1;
         Reflect.apply(original, this, [buffer]);
-      }
+      },
     });
     try {
       const value = decode([0x04, 0x02, 0x01, 0x02]) as OctetString;

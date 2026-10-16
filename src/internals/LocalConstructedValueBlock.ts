@@ -43,12 +43,7 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
     this.isIndefiniteForm = isIndefiniteForm;
   }
 
-  public override fromBER(
-    inputBuffer: ArrayBuffer | Uint8Array,
-    inputOffset: number,
-    inputLength: number,
-    context?: FromBerContext
-  ): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
     const view = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
     const parseContext = context ?? createFromBerContext();
 
@@ -118,7 +113,7 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
     const object: LocalConstructedValueBlockJson = {
       ...super.toJSON(),
       isIndefiniteForm: this.isIndefiniteForm,
-      value: []
+      value: [],
     };
 
     for (const value of this.value) {

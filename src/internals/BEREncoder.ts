@@ -87,10 +87,7 @@ interface BuiltinRegistry extends BuiltinConstructors, BuiltinInternals {}
 const originalUint8ArraySliceInfo = findMethod(Uint8Array.prototype, "slice");
 const originalUint8ArrayConstructor = Object.getOwnPropertyDescriptor(Uint8Array.prototype, "constructor")?.value;
 const originalArrayIterator = Object.getOwnPropertyDescriptor(Array.prototype, Symbol.iterator)?.value;
-const intrinsicTypedArrayByteLength = Object.getOwnPropertyDescriptor(
-  Object.getPrototypeOf(Uint8Array.prototype),
-  "byteLength"
-)?.get;
+const intrinsicTypedArrayByteLength = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(Uint8Array.prototype), "byteLength")?.get;
 // Small payloads do not amortize full validation; this only gates that validator.
 const BUILTIN_DISPATCH_PAYLOAD_THRESHOLD = 16384;
 const BUILTIN_DISPATCH_MAX_DEPTH = 64;
@@ -163,26 +160,13 @@ export function shouldUseBuiltinEncoder(block: BaseBlock): boolean {
 }
 
 function sameDataMethod(current: PropertyDescriptor | undefined, original: Function): current is PropertyDescriptor {
-  return (
-    !!current &&
-    "value" in current &&
-    current.value === original &&
-    current.writable === true &&
-    current.enumerable === false &&
-    current.configurable === true
-  );
+  return !!current && "value" in current && current.value === original && current.writable === true && current.enumerable === false && current.configurable === true;
 }
 
 function writerMethodsStable(registry: BuiltinRegistry): boolean {
   return (
-    sameDataMethod(
-      Object.getOwnPropertyDescriptor(registry.ViewWriter.prototype, "write"),
-      registry.originalWriterWrite
-    ) &&
-    sameDataMethod(
-      Object.getOwnPropertyDescriptor(registry.ViewWriter.prototype, "final"),
-      registry.originalWriterFinal
-    )
+    sameDataMethod(Object.getOwnPropertyDescriptor(registry.ViewWriter.prototype, "write"), registry.originalWriterWrite) &&
+    sameDataMethod(Object.getOwnPropertyDescriptor(registry.ViewWriter.prototype, "final"), registry.originalWriterFinal)
   );
 }
 
@@ -201,11 +185,7 @@ function findMethod(prototype: object, name: string): { declaringPrototype: obje
   return undefined;
 }
 
-function stableInheritedMethod(
-  prototype: object,
-  name: string,
-  original: { declaringPrototype: object; method: Function } | undefined
-): boolean {
+function stableInheritedMethod(prototype: object, name: string, original: { declaringPrototype: object; method: Function } | undefined): boolean {
   if (!original) return false;
   let current: object | null = prototype;
   while (current) {
@@ -226,19 +206,11 @@ function prototypeMethod(object: object, prototype: object, name: string, expect
   return !!descriptor && "value" in descriptor && descriptor.value === expected;
 }
 
-function inheritedMethod(
-  object: object,
-  name: string,
-  expected: Function,
-  primitiveConstructor: typeof LocalPrimitiveValueBlock
-): boolean {
+function inheritedMethod(object: object, name: string, expected: Function, primitiveConstructor: typeof LocalPrimitiveValueBlock): boolean {
   if (Object.prototype.hasOwnProperty.call(object, name)) return false;
   const prototype = Object.getPrototypeOf(object);
   const originalPrimitiveValuePrototype = Object.getPrototypeOf(primitiveConstructor.prototype) as object;
-  if (
-    prototype !== primitiveConstructor.prototype ||
-    Object.getPrototypeOf(prototype) !== originalPrimitiveValuePrototype
-  ) {
+  if (prototype !== primitiveConstructor.prototype || Object.getPrototypeOf(prototype) !== originalPrimitiveValuePrototype) {
     return false;
   }
   const descriptor = prototype && Object.getOwnPropertyDescriptor(prototype, name);
@@ -256,12 +228,7 @@ function plainPayload(value: unknown, allowEmpty = false): Uint8Array | undefine
     if (Object.prototype.hasOwnProperty.call(value, name)) return undefined;
   }
   const constructorDescriptor = Object.getOwnPropertyDescriptor(Uint8Array.prototype, "constructor");
-  if (
-    !constructorDescriptor ||
-    !("value" in constructorDescriptor) ||
-    constructorDescriptor.value !== originalUint8ArrayConstructor
-  )
-    return undefined;
+  if (!constructorDescriptor || !("value" in constructorDescriptor) || constructorDescriptor.value !== originalUint8ArrayConstructor) return undefined;
   if (!stableInheritedMethod(Uint8Array.prototype, "slice", originalUint8ArraySliceInfo)) return undefined;
 
   try {
@@ -280,10 +247,7 @@ function plainPayload(value: unknown, allowEmpty = false): Uint8Array | undefine
 
 function validIdBlock(block: LocalIdentificationBlock, constructed: boolean, registry: BuiltinRegistry): boolean {
   if (Object.getPrototypeOf(block) !== registry.LocalIdentificationBlock.prototype) return false;
-  if (
-    !prototypeMethod(block, registry.LocalIdentificationBlock.prototype, "toBER", registry.originalIdentificationToBER)
-  )
-    return false;
+  if (!prototypeMethod(block, registry.LocalIdentificationBlock.prototype, "toBER", registry.originalIdentificationToBER)) return false;
 
   const tagClass = dataProperty<number>(block, "tagClass");
   const tagNumber = dataProperty<number>(block, "tagNumber");
@@ -326,27 +290,13 @@ function validLengthBlock(block: LocalLengthBlock, allowIndefinite: boolean, reg
 function validBaseBlock(block: BaseBlock, isConstructed: boolean, registry: BuiltinRegistry): boolean {
   const idBlock = dataProperty<LocalIdentificationBlock>(block, "idBlock");
   const lenBlock = dataProperty<LocalLengthBlock>(block, "lenBlock");
-  return (
-    !!idBlock &&
-    !!lenBlock &&
-    validIdBlock(idBlock, isConstructed, registry) &&
-    validLengthBlock(lenBlock, isConstructed, registry)
-  );
+  return !!idBlock && !!lenBlock && validIdBlock(idBlock, isConstructed, registry) && validLengthBlock(lenBlock, isConstructed, registry);
 }
 
 function constructedChild(block: ConstructedBlock, registry: BuiltinRegistry): BaseBlock | undefined {
   const valueBlock = dataProperty<LocalConstructedValueBlock>(block, "valueBlock");
-  if (!valueBlock || Object.getPrototypeOf(valueBlock) !== registry.LocalConstructedValueBlock.prototype)
-    return undefined;
-  if (
-    !prototypeMethod(
-      valueBlock,
-      registry.LocalConstructedValueBlock.prototype,
-      "toBER",
-      registry.originalConstructedToBER
-    )
-  )
-    return undefined;
+  if (!valueBlock || Object.getPrototypeOf(valueBlock) !== registry.LocalConstructedValueBlock.prototype) return undefined;
+  if (!prototypeMethod(valueBlock, registry.LocalConstructedValueBlock.prototype, "toBER", registry.originalConstructedToBER)) return undefined;
 
   const values = dataProperty<unknown>(valueBlock, "value");
   if (!Array.isArray(values) || Object.getPrototypeOf(values) !== Array.prototype) return undefined;
@@ -354,8 +304,7 @@ function constructedChild(block: ConstructedBlock, registry: BuiltinRegistry): B
   if (!lengthDescriptor || !("value" in lengthDescriptor) || lengthDescriptor.value !== 1) return undefined;
   if (Object.prototype.hasOwnProperty.call(values, Symbol.iterator)) return undefined;
   const iteratorDescriptor = Object.getOwnPropertyDescriptor(Array.prototype, Symbol.iterator);
-  if (!iteratorDescriptor || !("value" in iteratorDescriptor) || iteratorDescriptor.value !== originalArrayIterator)
-    return undefined;
+  if (!iteratorDescriptor || !("value" in iteratorDescriptor) || iteratorDescriptor.value !== originalArrayIterator) return undefined;
   const indexDescriptor = Object.getOwnPropertyDescriptor(values, "0");
   if (!indexDescriptor || !("value" in indexDescriptor)) return undefined;
   if (Object.getOwnPropertyNames(values).length !== 2) return undefined;
@@ -363,55 +312,33 @@ function constructedChild(block: ConstructedBlock, registry: BuiltinRegistry): B
   return indexDescriptor.value as BaseBlock;
 }
 
-function bitPayload(
-  block: PrimitiveBlock,
-  registry: BuiltinRegistry
-): { payload: Uint8Array; prefix: Uint8Array } | undefined {
+function bitPayload(block: PrimitiveBlock, registry: BuiltinRegistry): { payload: Uint8Array; prefix: Uint8Array } | undefined {
   const valueBlock = dataProperty<LocalBitStringValueBlock>(block, "valueBlock");
-  if (!valueBlock || Object.getPrototypeOf(valueBlock) !== registry.LocalBitStringValueBlock.prototype)
-    return undefined;
-  if (
-    !prototypeMethod(valueBlock, registry.LocalBitStringValueBlock.prototype, "toBER", registry.originalBitStringToBER)
-  )
-    return undefined;
+  if (!valueBlock || Object.getPrototypeOf(valueBlock) !== registry.LocalBitStringValueBlock.prototype) return undefined;
+  if (!prototypeMethod(valueBlock, registry.LocalBitStringValueBlock.prototype, "toBER", registry.originalBitStringToBER)) return undefined;
   if (dataProperty<boolean>(valueBlock, "isConstructed") !== false) return undefined;
 
   const unusedBits = dataProperty<number>(valueBlock, "unusedBits");
-  if (typeof unusedBits !== "number" || !Number.isInteger(unusedBits) || unusedBits < 0 || unusedBits > 7)
-    return undefined;
+  if (typeof unusedBits !== "number" || !Number.isInteger(unusedBits) || unusedBits < 0 || unusedBits > 7) return undefined;
   const payload = plainPayload(dataProperty<Uint8Array>(valueBlock, "valueHexView"), true);
   if (!payload) return undefined;
   return { payload, prefix: Uint8Array.of(payload.byteLength ? unusedBits : 0) };
 }
 
-function primitivePayload(
-  block: PrimitiveBlock,
-  kind: "integer" | "octet" | "primitive",
-  registry: BuiltinRegistry
-): Uint8Array | undefined {
+function primitivePayload(block: PrimitiveBlock, kind: "integer" | "octet" | "primitive", registry: BuiltinRegistry): Uint8Array | undefined {
   const valueBlock = dataProperty<PrimitiveBlock["valueBlock"]>(block, "valueBlock");
   if (!valueBlock) return undefined;
 
   if (kind === "integer") {
     if (Object.getPrototypeOf(valueBlock) !== registry.LocalIntegerValueBlock.prototype) return undefined;
-    if (!prototypeMethod(valueBlock, registry.LocalIntegerValueBlock.prototype, "toBER", registry.originalIntegerToBER))
-      return undefined;
+    if (!prototypeMethod(valueBlock, registry.LocalIntegerValueBlock.prototype, "toBER", registry.originalIntegerToBER)) return undefined;
   } else if (kind === "octet") {
     if (Object.getPrototypeOf(valueBlock) !== registry.LocalOctetStringValueBlock.prototype) return undefined;
-    if (
-      !prototypeMethod(
-        valueBlock,
-        registry.LocalOctetStringValueBlock.prototype,
-        "toBER",
-        registry.originalOctetStringToBER
-      )
-    )
-      return undefined;
+    if (!prototypeMethod(valueBlock, registry.LocalOctetStringValueBlock.prototype, "toBER", registry.originalOctetStringToBER)) return undefined;
     if (dataProperty<boolean>(valueBlock, "isConstructed") !== false) return undefined;
   } else {
     if (Object.getPrototypeOf(valueBlock) !== registry.LocalPrimitiveValueBlock.prototype) return undefined;
-    if (!inheritedMethod(valueBlock, "toBER", registry.originalPrimitiveToBER, registry.LocalPrimitiveValueBlock))
-      return undefined;
+    if (!inheritedMethod(valueBlock, "toBER", registry.originalPrimitiveToBER, registry.LocalPrimitiveValueBlock)) return undefined;
   }
 
   if (kind === "primitive" && dataProperty<boolean>(valueBlock, "isHexOnly") !== true) return undefined;
@@ -431,21 +358,13 @@ function validOuterMethod(block: BaseBlock, registry: BuiltinRegistry): boolean 
   return false;
 }
 
-function isPrimitive(
-  block: BaseBlock,
-  type: keyof Pick<BuiltinConstructors, "BitString" | "Integer" | "OctetString" | "Primitive">,
-  registry: BuiltinRegistry
-): boolean {
+function isPrimitive(block: BaseBlock, type: keyof Pick<BuiltinConstructors, "BitString" | "Integer" | "OctetString" | "Primitive">, registry: BuiltinRegistry): boolean {
   const constructor = registry[type];
   return !!constructor && Object.getPrototypeOf(block) === constructor.prototype;
 }
 
 function isConstructed(block: BaseBlock, registry: BuiltinRegistry): boolean {
-  return (
-    Object.getPrototypeOf(block) === registry.Sequence.prototype ||
-    Object.getPrototypeOf(block) === registry.Set.prototype ||
-    Object.getPrototypeOf(block) === registry.Constructed.prototype
-  );
+  return Object.getPrototypeOf(block) === registry.Sequence.prototype || Object.getPrototypeOf(block) === registry.Set.prototype || Object.getPrototypeOf(block) === registry.Constructed.prototype;
 }
 
 function inspectNode(block: BaseBlock, depth: number, registry: BuiltinRegistry): ValidatedNode | undefined {
@@ -471,19 +390,14 @@ function inspectNode(block: BaseBlock, depth: number, registry: BuiltinRegistry)
 
     if (primitiveKind) {
       const bit = primitiveKind === "bit" ? bitPayload(block as PrimitiveBlock, registry) : undefined;
-      const payload =
-        primitiveKind === "bit" ? bit?.payload : primitivePayload(block as PrimitiveBlock, primitiveKind, registry);
-      return payload
-        ? { block, kind: primitiveKind, idBlock, lenBlock, indefinite: false, payload, prefix: bit?.prefix }
-        : undefined;
+      const payload = primitiveKind === "bit" ? bit?.payload : primitivePayload(block as PrimitiveBlock, primitiveKind, registry);
+      return payload ? { block, kind: primitiveKind, idBlock, lenBlock, indefinite: false, payload, prefix: bit?.prefix } : undefined;
     }
 
     const child = constructedChild(block as ConstructedBlock, registry);
     const validatedChild = child && inspectNode(child, depth + 1, registry);
     const indefinite = dataProperty<boolean>(lenBlock, "isIndefiniteForm");
-    return validatedChild
-      ? { block, kind: "constructed", idBlock, lenBlock, indefinite: indefinite === true, child: validatedChild }
-      : undefined;
+    return validatedChild ? { block, kind: "constructed", idBlock, lenBlock, indefinite: indefinite === true, child: validatedChild } : undefined;
   } catch {
     return undefined;
   }

@@ -55,12 +55,7 @@ export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
       this.valueHexView = params.valueHex ? pvtsutils.BufferSourceConverter.toUint8Array(params.valueHex) : EMPTY_VIEW;
     }
 
-    public fromBER(
-      inputBuffer: ArrayBuffer | Uint8Array,
-      inputOffset: number,
-      inputLength: number,
-      _context?: unknown
-    ): number {
+    public fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, _context?: unknown): number {
       // Basic check for parameters
       const view = inputBuffer instanceof ArrayBuffer ? new Uint8Array(inputBuffer) : inputBuffer;
       if (!checkBufferParams(this, view, inputOffset, inputLength)) {
@@ -94,10 +89,7 @@ export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
       }
 
       // Don't copy data if View is not offset
-      if (
-        this.valueHexView.buffer instanceof ArrayBuffer &&
-        this.valueHexView.byteLength === this.valueHexView.buffer.byteLength
-      ) {
+      if (this.valueHexView.buffer instanceof ArrayBuffer && this.valueHexView.byteLength === this.valueHexView.buffer.byteLength) {
         return this.valueHexView.buffer;
       }
 
@@ -112,7 +104,7 @@ export function HexBlock<T extends LocalBaseBlockConstructor>(BaseClass: T) {
       return {
         ...super.toJSON(),
         isHexOnly: this.isHexOnly,
-        valueHex: pvtsutils.Convert.ToHex(this.valueHexView)
+        valueHex: pvtsutils.Convert.ToHex(this.valueHexView),
       };
     }
   };

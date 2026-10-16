@@ -1,7 +1,4 @@
-.idea
-.vscode
-**/node_modules
-build
-.nyc_output
 coverage
+node_modules
+build
 .DS_Store

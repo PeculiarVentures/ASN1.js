@@ -67,9 +67,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
-    this.fromString(
-      String.fromCharCode.apply(null, pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[])
-    );
+    this.fromString(String.fromCharCode.apply(null, pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]));
   }
 
   /**
@@ -157,7 +155,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
       day: this.day,
       hour: this.hour,
       minute: this.minute,
-      second: this.second
+      second: this.second,
     };
   }
 }

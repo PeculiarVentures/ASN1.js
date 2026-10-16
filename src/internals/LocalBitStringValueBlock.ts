@@ -5,11 +5,7 @@ import { createFromBerContext, localFromBERWithChildContext } from "../parser";
 import type { BitString } from "../BitString";
 import type { FromBerContext } from "../parser";
 import { BIT_STRING_NAME, END_OF_CONTENT_NAME } from "./constants";
-import {
-  LocalConstructedValueBlockParams,
-  LocalConstructedValueBlockJson,
-  LocalConstructedValueBlock
-} from "./LocalConstructedValueBlock";
+import { LocalConstructedValueBlockParams, LocalConstructedValueBlockJson, LocalConstructedValueBlock } from "./LocalConstructedValueBlock";
 import { checkBufferParams } from "./utils";
 
 export interface ILocalBitStringValueBlock {
@@ -17,18 +13,13 @@ export interface ILocalBitStringValueBlock {
   isConstructed: boolean;
 }
 
-export interface LocalBitStringValueBlockParams
-  extends HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalBitStringValueBlock> {
+export interface LocalBitStringValueBlockParams extends HexBlockParams, LocalConstructedValueBlockParams, Partial<ILocalBitStringValueBlock> {
   value?: BitString[];
 }
 
-export interface LocalBitStringValueBlockJson
-  extends HexBlockJson, LocalConstructedValueBlockJson, ILocalBitStringValueBlock {}
+export interface LocalBitStringValueBlockJson extends HexBlockJson, LocalConstructedValueBlockJson, ILocalBitStringValueBlock {}
 
-export class LocalBitStringValueBlock
-  extends HexBlock(LocalConstructedValueBlock)
-  implements ILocalBitStringValueBlock
-{
+export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBlock) implements ILocalBitStringValueBlock {
   public static override NAME = "BitStringValueBlock";
 
   public unusedBits: number;
@@ -42,12 +33,7 @@ export class LocalBitStringValueBlock
     this.blockLength = this.valueHexView.byteLength;
   }
 
-  public override fromBER(
-    inputBuffer: ArrayBuffer | Uint8Array,
-    inputOffset: number,
-    inputLength: number,
-    context?: FromBerContext
-  ): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
     // Ability to decode zero-length BitString value
     if (!inputLength) {
       return inputOffset;
@@ -57,13 +43,7 @@ export class LocalBitStringValueBlock
 
     // If the BIT STRING supposed to be a constructed value
     if (this.isConstructed) {
-      resultOffset = LocalConstructedValueBlock.prototype.fromBER.call(
-        this,
-        inputBuffer,
-        inputOffset,
-        inputLength,
-        context
-      );
+      resultOffset = LocalConstructedValueBlock.prototype.fromBER.call(this, inputBuffer, inputOffset, inputLength, context);
       if (resultOffset === -1) return resultOffset;
 
       for (const value of this.value) {
@@ -163,7 +143,7 @@ export class LocalBitStringValueBlock
     return {
       ...super.toJSON(),
       unusedBits: this.unusedBits,
-      isConstructed: this.isConstructed
+      isConstructed: this.isConstructed,
     } as LocalBitStringValueBlockJson;
   }
 }

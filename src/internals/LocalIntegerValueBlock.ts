@@ -8,8 +8,7 @@ export interface ILocalIntegerValueBlock {
   value: number;
 }
 
-export interface LocalIntegerValueBlockParams
-  extends HexBlockParams, ValueBlockParams, Partial<ILocalIntegerValueBlock> {}
+export interface LocalIntegerValueBlockParams extends HexBlockParams, ValueBlockParams, Partial<ILocalIntegerValueBlock> {}
 
 export interface LocalIntegerValueBlockJson extends HexBlockJson, ValueBlockJson {
   valueDec: number;
@@ -41,7 +40,7 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
       },
       get: function (this: LocalIntegerValueBlock) {
         return this.valueHexView.slice().buffer;
-      }
+      },
     });
   }
 
@@ -134,7 +133,7 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
   public override toJSON(): LocalIntegerValueBlockJson {
     return {
       ...super.toJSON(),
-      valueDec: this.valueDec
+      valueDec: this.valueDec,
     };
   }
 

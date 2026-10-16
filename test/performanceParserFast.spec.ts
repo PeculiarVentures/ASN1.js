@@ -53,12 +53,7 @@ describe("short built-in parser path", () => {
     assert.strictEqual(maxNodes2.offset, 5);
     assert.strictEqual(maxNodes2Context.nodesCount, 2);
 
-    const contentLimited = localFromBER(
-      Uint8Array.of(0x02, 0x01, 0x7f),
-      0,
-      3,
-      createFromBerContext({ maxContentLength: 0 })
-    );
+    const contentLimited = localFromBER(Uint8Array.of(0x02, 0x01, 0x7f), 0, 3, createFromBerContext({ maxContentLength: 0 }));
     assert.strictEqual(contentLimited.offset, -1);
     assert.strictEqual(contentLimited.result.error, "Maximum ASN.1 content length exceeded");
     assert.strictEqual(DEFAULT_MAX_CONTENT_LENGTH > 0, true);
@@ -80,7 +75,7 @@ describe("short built-in parser path", () => {
       { name: "maxContentLength 1", input: [0x02, 0x01, 0x7f], options: { maxContentLength: 1 } },
       { name: "maxContentLength 3", input: [0x30, 0x03, 0x02, 0x01, 0x7f], options: { maxContentLength: 3 } },
       { name: "maxDepth 0", input: [0x30, 0x03, 0x02, 0x01, 0x7f], options: { maxDepth: 0 } },
-      { name: "maxDepth 1", input: [0x30, 0x03, 0x02, 0x01, 0x7f], options: { maxDepth: 1 } }
+      { name: "maxDepth 1", input: [0x30, 0x03, 0x02, 0x01, 0x7f], options: { maxDepth: 1 } },
     ];
 
     const baseline = cases.map(({ input, options }) => {
@@ -98,7 +93,7 @@ describe("short built-in parser path", () => {
       value: function (this: LocalIdentificationBlock, ...args: Parameters<LocalIdentificationBlock["fromBER"]>) {
         calls += 1;
         return Reflect.apply(original, this, args);
-      }
+      },
     });
     try {
       cases.forEach(({ name, input, options }, index) => {
@@ -128,7 +123,7 @@ describe("short built-in parser path", () => {
       get: () => {
         typeReads += 1;
         return CustomInteger;
-      }
+      },
     });
     try {
       registerFastParser({ Integer, Null, Sequence });
@@ -150,7 +145,7 @@ describe("short built-in parser path", () => {
       value: function (this: LocalIdentificationBlock, ...args: Parameters<LocalIdentificationBlock["fromBER"]>) {
         calls += 1;
         return Reflect.apply(original, this, args);
-      }
+      },
     });
     try {
       registerFastParser({ Integer, Null, Sequence });

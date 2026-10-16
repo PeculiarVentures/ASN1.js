@@ -1,9 +1,5 @@
 import * as pvutils from "pvutils";
-import {
-  LocalSimpleStringBlock,
-  LocalSimpleStringBlockJson,
-  LocalSimpleStringBlockParams
-} from "./LocalSimpleStringBlock";
+import { LocalSimpleStringBlock, LocalSimpleStringBlockJson, LocalSimpleStringBlockParams } from "./LocalSimpleStringBlock";
 
 export type LocalUniversalStringValueBlockParams = LocalSimpleStringBlockParams;
 export type LocalUniversalStringValueBlockJson = LocalSimpleStringBlockJson;

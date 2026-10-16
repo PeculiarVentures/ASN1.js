@@ -29,7 +29,7 @@ test("native INTEGER conversion handles fixed signed encodings", () => {
     [[0xff, 0x01], BigInt(-255)],
     [[0xff, 0x80], BigInt(-128)],
     [[0xff, 0x00], BigInt(-256)],
-    [[0xff, 0xff], BigInt(-1)]
+    [[0xff, 0xff], BigInt(-1)],
   ];
 
   for (const [valueHex, expected] of cases) {
@@ -79,7 +79,7 @@ test("BigInt-free INTEGER conversion matches native conversion", () => {
     configurable: true,
     value() {
       throw new Error("custom iterator was used");
-    }
+    },
   });
   assert.strictEqual(fallbackDecimal(iteratorView), "258");
 
@@ -131,7 +131,7 @@ test("toBigInt respects own and prototype toString overrides", () => {
       configurable: true,
       value() {
         throw new Error("custom function call property was used");
-      }
+      },
     });
     valueBlock.toString = ownToString;
     assert.strictEqual(integer.toBigInt(), BigInt(41));
@@ -170,7 +170,7 @@ test("toBigInt reads a toString getter once with the value block as this", () =>
 
           return "43";
         };
-      }
+      },
     });
     assert.strictEqual(integer.toBigInt(), BigInt(43));
     assert.strictEqual(getterCalls, 1);
@@ -182,9 +182,7 @@ test("toBigInt reads a toString getter once with the value block as this", () =>
 
 test("captures the original value-block serializer before Integer initializes", async () => {
   vi.resetModules();
-  const isolatedLocal = await vi.importActual<typeof import("../src/internals/LocalIntegerValueBlock")>(
-    "../src/internals/LocalIntegerValueBlock"
-  );
+  const isolatedLocal = await vi.importActual<typeof import("../src/internals/LocalIntegerValueBlock")>("../src/internals/LocalIntegerValueBlock");
   const isolatedInteger = isolatedLocal.LocalIntegerValueBlock;
   const descriptor = Object.getOwnPropertyDescriptor(isolatedInteger.prototype, "toString");
   assert.ok(descriptor && "value" in descriptor);
@@ -196,7 +194,7 @@ test("captures the original value-block serializer before Integer initializes", 
       calls += 1;
 
       return "12345678901234567890";
-    }
+    },
   });
   try {
     const { Integer: IsolatedInteger } = await vi.importActual<typeof import("../src/Integer")>("../src/Integer");

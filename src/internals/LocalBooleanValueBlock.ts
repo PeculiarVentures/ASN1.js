@@ -8,8 +8,7 @@ export interface ILocalBooleanValueBlock {
   value: boolean;
 }
 
-export interface LocalBooleanValueBlockParams
-  extends ValueBlockParams, HexBlockParams, Partial<ILocalBooleanValueBlock> {}
+export interface LocalBooleanValueBlockParams extends ValueBlockParams, HexBlockParams, Partial<ILocalBooleanValueBlock> {}
 
 export interface LocalBooleanValueBlockJson extends ValueBlockJson, HexBlockJson, ILocalBooleanValueBlock {}
 
@@ -70,7 +69,7 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
   public override toJSON(): LocalBooleanValueBlockJson {
     return {
       ...super.toJSON(),
-      value: this.value
+      value: this.value,
     };
   }
 }

@@ -1,11 +1,7 @@
 import * as pvtsutils from "pvtsutils";
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { Constructed } from "./Constructed";
-import {
-  LocalOctetStringValueBlockParams,
-  LocalOctetStringValueBlock,
-  LocalOctetStringValueBlockJson
-} from "./internals/LocalOctetStringValueBlock";
+import { LocalOctetStringValueBlockParams, LocalOctetStringValueBlock, LocalOctetStringValueBlockJson } from "./internals/LocalOctetStringValueBlock";
 import { OCTET_STRING_NAME } from "./internals/constants";
 import { createFromBerContext, localFromBERWithChildContext } from "./parser";
 import { typeStore } from "./TypeStore";
@@ -27,27 +23,22 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
       {
         idBlock: {
           isConstructed: parameters.isConstructed,
-          ...idBlock
+          ...idBlock,
         },
         lenBlock: {
           ...lenBlock,
-          isIndefiniteForm: !!parameters.isIndefiniteForm
+          isIndefiniteForm: !!parameters.isIndefiniteForm,
         },
-        ...parameters
+        ...parameters,
       },
-      LocalOctetStringValueBlock
+      LocalOctetStringValueBlock,
     );
 
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 4; // OctetString
   }
 
-  public override fromBER(
-    inputBuffer: ArrayBuffer | Uint8Array,
-    inputOffset: number,
-    inputLength: number,
-    context?: FromBerContext
-  ): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
     this.valueBlock.isConstructed = this.idBlock.isConstructed;
     this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
 

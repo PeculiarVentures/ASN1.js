@@ -1,11 +1,7 @@
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { Constructed } from "./Constructed";
 import { BIT_STRING_NAME } from "./internals/constants";
-import {
-  LocalBitStringValueBlockParams,
-  LocalBitStringValueBlock,
-  LocalBitStringValueBlockJson
-} from "./internals/LocalBitStringValueBlock";
+import { LocalBitStringValueBlockParams, LocalBitStringValueBlock, LocalBitStringValueBlockJson } from "./internals/LocalBitStringValueBlock";
 import { typeStore } from "./TypeStore";
 import type { FromBerContext } from "./parser";
 
@@ -25,27 +21,22 @@ export class BitString extends BaseBlock<LocalBitStringValueBlock, LocalBitStrin
       {
         idBlock: {
           isConstructed: parameters.isConstructed,
-          ...idBlock
+          ...idBlock,
         },
         lenBlock: {
           ...lenBlock,
-          isIndefiniteForm: !!parameters.isIndefiniteForm
+          isIndefiniteForm: !!parameters.isIndefiniteForm,
         },
-        ...parameters
+        ...parameters,
       },
-      LocalBitStringValueBlock
+      LocalBitStringValueBlock,
     );
 
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 3; // BitString
   }
 
-  public override fromBER(
-    inputBuffer: ArrayBuffer | Uint8Array,
-    inputOffset: number,
-    inputLength: number,
-    context?: FromBerContext
-  ): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
     this.valueBlock.isConstructed = this.idBlock.isConstructed;
     this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
 
