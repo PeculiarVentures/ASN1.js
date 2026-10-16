@@ -5,7 +5,7 @@
 <div align="center">
 
 ![NPM License](https://img.shields.io/npm/l/asn1js)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/PeculiarVentures/ASN1.js/test.yml?label=test)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/PeculiarVentures/ASN1.js/publish.yml?branch=master&label=publish)
 [![npm version](https://img.shields.io/npm/v/asn1js.svg)](https://www.npmjs.com/package/asn1js)
 ![Coveralls](https://img.shields.io/coverallsCoverage/github/PeculiarVentures/ASN1.js)
 [![npm downloads](https://img.shields.io/npm/dm/asn1js.svg)](https://www.npmjs.com/package/asn1js)
