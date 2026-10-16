@@ -1,57 +1,43 @@
 name: Test
 
+# Pushes to master are tested by Publish, which calls this workflow before release-please.
 on:
   pull_request:
-    branches: [main, master]
-    types: [opened, synchronize]
-  push:
-    branches: [main, master]
+  workflow_call:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [22.x, 24.x]
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 24
           cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run stock build
-        run: npm run build
-
-      - name: Check declarations
-        run: npx tsc --ignoreConfig --noEmit --target ES2020 --module Node16 --moduleResolution Node16 build/index.d.ts
-
       - name: Run linter
         run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build package
+        run: npm run build
+
+      - name: Check generated package exports are committed
+        run: git diff --exit-code package.json
 
       - name: Run test with coverage
         run: npm run coverage
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          flag-name: node-${{ matrix.node-version }}
-          parallel: true
-
-  coveralls-finish:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Close parallel build
-        uses: coverallsapp/github-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          parallel-finished: true

@@ -1,153 +1,92 @@
-name: Release
+name: Publish
 
 on:
+  push:
+    branches:
+      - master
+  # Retries publishing a released version, e.g. after a failed npm publish; run it from the v<version> tag.
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Release type"
-        required: true
-        default: "patch"
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
 
 permissions:
-  contents: write
-  id-token: write
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
 
 jobs:
-  prepare-release:
-    runs-on: ubuntu-latest
+  # Gates release-please, so a commit that fails checks never gets a tag or a GitHub Release.
+  check:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/test.yml
+
+  release-please:
+    runs-on: ubuntu-24.04
+    needs: check
+
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
 
     outputs:
-      version: ${{ steps.version.outputs.version }}
-      release_tag: ${{ steps.version.outputs.release_tag }}
-      major_tag: ${{ steps.version.outputs.major_tag }}
-      tgz: ${{ steps.pack.outputs.tgz }}
+      release_created: ${{ steps.release.outputs.release_created }}
+      sha: ${{ steps.release.outputs.sha }}
 
     steps:
-      - name: Checkout default branch
-        uses: actions/checkout@v7
+      # Opens or updates the release PR from Conventional Commits; once that PR is merged,
+      # creates the v<version> tag and the GitHub Release with the notes from the PR.
+      - name: Release Please
+        id: release
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
-          fetch-depth: 0
-          ref: ${{ github.event.repository.default_branch }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          registry-url: https://registry.npmjs.org
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Bump version without git tag
-        id: version
-        run: |
-          npm version "${{ inputs.version }}" --no-git-tag-version
-
-          VERSION=$(node -p "require('./package.json').version")
-          MAJOR=$(node -p "require('./package.json').version.split('.')[0]")
-
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "release_tag=v$VERSION" >> "$GITHUB_OUTPUT"
-          echo "major_tag=v$MAJOR" >> "$GITHUB_OUTPUT"
-
-      - name: Build
-        run: npm run build
-
-      - name: Run tests
-        run: npm test
-
-      - name: Pack release artifact
-        id: pack
-        run: |
-          TGZ=$(npm pack --ignore-scripts --json | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>console.log(JSON.parse(s)[0].filename))")
-
-          echo "tgz=$TGZ" >> "$GITHUB_OUTPUT"
-          sha256sum "$TGZ" > "$TGZ.sha256"
-
-      - name: Generate release summary
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          CURRENT_SHA=$(git rev-parse HEAD)
-          PREVIOUS_TAG=$(git tag --merged "$CURRENT_SHA" --sort=-version:refname | head -n 1)
-
-          echo "## Release preview" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Version:** ${{ steps.version.outputs.release_tag }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Release type:** ${{ inputs.version }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Package:** \`${{ steps.pack.outputs.tgz }}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-
-          echo "### SHA256" >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          cat "${{ steps.pack.outputs.tgz }}.sha256" >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-
-          echo "### Changes" >> "$GITHUB_STEP_SUMMARY"
-
-          declare -A SEEN_PRS=()
-          if [ -n "$PREVIOUS_TAG" ]; then
-            COMMIT_RANGE="$PREVIOUS_TAG..$CURRENT_SHA"
-          else
-            COMMIT_RANGE="$CURRENT_SHA"
-          fi
-
-          while IFS= read -r COMMIT_SHA; do
-            [ -z "$COMMIT_SHA" ] && continue
-
-            COMMIT_SHORT_SHA=$(git rev-parse --short "$COMMIT_SHA")
-            COMMIT_SUBJECT=$(git show -s --format=%s "$COMMIT_SHA")
-            PR_JSON=$(gh api "repos/${{ github.repository }}/commits/$COMMIT_SHA/pulls" \
-              -H "Accept: application/vnd.github+json" 2>/dev/null || echo "")
-
-            if [ -n "$PR_JSON" ] && [ "$PR_JSON" != "[]" ]; then
-              PR_NUMBER=$(node -e 'const payload = JSON.parse(process.argv[1]); process.stdout.write(String(payload[0].number));' "$PR_JSON")
-
-              if [ -z "${SEEN_PRS[$PR_NUMBER]+x}" ]; then
-                PR_TITLE=$(node -e 'const payload = JSON.parse(process.argv[1]); process.stdout.write(payload[0].title);' "$PR_JSON")
-                PR_URL=$(node -e 'const payload = JSON.parse(process.argv[1]); process.stdout.write(payload[0].html_url);' "$PR_JSON")
-
-                echo "- PR #$PR_NUMBER: [$PR_TITLE]($PR_URL)" >> "$GITHUB_STEP_SUMMARY"
-                SEEN_PRS[$PR_NUMBER]=1
-              fi
-            else
-              echo "- $COMMIT_SUBJECT ($COMMIT_SHORT_SHA)" >> "$GITHUB_STEP_SUMMARY"
-            fi
-          done < <(git rev-list --reverse "$COMMIT_RANGE")
-
-          if [ -n "$PREVIOUS_TAG" ]; then
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "[View full diff](https://github.com/${{ github.repository }}/compare/$PREVIOUS_TAG...$CURRENT_SHA)" >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-      - name: Upload release package
-        uses: actions/upload-artifact@v7
-        with:
-          name: npm-package
-          path: |
-            *.tgz
-            *.tgz.sha256
-          retention-days: 7
-          if-no-files-found: error
+          # PRs opened with GITHUB_TOKEN do not trigger other workflows; set RELEASE_TOKEN so Test runs on the release PR.
+          token: ${{ secrets.RELEASE_TOKEN || github.token }}
 
   publish:
-    runs-on: ubuntu-latest
-    needs: prepare-release
+    runs-on: ubuntu-24.04
+    needs: release-please
+    # Manual runs skip check and release-please, so they must not depend on their results.
+    if: >-
+      !cancelled() && (
+        github.event_name == 'workflow_dispatch' ||
+        needs.release-please.outputs.release_created == 'true'
+      )
     environment: npm
 
+    permissions:
+      contents: write
+      id-token: write
+
     steps:
-      - name: Checkout default branch
+      # npm provenance records GITHUB_SHA, so the published commit must be exactly that commit.
+      - name: Verify the release commit
+        env:
+          RELEASE_SHA: ${{ needs.release-please.outputs.sha }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            if [ "$GITHUB_REF_TYPE" != tag ] || [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+              echo "::error::Run Publish from a v<version> release tag, not from $GITHUB_REF_NAME"
+              exit 1
+            fi
+          elif [ "$RELEASE_SHA" != "$GITHUB_SHA" ]; then
+            echo "::error::Release commit $RELEASE_SHA differs from $GITHUB_SHA; run Publish manually from the release tag"
+            exit 1
+          fi
+
+      - name: Checkout
         uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Read the version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ] && [ "v$VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::package.json version $VERSION does not match tag $GITHUB_REF_NAME"
+            exit 1
+          fi
+
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -156,46 +95,41 @@ jobs:
           registry-url: https://registry.npmjs.org
           cache: npm
 
-      - name: Download release package
-        uses: actions/download-artifact@v7
-        with:
-          name: npm-package
-          path: ./release-package
+      # This job holds id-token and contents: write, so dependency lifecycle scripts never run here.
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
 
-      - name: Verify package checksum
+      - name: Build package
+        run: npm run build
+
+      - name: Check generated package exports are committed
+        run: git diff --exit-code package.json
+
+      - name: Publish to npm via Trusted Publisher
         run: |
-          cd release-package
-          sha256sum -c *.tgz.sha256
+          NAME=$(node -p "require('./package.json').name")
 
-      - name: Publish prepared package via Trusted Publisher
-        run: npm publish ./release-package/*.tgz --access public
+          if npm view "$NAME@$VERSION" version > /dev/null 2>&1; then
+            echo "$NAME@$VERSION is already published"
+          else
+            # Skips prepack: the build above is the one the exports check verified.
+            npm publish --ignore-scripts
+          fi
 
-      - name: Commit release version and tag
+      # Never moves the major tag backwards, e.g. when retrying an older version.
+      - name: Move major tag
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          MAJOR="v${VERSION%%.*}"
+          LATEST=$(git ls-remote --tags --refs origin "refs/tags/$MAJOR.*" \
+            | sed 's|.*refs/tags/||' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V \
+            | tail -n 1)
 
-          npm version "${{ needs.prepare-release.outputs.version }}" --no-git-tag-version
+          if [ "$LATEST" != "v$VERSION" ]; then
+            echo "Leaving $MAJOR unchanged: v$VERSION is not the latest release ($LATEST)"
+            exit 0
+          fi
 
-          git add package.json package-lock.json
-          git commit -m "chore(release): ${{ needs.prepare-release.outputs.release_tag }}"
-          git tag "${{ needs.prepare-release.outputs.release_tag }}"
-
-      - name: Push release commit and tag
-        run: |
-          git push origin "HEAD:${{ github.event.repository.default_branch }}"
-          git push origin "${{ needs.prepare-release.outputs.release_tag }}"
-
-      - name: Update major tag
-        run: |
-          git tag -f "${{ needs.prepare-release.outputs.major_tag }}" "${{ needs.prepare-release.outputs.release_tag }}"
-          git push origin "${{ needs.prepare-release.outputs.major_tag }}" --force
-
-      - name: Create GitHub Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create "${{ needs.prepare-release.outputs.release_tag }}" \
-            --verify-tag \
-            --title "${{ needs.prepare-release.outputs.release_tag }}" \
-            --generate-notes
+          git tag -f "$MAJOR" HEAD
+          git push -f origin "$MAJOR"
