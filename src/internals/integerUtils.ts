@@ -1,9 +1,9 @@
-import * as pvtsutils from "pvtsutils";
+import { Convert } from "@peculiar/utils";
 
 export function bytesToSignedBigInt(view: Uint8Array): bigint {
   if (!view.byteLength) return BigInt(0);
 
-  const value = BigInt(`0x${pvtsutils.Convert.ToHex(view)}`);
+  const value = BigInt(`0x${Convert.ToHex(view)}`);
 
   if (view[0] & 0x80) return value - (BigInt(1) << BigInt(view.byteLength * 8));
 

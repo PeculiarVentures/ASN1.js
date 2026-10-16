@@ -1,4 +1,4 @@
-import * as pvtsutils from "pvtsutils";
+import { Convert } from "@peculiar/utils";
 import * as pvutils from "pvutils";
 import { IBerConvertible } from "./types";
 import { LocalBaseBlockJson, LocalBaseBlockParams, LocalBaseBlock } from "./internals/LocalBaseBlock";
@@ -133,12 +133,12 @@ export class BaseBlock<T extends ValueBlock = ValueBlock, J extends ValueBlockJs
       return this.onAsciiEncoding();
     }
 
-    return pvtsutils.Convert.ToHex(this.toBER());
+    return Convert.ToHex(this.toBER());
   }
 
   protected onAsciiEncoding(): string {
     const name = (this.constructor as typeof BaseBlock).NAME;
-    const value = pvtsutils.Convert.ToHex(this.valueBlock.valueBeforeDecodeView);
+    const value = Convert.ToHex(this.valueBlock.valueBeforeDecodeView);
 
     return `${name} : ${value}`;
   }

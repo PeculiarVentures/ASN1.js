@@ -1,4 +1,4 @@
-import * as pvtsutils from "pvtsutils";
+import { BufferSourceConverter, Convert } from "@peculiar/utils";
 import * as pvutils from "pvutils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { ValueBlockJson, ValueBlockParams } from "../ValueBlock";
@@ -28,7 +28,7 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
     if (inputLength === 0) return inputOffset;
 
-    const inputView = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
+    const inputView = BufferSourceConverter.toUint8Array(inputBuffer);
 
     // Basic check for parameters
     if (!checkBufferParams(this, inputView, inputOffset, inputLength)) return -1;
@@ -121,7 +121,7 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
   public override toString(): string {
     let result = "";
 
-    if (this.isHexOnly) result = pvtsutils.Convert.ToHex(this.valueHexView);
+    if (this.isHexOnly) result = Convert.ToHex(this.valueHexView);
     else {
       result = this.valueDec.toString();
     }
