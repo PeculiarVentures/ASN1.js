@@ -1,9 +1,5 @@
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
-import {
-  LocalObjectIdentifierValueBlockParams,
-  LocalObjectIdentifierValueBlock,
-  LocalObjectIdentifierValueBlockJson
-} from "./internals/LocalObjectIdentifierValueBlock";
+import { LocalObjectIdentifierValueBlockParams, LocalObjectIdentifierValueBlock, LocalObjectIdentifierValueBlockJson } from "./internals/LocalObjectIdentifierValueBlock";
 import { typeStore } from "./TypeStore";
 
 export interface ObjectIdentifierParams extends BaseBlockParams, LocalObjectIdentifierValueBlockParams {}
@@ -49,7 +45,7 @@ export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock,
   public override toJSON(): ObjectIdentifierJson {
     return {
       ...super.toJSON(),
-      value: this.getValue()
+      value: this.getValue(),
     };
   }
 }

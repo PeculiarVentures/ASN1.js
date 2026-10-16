@@ -50,7 +50,7 @@ export function registerFastParser(constructors: FastParserConstructors): void {
   fastParserRegistry = {
     Integer: constructors.Integer,
     Null: constructors.Null,
-    Sequence: constructors.Sequence
+    Sequence: constructors.Sequence,
   };
 }
 
@@ -75,21 +75,12 @@ function fastParserContext(context: FromBerContext): boolean {
   );
 }
 
-function fastParserType(
-  store: typeof typeStore,
-  name: "Integer" | "Null" | "Sequence",
-  value: (new () => AsnType) | undefined
-): boolean {
+function fastParserType(store: typeof typeStore, name: "Integer" | "Null" | "Sequence", value: (new () => AsnType) | undefined): boolean {
   const descriptor = Object.getOwnPropertyDescriptor(store, name);
   return !!descriptor && "value" in descriptor && descriptor.value === value;
 }
 
-function tryFastFromBER(
-  inputBuffer: Uint8Array,
-  inputOffset: number,
-  inputLength: number,
-  context: FromBerContext
-): FromBerResult | undefined {
+function tryFastFromBER(inputBuffer: Uint8Array, inputOffset: number, inputLength: number, context: FromBerContext): FromBerResult | undefined {
   const registry = fastParserRegistry;
   if (!registry) return undefined;
 
@@ -97,12 +88,7 @@ function tryFastFromBER(
   let length = 0;
   try {
     if (Object.getPrototypeOf(inputBuffer) !== Uint8Array.prototype) return undefined;
-    if (
-      !Number.isSafeInteger(inputOffset) ||
-      inputOffset < 0 ||
-      !Number.isSafeInteger(inputLength) ||
-      inputLength < 2
-    ) {
+    if (!Number.isSafeInteger(inputOffset) || inputOffset < 0 || !Number.isSafeInteger(inputLength) || inputLength < 2) {
       return undefined;
     }
     if (inputOffset > inputBuffer.byteLength || inputLength > inputBuffer.byteLength - inputOffset) return undefined;
@@ -168,7 +154,7 @@ export function createFromBerContext(options: FromBerOptions = {}): FromBerConte
     nodesCount: 0,
     maxNodes: options.maxNodes ?? DEFAULT_MAX_NODES,
     maxContentLength: options.maxContentLength ?? DEFAULT_MAX_CONTENT_LENGTH,
-    parseEmbedded: options.parseEmbedded ?? true
+    parseEmbedded: options.parseEmbedded ?? true,
   };
 }
 
@@ -178,7 +164,7 @@ function createErrorResult(error: string): FromBerResult {
 
   return {
     offset: -1,
-    result
+    result,
   };
 }
 
@@ -199,12 +185,7 @@ function checkContentLengthLimit(inputLength: number, context: FromBerContext): 
   return undefined;
 }
 
-export function localFromBERWithChildContext(
-  inputBuffer: Uint8Array,
-  inputOffset: number,
-  inputLength: number,
-  context: FromBerContext
-): FromBerResult {
+export function localFromBERWithChildContext(inputBuffer: Uint8Array, inputOffset: number, inputLength: number, context: FromBerContext): FromBerResult {
   const childDepth = context.depth + 1;
   if (childDepth > context.maxDepth) {
     return createErrorResult(MAX_DEPTH_EXCEEDED_ERROR);
@@ -246,12 +227,7 @@ function localChangeType<T extends BaseBlock>(inputObject: BaseBlock, newType: n
  * @param inputLength Maximum length of array of bytes which can be using in this function
  * @returns
  */
-export function localFromBER(
-  inputBuffer: Uint8Array,
-  inputOffset = 0,
-  inputLength = inputBuffer.length,
-  context: FromBerContext = createFromBerContext()
-): FromBerResult {
+export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLength = inputBuffer.length, context: FromBerContext = createFromBerContext()): FromBerResult {
   const fastResult = tryFastFromBER(inputBuffer, inputOffset, inputLength, context);
   if (fastResult) return fastResult;
 
@@ -264,7 +240,7 @@ export function localFromBER(
   if (!checkBufferParams(returnObject, inputBuffer, inputOffset, inputLength)) {
     return {
       offset: -1,
-      result: returnObject
+      result: returnObject,
     };
   }
 
@@ -275,7 +251,7 @@ export function localFromBER(
 
     return {
       offset: -1,
-      result: returnObject
+      result: returnObject,
     };
   }
 
@@ -285,7 +261,7 @@ export function localFromBER(
 
     return {
       offset: -1,
-      result: returnObject
+      result: returnObject,
     };
   }
 
@@ -300,7 +276,7 @@ export function localFromBER(
 
     return {
       offset: -1,
-      result: returnObject
+      result: returnObject,
     };
   }
   // console.timeEnd("idBlock");
@@ -319,7 +295,7 @@ export function localFromBER(
 
     return {
       offset: -1,
-      result: returnObject
+      result: returnObject,
     };
   }
   // console.timeEnd("lengthBlock");
@@ -334,7 +310,7 @@ export function localFromBER(
 
     return {
       offset: -1,
-      result: returnObject
+      result: returnObject,
     };
   }
 
@@ -344,7 +320,7 @@ export function localFromBER(
 
     return {
       offset: -1,
-      result: returnObject
+      result: returnObject,
     };
   }
 
@@ -360,7 +336,7 @@ export function localFromBER(
 
         return {
           offset: -1,
-          result: returnObject
+          result: returnObject,
         };
       }
       switch (returnObject.idBlock.tagNumber) {
@@ -371,7 +347,7 @@ export function localFromBER(
 
             return {
               offset: -1,
-              result: returnObject
+              result: returnObject,
             };
           }
 
@@ -413,7 +389,7 @@ export function localFromBER(
 
           return {
             offset: -1,
-            result: returnObject
+            result: returnObject,
           };
         case 16: // Sequence
           newASN1Type = typeStore.Sequence;
@@ -473,9 +449,7 @@ export function localFromBER(
           newASN1Type = typeStore.Duration;
           break;
         default: {
-          const newObject = returnObject.idBlock.isConstructed
-            ? new typeStore.Constructed()
-            : new typeStore.Primitive();
+          const newObject = returnObject.idBlock.isConstructed ? new typeStore.Constructed() : new typeStore.Primitive();
 
           newObject.idBlock = returnObject.idBlock;
           newObject.lenBlock = returnObject.lenBlock;
@@ -505,7 +479,7 @@ export function localFromBER(
 
   return {
     offset: resultOffset,
-    result: returnObject
+    result: returnObject,
   };
 }
 
@@ -521,7 +495,7 @@ export function fromBER(inputBuffer: pvtsutils.BufferSource, options: FromBerOpt
 
     return {
       offset: -1,
-      result
+      result,
     };
   }
 

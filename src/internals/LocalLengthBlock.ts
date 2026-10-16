@@ -168,7 +168,7 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
       ...super.toJSON(),
       isIndefiniteForm: this.isIndefiniteForm,
       longFormUsed: this.longFormUsed,
-      length: this.length
+      length: this.length,
     };
   }
 }

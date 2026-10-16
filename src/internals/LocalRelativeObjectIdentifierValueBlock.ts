@@ -9,11 +9,9 @@ export interface ILocalRelativeObjectIdentifierValueBlock {
   value: string;
 }
 
-export interface LocalRelativeObjectIdentifierValueBlockParams
-  extends ValueBlockParams, Partial<ILocalRelativeObjectIdentifierValueBlock> {}
+export interface LocalRelativeObjectIdentifierValueBlockParams extends ValueBlockParams, Partial<ILocalRelativeObjectIdentifierValueBlock> {}
 
-export interface LocalRelativeObjectIdentifierValueBlockJson
-  extends ValueBlockJson, ILocalRelativeObjectIdentifierValueBlock {
+export interface LocalRelativeObjectIdentifierValueBlockJson extends ValueBlockJson, ILocalRelativeObjectIdentifierValueBlock {
   sidArray: LocalRelativeSidValueBlockJson[];
 }
 
@@ -118,7 +116,7 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
     const object: LocalRelativeObjectIdentifierValueBlockJson = {
       ...super.toJSON(),
       value: this.toString(),
-      sidArray: []
+      sidArray: [],
     };
 
     for (let i = 0; i < this.value.length; i++) object.sidArray.push(this.value[i].toJSON());

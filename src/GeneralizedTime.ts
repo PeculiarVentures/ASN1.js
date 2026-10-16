@@ -36,15 +36,7 @@ export class GeneralizedTime extends UTCTime {
   }
 
   public override toDate(): Date {
-    const utcDate = Date.UTC(
-      this.year,
-      this.month - 1,
-      this.day,
-      this.hour,
-      this.minute,
-      this.second,
-      this.millisecond
-    );
+    const utcDate = Date.UTC(this.year, this.month - 1, this.day, this.hour, this.minute, this.second, this.millisecond);
     return new Date(utcDate);
   }
 
@@ -96,8 +88,7 @@ export class GeneralizedTime extends UTCTime {
         differenceString = timeString.substring(differencePosition + 1);
         timeString = timeString.substring(0, differencePosition);
 
-        if (differenceString.length !== 2 && differenceString.length !== 4)
-          throw new Error("Wrong input string for conversion");
+        if (differenceString.length !== 2 && differenceString.length !== 4) throw new Error("Wrong input string for conversion");
 
         let number = parseInt(differenceString.substring(0, 2), 10);
 
@@ -247,7 +238,7 @@ export class GeneralizedTime extends UTCTime {
   public override toJSON(): GeneralizedTimeJson {
     return {
       ...super.toJSON(),
-      millisecond: this.millisecond
+      millisecond: this.millisecond,
     };
   }
 }

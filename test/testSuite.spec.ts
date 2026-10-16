@@ -14,17 +14,9 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc1.ber")));
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
     assert.equal(asn1.result.idBlock.tagNumber, -1, "Tag number must be set to default value -1");
-    assert.equal(
-      asn1.result.idBlock.valueHexView.byteLength,
-      10,
-      "Hexadecimal representation of ID block must has 10 in length"
-    );
+    assert.equal(asn1.result.idBlock.valueHexView.byteLength, 10, "Hexadecimal representation of ID block must has 10 in length");
     assert.equal(asn1.result.idBlock.warnings.length, 1, "Should just one warning in ID block");
-    assert.equal(
-      asn1.result.idBlock.warnings[0],
-      "Tag too long, represented as hex-coded",
-      "Text of the warning in ID block does not match"
-    );
+    assert.equal(asn1.result.idBlock.warnings[0], "Tag too long, represented as hex-coded", "Text of the warning in ID block does not match");
   });
 
   it("Test Case #2", () => {
@@ -32,11 +24,7 @@ describe("ASN.1:2008 TestSuite Tests", () => {
 
     assert.equal(asn1.offset, -1, "Initial ASN.1 should be parsed with error");
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
-    assert.equal(
-      asn1.result.error,
-      "End of input reached before message was fully decoded",
-      "Error message does not match"
-    );
+    assert.equal(asn1.result.error, "End of input reached before message was fully decoded", "Error message does not match");
   });
 
   it("Test Case #3", () => {
@@ -56,11 +44,7 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
     assert.equal(asn1.result.error, "Length block 0xFF is reserved by standard", "Error message does not match");
     assert.equal("error" in asn1.result.lenBlock, true, "Error information must exists inside ASN.1 length block");
-    assert.equal(
-      asn1.result.lenBlock.error,
-      "Length block 0xFF is reserved by standard",
-      "Error message inside length block does not match"
-    );
+    assert.equal(asn1.result.lenBlock.error, "Length block 0xFF is reserved by standard", "Error message inside length block does not match");
   });
 
   it("Test Case #5", () => {
@@ -70,11 +54,7 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     assert.equal(asn1.result.lenBlock.length, 1, "Length must be equal to 1");
     assert.equal(asn1.result.lenBlock.longFormUsed, true, "Long form of length encoding must be detected");
     assert.equal(asn1.result.lenBlock.warnings.length, 1, "Should just one warning in length block");
-    assert.equal(
-      asn1.result.lenBlock.warnings[0],
-      "Unnecessary usage of long length form",
-      "Text of the warning in length block does not match"
-    );
+    assert.equal(asn1.result.lenBlock.warnings[0], "Unnecessary usage of long length form", "Text of the warning in length block does not match");
   });
 
   it("Test Case #6", () => {
@@ -156,11 +136,7 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     assert.ok(asn1.result instanceof asn1js.Integer, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.valueBlock.valueDec, -4095, "Value block value must be equal to -4095");
     assert.equal(asn1.result.valueBlock.warnings.length, 1, "Should just one warning in value block");
-    assert.equal(
-      asn1.result.valueBlock.warnings[0],
-      "Needlessly long format",
-      "Text of the warning in length block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.warnings[0], "Needlessly long format", "Text of the warning in length block does not match");
   });
 
   it("Test Case #19", () => {
@@ -168,17 +144,9 @@ describe("ASN.1:2008 TestSuite Tests", () => {
 
     assert.equal(asn1.offset, -1, "Initial ASN.1 should be parsed with error");
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
-    assert.equal(
-      asn1.result.error,
-      "End of input reached before message was fully decoded (inconsistent offset and length values)",
-      "Error message does not match"
-    );
+    assert.equal(asn1.result.error, "End of input reached before message was fully decoded (inconsistent offset and length values)", "Error message does not match");
     assert.equal("error" in asn1.result.valueBlock, true, "Error information must exists inside ASN.1 value block");
-    assert.equal(
-      asn1.result.valueBlock.error,
-      "End of input reached before message was fully decoded (inconsistent offset and length values)",
-      "Error message inside value block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.error, "End of input reached before message was fully decoded (inconsistent offset and length values)", "Error message inside value block does not match");
   });
 
   it("Test Case #20", () => {
@@ -188,11 +156,7 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     assert.ok(asn1.result instanceof asn1js.Integer, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.valueBlock.isHexOnly, true, 'Value block value must be "hex only"');
     assert.equal(asn1.result.valueBlock.warnings.length, 1, "Should just one warning in value block");
-    assert.equal(
-      asn1.result.valueBlock.warnings[0],
-      "Too big Integer for decoding, hex only",
-      "Text of the warning in length block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.warnings[0], "Too big Integer for decoding, hex only", "Text of the warning in length block does not match");
     assert.equal(asn1.result.valueBlock.valueHexView.byteLength, 9, "Value block hex value must be 9 in length");
   });
 
@@ -200,23 +164,12 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc21.ber")));
 
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
-    assert.ok(
-      asn1.result instanceof asn1js.ObjectIdentifier,
-      `asn1.result type is incorrect '${asn1.result.constructor.name}'`
-    );
+    assert.ok(asn1.result instanceof asn1js.ObjectIdentifier, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.valueBlock.value[0].warnings.length, 1, "Should just one warning in value block");
-    assert.equal(
-      asn1.result.valueBlock.value[0].warnings[0],
-      "Needlessly long format of SID encoding",
-      "Text of the warning in SID block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.value[0].warnings[0], "Needlessly long format of SID encoding", "Text of the warning in SID block does not match");
     assert.equal(asn1.result.valueBlock.value[0].valueDec, 81, "First SID block must has value 81");
     assert.equal(asn1.result.valueBlock.value[1].warnings.length, 1, "Should just one warning in value block");
-    assert.equal(
-      asn1.result.valueBlock.value[1].warnings[0],
-      "Needlessly long format of SID encoding",
-      "Text of the warning in SID block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.value[1].warnings[0], "Needlessly long format of SID encoding", "Text of the warning in SID block does not match");
     assert.equal(asn1.result.valueBlock.value[1].valueDec, 1, "First SID block must has value 1");
   });
 
@@ -224,21 +177,10 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc22.ber")));
 
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
-    assert.ok(
-      asn1.result instanceof asn1js.ObjectIdentifier,
-      `asn1.result type is incorrect '${asn1.result.constructor.name}'`
-    );
+    assert.ok(asn1.result instanceof asn1js.ObjectIdentifier, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.valueBlock.value[0].warnings.length, 1, "Should just one warning in value block");
-    assert.equal(
-      asn1.result.valueBlock.value[0].warnings[0],
-      "Too big SID for decoding, hex only",
-      "Text of the warning in SID block does not match"
-    );
-    assert.equal(
-      asn1.result.valueBlock.value[0].valueHexView.byteLength,
-      11,
-      "Hex buffer for first SID value must be 11 in length"
-    );
+    assert.equal(asn1.result.valueBlock.value[0].warnings[0], "Too big SID for decoding, hex only", "Text of the warning in SID block does not match");
+    assert.equal(asn1.result.valueBlock.value[0].valueHexView.byteLength, 11, "Hex buffer for first SID value must be 11 in length");
     assert.equal(asn1.result.valueBlock.value[0].isHexOnly, true, 'First SID value must be "hex only"');
   });
 
@@ -247,17 +189,9 @@ describe("ASN.1:2008 TestSuite Tests", () => {
 
     assert.equal(asn1.offset, -1, "Initial ASN.1 should be parsed with error");
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
-    assert.equal(
-      asn1.result.error,
-      "End of input reached before message was fully decoded (inconsistent offset and length values)",
-      "Error message does not match"
-    );
+    assert.equal(asn1.result.error, "End of input reached before message was fully decoded (inconsistent offset and length values)", "Error message does not match");
     assert.equal("error" in asn1.result.valueBlock, true, "Error information must exists inside ASN.1 value block");
-    assert.equal(
-      asn1.result.valueBlock.error,
-      "End of input reached before message was fully decoded (inconsistent offset and length values)",
-      "Error message inside value block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.error, "End of input reached before message was fully decoded (inconsistent offset and length values)", "Error message inside value block does not match");
   });
 
   it("Test Case #24", () => {
@@ -274,16 +208,8 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
     assert.ok(asn1.result instanceof asn1js.Boolean, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.valueBlock.warnings.length, 2, "Should just two warnings in value block");
-    assert.equal(
-      asn1.result.valueBlock.warnings[0],
-      "Boolean value encoded in more then 1 octet",
-      "Text of the warning value block does not match"
-    );
-    assert.equal(
-      asn1.result.valueBlock.warnings[1],
-      "Needlessly long format",
-      "Text of the warning value block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.warnings[0], "Boolean value encoded in more then 1 octet", "Text of the warning value block does not match");
+    assert.equal(asn1.result.valueBlock.warnings[1], "Needlessly long format", "Text of the warning value block does not match");
     assert.equal(asn1.result.valueBlock.value, false, 'Boolean value must be "false"');
   });
 
@@ -293,16 +219,8 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
     assert.ok(asn1.result instanceof asn1js.Boolean, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.valueBlock.warnings.length, 2, "Should just two warnings in value block");
-    assert.equal(
-      asn1.result.valueBlock.warnings[0],
-      "Boolean value encoded in more then 1 octet",
-      "Text of the warning value block does not match"
-    );
-    assert.equal(
-      asn1.result.valueBlock.warnings[1],
-      "Needlessly long format",
-      "Text of the warning value block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.warnings[0], "Boolean value encoded in more then 1 octet", "Text of the warning value block does not match");
+    assert.equal(asn1.result.valueBlock.warnings[1], "Needlessly long format", "Text of the warning value block does not match");
     assert.equal(asn1.result.valueBlock.value, true, 'Boolean value must be "true"');
   });
 
@@ -311,17 +229,9 @@ describe("ASN.1:2008 TestSuite Tests", () => {
 
     assert.equal(asn1.offset, -1, "Initial ASN.1 should be parsed with error");
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
-    assert.equal(
-      asn1.result.error,
-      "End of input reached before message was fully decoded (inconsistent offset and length values)",
-      "Error message does not match"
-    );
+    assert.equal(asn1.result.error, "End of input reached before message was fully decoded (inconsistent offset and length values)", "Error message does not match");
     assert.equal("error" in asn1.result.valueBlock, true, "Error information must exists inside ASN.1 value block");
-    assert.equal(
-      asn1.result.valueBlock.error,
-      "End of input reached before message was fully decoded (inconsistent offset and length values)",
-      "Error message inside value block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.error, "End of input reached before message was fully decoded (inconsistent offset and length values)", "Error message inside value block does not match");
   });
 
   it("Test Case #28", () => {
@@ -350,11 +260,7 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
     assert.ok(asn1.result instanceof asn1js.Null, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.warnings.length, 1, "Should just one warning");
-    assert.equal(
-      asn1.result.warnings[0],
-      "Non-zero length of value block for Null type",
-      "Text of the warning does not match"
-    );
+    assert.equal(asn1.result.warnings[0], "Non-zero length of value block for Null type", "Text of the warning does not match");
   });
 
   it("Test Case #31", () => {
@@ -362,11 +268,7 @@ describe("ASN.1:2008 TestSuite Tests", () => {
 
     assert.equal(asn1.offset, -1, "Initial ASN.1 should be parsed with error");
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
-    assert.equal(
-      asn1.result.error,
-      "End of input reached before message was fully decoded (inconsistent offset and length values)",
-      "Error message does not match"
-    );
+    assert.equal(asn1.result.error, "End of input reached before message was fully decoded (inconsistent offset and length values)", "Error message does not match");
   });
 
   it("Test Case #32", () => {
@@ -390,11 +292,7 @@ describe("ASN.1:2008 TestSuite Tests", () => {
 
     assert.equal(asn1.offset, -1, "Initial ASN.1 should be parsed with error");
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
-    assert.equal(
-      asn1.result.error,
-      "End of input reached before message was fully decoded (inconsistent offset and length values)",
-      "Error message does not match"
-    );
+    assert.equal(asn1.result.error, "End of input reached before message was fully decoded (inconsistent offset and length values)", "Error message does not match");
   });
 
   it("Test Case #35", () => {
@@ -404,11 +302,7 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
     assert.equal(asn1.result.error, "BIT STRING may consists of BIT STRINGs only", "Error message does not match");
     assert.equal("error" in asn1.result.valueBlock, true, "Error information must exists inside ASN.1 value block");
-    assert.equal(
-      asn1.result.valueBlock.error,
-      "BIT STRING may consists of BIT STRINGs only",
-      "Error message inside value block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.error, "BIT STRING may consists of BIT STRINGs only", "Error message inside value block does not match");
   });
 
   it("Test Case #36", () => {
@@ -416,61 +310,36 @@ describe("ASN.1:2008 TestSuite Tests", () => {
 
     assert.equal(asn1.offset, -1, "Initial ASN.1 should be parsed with error");
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
-    assert.equal(
-      asn1.result.error,
-      'Using of "unused bits" inside constructive BIT STRING allowed for least one only',
-      "Error message does not match"
-    );
+    assert.equal(asn1.result.error, 'Using of "unused bits" inside constructive BIT STRING allowed for least one only', "Error message does not match");
     assert.equal("error" in asn1.result.valueBlock, true, "Error information must exists inside ASN.1 value block");
-    assert.equal(
-      asn1.result.valueBlock.error,
-      'Using of "unused bits" inside constructive BIT STRING allowed for least one only',
-      "Error message inside value block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.error, 'Using of "unused bits" inside constructive BIT STRING allowed for least one only', "Error message inside value block does not match");
   });
 
   it("Test Case #37", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc37.ber")));
 
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
-    assert.ok(
-      asn1.result instanceof asn1js.BitString,
-      `asn1.result type is incorrect '${asn1.result.constructor.name}'`
-    );
+    assert.ok(asn1.result instanceof asn1js.BitString, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.warnings.length, 0, "Should be no warnings");
     assert.equal(asn1.result.error.length, 0, "Should be no errors");
-    assert.equal(
-      asn1.result.valueBlock.isIndefiniteForm,
-      false,
-      'Form of encoding for value block must be "indefinite = false"'
-    );
+    assert.equal(asn1.result.valueBlock.isIndefiniteForm, false, 'Form of encoding for value block must be "indefinite = false"');
   });
 
   it("Test Case #38", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc38.ber")));
 
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
-    assert.ok(
-      asn1.result instanceof asn1js.BitString,
-      `asn1.result type is incorrect '${asn1.result.constructor.name}'`
-    );
+    assert.ok(asn1.result instanceof asn1js.BitString, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.warnings.length, 0, "Should be no warnings");
     assert.equal(asn1.result.error.length, 0, "Should be no errors");
-    assert.equal(
-      asn1.result.valueBlock.isIndefiniteForm,
-      true,
-      'Form of encoding for value block must be "indefinite"'
-    );
+    assert.equal(asn1.result.valueBlock.isIndefiniteForm, true, 'Form of encoding for value block must be "indefinite"');
   });
 
   it("Test Case #39", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc39.ber")));
 
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
-    assert.ok(
-      asn1.result instanceof asn1js.BitString,
-      `asn1.result type is incorrect '${asn1.result.constructor.name}'`
-    );
+    assert.ok(asn1.result instanceof asn1js.BitString, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.warnings.length, 0, "Should be no warnings");
     assert.equal(asn1.result.error.length, 0, "Should be no errors");
     assert.equal(asn1.result.idBlock.isConstructed, true, "Constructed form of encoding must be found");
@@ -481,10 +350,7 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc40.ber")));
 
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
-    assert.ok(
-      asn1.result instanceof asn1js.BitString,
-      `asn1.result type is incorrect '${asn1.result.constructor.name}'`
-    );
+    assert.ok(asn1.result instanceof asn1js.BitString, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.warnings.length, 0, "Should be no warnings");
     assert.equal(asn1.result.error.length, 0, "Should be no errors");
     assert.equal(asn1.result.idBlock.isConstructed, false, "Primitive form of encoding must be found");
@@ -498,33 +364,18 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
     assert.equal(asn1.result.error, "OCTET STRING may consists of OCTET STRINGs only", "Error message does not match");
     assert.equal("error" in asn1.result.valueBlock, true, "Error information must exists inside ASN.1 value block");
-    assert.equal(
-      asn1.result.valueBlock.error,
-      "OCTET STRING may consists of OCTET STRINGs only",
-      "Error message inside value block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.error, "OCTET STRING may consists of OCTET STRINGs only", "Error message inside value block does not match");
   });
 
   it("Test Case #42", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc42.ber")));
 
     assert.equal(asn1.offset, -1, "Initial ASN.1 should be parsed with error");
-    assert.ok(
-      asn1.result instanceof asn1js.OctetString,
-      `asn1.result type is incorrect '${asn1.result.constructor.name}'`
-    );
+    assert.ok(asn1.result instanceof asn1js.OctetString, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
-    assert.equal(
-      asn1.result.error,
-      "End of input reached before message was fully decoded (inconsistent offset and length values)",
-      "Error message does not match"
-    );
+    assert.equal(asn1.result.error, "End of input reached before message was fully decoded (inconsistent offset and length values)", "Error message does not match");
     assert.equal("error" in asn1.result.valueBlock, true, "Error information must exists inside ASN.1 value block");
-    assert.equal(
-      asn1.result.valueBlock.error,
-      "End of input reached before message was fully decoded (inconsistent offset and length values)",
-      "Error message inside value block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.error, "End of input reached before message was fully decoded (inconsistent offset and length values)", "Error message inside value block does not match");
 
     assert.equal(asn1.result.idBlock.isConstructed, true, "ID block must indicate constructed encoding");
     assert.equal(asn1.result.valueBlock.isConstructed, true, "Value block must indicate constructed encoding");
@@ -534,22 +385,11 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc43.ber")));
 
     assert.equal(asn1.offset, -1, "Initial ASN.1 should be parsed with error");
-    assert.ok(
-      asn1.result instanceof asn1js.OctetString,
-      `asn1.result type is incorrect '${asn1.result.constructor.name}'`
-    );
+    assert.ok(asn1.result instanceof asn1js.OctetString, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
-    assert.equal(
-      asn1.result.error,
-      "End of input reached before message was fully decoded (inconsistent offset and length values)",
-      "Error message does not match"
-    );
+    assert.equal(asn1.result.error, "End of input reached before message was fully decoded (inconsistent offset and length values)", "Error message does not match");
     assert.equal("error" in asn1.result.valueBlock, true, "Error information must exists inside ASN.1 value block");
-    assert.equal(
-      asn1.result.valueBlock.error,
-      "End of input reached before message was fully decoded (inconsistent offset and length values)",
-      "Error message inside value block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.error, "End of input reached before message was fully decoded (inconsistent offset and length values)", "Error message inside value block does not match");
 
     assert.equal(asn1.result.idBlock.isConstructed, false, "ID block must indicate primitive encoding");
     assert.equal(asn1.result.valueBlock.isConstructed, false, "Value block must indicate primitive encoding");
@@ -559,10 +399,7 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc44.ber")));
 
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
-    assert.ok(
-      asn1.result instanceof asn1js.OctetString,
-      `asn1.result type is incorrect '${asn1.result.constructor.name}'`
-    );
+    assert.ok(asn1.result instanceof asn1js.OctetString, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.warnings.length, 0, "Should be no warnings");
     assert.equal(asn1.result.error.length, 0, "Should be no errors");
     assert.equal(asn1.result.idBlock.isConstructed, false, "Primitive form of encoding must be found");
@@ -573,10 +410,7 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc45.ber")));
 
     assert.notEqual(asn1.offset, -1, "Initial ASN.1 parsed unsuccessfully");
-    assert.ok(
-      asn1.result instanceof asn1js.OctetString,
-      `asn1.result type is incorrect '${asn1.result.constructor.name}'`
-    );
+    assert.ok(asn1.result instanceof asn1js.OctetString, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal(asn1.result.warnings.length, 0, "Should be no warnings");
     assert.equal(asn1.result.error.length, 0, "Should be no errors");
     assert.equal(asn1.result.idBlock.isConstructed, true, "Constructive form of encoding must be found");
@@ -588,11 +422,7 @@ describe("ASN.1:2008 TestSuite Tests", () => {
 
     assert.equal(asn1.offset, -1, "Initial ASN.1 should be parsed with error");
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
-    assert.equal(
-      asn1.result.error,
-      "Indefinite length form used for primitive encoding form",
-      "Error message does not match"
-    );
+    assert.equal(asn1.result.error, "Indefinite length form used for primitive encoding form", "Error message does not match");
     assert.equal(asn1.result.lenBlock.isIndefiniteForm, true, 'Length block must indicate "indefinite" form was using');
     assert.equal(asn1.result.idBlock.isConstructed, false, "ID block must indicate primitive encoding");
   });
@@ -601,47 +431,25 @@ describe("ASN.1:2008 TestSuite Tests", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc47.ber")));
 
     assert.equal(asn1.offset, -1, "Initial ASN.1 should be parsed with error");
-    assert.ok(
-      asn1.result instanceof asn1js.BitString,
-      `asn1.result type is incorrect '${asn1.result.constructor.name}'`
-    );
+    assert.ok(asn1.result instanceof asn1js.BitString, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
-    assert.equal(
-      asn1.result.error,
-      "EndOfContent is unexpected, BIT STRING may consists of BIT STRINGs only",
-      "Error message does not match"
-    );
+    assert.equal(asn1.result.error, "EndOfContent is unexpected, BIT STRING may consists of BIT STRINGs only", "Error message does not match");
     assert.equal("error" in asn1.result.valueBlock, true, "Error information must exists inside ASN.1 value block");
-    assert.equal(
-      asn1.result.valueBlock.error,
-      "EndOfContent is unexpected, BIT STRING may consists of BIT STRINGs only",
-      "Error message inside value block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.error, "EndOfContent is unexpected, BIT STRING may consists of BIT STRINGs only", "Error message inside value block does not match");
 
     assert.equal(asn1.result.valueBlock.value.length, 4, "Value block must have 4 values");
-    assert.equal(
-      (asn1.result.valueBlock.value[1].constructor as typeof asn1js.EndOfContent).NAME,
-      asn1js.EndOfContent.blockName(),
-      'Second value in value block must be "EndOfContent"'
-    );
+    assert.equal((asn1.result.valueBlock.value[1].constructor as typeof asn1js.EndOfContent).NAME, asn1js.EndOfContent.blockName(), 'Second value in value block must be "EndOfContent"');
   });
 
   it("Test Case #48", () => {
     const asn1 = asn1js.fromBER(fs.readFileSync(path.join(testDir, "tc48.ber")));
 
     assert.equal(asn1.offset, -1, "Initial ASN.1 should be parsed with error");
-    assert.ok(
-      asn1.result instanceof asn1js.BitString,
-      `asn1.result type is incorrect '${asn1.result.constructor.name}'`
-    );
+    assert.ok(asn1.result instanceof asn1js.BitString, `asn1.result type is incorrect '${asn1.result.constructor.name}'`);
     assert.equal("error" in asn1.result, true, "Error information must exists inside ASN.1 result");
     assert.equal(asn1.result.error, "Unused bits for BitString must be in range 0-7", "Error message does not match");
     assert.equal("error" in asn1.result.valueBlock, true, "Error information must exists inside ASN.1 value block");
-    assert.equal(
-      asn1.result.valueBlock.error,
-      "Unused bits for BitString must be in range 0-7",
-      "Error message inside value block does not match"
-    );
+    assert.equal(asn1.result.valueBlock.error, "Unused bits for BitString must be in range 0-7", "Error message inside value block does not match");
 
     assert.equal(asn1.result.idBlock.isConstructed, true, "ID block must indicate constructive encoding");
     assert.equal(asn1.result.valueBlock.value.length, 2, "Value block must have 2 values");

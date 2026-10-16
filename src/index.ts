@@ -4,14 +4,7 @@ export * from "./types";
 export { ViewWriter } from "./ViewWriter";
 export * from "./HexBlock";
 export * from "./ValueBlock";
-export {
-  BaseBlock,
-  IBaseBlock,
-  BaseBlockParams,
-  ValueBlockConstructor,
-  BaseBlockJson,
-  StringEncoding
-} from "./BaseBlock";
+export { BaseBlock, IBaseBlock, BaseBlockParams, ValueBlockConstructor, BaseBlockJson, StringEncoding } from "./BaseBlock";
 export * from "./BaseStringBlock";
 
 export * from "./Primitive";
@@ -61,14 +54,7 @@ export * from "./Repeated";
 // special
 export * from "./RawData";
 
-export {
-  DEFAULT_MAX_CONTENT_LENGTH,
-  DEFAULT_MAX_DEPTH,
-  DEFAULT_MAX_NODES,
-  FromBerOptions,
-  FromBerResult,
-  fromBER
-} from "./parser";
+export { DEFAULT_MAX_CONTENT_LENGTH, DEFAULT_MAX_DEPTH, DEFAULT_MAX_NODES, FromBerOptions, FromBerResult, fromBER } from "./parser";
 export * from "./schema";
 export { AsnType } from "./TypeStore";
 
@@ -113,7 +99,7 @@ registerBuiltinEncoder(
     originalOctetStringToBER: ORIGINAL_LOCAL_OCTET_STRING_TO_BER,
     originalBitStringToBER: ORIGINAL_LOCAL_BIT_STRING_TO_BER,
     originalConstructedToBER: ORIGINAL_LOCAL_CONSTRUCTED_TO_BER,
-    originalPrimitiveToBER: ORIGINAL_LOCAL_PRIMITIVE_TO_BER
-  }
+    originalPrimitiveToBER: ORIGINAL_LOCAL_PRIMITIVE_TO_BER,
+  },
 );
 registerFastParser({ Integer, Null, Sequence });

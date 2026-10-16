@@ -8,8 +8,7 @@ export interface ILocalObjectIdentifierValueBlock {
   value: string;
 }
 
-export interface LocalObjectIdentifierValueBlockParams
-  extends ValueBlockParams, Partial<ILocalObjectIdentifierValueBlock> {}
+export interface LocalObjectIdentifierValueBlockParams extends ValueBlockParams, Partial<ILocalObjectIdentifierValueBlock> {}
 
 export interface LocalObjectIdentifierValueBlockJson extends ValueBlockJson, ILocalObjectIdentifierValueBlock {
   sidArray: LocalSidValueBlockJson[];
@@ -164,7 +163,7 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
     const object: LocalObjectIdentifierValueBlockJson = {
       ...super.toJSON(),
       value: this.toString(),
-      sidArray: []
+      sidArray: [],
     };
 
     for (let i = 0; i < this.value.length; i++) {

@@ -10,8 +10,7 @@ export interface ILocalRelativeSidValueBlock {
   valueDec: number;
 }
 
-export interface LocalRelativeSidValueBlockParams
-  extends HexBlockParams, ValueBlockParams, Partial<ILocalRelativeSidValueBlock> {}
+export interface LocalRelativeSidValueBlockParams extends HexBlockParams, ValueBlockParams, Partial<ILocalRelativeSidValueBlock> {}
 
 export interface LocalRelativeSidValueBlockJson extends HexBlockJson, ValueBlockJson, ILocalRelativeSidValueBlock {}
 
@@ -133,7 +132,7 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
   public override toJSON(): LocalRelativeSidValueBlockJson {
     return {
       ...super.toJSON(),
-      valueDec: this.valueDec
+      valueDec: this.valueDec,
     };
   }
 }

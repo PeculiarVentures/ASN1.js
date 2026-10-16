@@ -169,7 +169,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
     return {
       ...super.toJSON(),
       valueDec: this.valueDec,
-      isFirstSid: this.isFirstSid
+      isFirstSid: this.isFirstSid,
     };
   }
 }

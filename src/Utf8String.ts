@@ -1,10 +1,6 @@
 import { BaseBlockJson } from "./BaseBlock";
 import { BaseStringBlockParams } from "./BaseStringBlock";
-import {
-  LocalUtf8StringValueBlockParams,
-  LocalUtf8StringValueBlock,
-  LocalUtf8StringValueBlockJson
-} from "./internals/LocalUtf8StringValueBlock";
+import { LocalUtf8StringValueBlockParams, LocalUtf8StringValueBlock, LocalUtf8StringValueBlockJson } from "./internals/LocalUtf8StringValueBlock";
 import { typeStore } from "./TypeStore";
 
 export interface Utf8StringParams extends BaseStringBlockParams, LocalUtf8StringValueBlockParams {}

@@ -65,12 +65,7 @@ export class LocalBaseBlock implements ILocalBaseBlock {
    * Creates and initializes an object instance of that class
    * @param param0 Initialization parameters
    */
-  constructor({
-    blockLength = 0,
-    error = EMPTY_STRING,
-    warnings = [],
-    valueBeforeDecode = EMPTY_VIEW
-  }: LocalBaseBlockParams = {}) {
+  constructor({ blockLength = 0, error = EMPTY_STRING, warnings = [], valueBeforeDecode = EMPTY_VIEW }: LocalBaseBlockParams = {}) {
     this.blockLength = blockLength;
     this.error = error;
     this.warnings = warnings;
@@ -87,7 +82,7 @@ export class LocalBaseBlock implements ILocalBaseBlock {
       blockLength: this.blockLength,
       error: this.error,
       warnings: this.warnings,
-      valueBeforeDecode: pvtsutils.Convert.ToHex(this.valueBeforeDecodeView)
+      valueBeforeDecode: pvtsutils.Convert.ToHex(this.valueBeforeDecodeView),
     };
   }
 }

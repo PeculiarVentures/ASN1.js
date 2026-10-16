@@ -52,7 +52,7 @@ describe("built-in BER encoder dispatch heuristic", () => {
       get: () => {
         headerReads += 1;
         return descriptor && "value" in descriptor ? descriptor.value : undefined;
-      }
+      },
     });
     try {
       assert.strictEqual(shouldUseBuiltinEncoder(multiChild), false);
@@ -116,7 +116,7 @@ describe("built-in BER encoder dispatch heuristic", () => {
       get: () => {
         blockReads += 1;
         return valueBlock;
-      }
+      },
     });
     try {
       assert.strictEqual(shouldUseBuiltinEncoder(value), false);
@@ -134,7 +134,7 @@ describe("built-in BER encoder dispatch heuristic", () => {
       get: () => {
         payloadReads += 1;
         return payloadView;
-      }
+      },
     });
     try {
       assert.strictEqual(shouldUseBuiltinEncoder(payload), false);
@@ -152,7 +152,7 @@ describe("built-in BER encoder dispatch heuristic", () => {
       get: () => {
         indexReads += 1;
         return indexDescriptor && "value" in indexDescriptor ? indexDescriptor.value : undefined;
-      }
+      },
     });
     try {
       assert.strictEqual(shouldUseBuiltinEncoder(indexed), false);
@@ -170,7 +170,7 @@ describe("built-in BER encoder dispatch heuristic", () => {
       get: () => {
         typedArrayReads += 1;
         return DISPATCH_THRESHOLD;
-      }
+      },
     });
     try {
       assert.strictEqual(shouldUseBuiltinEncoder(typedArray), true);
@@ -199,7 +199,7 @@ describe("built-in BER encoder dispatch heuristic", () => {
       get byteLength(): number {
         fakeReads += 1;
         return DISPATCH_THRESHOLD;
-      }
+      },
     };
     const fakeValue = octet(1);
     fakeValue.valueBlock.valueHexView = fakePayload as unknown as Uint8Array;
@@ -222,7 +222,7 @@ describe("built-in BER encoder dispatch heuristic", () => {
         reads += 1;
         view[0] = 0x22;
         return realByteLength;
-      }
+      },
     });
     try {
       assert.strictEqual(shouldUseBuiltinEncoder(value), true);

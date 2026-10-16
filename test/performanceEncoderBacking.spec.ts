@@ -31,7 +31,7 @@ function installMutatingByteLengthGetter(value: OctetString): { readonly reads: 
       reads += 1;
       view[0] = 0x22;
       return realByteLength;
-    }
+    },
   });
 
   return {
@@ -41,7 +41,7 @@ function installMutatingByteLengthGetter(value: OctetString): { readonly reads: 
     restore: () => {
       if (originalDescriptor) Object.defineProperty(buffer, "byteLength", originalDescriptor);
       else Reflect.deleteProperty(buffer, "byteLength");
-    }
+    },
   };
 }
 
@@ -52,7 +52,7 @@ function installOwnByteLengthDataProperty(value: OctetString): () => void {
 
   Object.defineProperty(buffer, "byteLength", {
     configurable: true,
-    value: realByteLength
+    value: realByteLength,
   });
 
   return () => {

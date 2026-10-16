@@ -51,7 +51,7 @@ describe("ASN types", () => {
         value: true,
         valueBeforeDecode: "",
         valueHex: "ff",
-        warnings: []
+        warnings: [],
       });
     });
 
@@ -64,9 +64,7 @@ describe("ASN types", () => {
 
   describe("BmpString", () => {
     it("toBER/fromBER", () => {
-      const testBER = pvtsutils.Convert.FromHex(
-        "1e2400740065007300740020006d006500730073006100670065002004420435043a04410442"
-      );
+      const testBER = pvtsutils.Convert.FromHex("1e2400740065007300740020006d006500730073006100670065002004420435043a04410442");
       const testValue = "test message текст";
 
       const asn = new asn1js.BmpString({ value: testValue });
@@ -107,7 +105,7 @@ describe("ASN types", () => {
       it("primitive", () => {
         const asn = new asn1js.BitString({
           unusedBits: 1,
-          valueHex: new Uint8Array([0x80])
+          valueHex: new Uint8Array([0x80]),
         });
         assert.strictEqual(asn.toString(), "BIT STRING : 1000000");
         assert.strictEqual(asn.toString("hex"), "03020180");
@@ -115,10 +113,7 @@ describe("ASN types", () => {
 
       it("constructed", () => {
         const asn = new asn1js.BitString({
-          value: [
-            new asn1js.BitString({ valueHex: new Uint8Array([0x01]) }),
-            new asn1js.BitString({ valueHex: new Uint8Array([0x02]) })
-          ]
+          value: [new asn1js.BitString({ valueHex: new Uint8Array([0x01]) }), new asn1js.BitString({ valueHex: new Uint8Array([0x02]) })],
         });
         assert.strictEqual(asn.toString("hex"), "23080302000103020002");
       });
@@ -126,10 +121,7 @@ describe("ASN types", () => {
       it("constructed indefinite form", () => {
         const asn = new asn1js.BitString({
           isIndefiniteForm: true,
-          value: [
-            new asn1js.BitString({ valueHex: new Uint8Array([0x01]) }),
-            new asn1js.BitString({ valueHex: new Uint8Array([0x02]) })
-          ]
+          value: [new asn1js.BitString({ valueHex: new Uint8Array([0x01]) }), new asn1js.BitString({ valueHex: new Uint8Array([0x02]) })],
         });
         assert.strictEqual(asn.toString("hex"), "238003020001030200020000");
       });
@@ -229,8 +221,7 @@ describe("ASN types", () => {
   describe("UniversalString", () => {
     it("to/from BER", () => {
       const testString = "My test text";
-      const testHex =
-        "1c300000004d0000007900000020000000740000006500000073000000740000002000000074000000650000007800000074";
+      const testHex = "1c300000004d0000007900000020000000740000006500000073000000740000002000000074000000650000007800000074";
 
       const asn = new asn1js.UniversalString({ value: testString });
       assert.strictEqual(asn.getValue(), testString);
@@ -316,7 +307,7 @@ describe("ASN types", () => {
         ["2000-01-02T12:11:10.123Z", "20000102121110.123Z"],
         ["2000-01-02T12:11:10.001Z", "20000102121110.001Z"],
         ["2000-01-02T12:11:10.010Z", "20000102121110.01Z"],
-        ["2000-01-02T12:11:10.000Z", "20000102121110Z"]
+        ["2000-01-02T12:11:10.000Z", "20000102121110Z"],
       ]) {
         it(`${iso} -> ${expected}`, () => {
           const asn = new asn1js.GeneralizedTime({ valueDate: new Date(iso) });
@@ -518,10 +509,7 @@ describe("ASN types", () => {
 
       it("constructed", () => {
         const asn = new asn1js.OctetString({
-          value: [
-            new asn1js.OctetString({ valueHex: new Uint8Array([0x01]) }),
-            new asn1js.OctetString({ valueHex: new Uint8Array([0x02]) })
-          ]
+          value: [new asn1js.OctetString({ valueHex: new Uint8Array([0x01]) }), new asn1js.OctetString({ valueHex: new Uint8Array([0x02]) })],
         });
         assert.strictEqual(asn.toString("hex"), "2406040101040102");
       });
@@ -529,10 +517,7 @@ describe("ASN types", () => {
       it("constructed indefinite form", () => {
         const asn = new asn1js.OctetString({
           isIndefiniteForm: true,
-          value: [
-            new asn1js.OctetString({ valueHex: new Uint8Array([0x01]) }),
-            new asn1js.OctetString({ valueHex: new Uint8Array([0x02]) })
-          ]
+          value: [new asn1js.OctetString({ valueHex: new Uint8Array([0x01]) }), new asn1js.OctetString({ valueHex: new Uint8Array([0x02]) })],
         });
         assert.strictEqual(asn.toString("hex"), "24800401010401020000");
       });

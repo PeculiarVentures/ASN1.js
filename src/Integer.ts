@@ -1,11 +1,6 @@
 import * as pvtsutils from "pvtsutils";
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
-import {
-  LocalIntegerValueBlockParams,
-  LocalIntegerValueBlock,
-  LocalIntegerValueBlockJson,
-  ORIGINAL_LOCAL_INTEGER_TO_STRING
-} from "./internals/LocalIntegerValueBlock";
+import { LocalIntegerValueBlockParams, LocalIntegerValueBlock, LocalIntegerValueBlockJson, ORIGINAL_LOCAL_INTEGER_TO_STRING } from "./internals/LocalIntegerValueBlock";
 import { assertBigInt } from "./internals/utils";
 import { bytesToSignedBigInt } from "./internals/integerUtils";
 import { typeStore } from "./TypeStore";
@@ -98,8 +93,7 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
    */
   public convertFromDER(): Integer {
     return new Integer({
-      valueHex:
-        this.valueBlock.valueHexView[0] === 0 ? this.valueBlock.valueHexView.subarray(1) : this.valueBlock.valueHexView
+      valueHex: this.valueBlock.valueHexView[0] === 0 ? this.valueBlock.valueHexView.subarray(1) : this.valueBlock.valueHexView,
     });
   }
 
