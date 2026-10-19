@@ -1,4 +1,4 @@
-import { BufferSourceConverter, int } from "@peculiar/utils";
+import { int, toUint8Array } from "@peculiar/utils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { checkBufferParams } from "./utils";
@@ -32,7 +32,7 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
     super(parameters);
 
     if (parameters.valueHex) {
-      this.valueHexView = BufferSourceConverter.toUint8Array(parameters.valueHex);
+      this.valueHexView = toUint8Array(parameters.valueHex);
     } else {
       this.valueHexView = new Uint8Array(1);
     }
@@ -43,7 +43,7 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    const inputView = BufferSourceConverter.toUint8Array(inputBuffer);
+    const inputView = toUint8Array(inputBuffer);
     // Basic check for parameters
     if (!checkBufferParams(this, inputView, inputOffset, inputLength)) {
       return -1;

@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { Convert } from "@peculiar/utils";
+import { hex } from "@peculiar/utils";
 import * as asn1js from "./index";
 import { describe, it } from "vitest";
 
@@ -13,7 +13,7 @@ describe("UniversalString", () => {
     assert.strictEqual(asn.toString("hex"), testHex);
     assert.strictEqual(asn.toString(), `UniversalString : '${testString}'`);
 
-    const parsedAsn = asn1js.fromBER(Convert.FromHex(testHex));
+    const parsedAsn = asn1js.fromBER(hex.decode(testHex));
     assert.ok(parsedAsn.result instanceof asn1js.UniversalString);
     assert.strictEqual(parsedAsn.result.getValue(), testString);
   });

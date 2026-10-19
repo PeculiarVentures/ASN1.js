@@ -1,6 +1,5 @@
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { LocalIntegerValueBlockParams, LocalIntegerValueBlock, LocalIntegerValueBlockJson, ORIGINAL_LOCAL_INTEGER_TO_STRING } from "./internals/LocalIntegerValueBlock";
-import { assertBigInt } from "./internals/utils";
 import { bytesToSignedBigInt, signedBigIntToBytes } from "./internals/integerUtils";
 import { typeStore } from "./TypeStore";
 
@@ -23,12 +22,9 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
 
   /**
    * Converts Integer into BigInt
-   * @throws Throws Error if BigInt is not supported
    * @since 3.0.0
    */
   public toBigInt(): bigint {
-    assertBigInt();
-
     const valueBlock = this.valueBlock;
     const toString = valueBlock.toString;
 
@@ -41,12 +37,9 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
    * Creates Integer from BigInt value
    * @param value BigInt value
    * @returns ASN.1 Integer
-   * @throws Throws Error if BigInt is not supported
    * @since 3.0.0
    */
   public static fromBigInt(value: number | string | bigint | boolean): Integer {
-    assertBigInt();
-
     return new Integer({ valueHex: signedBigIntToBytes(BigInt(value)) });
   }
 

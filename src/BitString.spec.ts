@@ -1,24 +1,24 @@
 import * as assert from "assert";
-import { Convert } from "@peculiar/utils";
+import { hex } from "@peculiar/utils";
 import * as asn1js from "./index";
 import { describe, it } from "vitest";
 
 describe("BitString", () => {
   it("parse zero-length", () => {
-    const asn = asn1js.fromBER(Convert.FromHex("0300"));
+    const asn = asn1js.fromBER(hex.decode("0300"));
     assert.ok(asn.result instanceof asn1js.BitString);
   });
   it("parse empty", () => {
-    const asn = asn1js.fromBER(Convert.FromHex("030100"));
+    const asn = asn1js.fromBER(hex.decode("030100"));
     assert.ok(asn.result instanceof asn1js.BitString);
   });
   it("incorrect unused bits", () => {
-    const asn = asn1js.fromBER(Convert.FromHex("030208ff"));
+    const asn = asn1js.fromBER(hex.decode("030208ff"));
     assert.strictEqual(asn.offset, -1);
     assert.strictEqual(asn.result.error, "Unused bits for BitString must be in range 0-7");
   });
   it("incorrect unused bits in constructed BitString", () => {
-    const asn = asn1js.fromBER(Convert.FromHex("230403020800"));
+    const asn = asn1js.fromBER(hex.decode("230403020800"));
     assert.strictEqual(asn.offset, -1);
     assert.strictEqual(asn.result.error, "Unused bits for BitString must be in range 0-7");
   });

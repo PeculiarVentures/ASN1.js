@@ -1,4 +1,4 @@
-import { BufferSourceConverter, Convert, type BufferSource } from "@peculiar/utils";
+import { hex, toUint8Array, type BufferSource } from "@peculiar/utils";
 import { EMPTY_STRING, EMPTY_VIEW } from "./constants";
 
 export interface ILocalBaseBlock {
@@ -69,7 +69,7 @@ export class LocalBaseBlock implements ILocalBaseBlock {
     this.blockLength = blockLength;
     this.error = error;
     this.warnings = warnings;
-    this.valueBeforeDecodeView = BufferSourceConverter.toUint8Array(valueBeforeDecode);
+    this.valueBeforeDecodeView = toUint8Array(valueBeforeDecode);
   }
 
   /**
@@ -82,7 +82,7 @@ export class LocalBaseBlock implements ILocalBaseBlock {
       blockLength: this.blockLength,
       error: this.error,
       warnings: this.warnings,
-      valueBeforeDecode: Convert.ToHex(this.valueBeforeDecodeView),
+      valueBeforeDecode: hex.encode(this.valueBeforeDecodeView),
     };
   }
 }

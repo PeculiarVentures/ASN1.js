@@ -1,4 +1,4 @@
-import { BufferSourceConverter, Convert } from "@peculiar/utils";
+import { concat, hex } from "@peculiar/utils";
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { Constructed } from "./Constructed";
 import { LocalOctetStringValueBlockParams, LocalOctetStringValueBlock, LocalOctetStringValueBlockJson } from "./internals/LocalOctetStringValueBlock";
@@ -76,7 +76,7 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
     }
 
     const name = (this.constructor as typeof OctetString).NAME;
-    const value = Convert.ToHex(this.valueBlock.valueHexView);
+    const value = hex.encode(this.valueBlock.valueHexView);
     return `${name} : ${value}`;
   }
 
@@ -98,6 +98,6 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
     }
 
     // concat copies into a new buffer, so the result is never a SharedArrayBuffer.
-    return BufferSourceConverter.concat(array) as ArrayBuffer;
+    return concat(array) as ArrayBuffer;
   }
 }

@@ -1,4 +1,4 @@
-import { BufferSourceConverter } from "@peculiar/utils";
+import { toUint8Array } from "@peculiar/utils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
 import { decodeBase128, encodeBase128 } from "./integerUtils";
@@ -30,7 +30,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
     if (idBlock) {
       // Properties from hexBlock class
       this.isHexOnly = idBlock.isHexOnly ?? false;
-      this.valueHexView = idBlock.valueHex ? BufferSourceConverter.toUint8Array(idBlock.valueHex) : EMPTY_VIEW;
+      this.valueHexView = idBlock.valueHex ? toUint8Array(idBlock.valueHex) : EMPTY_VIEW;
       this.tagClass = idBlock.tagClass ?? -1;
       this.tagNumber = idBlock.tagNumber ?? -1;
       this.isConstructed = idBlock.isConstructed ?? false;
@@ -116,7 +116,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    const inputView = BufferSourceConverter.toUint8Array(inputBuffer);
+    const inputView = toUint8Array(inputBuffer);
 
     // Basic check for parameters
     if (!checkBufferParams(this, inputView, inputOffset, inputLength)) {

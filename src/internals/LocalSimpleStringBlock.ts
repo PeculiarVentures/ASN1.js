@@ -1,4 +1,4 @@
-import { BufferSourceConverter } from "@peculiar/utils";
+import { toUint8Array } from "@peculiar/utils";
 import { BaseBlockParams } from "../BaseBlock";
 import { BaseStringBlock } from "../BaseStringBlock";
 import { LocalSimpleStringValueBlock, LocalSimpleStringValueBlockJson, LocalSimpleStringValueBlockParams } from "./LocalSimpleStringValueBlock";
@@ -14,7 +14,7 @@ export class LocalSimpleStringBlock extends BaseStringBlock<LocalSimpleStringVal
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
-    this.valueBlock.value = String.fromCharCode.apply(null, BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]);
+    this.valueBlock.value = String.fromCharCode.apply(null, toUint8Array(inputBuffer) as unknown as number[]);
   }
 
   public fromString(inputString: string): void {

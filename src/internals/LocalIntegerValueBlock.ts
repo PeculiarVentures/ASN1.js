@@ -2,7 +2,7 @@ import { int } from "@peculiar/utils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { IDerConvertible } from "../types";
 import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
-import { bytesToSignedDecimal } from "./integerUtils";
+import { bytesToSignedBigInt } from "./integerUtils";
 
 export interface ILocalIntegerValueBlock {
   value: number;
@@ -140,7 +140,7 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
   }
 
   public override toString(): string {
-    return bytesToSignedDecimal(this.valueHexView);
+    return bytesToSignedBigInt(this.valueHexView).toString(10);
   }
 }
 

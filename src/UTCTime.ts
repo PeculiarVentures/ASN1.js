@@ -1,4 +1,4 @@
-import { BufferSourceConverter } from "@peculiar/utils";
+import { toUint8Array } from "@peculiar/utils";
 import { BaseBlockJson, StringEncoding } from "./BaseBlock";
 import { LocalSimpleStringValueBlockJson } from "./internals/LocalSimpleStringValueBlock";
 import { IDateConvertible } from "./types";
@@ -66,7 +66,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
-    this.fromString(String.fromCharCode.apply(null, BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]));
+    this.fromString(String.fromCharCode.apply(null, toUint8Array(inputBuffer) as unknown as number[]));
   }
 
   /**

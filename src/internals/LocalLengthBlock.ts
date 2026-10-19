@@ -1,4 +1,4 @@
-import { BufferSourceConverter, uint } from "@peculiar/utils";
+import { toUint8Array, uint } from "@peculiar/utils";
 import { IBerConvertible } from "../types";
 import { EMPTY_BUFFER } from "./constants";
 import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
@@ -36,7 +36,7 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
   }
 
   public fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    const view = BufferSourceConverter.toUint8Array(inputBuffer);
+    const view = toUint8Array(inputBuffer);
     // Basic check for parameters
     if (!checkBufferParams(this, view, inputOffset, inputLength)) {
       return -1;

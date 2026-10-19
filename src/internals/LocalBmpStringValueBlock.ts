@@ -1,4 +1,4 @@
-import { BufferSourceConverter, Convert } from "@peculiar/utils";
+import { toUint8Array, utf16 } from "@peculiar/utils";
 import { LocalSimpleStringBlock, LocalSimpleStringBlockJson, LocalSimpleStringBlockParams } from "./LocalSimpleStringBlock";
 
 export type LocalBmpStringValueBlockParams = LocalSimpleStringBlockParams;
@@ -18,12 +18,12 @@ export class LocalBmpStringValueBlock extends LocalSimpleStringBlock {
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
-    this.valueBlock.value = Convert.ToUtf16String(inputBuffer);
-    this.valueBlock.valueHexView = BufferSourceConverter.toUint8Array(inputBuffer);
+    this.valueBlock.value = utf16.decode(inputBuffer);
+    this.valueBlock.valueHexView = toUint8Array(inputBuffer);
   }
 
   public override fromString(inputString: string): void {
     this.valueBlock.value = inputString;
-    this.valueBlock.valueHexView = new Uint8Array(Convert.FromUtf16String(inputString));
+    this.valueBlock.valueHexView = utf16.encode(inputString);
   }
 }

@@ -119,7 +119,6 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
         const sidBlock = new LocalSidValueBlock();
         if ((sid as any) > Number.MAX_SAFE_INTEGER) {
           // TODO remove as any
-          utils.assertBigInt();
           const sidValue = BigInt(sid);
           sidBlock.valueBigInt = sidValue;
         } else {

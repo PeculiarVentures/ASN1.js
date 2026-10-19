@@ -1,4 +1,4 @@
-import { BufferSourceConverter, type BufferSource } from "@peculiar/utils";
+import { toUint8Array, type BufferSource } from "@peculiar/utils";
 import { ValueBlock } from "./ValueBlock";
 import { BaseBlock } from "./BaseBlock";
 import { AsnType, typeStore } from "./TypeStore";
@@ -499,7 +499,7 @@ export function fromBER(inputBuffer: BufferSource, options: FromBerOptions = {})
     };
   }
 
-  const inputView = BufferSourceConverter.toUint8Array(inputBuffer);
+  const inputView = toUint8Array(inputBuffer);
   const normalizedInput = options.copyInput === false ? inputView : inputView.slice();
 
   return localFromBER(normalizedInput, 0, inputBuffer.byteLength, createFromBerContext(options));

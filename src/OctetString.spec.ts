@@ -1,11 +1,11 @@
 import * as assert from "assert";
-import { Convert } from "@peculiar/utils";
+import { hex } from "@peculiar/utils";
 import * as asn1js from "./index";
 import { describe, it } from "vitest";
 
 describe("OctetString", () => {
   it("parse zero-length", () => {
-    const asn = asn1js.fromBER(Convert.FromHex("0400"));
+    const asn = asn1js.fromBER(hex.decode("0400"));
     assert.ok(asn.result instanceof asn1js.OctetString);
   });
   describe("to BER", () => {

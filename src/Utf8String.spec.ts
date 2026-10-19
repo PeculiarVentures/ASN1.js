@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { Convert } from "@peculiar/utils";
+import { hex } from "@peculiar/utils";
 import * as asn1js from "./index";
 import { describe, it } from "vitest";
 
@@ -13,23 +13,23 @@ describe("Utf8String", () => {
     assert.strictEqual(asn.toString("hex"), testHex);
     assert.strictEqual(asn.toString(), `UTF8String : '${testString}'`);
 
-    const parsedAsn = asn1js.fromBER(Convert.FromHex(testHex));
+    const parsedAsn = asn1js.fromBER(hex.decode(testHex));
     assert.ok(parsedAsn.result instanceof asn1js.Utf8String);
     assert.strictEqual(parsedAsn.result.getValue(), testString);
   });
 
   it("keeps raw bytes and warns on invalid UTF-8", () => {
     // "A" followed by an invalid byte and a truncated sequence
-    const parsedAsn = asn1js.fromBER(Convert.FromHex("0c0341ffc3"));
+    const parsedAsn = asn1js.fromBER(hex.decode("0c0341ffc3"));
     assert.ok(parsedAsn.result instanceof asn1js.Utf8String);
     const valueBlock = parsedAsn.result.valueBlock;
     assert.strictEqual(valueBlock.value, "A\xff\xc3");
-    assert.strictEqual(Convert.ToHex(valueBlock.valueHexView), "41ffc3");
+    assert.strictEqual(hex.encode(valueBlock.valueHexView), "41ffc3");
     assert.strictEqual(parsedAsn.result.warnings.length, 1);
   });
 
   it("keeps a leading BOM", () => {
-    const parsedAsn = asn1js.fromBER(Convert.FromHex("0c04efbbbf41"));
+    const parsedAsn = asn1js.fromBER(hex.decode("0c04efbbbf41"));
     assert.ok(parsedAsn.result instanceof asn1js.Utf8String);
     assert.strictEqual(parsedAsn.result.getValue(), "\ufeffA");
     assert.strictEqual(parsedAsn.result.toString("hex"), "0c04efbbbf41");

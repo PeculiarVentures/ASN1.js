@@ -1,4 +1,4 @@
-import { BufferSourceConverter, Convert } from "@peculiar/utils";
+import { hex, toArrayBuffer, toUint8Array } from "@peculiar/utils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { EMPTY_BUFFER } from "./constants";
@@ -31,7 +31,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
     if (!inputLength) {
       return inputOffset;
     }
-    const inputView = BufferSourceConverter.toUint8Array(inputBuffer);
+    const inputView = toUint8Array(inputBuffer);
 
     // Basic check for parameters
     if (!utils.checkBufferParams(this, inputView, inputOffset, inputLength)) {
@@ -92,8 +92,6 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
   }
 
   public set valueBigInt(value: bigint) {
-    utils.assertBigInt();
-
     let bits = BigInt(value).toString(2);
     while (bits.length % 7) {
       bits = "0" + bits;
@@ -116,7 +114,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
 
       retView[this.blockLength - 1] = curView[this.blockLength - 1];
 
-      return BufferSourceConverter.toArrayBuffer(retView);
+      return toArrayBuffer(retView);
     }
 
     const encodedBuf = encodeBase128(this.valueDec);
@@ -137,13 +135,13 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
       retView[len] = encodedView[len];
     }
 
-    return BufferSourceConverter.toArrayBuffer(retView);
+    return toArrayBuffer(retView);
   }
 
   public override toString(): string {
     let result = "";
 
-    if (this.isHexOnly) result = Convert.ToHex(this.valueHexView);
+    if (this.isHexOnly) result = hex.encode(this.valueHexView);
     else {
       if (this.isFirstSid) {
         let sidValue = this.valueDec;
