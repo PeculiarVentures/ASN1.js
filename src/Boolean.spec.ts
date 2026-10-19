@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { Convert } from "pvtsutils";
+import { hex } from "@peculiar/utils";
 import * as asn1js from "./index";
 import { describe, it } from "vitest";
 
@@ -11,12 +11,12 @@ describe("Boolean", () => {
   });
 
   it("toBER/fromBER", () => {
-    const testBER = Convert.FromHex("0101ff");
+    const testBER = hex.decode("0101ff");
     const testValue = true;
 
     const asn = new asn1js.Boolean({ value: true });
     const ber = asn.toBER();
-    assert.strictEqual(Convert.ToHex(ber), Convert.ToHex(testBER));
+    assert.strictEqual(hex.encode(ber), hex.encode(testBER));
 
     const asnParsed = asn1js.fromBER(ber);
     assert.ok(asnParsed.result instanceof asn1js.Boolean);
@@ -24,14 +24,14 @@ describe("Boolean", () => {
   });
 
   it("encode parsed value without changes", () => {
-    const testBER = Convert.FromHex("010101");
+    const testBER = hex.decode("010101");
 
     const asn = asn1js.fromBER(testBER);
     assert.ok(asn.result instanceof asn1js.Boolean);
     assert.strictEqual(asn.result.getValue(), true);
 
     const ber = asn.result.toBER();
-    assert.strictEqual(Convert.ToHex(ber), "010101");
+    assert.strictEqual(hex.encode(ber), "010101");
   });
 
   it("from valueHex", () => {

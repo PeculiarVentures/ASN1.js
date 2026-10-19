@@ -81,3 +81,20 @@ describe("Local SID value block performance contract", () => {
     });
   }
 });
+
+describe("LocalSidValueBlock.valueBigInt", () => {
+  it("encodes values beyond the safe integer range as base-128", () => {
+    const block = new LocalSidValueBlock();
+    block.valueBigInt = (BigInt(1) << BigInt(70)) + BigInt(5);
+    expect(block.isHexOnly).toBe(true);
+    expect(Array.from(block.valueHexView)).toEqual([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5]);
+  });
+
+  it("encodes small values", () => {
+    const block = new LocalSidValueBlock();
+    block.valueBigInt = BigInt(300);
+    expect(block.valueDec).toBe(300);
+    expect(Array.from(block.valueHexView)).toEqual([2, 44]);
+    expect(Array.from(new Uint8Array(block.toBER()))).toEqual([0x82, 0x2c]);
+  });
+});

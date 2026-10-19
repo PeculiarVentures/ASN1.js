@@ -1,5 +1,4 @@
-import * as pvtsutils from "pvtsutils";
-import * as pvutils from "pvutils";
+import { toUint8Array } from "@peculiar/utils";
 import { BaseBlockJson, StringEncoding } from "./BaseBlock";
 import { LocalSimpleStringValueBlockJson } from "./internals/LocalSimpleStringValueBlock";
 import { IDateConvertible } from "./types";
@@ -67,7 +66,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
-    this.fromString(String.fromCharCode.apply(null, pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer) as unknown as number[]));
+    this.fromString(String.fromCharCode.apply(null, toUint8Array(inputBuffer) as unknown as number[]));
   }
 
   /**
@@ -75,6 +74,8 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
    * @returns
    */
   public toBuffer(): ArrayBuffer {
+    this.checkYear();
+
     const str = this.toString(); // TODO use this.valueBlock.value and update toString
 
     const buffer = new ArrayBuffer(str.length);
@@ -83,6 +84,16 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     for (let i = 0; i < str.length; i++) view[i] = str.charCodeAt(i);
 
     return buffer;
+  }
+
+  /**
+   * Throws if the year cannot be encoded
+   */
+  protected checkYear(): void {
+    // UTCTime has a two-digit year, so 1950-2049 is all it can represent (RFC 5280 4.1.2.5.1)
+    if (!(this.year >= 1950 && this.year <= 2049)) {
+      throw new RangeError(`UTCTime year must be between 1950 and 2049, got ${this.year}; use GeneralizedTime instead`);
+    }
   }
 
   /**
@@ -129,12 +140,12 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     if (encoding === "iso") {
       const outputArray = Array.from<string>({ length: 7 });
 
-      outputArray[0] = pvutils.padNumber(this.year < 2000 ? this.year - 1900 : this.year - 2000, 2);
-      outputArray[1] = pvutils.padNumber(this.month, 2);
-      outputArray[2] = pvutils.padNumber(this.day, 2);
-      outputArray[3] = pvutils.padNumber(this.hour, 2);
-      outputArray[4] = pvutils.padNumber(this.minute, 2);
-      outputArray[5] = pvutils.padNumber(this.second, 2);
+      outputArray[0] = String(this.year % 100).padStart(2, "0");
+      outputArray[1] = String(this.month).padStart(2, "0");
+      outputArray[2] = String(this.day).padStart(2, "0");
+      outputArray[3] = String(this.hour).padStart(2, "0");
+      outputArray[4] = String(this.minute).padStart(2, "0");
+      outputArray[5] = String(this.second).padStart(2, "0");
       outputArray[6] = "Z";
 
       return outputArray.join("");

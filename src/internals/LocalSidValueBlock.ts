@@ -1,8 +1,8 @@
-import * as pvtsutils from "pvtsutils";
-import * as pvutils from "pvutils";
+import { hex, toArrayBuffer, toUint8Array } from "@peculiar/utils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { EMPTY_BUFFER } from "./constants";
+import { decodeBase128, encodeBase128 } from "./integerUtils";
 import * as utils from "./utils";
 
 export interface ILocalSidValueBlock {
@@ -31,7 +31,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
     if (!inputLength) {
       return inputOffset;
     }
-    const inputView = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
+    const inputView = toUint8Array(inputBuffer);
 
     // Basic check for parameters
     if (!utils.checkBufferParams(this, inputView, inputOffset, inputLength)) {
@@ -81,7 +81,8 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
 
     if (this.valueHexView[0] === 0x00) this.warnings.push("Needlessly long format of SID encoding");
 
-    if (this.blockLength <= 8) this.valueDec = pvutils.utilFromBase(this.valueHexView, 7);
+    const valueDec = this.blockLength <= 8 ? decodeBase128(this.valueHexView) : undefined;
+    if (valueDec !== undefined) this.valueDec = valueDec;
     else {
       this.isHexOnly = true;
       this.warnings.push("Too big SID for decoding, hex only");
@@ -91,17 +92,16 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
   }
 
   public set valueBigInt(value: bigint) {
-    utils.assertBigInt();
+    const bytes = encodeBase128(BigInt(value));
+    if (!bytes) {
+      this.error = "Error during encoding SID value";
 
-    let bits = BigInt(value).toString(2);
-    while (bits.length % 7) {
-      bits = "0" + bits;
+      return;
     }
-    const bytes = new Uint8Array(bits.length / 7);
-    for (let i = 0; i < bytes.length; i++) {
-      bytes[i] = parseInt(bits.slice(i * 7, i * 7 + 7), 2) + (i + 1 < bytes.length ? 0x80 : 0);
-    }
-    this.fromBER(bytes.buffer, 0, bytes.length);
+
+    for (let i = 0; i < bytes.length - 1; i++) bytes[i] |= 0x80;
+
+    this.fromBER(bytes, 0, bytes.length);
   }
 
   public override toBER(sizeOnly?: boolean): ArrayBuffer {
@@ -115,11 +115,11 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
 
       retView[this.blockLength - 1] = curView[this.blockLength - 1];
 
-      return pvtsutils.BufferSourceConverter.toArrayBuffer(retView);
+      return toArrayBuffer(retView);
     }
 
-    const encodedBuf = pvutils.utilToBase(this.valueDec, 7);
-    if (encodedBuf.byteLength === 0) {
+    const encodedBuf = encodeBase128(this.valueDec);
+    if (!encodedBuf) {
       this.error = "Error during encoding SID value";
 
       return EMPTY_BUFFER;
@@ -128,21 +128,20 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
     const retView = new Uint8Array(encodedBuf.byteLength);
 
     if (!sizeOnly) {
-      const encodedView = new Uint8Array(encodedBuf);
       const len = encodedBuf.byteLength - 1;
 
-      for (let i = 0; i < len; i++) retView[i] = encodedView[i] | 0x80;
+      for (let i = 0; i < len; i++) retView[i] = encodedBuf[i] | 0x80;
 
-      retView[len] = encodedView[len];
+      retView[len] = encodedBuf[len];
     }
 
-    return pvtsutils.BufferSourceConverter.toArrayBuffer(retView);
+    return toArrayBuffer(retView);
   }
 
   public override toString(): string {
     let result = "";
 
-    if (this.isHexOnly) result = pvtsutils.Convert.ToHex(this.valueHexView);
+    if (this.isHexOnly) result = hex.encode(this.valueHexView);
     else {
       if (this.isFirstSid) {
         let sidValue = this.valueDec;

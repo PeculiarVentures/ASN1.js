@@ -32,6 +32,19 @@ describe("ObjectIdentifier", () => {
       assert.strictEqual(asn.toString("hex"), "0600");
       assert.strictEqual(asn.toString("ascii"), "OBJECT IDENTIFIER : empty");
     });
+    it("round-trips a SID between 2^49 and 2^53", () => {
+      const asn = new asn1js.ObjectIdentifier({ value: "1.2.1125899906842624" });
+
+      assert.strictEqual(asn.toString("hex"), "06092a8280808080808000");
+      assert.strictEqual(asn1js.fromBER(asn.toBER()).result.valueBlock.toString(), "1.2.1125899906842624");
+    });
+    it("keeps a SID above 2^53 as hex and re-encodes it unchanged", () => {
+      const ber = "0608fce08f9df08cc36f";
+      const asn = asn1js.fromBER(Buffer.from(ber, "hex")).result as asn1js.ObjectIdentifier;
+
+      assert.deepStrictEqual(asn.valueBlock.value[0].warnings, ["Too big SID for decoding, hex only"]);
+      assert.strictEqual(asn.toString("hex"), ber);
+    });
   });
   it("to JSON", () => {
     const value = "1.2.3.4.5";

@@ -1,9 +1,9 @@
-import * as pvtsutils from "pvtsutils";
-import * as pvutils from "pvutils";
+import { hex, toUint8Array } from "@peculiar/utils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { LocalBaseBlock } from "./LocalBaseBlock";
 import { EMPTY_BUFFER } from "./constants";
+import { decodeBase128, encodeBase128 } from "./integerUtils";
 import { checkBufferParams } from "./utils";
 
 export interface ILocalRelativeSidValueBlock {
@@ -28,7 +28,7 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
     if (inputLength === 0) return inputOffset;
 
-    const inputView = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
+    const inputView = toUint8Array(inputBuffer);
 
     // Basic check for parameters
     if (!checkBufferParams(this, inputView, inputOffset, inputLength)) return -1;
@@ -73,7 +73,8 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
 
     if (this.valueHexView[0] === 0x00) this.warnings.push("Needlessly long format of SID encoding");
 
-    if (this.blockLength <= 8) this.valueDec = pvutils.utilFromBase(this.valueHexView, 7);
+    const valueDec = this.blockLength <= 8 ? decodeBase128(this.valueHexView) : undefined;
+    if (valueDec !== undefined) this.valueDec = valueDec;
     else {
       this.isHexOnly = true;
       this.warnings.push("Too big SID for decoding, hex only");
@@ -97,8 +98,8 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
       return retView.buffer;
     }
 
-    const encodedBuf = pvutils.utilToBase(this.valueDec, 7);
-    if (encodedBuf.byteLength === 0) {
+    const encodedBuf = encodeBase128(this.valueDec);
+    if (!encodedBuf) {
       this.error = "Error during encoding SID value";
 
       return EMPTY_BUFFER;
@@ -107,12 +108,11 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
     const retView = new Uint8Array(encodedBuf.byteLength);
 
     if (!sizeOnly) {
-      const encodedView = new Uint8Array(encodedBuf);
       const len = encodedBuf.byteLength - 1;
 
-      for (let i = 0; i < len; i++) retView[i] = encodedView[i] | 0x80;
+      for (let i = 0; i < len; i++) retView[i] = encodedBuf[i] | 0x80;
 
-      retView[len] = encodedView[len];
+      retView[len] = encodedBuf[len];
     }
 
     return retView.buffer;
@@ -121,7 +121,7 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
   public override toString(): string {
     let result = "";
 
-    if (this.isHexOnly) result = pvtsutils.Convert.ToHex(this.valueHexView);
+    if (this.isHexOnly) result = hex.encode(this.valueHexView);
     else {
       result = this.valueDec.toString();
     }

@@ -1,4 +1,4 @@
-import * as pvtsutils from "pvtsutils";
+import { toUint8Array } from "@peculiar/utils";
 import type { BaseBlock } from "../BaseBlock";
 import { ValueBlock, ValueBlockParams } from "../ValueBlock";
 import { ViewWriter } from "../ViewWriter";
@@ -44,7 +44,7 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
-    const view = pvtsutils.BufferSourceConverter.toUint8Array(inputBuffer);
+    const view = toUint8Array(inputBuffer);
     const parseContext = context ?? createFromBerContext();
 
     // Basic check for parameters

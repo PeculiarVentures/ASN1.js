@@ -1,16 +1,10 @@
 import * as assert from "assert";
-import { runInNewContext } from "node:vm";
 import { test, vi } from "vitest";
 import { Integer } from "../index";
 import { LocalIntegerValueBlock } from "./LocalIntegerValueBlock";
-import { bytesToSignedDecimal } from "./integerUtils";
 
 function integerFromHex(valueHex: number[]): Integer {
   return new Integer({ valueHex: Uint8Array.from(valueHex) });
-}
-
-function fallbackDecimal(view: Uint8Array): string {
-  return runInNewContext(`(${bytesToSignedDecimal.toString()})(input)`, { BigInt: undefined, input: view });
 }
 
 test("native INTEGER conversion handles fixed signed encodings", () => {
@@ -58,59 +52,6 @@ test("native INTEGER conversion handles large positive and negative values", () 
       assert.strictEqual(integer.toBigInt(), expected);
       assert.strictEqual(integer.valueBlock.toString(), expected.toString(10));
     }
-  }
-});
-
-test("BigInt-free INTEGER conversion matches native conversion", () => {
-  const fixed = [[], [0x00], [0x7f], [0x00, 0x80], [0xff], [0xff, 0x80], [0xff, 0x00]];
-
-  for (const valueHex of fixed) {
-    const integer = integerFromHex(valueHex);
-
-    assert.strictEqual(fallbackDecimal(integer.valueBlock.valueHexView), integer.valueBlock.toString());
-  }
-
-  const offsetSource = Uint8Array.of(0xaa, 0xff, 0x00, 0xbb);
-  const offsetView = offsetSource.subarray(1, 3);
-  assert.strictEqual(fallbackDecimal(offsetView), "-256");
-
-  const iteratorView = Uint8Array.of(0x01, 0x02);
-  Object.defineProperty(iteratorView, Symbol.iterator, {
-    configurable: true,
-    value() {
-      throw new Error("custom iterator was used");
-    },
-  });
-  assert.strictEqual(fallbackDecimal(iteratorView), "258");
-
-  for (const bits of [2048, 8192]) {
-    const magnitude = (BigInt(1) << BigInt(bits - 1)) + BigInt(123456789);
-    for (const expected of [magnitude, -magnitude]) {
-      const integer = Integer.fromBigInt(expected);
-
-      assert.strictEqual(fallbackDecimal(integer.valueBlock.valueHexView), expected.toString(10));
-    }
-  }
-});
-
-test("BigInt-free INTEGER conversion handles seeded byte arrays and repeats", () => {
-  let seed = 0x51a7ed;
-  const next = () => {
-    seed = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    seed = (seed + 0x6d2b79f5) | 0;
-
-    return seed >>> 0;
-  };
-
-  for (let count = 0; count < 100; count++) {
-    const length = (next() % 128) + 1;
-    const view = new Uint8Array(length + 11);
-    for (let i = 0; i < view.length; i++) view[i] = next() & 0xff;
-    const value = view.subarray(11);
-    const expected = fallbackDecimal(value);
-
-    assert.strictEqual(expected, fallbackDecimal(value));
-    assert.strictEqual(expected, integerFromHex(Array.from(value)).valueBlock.toString());
   }
 });
 

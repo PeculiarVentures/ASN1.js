@@ -3,16 +3,6 @@
 import type { LocalBaseBlock } from "./LocalBaseBlock";
 
 /**
- * Throws an exception if BigInt is not supported
- * @throws Throws Error if BigInt is not supported
- */
-export function assertBigInt(): void {
-  if (typeof BigInt === "undefined") {
-    throw new Error("BigInt is not defined. Your environment doesn't implement BigInt.");
-  }
-}
-
-/**
  * Concatenates buffers from the list
  * @param buffers List of buffers
  * @returns Concatenated buffer

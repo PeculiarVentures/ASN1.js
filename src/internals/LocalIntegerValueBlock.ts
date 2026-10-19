@@ -1,8 +1,8 @@
-import * as pvutils from "pvutils";
+import { int } from "@peculiar/utils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { IDerConvertible } from "../types";
 import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
-import { bytesToSignedDecimal } from "./integerUtils";
+import { bytesToSignedBigInt } from "./integerUtils";
 
 export interface ILocalIntegerValueBlock {
   value: number;
@@ -24,7 +24,8 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
       this.isHexOnly = false;
 
       if (this.valueHexView.length > 0) {
-        this._valueDec = pvutils.utilDecodeTC.call(this);
+        if (!int.isMinimal(this.valueHexView)) this.warnings.push("Needlessly long format");
+        this._valueDec = int.decode(this.valueHexView);
       }
     }
   }
@@ -59,10 +60,11 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
   }
 
   public set valueDec(v: number) {
-    this._valueDec = v;
+    if (!Number.isInteger(v)) throw new RangeError(`Integer value must be an integer, got ${v}`);
 
+    this.valueHexView = int.encode(BigInt(v));
     this.isHexOnly = false;
-    this.valueHexView = new Uint8Array(pvutils.utilEncodeTC(v));
+    this._valueDec = v;
   }
 
   public get valueDec(): number {
@@ -138,7 +140,7 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
   }
 
   public override toString(): string {
-    return bytesToSignedDecimal(this.valueHexView);
+    return bytesToSignedBigInt(this.valueHexView).toString(10);
   }
 }
 
