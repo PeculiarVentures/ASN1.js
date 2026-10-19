@@ -88,5 +88,16 @@ describe("Integer", () => {
     it("throws on a fractional number", () => {
       assert.throws(() => new asn1js.Integer({ value: 1.5 }), RangeError);
     });
+    it("keeps the previous value when the setter rejects a fractional number", () => {
+      const asn = new asn1js.Integer({ value: 1 });
+      assert.throws(() => {
+        asn.valueBlock.valueDec = 1.5;
+      }, /must be an integer/);
+      assert.throws(() => {
+        asn.valueBlock.valueDec = NaN;
+      }, /must be an integer/);
+      assert.strictEqual(asn.valueBlock.valueDec, 1);
+      assert.strictEqual(asn.toString("hex"), "020101");
+    });
   });
 });

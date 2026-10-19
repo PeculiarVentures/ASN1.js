@@ -16,4 +16,10 @@ describe("BmpString", () => {
     assert.ok(asnParsed.result instanceof asn1js.BmpString);
     assert.strictEqual(asnParsed.result.valueBlock.value, testValue);
   });
+
+  it("returns an error for odd-length content", () => {
+    const asnParsed = asn1js.fromBER(Convert.FromHex("1e03004100"));
+    assert.strictEqual(asnParsed.offset, -1);
+    assert.strictEqual(asnParsed.result.error, "BMPString value length must be a multiple of 2");
+  });
 });

@@ -157,13 +157,19 @@ test("header decoders preserve repeated state fields", () => {
 
   const length = new LocalLengthBlock();
 
-  assert.strictEqual(length.fromBER(Uint8Array.of(0x82, 0x01, 0x00), 0, 3), 3);
-  assert.strictEqual(length.length, 256);
+  assert.strictEqual(length.fromBER(Uint8Array.of(0x82, 0x00, 0x80), 0, 3), 3);
+  assert.strictEqual(length.length, 128);
   assert.deepStrictEqual(length.warnings, ["Needlessly long encoded length"]);
   assert.strictEqual(length.fromBER(Uint8Array.of(0x05), 0, 1), 1);
   assert.strictEqual(length.length, 5);
   assert.strictEqual(length.longFormUsed, false);
   assert.deepStrictEqual(length.warnings, ["Needlessly long encoded length"]);
+
+  const minimalLength = new LocalLengthBlock();
+
+  assert.strictEqual(minimalLength.fromBER(Uint8Array.of(0x82, 0x01, 0x00), 0, 3), 3);
+  assert.strictEqual(minimalLength.length, 256);
+  assert.deepStrictEqual(minimalLength.warnings, []);
 });
 
 test("header decoders preserve unusual argument normalization", () => {

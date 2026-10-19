@@ -60,10 +60,11 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
   }
 
   public set valueDec(v: number) {
-    this._valueDec = v;
+    if (!Number.isInteger(v)) throw new RangeError(`Integer value must be an integer, got ${v}`);
 
+    this.valueHexView = int.encode(BigInt(v));
     this.isHexOnly = false;
-    this.valueHexView = int.encode(Number.isInteger(v) ? BigInt(v) : v);
+    this._valueDec = v;
   }
 
   public get valueDec(): number {

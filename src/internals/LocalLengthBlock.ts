@@ -98,7 +98,7 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
     const lenOffset = inputOffset + 1;
     const lengthBufferView = view.subarray(lenOffset, lenOffset + count);
 
-    if (lengthBufferView[count - 1] === 0x00) this.warnings.push("Needlessly long encoded length");
+    if (lengthBufferView[0] === 0x00) this.warnings.push("Needlessly long encoded length");
 
     try {
       this.length = uint.decode(lengthBufferView);

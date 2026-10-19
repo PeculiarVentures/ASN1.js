@@ -7,6 +7,16 @@ export type LocalBmpStringValueBlockJson = LocalSimpleStringBlockJson;
 export class LocalBmpStringValueBlock extends LocalSimpleStringBlock {
   public static override NAME = "BmpStringValueBlock";
 
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+    if (this.lenBlock.length % 2 !== 0) {
+      this.error = "BMPString value length must be a multiple of 2";
+
+      return -1;
+    }
+
+    return super.fromBER(inputBuffer, inputOffset, inputLength);
+  }
+
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
     this.valueBlock.value = Convert.ToUtf16String(inputBuffer);
     this.valueBlock.valueHexView = BufferSourceConverter.toUint8Array(inputBuffer);
