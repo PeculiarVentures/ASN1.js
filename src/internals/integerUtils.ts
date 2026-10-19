@@ -1,4 +1,22 @@
-import { Convert } from "@peculiar/utils";
+import { Convert, uint } from "@peculiar/utils";
+
+/** Decodes base-128 digits, or returns `undefined` when the value is not a safe integer. */
+export function decodeBase128(view: Uint8Array): number | undefined {
+  try {
+    return uint.decode(view, { bitsPerByte: 7 });
+  } catch {
+    return undefined;
+  }
+}
+
+/** Encodes a non-negative safe integer as base-128 digits, or returns `undefined` when it cannot. */
+export function encodeBase128(value: number): Uint8Array | undefined {
+  try {
+    return uint.encode(value, { bitsPerByte: 7 });
+  } catch {
+    return undefined;
+  }
+}
 
 export function bytesToSignedBigInt(view: Uint8Array): bigint {
   if (!view.byteLength) return BigInt(0);

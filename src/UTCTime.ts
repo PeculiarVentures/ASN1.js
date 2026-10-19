@@ -1,5 +1,4 @@
 import { BufferSourceConverter } from "@peculiar/utils";
-import * as pvutils from "pvutils";
 import { BaseBlockJson, StringEncoding } from "./BaseBlock";
 import { LocalSimpleStringValueBlockJson } from "./internals/LocalSimpleStringValueBlock";
 import { IDateConvertible } from "./types";
@@ -129,12 +128,12 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     if (encoding === "iso") {
       const outputArray = Array.from<string>({ length: 7 });
 
-      outputArray[0] = pvutils.padNumber(this.year < 2000 ? this.year - 1900 : this.year - 2000, 2);
-      outputArray[1] = pvutils.padNumber(this.month, 2);
-      outputArray[2] = pvutils.padNumber(this.day, 2);
-      outputArray[3] = pvutils.padNumber(this.hour, 2);
-      outputArray[4] = pvutils.padNumber(this.minute, 2);
-      outputArray[5] = pvutils.padNumber(this.second, 2);
+      outputArray[0] = String(this.year < 2000 ? this.year - 1900 : this.year - 2000).padStart(2, "0");
+      outputArray[1] = String(this.month).padStart(2, "0");
+      outputArray[2] = String(this.day).padStart(2, "0");
+      outputArray[3] = String(this.hour).padStart(2, "0");
+      outputArray[4] = String(this.minute).padStart(2, "0");
+      outputArray[5] = String(this.second).padStart(2, "0");
       outputArray[6] = "Z";
 
       return outputArray.join("");

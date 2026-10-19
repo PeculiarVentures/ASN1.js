@@ -80,4 +80,13 @@ describe("Integer", () => {
       assert.strictEqual(fromDer.toString("hex"), "02088102030405060708");
     });
   });
+  describe("from numbers beyond the 32-bit range", () => {
+    it("encodes integers up to and beyond 2^53", () => {
+      assert.strictEqual(new asn1js.Integer({ value: 2 ** 53 }).toString("hex"), "020720000000000000");
+      assert.strictEqual(new asn1js.Integer({ value: -(2 ** 53 - 1) }).toString("hex"), "0207e0000000000001");
+    });
+    it("throws on a fractional number", () => {
+      assert.throws(() => new asn1js.Integer({ value: 1.5 }), RangeError);
+    });
+  });
 });

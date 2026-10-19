@@ -1,5 +1,4 @@
-import { BufferSourceConverter } from "@peculiar/utils";
-import * as pvutils from "pvutils";
+import { BufferSourceConverter, uint } from "@peculiar/utils";
 import { IBerConvertible } from "../types";
 import { EMPTY_BUFFER } from "./constants";
 import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
@@ -101,7 +100,13 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
 
     if (lengthBufferView[count - 1] === 0x00) this.warnings.push("Needlessly long encoded length");
 
-    this.length = pvutils.utilFromBase(lengthBufferView, 8);
+    try {
+      this.length = uint.decode(lengthBufferView);
+    } catch {
+      this.error = "Too big integer";
+
+      return -1;
+    }
 
     if (this.longFormUsed && this.length <= 127) this.warnings.push("Unnecessary usage of long length form");
 
@@ -130,9 +135,10 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
     }
 
     if (this.longFormUsed) {
-      const encodedBuf = pvutils.utilToBase(this.length, 8);
-
-      if (encodedBuf.byteLength > 127) {
+      let encodedBuf: Uint8Array;
+      try {
+        encodedBuf = uint.encode(this.length);
+      } catch {
         this.error = "Too big length";
 
         return EMPTY_BUFFER;

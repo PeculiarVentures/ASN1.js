@@ -1,9 +1,9 @@
 import { BufferSourceConverter, Convert } from "@peculiar/utils";
-import * as pvutils from "pvutils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { LocalBaseBlock } from "./LocalBaseBlock";
 import { EMPTY_BUFFER } from "./constants";
+import { decodeBase128, encodeBase128 } from "./integerUtils";
 import { checkBufferParams } from "./utils";
 
 export interface ILocalRelativeSidValueBlock {
@@ -73,7 +73,8 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
 
     if (this.valueHexView[0] === 0x00) this.warnings.push("Needlessly long format of SID encoding");
 
-    if (this.blockLength <= 8) this.valueDec = pvutils.utilFromBase(this.valueHexView, 7);
+    const valueDec = this.blockLength <= 8 ? decodeBase128(this.valueHexView) : undefined;
+    if (valueDec !== undefined) this.valueDec = valueDec;
     else {
       this.isHexOnly = true;
       this.warnings.push("Too big SID for decoding, hex only");
@@ -97,8 +98,8 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
       return retView.buffer;
     }
 
-    const encodedBuf = pvutils.utilToBase(this.valueDec, 7);
-    if (encodedBuf.byteLength === 0) {
+    const encodedBuf = encodeBase128(this.valueDec);
+    if (!encodedBuf) {
       this.error = "Error during encoding SID value";
 
       return EMPTY_BUFFER;

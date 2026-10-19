@@ -1,5 +1,4 @@
-import { BufferSourceConverter } from "@peculiar/utils";
-import * as pvutils from "pvutils";
+import { BufferSourceConverter, int } from "@peculiar/utils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { checkBufferParams } from "./utils";
@@ -56,7 +55,7 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
     if (inputLength > 1) this.warnings.push("Boolean value encoded in more then 1 octet");
 
     this.isHexOnly = true;
-    pvutils.utilDecodeTC.call(this);
+    if (inputLength > 1 && !int.isMinimal(this.valueHexView)) this.warnings.push("Needlessly long format");
     this.blockLength = inputLength;
 
     return inputOffset + inputLength;

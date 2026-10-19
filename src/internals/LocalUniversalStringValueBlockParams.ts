@@ -1,4 +1,4 @@
-import * as pvutils from "pvutils";
+import { uint } from "@peculiar/utils";
 import { LocalSimpleStringBlock, LocalSimpleStringBlockJson, LocalSimpleStringBlockParams } from "./LocalSimpleStringBlock";
 
 export type LocalUniversalStringValueBlockParams = LocalSimpleStringBlockParams;
@@ -26,15 +26,7 @@ export class LocalUniversalStringValueBlock extends LocalSimpleStringBlock {
 
     const valueHexView = (this.valueBlock.valueHexView = new Uint8Array(strLength * 4));
 
-    for (let i = 0; i < strLength; i++) {
-      const codeBuf = pvutils.utilToBase(inputString.charCodeAt(i), 8);
-      const codeView = new Uint8Array(codeBuf);
-      if (codeView.length > 4) continue;
-
-      const dif = 4 - codeView.length;
-
-      for (let j = codeView.length - 1; j >= 0; j--) valueHexView[i * 4 + j + dif] = codeView[j];
-    }
+    for (let i = 0; i < strLength; i++) valueHexView.set(uint.encode(inputString.charCodeAt(i), { length: 4 }), i * 4);
 
     this.valueBlock.value = inputString;
   }

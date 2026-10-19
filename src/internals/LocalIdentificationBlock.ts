@@ -1,7 +1,7 @@
 import { BufferSourceConverter } from "@peculiar/utils";
-import * as pvutils from "pvutils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
+import { decodeBase128, encodeBase128 } from "./integerUtils";
 import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
 import { checkBufferParams } from "./utils";
 
@@ -80,9 +80,13 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
     }
 
     if (!this.isHexOnly) {
-      const encodedBuf = pvutils.utilToBase(this.tagNumber, 7);
-      const encodedView = new Uint8Array(encodedBuf);
-      const size = encodedBuf.byteLength;
+      const encodedView = encodeBase128(this.tagNumber);
+      if (!encodedView) {
+        this.error = "Error during encoding tag number";
+
+        return EMPTY_BUFFER;
+      }
+      const size = encodedView.byteLength;
 
       const retView = new Uint8Array(size + 1);
       retView[0] = firstOctet | 0x1f;
@@ -188,7 +192,8 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       for (let i = 0; i < count; i++) intTagNumberBuffer[i] = intBuffer[baseIndex + i + 1] & 0x7f;
 
       // Try to convert long tag number to short form
-      if (this.blockLength <= 9) this.tagNumber = pvutils.utilFromBase(intTagNumberBuffer, 7);
+      const tagNumber = this.blockLength <= 9 ? decodeBase128(intTagNumberBuffer) : undefined;
+      if (tagNumber !== undefined) this.tagNumber = tagNumber;
       else {
         this.isHexOnly = true;
         this.warnings.push("Tag too long, represented as hex-coded");

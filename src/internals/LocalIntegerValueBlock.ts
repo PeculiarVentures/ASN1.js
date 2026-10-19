@@ -1,4 +1,4 @@
-import * as pvutils from "pvutils";
+import { int } from "@peculiar/utils";
 import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
 import { IDerConvertible } from "../types";
 import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
@@ -24,7 +24,8 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
       this.isHexOnly = false;
 
       if (this.valueHexView.length > 0) {
-        this._valueDec = pvutils.utilDecodeTC.call(this);
+        if (!int.isMinimal(this.valueHexView)) this.warnings.push("Needlessly long format");
+        this._valueDec = int.decode(this.valueHexView);
       }
     }
   }
@@ -62,7 +63,7 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
     this._valueDec = v;
 
     this.isHexOnly = false;
-    this.valueHexView = new Uint8Array(pvutils.utilEncodeTC(v));
+    this.valueHexView = int.encode(Number.isInteger(v) ? BigInt(v) : v);
   }
 
   public get valueDec(): number {

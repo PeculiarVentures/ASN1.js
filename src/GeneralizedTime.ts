@@ -1,4 +1,3 @@
-import * as pvutils from "pvutils";
 import { typeStore } from "./TypeStore";
 import { IUTCTime, UTCTimeParams, UTCTimeJson, UTCTime, DateStringEncoding } from "./UTCTime";
 
@@ -216,16 +215,16 @@ export class GeneralizedTime extends UTCTime {
     if (encoding === "iso") {
       const outputArray = [];
 
-      outputArray.push(pvutils.padNumber(this.year, 4));
-      outputArray.push(pvutils.padNumber(this.month, 2));
-      outputArray.push(pvutils.padNumber(this.day, 2));
-      outputArray.push(pvutils.padNumber(this.hour, 2));
-      outputArray.push(pvutils.padNumber(this.minute, 2));
-      outputArray.push(pvutils.padNumber(this.second, 2));
+      outputArray.push(String(this.year).padStart(4, "0"));
+      outputArray.push(String(this.month).padStart(2, "0"));
+      outputArray.push(String(this.day).padStart(2, "0"));
+      outputArray.push(String(this.hour).padStart(2, "0"));
+      outputArray.push(String(this.minute).padStart(2, "0"));
+      outputArray.push(String(this.second).padStart(2, "0"));
       if (this.millisecond !== 0) {
         outputArray.push(".");
         // DER (X.690 11.7.3) forbids trailing zeros in the fractional seconds
-        outputArray.push(pvutils.padNumber(this.millisecond, 3).replace(/0+$/, ""));
+        outputArray.push(String(this.millisecond).padStart(3, "0").replace(/0+$/, ""));
       }
       outputArray.push("Z");
 
