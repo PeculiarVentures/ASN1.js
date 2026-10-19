@@ -22,12 +22,15 @@ npm install asn1js
 
 ## Breaking Changes In v4
 
-v4 is ESM-only and requires Node.js `^20.19.0 || >=22.12.0` (was `>=12.0.0`). CommonJS code can still `require("asn1js")` on these versions; Node.js 22.0–22.11 can't. The public API is unchanged.
+v4 is ESM-only and requires Node.js `^20.19.0 || >=22.12.0` (was `>=12.0.0`). CommonJS code can still `require("asn1js")` on these versions; Node.js 22.0–22.11 can't. The exported API is unchanged, but some encoding and validation behavior changed (last three items).
 
 - **TypeScript compiling to CommonJS:** use `"module": "node20"` or `"nodenext"` (`node16` fails with TS1479). ESM and bundler setups need no changes.
 - **Jest in CommonJS mode:** switch to ESM mode or Vitest, or add `asn1js` to `transformIgnorePatterns`.
 - **Deep imports** (`asn1js/build/index.js`, `asn1js/build/index.es.js`) are blocked by `exports`; import from `asn1js`.
 - **One asn1js per app:** libraries such as `pkijs` and `@peculiar/asn1-schema` check `instanceof asn1js.Sequence` and similar, so objects from asn1js 4 fail those checks in a library that still depends on asn1js 3. Upgrade them together.
+- **New `RangeError`s:** `new Integer({ value })` and the `valueDec` setter reject non-integer numbers (v3 truncated `1.5` to `1` and encoded `NaN` as empty). Encoding a `UTCTime` with a year outside 1950–2049 throws, including `new UTCTime({ valueDate })`; v3 wrapped 2050 to 1950. Use `GeneralizedTime` for those dates.
+- **Encodings that differ from v3:** `Integer.fromBigInt` encodes negative values correctly (v3: `-32767n` → `0x81`, `-128n` → `0xff80`). `UniversalString` writes characters outside the BMP as one UCS-4 code point (`U+1F600` → `0001f600`, v3 wrote a surrogate pair; v3 output still decodes). OID arcs and tag numbers from 2^49 to 2^53 now encode (v3 produced an empty value).
+- **Decoding:** a `BMPString` with an odd length or a `UniversalString` whose length isn't a multiple of 4 returns an error (`offset: -1`) instead of throwing. `UniversalString` lone surrogates and code points above U+10FFFF become U+FFFD with a warning. OID arcs and tag numbers above 2^53 stay hex-only and re-encode unchanged. "Needlessly long encoded length" now checks the first length octet, so lengths such as `83 00 00 07` get the warning.
 
 ## Important Information for ASN1.js V1 Users
 
