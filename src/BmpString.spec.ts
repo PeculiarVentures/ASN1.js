@@ -22,4 +22,10 @@ describe("BmpString", () => {
     assert.strictEqual(asnParsed.offset, -1);
     assert.strictEqual(asnParsed.result.error, "BMPString value length must be a multiple of 2");
   });
+
+  it("returns an error instead of throwing for odd-length indefinite content", () => {
+    const asnParsed = asn1js.fromBER(hex.decode("3e8000"));
+    assert.strictEqual(asnParsed.offset, -1);
+    assert.strictEqual(asnParsed.result.error, "BMPString value length must be a multiple of 2");
+  });
 });

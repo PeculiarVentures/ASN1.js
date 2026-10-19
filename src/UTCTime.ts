@@ -74,6 +74,8 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
    * @returns
    */
   public toBuffer(): ArrayBuffer {
+    this.checkYear();
+
     const str = this.toString(); // TODO use this.valueBlock.value and update toString
 
     const buffer = new ArrayBuffer(str.length);
@@ -82,6 +84,16 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     for (let i = 0; i < str.length; i++) view[i] = str.charCodeAt(i);
 
     return buffer;
+  }
+
+  /**
+   * Throws if the year cannot be encoded
+   */
+  protected checkYear(): void {
+    // UTCTime has a two-digit year, so 1950-2049 is all it can represent (RFC 5280 4.1.2.5.1)
+    if (!(this.year >= 1950 && this.year <= 2049)) {
+      throw new RangeError(`UTCTime year must be between 1950 and 2049, got ${this.year}; use GeneralizedTime instead`);
+    }
   }
 
   /**
@@ -126,11 +138,6 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
 
   public override toString(encoding: DateStringEncoding = "iso"): string {
     if (encoding === "iso") {
-      // UTCTime has a two-digit year, so 1950-2049 is all it can represent (RFC 5280 4.1.2.5.1)
-      if (!(this.year >= 1950 && this.year <= 2049)) {
-        throw new RangeError(`UTCTime year must be between 1950 and 2049, got ${this.year}; use GeneralizedTime instead`);
-      }
-
       const outputArray = Array.from<string>({ length: 7 });
 
       outputArray[0] = String(this.year % 100).padStart(2, "0");

@@ -46,6 +46,13 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
       return resultOffset;
     }
 
+    const valueError = this.checkValue(this.valueBlock.valueHexView);
+    if (valueError) {
+      this.error = valueError;
+
+      return -1;
+    }
+
     this.fromBuffer(this.valueBlock.valueHexView);
 
     if (!this.idBlock.error.length) this.blockLength += this.idBlock.blockLength;
@@ -55,6 +62,15 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
     if (!this.valueBlock.error.length) this.blockLength += this.valueBlock.blockLength;
 
     return resultOffset;
+  }
+
+  /**
+   * Validates the raw value bytes before they are decoded
+   * @param _view Value bytes read from BER
+   * @returns Error message, or an empty string if the value is valid
+   */
+  protected checkValue(_view: Uint8Array): string {
+    return EMPTY_STRING;
   }
 
   /**

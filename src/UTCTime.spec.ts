@@ -20,4 +20,11 @@ describe("UTCTime", () => {
 
     assert.strictEqual(asn.toDate().getUTCFullYear(), 2150);
   });
+
+  it("stringifies without throwing when no date is set", () => {
+    assert.strictEqual(new asn1js.UTCTime().toString(), "000000000000Z");
+
+    const parsed = asn1js.fromBER(new Uint8Array([0x17, 0x01, 0x41]));
+    assert.doesNotThrow(() => `${parsed.result}`);
+  });
 });

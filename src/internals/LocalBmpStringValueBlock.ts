@@ -7,14 +7,8 @@ export type LocalBmpStringValueBlockJson = LocalSimpleStringBlockJson;
 export class LocalBmpStringValueBlock extends LocalSimpleStringBlock {
   public static override NAME = "BmpStringValueBlock";
 
-  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    if (this.lenBlock.length % 2 !== 0) {
-      this.error = "BMPString value length must be a multiple of 2";
-
-      return -1;
-    }
-
-    return super.fromBER(inputBuffer, inputOffset, inputLength);
+  protected override checkValue(view: Uint8Array): string {
+    return view.length % 2 !== 0 ? "BMPString value length must be a multiple of 2" : "";
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {

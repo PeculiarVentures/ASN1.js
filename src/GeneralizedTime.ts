@@ -29,6 +29,10 @@ export class GeneralizedTime extends UTCTime {
     this.idBlock.tagNumber = 24; // GeneralizedTime
   }
 
+  protected override checkYear(): void {
+    // GeneralizedTime has a four-digit year, so any year is representable
+  }
+
   public override fromDate(inputDate: Date): void {
     super.fromDate(inputDate);
     this.millisecond = inputDate.getUTCMilliseconds();
