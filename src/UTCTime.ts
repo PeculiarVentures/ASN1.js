@@ -126,9 +126,14 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
 
   public override toString(encoding: DateStringEncoding = "iso"): string {
     if (encoding === "iso") {
+      // UTCTime has a two-digit year, so 1950-2049 is all it can represent (RFC 5280 4.1.2.5.1)
+      if (!(this.year >= 1950 && this.year <= 2049)) {
+        throw new RangeError(`UTCTime year must be between 1950 and 2049, got ${this.year}; use GeneralizedTime instead`);
+      }
+
       const outputArray = Array.from<string>({ length: 7 });
 
-      outputArray[0] = String(this.year < 2000 ? this.year - 1900 : this.year - 2000).padStart(2, "0");
+      outputArray[0] = String(this.year % 100).padStart(2, "0");
       outputArray[1] = String(this.month).padStart(2, "0");
       outputArray[2] = String(this.day).padStart(2, "0");
       outputArray[3] = String(this.hour).padStart(2, "0");

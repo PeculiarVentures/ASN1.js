@@ -17,4 +17,32 @@ describe("UniversalString", () => {
     assert.ok(parsedAsn.result instanceof asn1js.UniversalString);
     assert.strictEqual(parsedAsn.result.getValue(), testString);
   });
+
+  it("encodes characters outside the BMP as one code point", () => {
+    const asn = new asn1js.UniversalString({ value: "A\u{1F600}" });
+    assert.strictEqual(asn.toString("hex"), "1c08000000410001f600");
+
+    const parsedAsn = asn1js.fromBER(asn.toBER());
+    assert.ok(parsedAsn.result instanceof asn1js.UniversalString);
+    assert.strictEqual(parsedAsn.result.getValue(), "A\u{1F600}");
+  });
+
+  it("decodes surrogate pairs written by older versions", () => {
+    const parsedAsn = asn1js.fromBER(hex.decode("1c080000d83d0000de00"));
+    assert.ok(parsedAsn.result instanceof asn1js.UniversalString);
+    assert.strictEqual(parsedAsn.result.getValue(), "\u{1F600}");
+  });
+
+  it("replaces code points beyond U+10FFFF and warns", () => {
+    const parsedAsn = asn1js.fromBER(hex.decode("1c0400110000"));
+    assert.ok(parsedAsn.result instanceof asn1js.UniversalString);
+    assert.strictEqual(parsedAsn.result.getValue(), "\ufffd");
+    assert.deepStrictEqual(parsedAsn.result.warnings, ["Code point 0x110000 is outside the Unicode range, using U+FFFD"]);
+  });
+
+  it("returns an error when the length is not a multiple of 4", () => {
+    const parsedAsn = asn1js.fromBER(hex.decode("1c03000041"));
+    assert.strictEqual(parsedAsn.offset, -1);
+    assert.strictEqual(parsedAsn.result.error, "UniversalString value length must be a multiple of 4");
+  });
 });
