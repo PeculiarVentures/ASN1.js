@@ -1,6 +1,6 @@
 {
   "name": "asn1js",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "description": "asn1js is a pure JavaScript library implementing this standard. ASN.1 is the basis of all X.509 related data structures and numerous other protocols used on the web",
   "keywords": [
     "asn1",
