@@ -1,5 +1,5 @@
 import { toUint8Array, uint } from "@peculiar/utils";
-import { LocalSimpleStringBlock, LocalSimpleStringBlockJson, LocalSimpleStringBlockParams } from "./LocalSimpleStringBlock";
+import { LocalSimpleStringBlock, type LocalSimpleStringBlockJson, type LocalSimpleStringBlockParams } from "./LocalSimpleStringBlock";
 
 export type LocalUniversalStringValueBlockParams = LocalSimpleStringBlockParams;
 export type LocalUniversalStringValueBlockJson = LocalSimpleStringBlockJson;

@@ -1,5 +1,5 @@
-import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
-import { LocalBooleanValueBlockParams, LocalBooleanValueBlock, LocalBooleanValueBlockJson } from "./internals/LocalBooleanValueBlock";
+import { BaseBlock, type BaseBlockJson, type BaseBlockParams } from "./BaseBlock";
+import { type LocalBooleanValueBlockParams, LocalBooleanValueBlock, type LocalBooleanValueBlockJson } from "./internals/LocalBooleanValueBlock";
 import { typeStore } from "./TypeStore";
 
 export interface BooleanParams extends BaseBlockParams, LocalBooleanValueBlockParams {}

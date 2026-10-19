@@ -1,4 +1,4 @@
-import { LocalBmpStringValueBlockParams, LocalBmpStringValueBlock, LocalBmpStringValueBlockJson } from "./internals/LocalBmpStringValueBlock";
+import { type LocalBmpStringValueBlockParams, LocalBmpStringValueBlock, type LocalBmpStringValueBlockJson } from "./internals/LocalBmpStringValueBlock";
 import { typeStore } from "./TypeStore";
 
 export type BmpStringParams = LocalBmpStringValueBlockParams;

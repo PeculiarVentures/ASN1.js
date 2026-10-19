@@ -1,7 +1,7 @@
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
-import { ValueBlock, ValueBlockJson, ValueBlockParams } from "../ValueBlock";
+import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
+import { ValueBlock, type ValueBlockJson, type ValueBlockParams } from "../ValueBlock";
 import { EMPTY_STRING } from "./constants";
-import { LocalUtf8StringValueBlockParams, LocalUtf8StringValueBlockJson } from "./LocalUtf8StringValueBlock";
+import type { LocalUtf8StringValueBlockParams, LocalUtf8StringValueBlockJson } from "./LocalUtf8StringValueBlock";
 
 export interface ILocalStringValueBlock {
   value: string;

@@ -1,6 +1,6 @@
 import { hex, toUint8Array } from "@peculiar/utils";
-import { HexBlockJson, HexBlockParams, HexBlock } from "../HexBlock";
-import { ValueBlockJson, ValueBlockParams } from "../ValueBlock";
+import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
+import type { ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { LocalBaseBlock } from "./LocalBaseBlock";
 import { EMPTY_BUFFER } from "./constants";
 import { decodeBase128, encodeBase128 } from "./integerUtils";

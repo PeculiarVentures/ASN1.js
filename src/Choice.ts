@@ -1,5 +1,5 @@
-import { BaseBlock } from "./BaseBlock";
-import { IAny, Any } from "./Any";
+import type { BaseBlock } from "./BaseBlock";
+import { type IAny, Any } from "./Any";
 
 export interface IChoice extends IAny {
   value: BaseBlock[];

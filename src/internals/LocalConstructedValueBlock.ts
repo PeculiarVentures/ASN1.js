@@ -1,13 +1,13 @@
 import { toUint8Array } from "@peculiar/utils";
 import type { BaseBlock } from "../BaseBlock";
-import { ValueBlock, ValueBlockParams } from "../ValueBlock";
+import { ValueBlock, type ValueBlockParams } from "../ValueBlock";
 import { ViewWriter } from "../ViewWriter";
 import { createFromBerContext, localFromBERWithChildContext } from "../parser";
 import type { Any } from "../Any";
 import type { FromBerContext } from "../parser";
 import { checkBufferParams } from "./utils";
 import { EMPTY_BUFFER, END_OF_CONTENT_NAME } from "./constants";
-import { LocalBaseBlockJson } from "./LocalBaseBlock";
+import type { LocalBaseBlockJson } from "./LocalBaseBlock";
 
 export type ConstructedItem = BaseBlock | Any;
 

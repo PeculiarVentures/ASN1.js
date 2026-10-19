@@ -4,7 +4,7 @@ import { Any } from "./Any";
 import { Choice } from "./Choice";
 import { Repeated } from "./Repeated";
 import { localFromBER } from "./parser";
-import { AsnType, typeStore } from "./TypeStore";
+import { type AsnType, typeStore } from "./TypeStore";
 
 export type AsnSchemaType = AsnType | Any | Choice | Repeated;
 

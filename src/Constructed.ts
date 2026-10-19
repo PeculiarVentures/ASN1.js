@@ -1,5 +1,5 @@
-import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
-import { LocalConstructedValueBlock, LocalConstructedValueBlockJson, LocalConstructedValueBlockParams } from "./internals/LocalConstructedValueBlock";
+import { BaseBlock, type BaseBlockJson, type BaseBlockParams } from "./BaseBlock";
+import { LocalConstructedValueBlock, type LocalConstructedValueBlockJson, type LocalConstructedValueBlockParams } from "./internals/LocalConstructedValueBlock";
 import { typeStore } from "./TypeStore";
 import type { FromBerContext } from "./parser";
 

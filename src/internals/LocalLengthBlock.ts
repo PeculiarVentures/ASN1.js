@@ -1,7 +1,7 @@
 import { toUint8Array, uint } from "@peculiar/utils";
-import { IBerConvertible } from "../types";
+import type { IBerConvertible } from "../types";
 import { EMPTY_BUFFER } from "./constants";
-import { LocalBaseBlock, LocalBaseBlockJson } from "./LocalBaseBlock";
+import { LocalBaseBlock, type LocalBaseBlockJson } from "./LocalBaseBlock";
 import { checkBufferParams } from "./utils";
 
 export interface ILocalLengthBlock {
