@@ -6,7 +6,7 @@ Thank you for your interest in contributing to `asn1js`! This document describes
 
 ### Prerequisites
 
-- Node.js `^20.19.0 || >=22.12.0` (CI uses Node.js 24)
+- Node.js `^22.18.0 || ^24.11.0 || >=26.0.0` for development, as required by tsdown and Vitest (CI uses Node.js 24). The published package supports `^20.19.0 || >=22.12.0`.
 - npm (the repository is locked with `package-lock.json`)
 
 ### Installation

@@ -25,7 +25,7 @@ npm install asn1js
 v4 is ESM-only and requires Node.js `^20.19.0 || >=22.12.0` (was `>=12.0.0`). CommonJS code can still `require("asn1js")` on these versions; Node.js 22.0–22.11 can't. The exported API is unchanged, but some encoding and validation behavior changed (last three items).
 
 - **TypeScript compiling to CommonJS:** use `"module": "node20"` or `"nodenext"` (`node16` fails with TS1479). ESM and bundler setups need no changes.
-- **Jest in CommonJS mode:** switch to ESM mode or Vitest, or add `asn1js` to `transformIgnorePatterns`.
+- **Jest in CommonJS mode:** switch to ESM mode or Vitest, or configure an ESM-to-CommonJS transformer and make sure `transformIgnorePatterns` doesn't exclude `asn1js` and its ESM dependencies, such as `@peculiar/utils`.
 - **Deep imports** (`asn1js/build/index.js`, `asn1js/build/index.es.js`) are blocked by `exports`; import from `asn1js`.
 - **One asn1js per app:** libraries such as `pkijs` and `@peculiar/asn1-schema` check `instanceof asn1js.Sequence` and similar, so objects from asn1js 4 fail those checks in a library that still depends on asn1js 3. Upgrade them together.
 - **New `RangeError`s:** `new Integer({ value })` and the `valueDec` setter reject non-integer numbers (v3 truncated `1.5` to `1` and encoded `NaN` as empty). Encoding a `UTCTime` with a year outside 1950–2049 throws, including `new UTCTime({ valueDate })`; v3 wrapped 2050 to 1950. Use `GeneralizedTime` for those dates.
