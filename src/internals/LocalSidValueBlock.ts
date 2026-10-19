@@ -92,15 +92,16 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
   }
 
   public set valueBigInt(value: bigint) {
-    let bits = BigInt(value).toString(2);
-    while (bits.length % 7) {
-      bits = "0" + bits;
+    const bytes = encodeBase128(BigInt(value));
+    if (!bytes) {
+      this.error = "Error during encoding SID value";
+
+      return;
     }
-    const bytes = new Uint8Array(bits.length / 7);
-    for (let i = 0; i < bytes.length; i++) {
-      bytes[i] = parseInt(bits.slice(i * 7, i * 7 + 7), 2) + (i + 1 < bytes.length ? 0x80 : 0);
-    }
-    this.fromBER(bytes.buffer, 0, bytes.length);
+
+    for (let i = 0; i < bytes.length - 1; i++) bytes[i] |= 0x80;
+
+    this.fromBER(bytes, 0, bytes.length);
   }
 
   public override toBER(sizeOnly?: boolean): ArrayBuffer {
@@ -127,12 +128,11 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
     const retView = new Uint8Array(encodedBuf.byteLength);
 
     if (!sizeOnly) {
-      const encodedView = new Uint8Array(encodedBuf);
       const len = encodedBuf.byteLength - 1;
 
-      for (let i = 0; i < len; i++) retView[i] = encodedView[i] | 0x80;
+      for (let i = 0; i < len; i++) retView[i] = encodedBuf[i] | 0x80;
 
-      retView[len] = encodedView[len];
+      retView[len] = encodedBuf[len];
     }
 
     return toArrayBuffer(retView);

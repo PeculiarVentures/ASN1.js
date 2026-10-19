@@ -148,12 +148,10 @@ export class LocalLengthBlock extends LocalBaseBlock implements ILocalLengthBloc
 
       if (sizeOnly) return retBuf;
 
-      const encodedView = new Uint8Array(encodedBuf);
       retView = new Uint8Array(retBuf);
 
       retView[0] = encodedBuf.byteLength | 0x80;
-
-      for (let i = 0; i < encodedBuf.byteLength; i++) retView[i + 1] = encodedView[i];
+      retView.set(encodedBuf, 1);
 
       return retBuf;
     }

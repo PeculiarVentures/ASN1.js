@@ -1,8 +1,9 @@
-import { concat, hex } from "@peculiar/utils";
+import { hex } from "@peculiar/utils";
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { Constructed } from "./Constructed";
 import { LocalOctetStringValueBlockParams, LocalOctetStringValueBlock, LocalOctetStringValueBlockJson } from "./internals/LocalOctetStringValueBlock";
 import { OCTET_STRING_NAME } from "./internals/constants";
+import * as utils from "./internals/utils";
 import { createFromBerContext, localFromBERWithChildContext } from "./parser";
 import { typeStore } from "./TypeStore";
 import type { FromBerContext } from "./parser";
@@ -97,7 +98,6 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
       }
     }
 
-    // concat copies into a new buffer, so the result is never a SharedArrayBuffer.
-    return concat(array) as ArrayBuffer;
+    return utils.concat(array);
   }
 }

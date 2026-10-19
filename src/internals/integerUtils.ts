@@ -9,8 +9,8 @@ export function decodeBase128(view: Uint8Array): number | undefined {
   }
 }
 
-/** Encodes a non-negative safe integer as base-128 digits, or returns `undefined` when it cannot. */
-export function encodeBase128(value: number): Uint8Array | undefined {
+/** Encodes a non-negative safe integer or bigint as base-128 digits, or returns `undefined` when it cannot. */
+export function encodeBase128(value: number | bigint): Uint8Array | undefined {
   try {
     return uint.encode(value, { bitsPerByte: 7 });
   } catch {

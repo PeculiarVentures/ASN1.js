@@ -108,12 +108,11 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
     const retView = new Uint8Array(encodedBuf.byteLength);
 
     if (!sizeOnly) {
-      const encodedView = new Uint8Array(encodedBuf);
       const len = encodedBuf.byteLength - 1;
 
-      for (let i = 0; i < len; i++) retView[i] = encodedView[i] | 0x80;
+      for (let i = 0; i < len; i++) retView[i] = encodedBuf[i] | 0x80;
 
-      retView[len] = encodedView[len];
+      retView[len] = encodedBuf[len];
     }
 
     return retView.buffer;
