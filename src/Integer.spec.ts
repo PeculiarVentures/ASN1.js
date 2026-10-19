@@ -1,4 +1,5 @@
 import * as assert from "assert";
+import { int } from "@peculiar/utils";
 import * as asn1js from "./index";
 import { describe, it } from "vitest";
 
@@ -57,6 +58,24 @@ describe("Integer", () => {
       const asn = asn1js.Integer.fromBigInt(num);
       assert.strictEqual(asn.toString("hex"), "02088102030405060708");
       assert.strictEqual(asn.toBigInt(), num);
+    });
+    it("keeps zero bytes after the sign byte of negative values", () => {
+      assert.strictEqual(asn1js.Integer.fromBigInt(-32767).toString("hex"), "02028001");
+      assert.strictEqual(asn1js.Integer.fromBigInt(-65535).toString("hex"), "0203ff0001");
+    });
+    it("encodes powers of two minimally", () => {
+      assert.strictEqual(asn1js.Integer.fromBigInt(0).toString("hex"), "020100");
+      assert.strictEqual(asn1js.Integer.fromBigInt(128).toString("hex"), "02020080");
+      assert.strictEqual(asn1js.Integer.fromBigInt(-128).toString("hex"), "020180");
+      assert.strictEqual(asn1js.Integer.fromBigInt(-129).toString("hex"), "0202ff7f");
+      assert.strictEqual(asn1js.Integer.fromBigInt(-32768).toString("hex"), "02028000");
+    });
+    it("round-trips every 16-bit value", () => {
+      for (let i = -65536; i <= 65536; i++) {
+        const asn = asn1js.Integer.fromBigInt(i);
+        assert.strictEqual(asn.toBigInt(), BigInt(i));
+        assert.ok(int.isMinimal(asn.valueBlock.valueHexView), `${i} is not minimal`);
+      }
     });
   });
 

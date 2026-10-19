@@ -28,6 +28,16 @@ export function bytesToSignedBigInt(view: Uint8Array): bigint {
   return value;
 }
 
+/** Encodes a bigint as minimal big-endian two's complement bytes. */
+export function signedBigIntToBytes(value: bigint): Uint8Array {
+  // A negative value -n needs as many bits as n - 1, so -128 fits in one byte
+  const magnitude = value < 0 ? -value - BigInt(1) : value;
+  const byteLength = (magnitude.toString(2).length >> 3) + 1;
+  const unsigned = value < 0 ? value + (BigInt(1) << BigInt(byteLength * 8)) : value;
+
+  return new Uint8Array(Convert.FromHex(unsigned.toString(16).padStart(byteLength * 2, "0")));
+}
+
 export function bytesToSignedDecimal(view: Uint8Array): string {
   if (typeof BigInt !== "undefined") return bytesToSignedBigInt(view).toString(10);
 

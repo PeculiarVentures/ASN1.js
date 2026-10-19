@@ -1,10 +1,8 @@
-import { BufferSourceConverter, Convert } from "@peculiar/utils";
 import { BaseBlock, BaseBlockJson, BaseBlockParams } from "./BaseBlock";
 import { LocalIntegerValueBlockParams, LocalIntegerValueBlock, LocalIntegerValueBlockJson, ORIGINAL_LOCAL_INTEGER_TO_STRING } from "./internals/LocalIntegerValueBlock";
 import { assertBigInt } from "./internals/utils";
-import { bytesToSignedBigInt } from "./internals/integerUtils";
+import { bytesToSignedBigInt, signedBigIntToBytes } from "./internals/integerUtils";
 import { typeStore } from "./TypeStore";
-import { ViewWriter } from "./ViewWriter";
 
 export interface IntegerParams extends BaseBlockParams, LocalIntegerValueBlockParams {}
 export type IntegerJson = BaseBlockJson<LocalIntegerValueBlockJson>;
@@ -49,34 +47,7 @@ export class Integer extends BaseBlock<LocalIntegerValueBlock, LocalIntegerValue
   public static fromBigInt(value: number | string | bigint | boolean): Integer {
     assertBigInt();
 
-    const bigIntValue = BigInt(value);
-    const writer = new ViewWriter();
-
-    const hex = bigIntValue.toString(16).replace(/^-/, "");
-    const view = new Uint8Array(Convert.FromHex(hex));
-
-    if (bigIntValue < 0) {
-      // a negative number
-      const first = new Uint8Array(view.length + (view[0] & 0x80 ? 1 : 0));
-      first[0] |= 0x80;
-
-      const firstInt = BigInt(`0x${Convert.ToHex(first)}`);
-      const secondInt = firstInt + bigIntValue;
-      const second = BufferSourceConverter.toUint8Array(Convert.FromHex(secondInt.toString(16)));
-      second[0] |= 0x80;
-
-      writer.write(second);
-    } else {
-      // a positive number
-      if (view[0] & 0x80) {
-        writer.write(new Uint8Array([0]));
-      }
-      writer.write(view);
-    }
-
-    const res = new Integer({ valueHex: writer.final() });
-
-    return res;
+    return new Integer({ valueHex: signedBigIntToBytes(BigInt(value)) });
   }
 
   public convertToDER(): Integer {
