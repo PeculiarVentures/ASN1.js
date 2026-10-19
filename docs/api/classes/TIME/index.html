@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">TIME | asn1js</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://asn1js.org/img/card.png"><meta data-rh="true" name="twitter:image" content="https://asn1js.org/img/card.png"><meta data-rh="true" property="og:url" content="https://asn1js.org/docs/api/classes/TIME"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="TIME | asn1js"><meta data-rh="true" name="description" content="Extends"><meta data-rh="true" property="og:description" content="Extends"><link data-rh="true" rel="icon" href="/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://asn1js.org/docs/api/classes/TIME"><link data-rh="true" rel="alternate" href="https://asn1js.org/docs/api/classes/TIME" hreflang="en"><link data-rh="true" rel="alternate" href="https://asn1js.org/docs/api/classes/TIME" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"TIME","item":"https://asn1js.org/docs/api/classes/TIME"}]}</script><link rel="stylesheet" href="/assets/css/styles.7e7582f0.css">
-<script src="/assets/js/runtime~main.56e3286d.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.5d2cca55.js" defer="defer"></script>
 <script src="/assets/js/main.89022e30.js" defer="defer"></script>
 </head>
 <body>
@@ -131,44 +131,59 @@
 <h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-10">Inherited from<a href="#inherited-from-10" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
 <p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#valuebeforedecode"><code>valueBeforeDecode</code></a></p>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="methods">Methods<a href="#methods" class="hash-link" aria-label="Direct link to Methods" title="Direct link to Methods" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="checkvalue">checkValue()<a href="#checkvalue" class="hash-link" aria-label="Direct link to checkValue()" title="Direct link to checkValue()" translate="no">​</a></h3>
+<blockquote>
+<p><code>protected</code> <strong>checkValue</strong>(<code>_view</code>): <code>string</code></p>
+</blockquote>
+<p>Validates the raw value bytes before they are decoded</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-3">Parameters<a href="#parameters-3" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
+<h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="_view">_view<a href="#_view" class="hash-link" aria-label="Direct link to _view" title="Direct link to _view" translate="no">​</a></h5>
+<p><code>Uint8Array</code></p>
+<p>Value bytes read from BER</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-3">Returns<a href="#returns-3" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<p><code>string</code></p>
+<p>Error message, or an empty string if the value is valid</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-11">Inherited from<a href="#inherited-from-11" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
+<p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#checkvalue"><code>checkValue</code></a></p>
+<hr>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="fromber">fromBER()<a href="#fromber" class="hash-link" aria-label="Direct link to fromBER()" title="Direct link to fromBER()" translate="no">​</a></h3>
 <blockquote>
 <p><strong>fromBER</strong>(<code>inputBuffer</code>, <code>inputOffset</code>, <code>inputLength</code>): <code>number</code></p>
 </blockquote>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-3">Parameters<a href="#parameters-3" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-4">Parameters<a href="#parameters-4" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
 <h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="inputbuffer">inputBuffer<a href="#inputbuffer" class="hash-link" aria-label="Direct link to inputBuffer" title="Direct link to inputBuffer" translate="no">​</a></h5>
 <p><code>ArrayBuffer</code> | <code>Uint8Array</code>&lt;<code>ArrayBufferLike</code>&gt;</p>
 <h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="inputoffset">inputOffset<a href="#inputoffset" class="hash-link" aria-label="Direct link to inputOffset" title="Direct link to inputOffset" translate="no">​</a></h5>
 <p><code>number</code></p>
 <h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="inputlength">inputLength<a href="#inputlength" class="hash-link" aria-label="Direct link to inputLength" title="Direct link to inputLength" translate="no">​</a></h5>
 <p><code>number</code></p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-3">Returns<a href="#returns-3" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-4">Returns<a href="#returns-4" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
 <p><code>number</code></p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-11">Inherited from<a href="#inherited-from-11" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-12">Inherited from<a href="#inherited-from-12" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
 <p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#fromber"><code>fromBER</code></a></p>
 <hr>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="frombuffer">fromBuffer()<a href="#frombuffer" class="hash-link" aria-label="Direct link to fromBuffer()" title="Direct link to fromBuffer()" translate="no">​</a></h3>
 <blockquote>
 <p><strong>fromBuffer</strong>(<code>inputBuffer</code>): <code>void</code></p>
 </blockquote>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-4">Parameters<a href="#parameters-4" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-5">Parameters<a href="#parameters-5" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
 <h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="inputbuffer-1">inputBuffer<a href="#inputbuffer-1" class="hash-link" aria-label="Direct link to inputBuffer" title="Direct link to inputBuffer" translate="no">​</a></h5>
 <p><code>ArrayBuffer</code> | <code>Uint8Array</code>&lt;<code>ArrayBufferLike</code>&gt;</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-4">Returns<a href="#returns-4" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-5">Returns<a href="#returns-5" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
 <p><code>void</code></p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-12">Inherited from<a href="#inherited-from-12" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-13">Inherited from<a href="#inherited-from-13" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
 <p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#frombuffer"><code>fromBuffer</code></a></p>
 <hr>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="fromstring">fromString()<a href="#fromstring" class="hash-link" aria-label="Direct link to fromString()" title="Direct link to fromString()" translate="no">​</a></h3>
 <blockquote>
 <p><strong>fromString</strong>(<code>inputString</code>): <code>void</code></p>
 </blockquote>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-5">Parameters<a href="#parameters-5" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-6">Parameters<a href="#parameters-6" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
 <h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="inputstring">inputString<a href="#inputstring" class="hash-link" aria-label="Direct link to inputString" title="Direct link to inputString" translate="no">​</a></h5>
 <p><code>string</code></p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-5">Returns<a href="#returns-5" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-6">Returns<a href="#returns-6" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
 <p><code>void</code></p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-13">Inherited from<a href="#inherited-from-13" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-14">Inherited from<a href="#inherited-from-14" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
 <p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#fromstring"><code>fromString</code></a></p>
 <hr>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="getvalue">getValue()<a href="#getvalue" class="hash-link" aria-label="Direct link to getValue()" title="Direct link to getValue()" translate="no">​</a></h3>
@@ -176,11 +191,11 @@
 <p><strong>getValue</strong>(): <code>string</code></p>
 </blockquote>
 <p>String value</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-6">Returns<a href="#returns-6" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-7">Returns<a href="#returns-7" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
 <p><code>string</code></p>
 <h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="since-1">Since<a href="#since-1" class="hash-link" aria-label="Direct link to Since" title="Direct link to Since" translate="no">​</a></h4>
 <p>3.0.0</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-14">Inherited from<a href="#inherited-from-14" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-15">Inherited from<a href="#inherited-from-15" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
 <p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#getvalue"><code>getValue</code></a></p>
 <hr>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="isequal">isEqual()<a href="#isequal" class="hash-link" aria-label="Direct link to isEqual()" title="Direct link to isEqual()" translate="no">​</a></h3>
@@ -188,22 +203,22 @@
 <p><strong>isEqual</strong>(<code>other</code>): <code>other is TIME</code></p>
 </blockquote>
 <p>Determines whether two object instances are equal</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-6">Parameters<a href="#parameters-6" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-7">Parameters<a href="#parameters-7" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
 <h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="other">other<a href="#other" class="hash-link" aria-label="Direct link to other" title="Direct link to other" translate="no">​</a></h5>
 <p><code>unknown</code></p>
 <p>Object to compare with the current object</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-7">Returns<a href="#returns-7" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-8">Returns<a href="#returns-8" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
 <p><code>other is TIME</code></p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-15">Inherited from<a href="#inherited-from-15" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-16">Inherited from<a href="#inherited-from-16" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
 <p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#isequal"><code>isEqual</code></a></p>
 <hr>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="onasciiencoding">onAsciiEncoding()<a href="#onasciiencoding" class="hash-link" aria-label="Direct link to onAsciiEncoding()" title="Direct link to onAsciiEncoding()" translate="no">​</a></h3>
 <blockquote>
 <p><code>protected</code> <strong>onAsciiEncoding</strong>(): <code>string</code></p>
 </blockquote>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-8">Returns<a href="#returns-8" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-9">Returns<a href="#returns-9" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
 <p><code>string</code></p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-16">Inherited from<a href="#inherited-from-16" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-17">Inherited from<a href="#inherited-from-17" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
 <p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#onasciiencoding"><code>onAsciiEncoding</code></a></p>
 <hr>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="setvalue">setValue()<a href="#setvalue" class="hash-link" aria-label="Direct link to setValue()" title="Direct link to setValue()" translate="no">​</a></h3>
@@ -211,15 +226,15 @@
 <p><strong>setValue</strong>(<code>value</code>): <code>void</code></p>
 </blockquote>
 <p>String value</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-7">Parameters<a href="#parameters-7" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-8">Parameters<a href="#parameters-8" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
 <h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="value-1">value<a href="#value-1" class="hash-link" aria-label="Direct link to value" title="Direct link to value" translate="no">​</a></h5>
 <p><code>string</code></p>
 <p>String value</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-9">Returns<a href="#returns-9" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-10">Returns<a href="#returns-10" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
 <p><code>void</code></p>
 <h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="since-2">Since<a href="#since-2" class="hash-link" aria-label="Direct link to Since" title="Direct link to Since" translate="no">​</a></h4>
 <p>3.0.0</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-17">Inherited from<a href="#inherited-from-17" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-18">Inherited from<a href="#inherited-from-18" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
 <p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#setvalue"><code>setValue</code></a></p>
 <hr>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="tober">toBER()<a href="#tober" class="hash-link" aria-label="Direct link to toBER()" title="Direct link to toBER()" translate="no">​</a></h3>
@@ -227,16 +242,16 @@
 <p><strong>toBER</strong>(<code>sizeOnly?</code>, <code>writer?</code>): <code>ArrayBuffer</code></p>
 </blockquote>
 <p>Encoding of current ASN.1 block into ASN.1 encoded array (BER rules)</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-8">Parameters<a href="#parameters-8" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-9">Parameters<a href="#parameters-9" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
 <h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="sizeonly">sizeOnly?<a href="#sizeonly" class="hash-link" aria-label="Direct link to sizeOnly?" title="Direct link to sizeOnly?" translate="no">​</a></h5>
 <p><code>boolean</code></p>
 <p>Flag that we need only a size of encoding, not a real array of bytes</p>
 <h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="writer">writer?<a href="#writer" class="hash-link" aria-label="Direct link to writer?" title="Direct link to writer?" translate="no">​</a></h5>
 <p><a class="" href="/docs/api/classes/ViewWriter"><code>ViewWriter</code></a></p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-10">Returns<a href="#returns-10" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-11">Returns<a href="#returns-11" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
 <p><code>ArrayBuffer</code></p>
 <p>ASN.1 BER encoded array</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-18">Inherited from<a href="#inherited-from-18" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-19">Inherited from<a href="#inherited-from-19" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
 <p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#tober"><code>toBER</code></a></p>
 <hr>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="tojson">toJSON()<a href="#tojson" class="hash-link" aria-label="Direct link to toJSON()" title="Direct link to toJSON()" translate="no">​</a></h3>
@@ -244,10 +259,10 @@
 <p><strong>toJSON</strong>(): <a class="" href="/docs/api/interfaces/BaseBlockJson"><code>BaseBlockJson</code></a>&lt;<code>LocalStringValueBlockJson</code>&gt;</p>
 </blockquote>
 <p>Returns a JSON representation of an object</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-11">Returns<a href="#returns-11" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-12">Returns<a href="#returns-12" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
 <p><a class="" href="/docs/api/interfaces/BaseBlockJson"><code>BaseBlockJson</code></a>&lt;<code>LocalStringValueBlockJson</code>&gt;</p>
 <p>JSON object</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-19">Inherited from<a href="#inherited-from-19" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-20">Inherited from<a href="#inherited-from-20" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
 <p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#tojson"><code>toJSON</code></a></p>
 <hr>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="tostring">toString()<a href="#tostring" class="hash-link" aria-label="Direct link to toString()" title="Direct link to toString()" translate="no">​</a></h3>
@@ -255,12 +270,12 @@
 <p><strong>toString</strong>(<code>encoding?</code>): <code>string</code></p>
 </blockquote>
 <p>Returns a string representation of an object.</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-9">Parameters<a href="#parameters-9" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="parameters-10">Parameters<a href="#parameters-10" class="hash-link" aria-label="Direct link to Parameters" title="Direct link to Parameters" translate="no">​</a></h4>
 <h5 class="anchor anchorTargetStickyNavbar_Vzrq" id="encoding">encoding?<a href="#encoding" class="hash-link" aria-label="Direct link to encoding?" title="Direct link to encoding?" translate="no">​</a></h5>
 <p><a class="" href="/docs/api/#stringencoding"><code>StringEncoding</code></a> = <code>&quot;ascii&quot;</code></p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-12">Returns<a href="#returns-12" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-13">Returns<a href="#returns-13" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
 <p><code>string</code></p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-20">Inherited from<a href="#inherited-from-20" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-21">Inherited from<a href="#inherited-from-21" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
 <p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#tostring"><code>toString</code></a></p>
 <hr>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="blockname">blockName()<a href="#blockname" class="hash-link" aria-label="Direct link to blockName()" title="Direct link to blockName()" translate="no">​</a></h3>
@@ -268,10 +283,10 @@
 <p><code>static</code> <strong>blockName</strong>(): <code>string</code></p>
 </blockquote>
 <p>Aux function, need to get a block name. Need to have it here for inheritance</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-13">Returns<a href="#returns-13" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="returns-14">Returns<a href="#returns-14" class="hash-link" aria-label="Direct link to Returns" title="Direct link to Returns" translate="no">​</a></h4>
 <p><code>string</code></p>
 <p>Returns name of the block</p>
-<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-21">Inherited from<a href="#inherited-from-21" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
-<p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#blockname"><code>blockName</code></a></p></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/docs/api/classes/TeletexString"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">TeletexString</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/docs/api/classes/TimeOfDay"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">TimeOfDay</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#extends" class="table-of-contents__link toc-highlight">Extends</a></li><li><a href="#constructors" class="table-of-contents__link toc-highlight">Constructors</a><ul><li><a href="#constructor" class="table-of-contents__link toc-highlight">Constructor</a></li></ul></li><li><a href="#properties" class="table-of-contents__link toc-highlight">Properties</a><ul><li><a href="#blocklength" class="table-of-contents__link toc-highlight">blockLength</a></li><li><a href="#error" class="table-of-contents__link toc-highlight">error</a></li><li><a href="#idblock" class="table-of-contents__link toc-highlight">idBlock</a></li><li><a href="#lenblock" class="table-of-contents__link toc-highlight">lenBlock</a></li><li><a href="#name" class="table-of-contents__link toc-highlight">name</a></li><li><a href="#optional" class="table-of-contents__link toc-highlight">optional</a></li><li><a href="#primitiveschema" class="table-of-contents__link toc-highlight">primitiveSchema?</a></li><li><a href="#valuebeforedecodeview" class="table-of-contents__link toc-highlight">valueBeforeDecodeView</a></li><li><a href="#valueblock" class="table-of-contents__link toc-highlight">valueBlock</a></li><li><a href="#warnings" class="table-of-contents__link toc-highlight">warnings</a></li><li><a href="#name-1" class="table-of-contents__link toc-highlight">NAME</a></li></ul></li><li><a href="#accessors" class="table-of-contents__link toc-highlight">Accessors</a><ul><li><a href="#valuebeforedecode" class="table-of-contents__link toc-highlight">valueBeforeDecode</a></li></ul></li><li><a href="#methods" class="table-of-contents__link toc-highlight">Methods</a><ul><li><a href="#fromber" class="table-of-contents__link toc-highlight">fromBER()</a></li><li><a href="#frombuffer" class="table-of-contents__link toc-highlight">fromBuffer()</a></li><li><a href="#fromstring" class="table-of-contents__link toc-highlight">fromString()</a></li><li><a href="#getvalue" class="table-of-contents__link toc-highlight">getValue()</a></li><li><a href="#isequal" class="table-of-contents__link toc-highlight">isEqual()</a></li><li><a href="#onasciiencoding" class="table-of-contents__link toc-highlight">onAsciiEncoding()</a></li><li><a href="#setvalue" class="table-of-contents__link toc-highlight">setValue()</a></li><li><a href="#tober" class="table-of-contents__link toc-highlight">toBER()</a></li><li><a href="#tojson" class="table-of-contents__link toc-highlight">toJSON()</a></li><li><a href="#tostring" class="table-of-contents__link toc-highlight">toString()</a></li><li><a href="#blockname" class="table-of-contents__link toc-highlight">blockName()</a></li></ul></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Learn</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/docs/installation">Installation</a></li><li class="footer__item"><a class="footer__link-item" href="/docs/examples/create-new-asn-structures-by-calling-constructors-with-parameters">Examples</a></li><li class="footer__item"><a class="footer__link-item" href="/docs/api/">API</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/PeculiarVentures/ASN1.js" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="mailto:info@peculiarventures.com" target="_blank" rel="noopener noreferrer" class="footer__link-item">Contact us<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Version: 3.1.0</div><ul class="footer__items clean-list"></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Made with ❤️ across the globe</div></div></div></footer></div>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="inherited-from-22">Inherited from<a href="#inherited-from-22" class="hash-link" aria-label="Direct link to Inherited from" title="Direct link to Inherited from" translate="no">​</a></h4>
+<p><a class="" href="/docs/api/classes/Utf8String"><code>Utf8String</code></a>.<a class="" href="/docs/api/classes/Utf8String#blockname"><code>blockName</code></a></p></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/docs/api/classes/TeletexString"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">TeletexString</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/docs/api/classes/TimeOfDay"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">TimeOfDay</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#extends" class="table-of-contents__link toc-highlight">Extends</a></li><li><a href="#constructors" class="table-of-contents__link toc-highlight">Constructors</a><ul><li><a href="#constructor" class="table-of-contents__link toc-highlight">Constructor</a></li></ul></li><li><a href="#properties" class="table-of-contents__link toc-highlight">Properties</a><ul><li><a href="#blocklength" class="table-of-contents__link toc-highlight">blockLength</a></li><li><a href="#error" class="table-of-contents__link toc-highlight">error</a></li><li><a href="#idblock" class="table-of-contents__link toc-highlight">idBlock</a></li><li><a href="#lenblock" class="table-of-contents__link toc-highlight">lenBlock</a></li><li><a href="#name" class="table-of-contents__link toc-highlight">name</a></li><li><a href="#optional" class="table-of-contents__link toc-highlight">optional</a></li><li><a href="#primitiveschema" class="table-of-contents__link toc-highlight">primitiveSchema?</a></li><li><a href="#valuebeforedecodeview" class="table-of-contents__link toc-highlight">valueBeforeDecodeView</a></li><li><a href="#valueblock" class="table-of-contents__link toc-highlight">valueBlock</a></li><li><a href="#warnings" class="table-of-contents__link toc-highlight">warnings</a></li><li><a href="#name-1" class="table-of-contents__link toc-highlight">NAME</a></li></ul></li><li><a href="#accessors" class="table-of-contents__link toc-highlight">Accessors</a><ul><li><a href="#valuebeforedecode" class="table-of-contents__link toc-highlight">valueBeforeDecode</a></li></ul></li><li><a href="#methods" class="table-of-contents__link toc-highlight">Methods</a><ul><li><a href="#checkvalue" class="table-of-contents__link toc-highlight">checkValue()</a></li><li><a href="#fromber" class="table-of-contents__link toc-highlight">fromBER()</a></li><li><a href="#frombuffer" class="table-of-contents__link toc-highlight">fromBuffer()</a></li><li><a href="#fromstring" class="table-of-contents__link toc-highlight">fromString()</a></li><li><a href="#getvalue" class="table-of-contents__link toc-highlight">getValue()</a></li><li><a href="#isequal" class="table-of-contents__link toc-highlight">isEqual()</a></li><li><a href="#onasciiencoding" class="table-of-contents__link toc-highlight">onAsciiEncoding()</a></li><li><a href="#setvalue" class="table-of-contents__link toc-highlight">setValue()</a></li><li><a href="#tober" class="table-of-contents__link toc-highlight">toBER()</a></li><li><a href="#tojson" class="table-of-contents__link toc-highlight">toJSON()</a></li><li><a href="#tostring" class="table-of-contents__link toc-highlight">toString()</a></li><li><a href="#blockname" class="table-of-contents__link toc-highlight">blockName()</a></li></ul></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Learn</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/docs/installation">Installation</a></li><li class="footer__item"><a class="footer__link-item" href="/docs/examples/create-new-asn-structures-by-calling-constructors-with-parameters">Examples</a></li><li class="footer__item"><a class="footer__link-item" href="/docs/api/">API</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">More</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/PeculiarVentures/ASN1.js" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="mailto:info@peculiarventures.com" target="_blank" rel="noopener noreferrer" class="footer__link-item">Contact us<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Version: 3.1.0</div><ul class="footer__items clean-list"></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Made with ❤️ across the globe</div></div></div></footer></div>
 </body>
 </html>
