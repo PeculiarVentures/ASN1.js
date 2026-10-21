@@ -20,6 +20,8 @@ Abstract Syntax Notation One (ASN.1) is a standard and notation that describes r
 npm install asn1js
 ```
 
+Documentation, the API reference, and runnable examples are at [asn1js.org](https://asn1js.org).
+
 ## Breaking Changes In v4
 
 v4 is ESM-only and requires Node.js `^20.19.0 || >=22.12.0` (was `>=12.0.0`). CommonJS code can still `require("asn1js")` on these versions; Node.js 22.0–22.11 can't. The exported API is unchanged, but some encoding and validation behavior changed (last three items).
@@ -32,131 +34,44 @@ v4 is ESM-only and requires Node.js `^20.19.0 || >=22.12.0` (was `>=12.0.0`). Co
 - **Encodings that differ from v3:** `Integer.fromBigInt` encodes negative values correctly (v3: `-32767n` → `0x81`, `-128n` → `0xff80`). `UniversalString` writes characters outside the BMP as one UCS-4 code point (`U+1F600` → `0001f600`, v3 wrote a surrogate pair; v3 output still decodes). OID arcs and tag numbers from 2^49 to 2^53 now encode (v3 produced an empty value).
 - **Decoding:** a `BMPString` with an odd length or a `UniversalString` whose length isn't a multiple of 4 returns an error (`offset: -1`) instead of throwing. `UniversalString` lone surrogates and code points above U+10FFFF become U+FFFD with a warning. OID arcs and tag numbers above 2^53 stay hex-only and re-encode unchanged. "Needlessly long encoded length" now checks the first length octet, so lengths such as `83 00 00 07` get the warning.
 
-## Important Information for ASN1.js V1 Users
-
-ASN1.js V2 (ES2015 version) is **incompatible** with ASN1.js V1 code.
-
 ## Introduction
 
-[ASN1js] is the first library for [BER] encoding/decoding in Javascript designed for browser use. [BER] is the basic encoding rules for [ASN.1] that all others are based on, [DER] is the encoding rules used by PKI applications - it is a subset of [BER]. The [ASN1js] library was tested against [freely available ASN.1:2008 test suite], with some limitations related to JavaScript language.
+[ASN1js] is the first library for [BER] encoding/decoding in JavaScript designed for browser use. [BER] is the basic encoding rules for [ASN.1] that all others are based on, [DER] is the encoding rules used by PKI applications - it is a subset of [BER]. The [ASN1js] library was tested against [freely available ASN.1:2008 test suite], with some limitations related to JavaScript language.
 
 ## Features of the library
 
 - Based on latest features of JavaScript language from ES2015 standard;
 - [ASN1js] is a "base layer" for full-featured JS library [PKIjs], which is using Web Cryptography API and has all classes, necessary to work with PKI-related data;
-- Fully object-oriented library. Inheritance is using everywhere inside the lib;
+- Fully object-oriented library. Inheritance is used everywhere inside the lib;
 - Working with HTML5 data objects (ArrayBuffer, Uint8Array etc.);
 - Working with all ASN.1:2008 types;
 - Working with [BER] encoded data;
 - All types inside the library constantly stores information about all ASN.1 sub blocks (tag block, length block or value block);
 - User may have access to any byte inside any ASN.1 sub-block;
 - Any sub-block may have unlimited length, as it described in ASN.1 standard (even "tag block");
-- Ability to work with ASN.1 string date types (including all "international" strings like UniversalString, BMPString, UTF8String) by passing native JavaScript strings into constructors. And vice versa - all initially parsed data of ASN.1 string types right after decoding automatically converts into native JavaScript strings;
+- Ability to work with ASN.1 string data types (including all "international" strings like UniversalString, BMPString, UTF8String) by passing native JavaScript strings into constructors. And vice versa - all initially parsed data of ASN.1 string types right after decoding automatically converts into native JavaScript strings;
 - Same with ASN.1 date-time types: for major types like UTCTime and GeneralizedTime there are automatic conversion between "JS date type - ASN.1 date-time type" + vice versa;
-- Same with ASN.1 OBJECT-IDENTIFIER (OID) data-type: you can initialize OID by JavaScript string and can get string representation via calling "oid.valueBlock.toString()";
+- Same with ASN.1 OBJECT-IDENTIFIER (OID) data-type: you can initialize OID by JavaScript string and can get its string representation by calling `oid.getValue()`;
 - Working with "easy-to-understand" ASN.1 schemas (pre-defined or built by user);
 - Has special types to work with ASN.1 schemas:
   - Any
   - Choice
   - Repeated
 - User can name any block inside ASN.1 schema and easily get information by name;
-- Ability to parse internal data inside a primitively encoded data types and automatically validate it against special schema;
+- Ability to parse internal data inside primitively encoded data types and automatically validate it against special schema;
 - All types inside library are dynamic;
 - All types can be initialized in static or dynamic ways.
 - [ASN1js] fully tested against [ASN.1:2008 TestSuite].
 
 ## Examples
 
-### How to create new ASN. structures
+Runnable examples are on the [website](https://asn1js.org/docs/examples/):
 
-```javascript
-var sequence = new asn1js.Sequence();
-sequence.valueBlock.value.push(new asn1js.Integer({ value: 1 }));
+- Basics: [decode BER and DER](https://asn1js.org/docs/examples/basics/decode), [encode to DER](https://asn1js.org/docs/examples/basics/encode), [convert to JavaScript values](https://asn1js.org/docs/examples/basics/values), [explicit and implicit tags](https://asn1js.org/docs/examples/basics/tagging)
+- Schemas: [validate against a schema](https://asn1js.org/docs/examples/schemas/verify-schema), [CHOICE and SEQUENCE OF](https://asn1js.org/docs/examples/schemas/choice-and-repeated), [structures inside an OCTET STRING](https://asn1js.org/docs/examples/schemas/embedded-data)
+- Real-world data: [read an X.509 certificate](https://asn1js.org/docs/examples/real-world/x509-certificate), [read a public key](https://asn1js.org/docs/examples/real-world/public-key), [parse untrusted input](https://asn1js.org/docs/examples/real-world/untrusted-input)
 
-var sequence_buffer = sequence.toBER(false); // Encode current sequence to BER (in ArrayBuffer)
-var current_size = sequence_buffer.byteLength;
-
-var integer_data = new ArrayBuffer(8);
-var integer_view = new Uint8Array(integer_data);
-integer_view[0] = 0x01;
-integer_view[1] = 0x01;
-integer_view[2] = 0x01;
-integer_view[3] = 0x01;
-integer_view[4] = 0x01;
-integer_view[5] = 0x01;
-integer_view[6] = 0x01;
-integer_view[7] = 0x01;
-
-sequence.valueBlock.value.push(
-  new asn1js.Integer({
-    isHexOnly: true,
-    valueHex: integer_data,
-  }),
-); // Put too long for decoding Integer value
-
-sequence_buffer = sequence.toBER();
-current_size = sequence_buffer.byteLength;
-```
-
-### How to create new ASN.1 structures by calling constructors with parameters
-
-```javascript
-var sequence2 = new asn1js.Sequence({
-  value: [
-    new asn1js.Integer({ value: 1 }),
-    new asn1js.Integer({
-      isHexOnly: true,
-      valueHex: integer_data,
-    }),
-  ],
-});
-```
-
-### How to validate ASN.1 against pre-defined schema
-
-```javascript
-var asn1_schema = new asn1js.Sequence({
-  name: "block1",
-  value: [
-    new asn1js.Null({
-      name: "block2",
-    }),
-    new asn1js.Integer({
-      name: "block3",
-      optional: true, // This block is absent inside data, but it's "optional". Hence verification against the schema will be passed.
-    }),
-  ],
-});
-
-var variant1 = asn1js.verifySchema(encoded_sequence, asn1_schema); // Verify schema together with decoding of raw data
-var variant1_verified = variant1.verified;
-var variant1_result = variant1.result; // Verified decoded data with all block names inside
-```
-
-### How to use "internal schemas" for primitively encoded data types
-
-```javascript
-var primitive_octetstring = new asn1js.OctetString({ valueHex: encoded_sequence }); // Create a primitively encoded OctetString where internal data is an encoded Sequence
-
-var asn1_schema_internal = new asn1js.OctetString({
-  name: "outer_block",
-  primitiveSchema: new asn1js.Sequence({
-    name: "block1",
-    value: [
-      new asn1js.Null({
-        name: "block2",
-      }),
-    ],
-  }),
-});
-
-var variant6 = asn1js.compareSchema(primitive_octetstring, primitive_octetstring, asn1_schema_internal);
-var variant6_verified = variant4.verified;
-var variant6_block1_tag_num = variant6.result.block1.idBlock.tagNumber;
-var variant6_block2_tag_num = variant6.result.block2.idBlock.tagNumber;
-```
-
-More examples could be found in "examples" directory or inside [PKIjs] library.
+For complete PKI structures such as certificates, CMS, and PKCS#10 requests, see [PKIjs], which is built on [ASN1js].
 
 ## Parsing Untrusted Input
 
@@ -170,7 +85,7 @@ const asn1 = asn1js.fromBER(inputBuffer, {
 });
 ```
 
-When any limit is exceeded the parser returns a normal `FromBerResult` error instead of exhausting the JavaScript stack or continuing to parse excessive input.
+When any limit is exceeded the parser returns a normal `FromBerResult` error instead of exhausting the JavaScript stack or continuing to parse excessive input. See the [untrusted input example](https://asn1js.org/docs/examples/real-world/untrusted-input).
 
 By default, primitive OCTET STRING values and primitive BIT STRING values with zero unused bits are also checked for a complete embedded ASN.1 value. Set `parseEmbedded: false` to keep those values as raw bytes without that heuristic interpretation; constructed children continue to be parsed normally.
 
@@ -196,7 +111,7 @@ const asn1 = asn1js.fromBER(inputBuffer, {
 
 ## Suitability
 
-There are several commercial products, enterprise solutions as well as open source project based on versions of ASN1js. You should, however, do your own code and security review before utilization in a production application before utilizing any open source library to ensure it will meet your needs.
+There are several commercial products, enterprise solutions as well as open source project based on versions of ASN1js. You should, however, do your own code and security review before using any open source library in a production application to ensure it will meet your needs.
 
 ## Contributing
 
@@ -204,41 +119,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, commit conventions
 
 ## License
 
-Copyright (c) 2014, [GMO GlobalSign](http://www.globalsign.com/)
-Copyright (c) 2015-2022, [Peculiar Ventures](http://peculiarventures.com/)
-All rights reserved.
+asn1js is released under the [BSD 3-Clause License](LICENSE).
 
-Author 2014-2018, [Yury Strozhevsky](http://www.strozhevsky.com/).
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice,
-   this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors
-   may be used to endorse or promote products derived from this software without
-   specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
-OF SUCH DAMAGE.
-
-[ASN.1]: http://en.wikipedia.org/wiki/Abstract_Syntax_Notation_One
-[ASN1js]: http://asn1js.org/
-[PKIjs]: http://pkijs.org/
-[BER]: http://en.wikipedia.org/wiki/X.690#BER_encoding
-[DER]: http://en.wikipedia.org/wiki/X.690#DER_encoding
-[freely available ASN.1:2008 test suite]: http://www.strozhevsky.com/free_docs/free_asn1_testsuite_descr.pdf
+[ASN.1]: https://en.wikipedia.org/wiki/Abstract_Syntax_Notation_One
+[ASN1js]: https://asn1js.org/
+[PKIjs]: https://pkijs.org/
+[BER]: https://en.wikipedia.org/wiki/X.690#BER_encoding
+[DER]: https://en.wikipedia.org/wiki/X.690#DER_encoding
+[freely available ASN.1:2008 test suite]: https://github.com/YuryStrozhevsky/ASN1-2008-free-test-suite
 [ASN.1:2008 TestSuite]: https://github.com/YuryStrozhevsky/asn1-test-suite
