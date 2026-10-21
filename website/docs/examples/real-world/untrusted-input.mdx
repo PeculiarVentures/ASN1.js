@@ -2,13 +2,13 @@
 sidebar_position: 3
 ---
 
-import CodeBlock from "@theme/CodeBlock";
+import RunnableExample from "@site/src/components/RunnableExample";
 import source from "!!raw-loader!./untrusted-input.example.ts";
 
 # Parse untrusted input
 
 By default `fromBER()` already caps nesting depth, node count, and content length. Set tighter limits for data you don't control, such as network messages or file uploads. When a limit is exceeded, `fromBER()` returns an error result instead of throwing or exhausting the stack.
 
-<CodeBlock language="ts">{source}</CodeBlock>
+<RunnableExample source={source} load={() => import("./untrusted-input.example.ts?run")} />
 
 **API:** [`fromBER()`](../../api/#fromber), [`FromBerOptions`](../../api/interfaces/FromBerOptions.md)

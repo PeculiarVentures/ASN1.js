@@ -3,6 +3,7 @@ import type * as Preset from "@docusaurus/preset-classic";
 import { themes as prismThemes } from "prism-react-renderer";
 import npm2yarn from "@docusaurus/remark-plugin-npm2yarn";
 import packageJSON from "../package.json";
+import runnableExamples from "./plugins/runnable-examples";
 
 const config: Config = {
   title: "asn1js",
@@ -58,7 +59,8 @@ const config: Config = {
         }
       }
     ],
-    "docusaurus-plugin-sass"
+    "docusaurus-plugin-sass",
+    runnableExamples
   ],
 
   themeConfig: {

@@ -19,9 +19,11 @@ jobs:
           cache-dependency-path: |
             package-lock.json
             website/package-lock.json
-      # The examples are typechecked against the library source, which needs its dependencies.
+      - name: Install asn1js dependencies
+        run: npm ci
+      # The examples are typechecked against, and bundled from, the library source.
       - name: Typecheck examples
-        run: npm ci && npx tsc --noEmit -p website/docs/examples
+        run: npx tsc --noEmit -p website/docs/examples
       - name: Build website
         working-directory: ./website
         run: npm ci && npm run build

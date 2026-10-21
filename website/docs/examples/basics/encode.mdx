@@ -2,13 +2,13 @@
 sidebar_position: 2
 ---
 
-import CodeBlock from "@theme/CodeBlock";
+import RunnableExample from "@site/src/components/RunnableExample";
 import source from "!!raw-loader!./encode.example.ts";
 
 # Encode to DER
 
 Build a structure from constructors, then call `toBER()` for the bytes or `toString("hex")` for a hex string. asn1js encodes the values in the order you add them and does not sort `SET OF` elements, so sort them yourself when you need DER.
 
-<CodeBlock language="ts">{source}</CodeBlock>
+<RunnableExample source={source} load={() => import("./encode.example.ts?run")} />
 
 **API:** [`BaseBlock.toBER()`](../../api/classes/BaseBlock.md), [`Sequence`](../../api/classes/Sequence.md)
