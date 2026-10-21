@@ -37,6 +37,6 @@ export class Boolean extends BaseBlock<LocalBooleanValueBlock, LocalBooleanValue
   }
 
   protected override onAsciiEncoding(): string {
-    return `${(this.constructor as typeof Boolean).NAME} : ${this.getValue}`;
+    return `${(this.constructor as typeof Boolean).NAME} : ${this.getValue()}`;
   }
 }

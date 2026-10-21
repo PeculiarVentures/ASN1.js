@@ -10,6 +10,11 @@ describe("Boolean", () => {
     assert.strictEqual(asn.toString("hex"), "010100");
   });
 
+  it("toString", () => {
+    assert.strictEqual(new asn1js.Boolean({ value: true }).toString(), "BOOLEAN : true");
+    assert.strictEqual(new asn1js.Boolean().toString(), "BOOLEAN : false");
+  });
+
   it("toBER/fromBER", () => {
     const testBER = hex.decode("0101ff");
     const testValue = true;
