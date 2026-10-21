@@ -23,3 +23,11 @@ $ npm run build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
+
+### Examples
+
+Each example in `docs/examples` is a `*.example.ts` script with an `.mdx` page that shows it. Examples:
+
+- import only from `asn1js`;
+- print results with `console.log`;
+- are typechecked against the library source in the website workflow. To run the check locally, run `npm ci && npx tsc --noEmit -p website/docs/examples` in the repository root.

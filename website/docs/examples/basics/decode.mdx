@@ -1,0 +1,14 @@
+---
+sidebar_position: 1
+---
+
+import CodeBlock from "@theme/CodeBlock";
+import source from "!!raw-loader!./decode.example.ts";
+
+# Decode BER and DER
+
+`fromBER()` turns bytes into a tree of ASN.1 objects. When decoding fails, `offset` is `-1` and `result.error` holds the reason.
+
+<CodeBlock language="ts">{source}</CodeBlock>
+
+**API:** [`fromBER()`](../../api/#fromber), [`Sequence`](../../api/classes/Sequence.md), [`Integer`](../../api/classes/Integer.md)

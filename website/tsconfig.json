@@ -8,6 +8,6 @@
       "@site/*": ["./*"]
     }
   },
-  // The examples are snippets shown with raw-loader; they use placeholder variables.
+  // The examples have their own tsconfig that checks them against the library source.
   "exclude": ["node_modules", "build", "docs/examples"]
 }

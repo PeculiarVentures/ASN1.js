@@ -1,0 +1,14 @@
+---
+sidebar_position: 1
+---
+
+import CodeBlock from "@theme/CodeBlock";
+import source from "!!raw-loader!./verify-schema.example.ts";
+
+# Validate against a schema
+
+A schema is a tree of asn1js objects that describes the expected structure. `verifySchema()` decodes the bytes and checks them against it in one step. Give a block a `name` to read it from `result`, mark it `optional` when it may be missing, and use `Any` to accept any value.
+
+<CodeBlock language="ts">{source}</CodeBlock>
+
+**API:** [`verifySchema()`](../../api/#verifyschema), [`compareSchema()`](../../api/#compareschema), [`Any`](../../api/classes/Any.md)
