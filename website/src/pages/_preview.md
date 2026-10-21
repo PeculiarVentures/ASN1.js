@@ -1,3 +1,3 @@
-# ASN.1.js - JavaScript Module for Abstract Syntax Notation One Encoding and Decoding.
+# asn1js — ASN.1 BER/DER encoder and decoder for JavaScript
 
-ASN.1.js is a versatile and efficient npm module designed for encoding and decoding data using the Abstract Syntax Notation One (ASN.1) standard in JavaScript environments. This module empowers developers to work with complex data structures and facilitate interoperability in various protocols, such as LDAP, PKCS, and X.509. With ASN.1.js, you can seamlessly handle binary data representation, ensuring robust and standards-compliant communication. Whether you're building secure communication protocols or dealing with cryptographic structures, this module provides a reliable foundation for ASN.1 encoding and decoding in your JavaScript projects.
+Encode, decode, and validate ASN.1 data in browsers and Node.js. asn1js ships TypeScript types and is the foundation of [PKIjs](https://pkijs.org), so it handles the structures behind X.509 certificates, PKCS, CMS, and LDAP.

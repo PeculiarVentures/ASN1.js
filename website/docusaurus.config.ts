@@ -6,7 +6,7 @@ import packageJSON from "../package.json";
 
 const config: Config = {
   title: "asn1js",
-  tagline: "asn1.js",
+  tagline: "ASN.1 BER/DER encoder and decoder for JavaScript",
   favicon: "img/favicon.ico",
   url: "https://asn1js.org",
   baseUrl: "/",
@@ -36,10 +36,6 @@ const config: Config = {
           customCss: "./src/css/custom.css"
         },
         blog: false
-        // TODO: Add gtag trackingID.
-        // gtag: {
-        //   trackingID: '',
-        // },
       } satisfies Preset.Options
     ]
   ],
@@ -78,7 +74,7 @@ const config: Config = {
     navbar: {
       style: "dark",
       logo: {
-        alt: "asn1.js",
+        alt: "asn1js",
         src: "/img/logo_r3.svg",
         width: 92
       },

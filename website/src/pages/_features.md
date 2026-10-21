@@ -1,47 +1,47 @@
 <li>
 
-#### ASN.1 Object Encoding/Decoding
+#### BER and DER encoding and decoding
 
-Encode and decode ASN.1 objects, allowing for the serialization and deserialization of data structures according to the ASN.1 specifications.
-
-</li>
-
-<li>
-
-#### BER and DER Support
-
-Support for Basic Encoding Rules (BER) and Distinguished Encoding Rules (DER), which are different encoding rules for ASN.1.
+Decode bytes into a tree of ASN.1 objects with `fromBER()` and encode them back with `toBER()`. Every tag, length, and value block stays accessible, byte by byte.
 
 </li>
 
 <li>
 
-#### Universal, Application, Context-Specific Tag Support
+#### All ASN.1 types, as JavaScript values
 
-Handle different ASN.1 tag types, including universal tags, application-specific tags, and context-specific tags.
-
-</li>
-
-<li>
-
-#### Constructive and Primitive Encoding
-
-Support for both primitive and constructed encoding, allowing the representation of simple values (primitive) and more complex structures (constructed).
+Supports the universal types of ASN.1:2008. Integers convert to `bigint`, object identifiers to dotted strings, string types to `string`, and time types to `Date`.
 
 </li>
 
 <li>
 
-#### OID (Object Identifier) Handling
+#### Schema validation
 
-Ability to work with Object Identifiers, which are a hierarchical tree of identifiers commonly used in ASN.1 to uniquely identify objects, types, and attributes.
+Describe the structure you expect, then validate and extract fields by name in one step. Optional fields, `Any`, `Choice`, and `Repeated` cover real-world modules.
 
 </li>
 
 <li>
 
-#### Extension Support
+#### Every tag class
 
-Ability to handle ASN.1 extensions, which are used to extend existing data structures without modifying their original definition.
+Universal, application, context-specific, and private tags, with explicit and implicit tagging, and constructed or primitive encoding.
+
+</li>
+
+<li>
+
+#### Safe parsing of untrusted input
+
+Limits on nesting depth, node count, and content length stop malicious input before it exhausts memory or the call stack.
+
+</li>
+
+<li>
+
+#### Tested against the ASN.1:2008 test suite
+
+Checked against the freely available [ASN.1:2008 test suite](https://github.com/YuryStrozhevsky/asn1-test-suite), and used in production through [PKIjs](https://pkijs.org).
 
 </li>
