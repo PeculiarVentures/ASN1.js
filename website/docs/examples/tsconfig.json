@@ -1,0 +1,12 @@
+{
+  // Typechecks the examples against the library source, so API changes that break them fail the website workflow.
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    // Examples run in browsers and Node.js; `dom` provides `atob` and `console`.
+    "lib": ["es2023", "dom"],
+    "paths": {
+      "asn1js": ["../../../src/index.ts"]
+    }
+  },
+  "include": ["**/*.example.ts"]
+}

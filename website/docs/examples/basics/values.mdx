@@ -1,0 +1,14 @@
+---
+sidebar_position: 3
+---
+
+import CodeBlock from "@theme/CodeBlock";
+import source from "!!raw-loader!./values.example.ts";
+
+# Convert to JavaScript values
+
+asn1js converts ASN.1 values to and from native JavaScript types: `INTEGER` to `number` or `bigint`, `OBJECT IDENTIFIER` to a dotted string, string types to `string`, and time types to `Date`.
+
+<CodeBlock language="ts">{source}</CodeBlock>
+
+**API:** [`Integer`](../../api/classes/Integer.md), [`ObjectIdentifier`](../../api/classes/ObjectIdentifier.md), [`UTCTime`](../../api/classes/UTCTime.md), [`GeneralizedTime`](../../api/classes/GeneralizedTime.md)

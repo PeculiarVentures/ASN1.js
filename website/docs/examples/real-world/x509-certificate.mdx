@@ -1,0 +1,14 @@
+---
+sidebar_position: 1
+---
+
+import CodeBlock from "@theme/CodeBlock";
+import source from "!!raw-loader!./x509-certificate.example.ts";
+
+# Read an X.509 certificate
+
+Decode a PEM certificate and read its version, serial number, issuer, subject, and validity period with a schema for the parts of RFC 5280 you need. For full certificate support, including signature verification, use [PKIjs](https://pkijs.org), which is built on asn1js.
+
+<CodeBlock language="ts">{source}</CodeBlock>
+
+**API:** [`verifySchema()`](../../api/#verifyschema), [`Choice`](../../api/classes/Choice.md), [`Repeated`](../../api/classes/Repeated.md)

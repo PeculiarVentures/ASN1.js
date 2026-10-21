@@ -112,7 +112,7 @@ const config: Config = {
             },
             {
               label: "Examples",
-              to: "/docs/examples/create-new-asn-structures-by-calling-constructors-with-parameters"
+              to: "/docs/examples/"
             },
             {
               label: "API",

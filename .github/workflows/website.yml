@@ -4,13 +4,11 @@ on:
   push:
     branches:
       - "master"
+  pull_request:
 
 jobs:
   pages:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./website
 
     steps:
       - uses: actions/checkout@v7
@@ -18,10 +16,17 @@ jobs:
         with:
           node-version: 24
           cache: "npm"
-          cache-dependency-path: website/package-lock.json
-      - run: npm ci
-      - run: npm run build
+          cache-dependency-path: |
+            package-lock.json
+            website/package-lock.json
+      # The examples are typechecked against the library source, which needs its dependencies.
+      - name: Typecheck examples
+        run: npm ci && npx tsc --noEmit -p website/docs/examples
+      - name: Build website
+        working-directory: ./website
+        run: npm ci && npm run build
       - uses: peaceiris/actions-gh-pages@v4
+        if: github.event_name == 'push'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: website/build
