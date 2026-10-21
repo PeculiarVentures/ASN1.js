@@ -4,7 +4,10 @@ This website is built using [Docusaurus](https://docusaurus.io/), a modern stati
 
 ### Installation
 
+The examples run against the library source in `../src`, so install the library's dependencies too:
+
 ```
+$ (cd .. && npm ci)
 $ npm install
 ```
 
@@ -26,8 +29,8 @@ This command generates static content into the `build` directory and can be serv
 
 ### Examples
 
-Each example in `docs/examples` is a `*.example.ts` script with an `.mdx` page that shows it. Examples:
+Each example in `docs/examples` is a `*.example.ts` script with an `.mdx` page that shows it with a **Run** button. Examples:
 
-- import only from `asn1js`;
-- print results with `console.log`;
+- import only from `asn1js`, with each import on one line;
+- print results with `console.log`, which the Run button shows below the code;
 - are typechecked against the library source in the website workflow. To run the check locally, run `npm ci && npx tsc --noEmit -p website/docs/examples` in the repository root.

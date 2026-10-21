@@ -2,13 +2,13 @@
 sidebar_position: 4
 ---
 
-import CodeBlock from "@theme/CodeBlock";
+import RunnableExample from "@site/src/components/RunnableExample";
 import source from "!!raw-loader!./tagging.example.ts";
 
 # Explicit and implicit tags
 
 Context-specific tags such as `[0]` appear in most real ASN.1 modules. An `EXPLICIT` tag wraps the original value in a constructed value. An `IMPLICIT` tag replaces the original tag, so the decoder returns a generic `Primitive` and you rebuild the original type from its content bytes.
 
-<CodeBlock language="ts">{source}</CodeBlock>
+<RunnableExample source={source} load={() => import("./tagging.example.ts?run")} />
 
 **API:** [`Constructed`](../../api/classes/Constructed.md), [`Primitive`](../../api/classes/Primitive.md)

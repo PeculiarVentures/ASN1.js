@@ -2,13 +2,13 @@
 sidebar_position: 2
 ---
 
-import CodeBlock from "@theme/CodeBlock";
+import RunnableExample from "@site/src/components/RunnableExample";
 import source from "!!raw-loader!./choice-and-repeated.example.ts";
 
 # CHOICE and SEQUENCE OF
 
 `Choice` matches the first of several alternatives, and `Repeated` matches a value any number of times, collecting the matches into an array under its `name`.
 
-<CodeBlock language="ts">{source}</CodeBlock>
+<RunnableExample source={source} load={() => import("./choice-and-repeated.example.ts?run")} />
 
 **API:** [`Choice`](../../api/classes/Choice.md), [`Repeated`](../../api/classes/Repeated.md)

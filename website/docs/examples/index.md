@@ -5,7 +5,7 @@ sidebar_label: Overview
 
 # Examples
 
-Every example is a complete script that you can copy into your project and run.
+Every example is a complete script. Copy it into your project, or press **Run** to execute it in your browser with the current version of asn1js.
 
 ## Basics
 
