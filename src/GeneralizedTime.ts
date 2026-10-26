@@ -53,6 +53,7 @@ export class GeneralizedTime extends UTCTime {
 
     let parser;
 
+    let hasTimeDifference = false;
     let hourDifference = 0;
     let minuteDifference = 0;
     // #endregion
@@ -88,6 +89,7 @@ export class GeneralizedTime extends UTCTime {
       }
 
       if (differencePosition !== -1) {
+        hasTimeDifference = true;
         differenceString = timeString.substring(differencePosition + 1);
         timeString = timeString.substring(0, differencePosition);
 
@@ -186,10 +188,10 @@ export class GeneralizedTime extends UTCTime {
           this.day = parseInt(parserArray[j], 10);
           break;
         case 4:
-          this.hour = parseInt(parserArray[j], 10) + hourDifference;
+          this.hour = parseInt(parserArray[j], 10);
           break;
         case 5:
-          this.minute = parseInt(parserArray[j], 10) + minuteDifference;
+          this.minute = parseInt(parserArray[j], 10);
           break;
         case 6:
           this.second = parseInt(parserArray[j], 10);
@@ -202,11 +204,14 @@ export class GeneralizedTime extends UTCTime {
 
     // #region Get final date
     if (isUTC === false) {
-      const tempDate = new Date(this.year, this.month, this.day, this.hour, this.minute, this.second, this.millisecond);
+      // With a time difference, UTC is the local time minus the difference. Without one, the time is local time.
+      const tempDate = hasTimeDifference
+        ? new Date(Date.UTC(this.year, this.month - 1, this.day, this.hour - hourDifference, this.minute - minuteDifference, this.second, this.millisecond ?? 0))
+        : new Date(this.year, this.month - 1, this.day, this.hour, this.minute, this.second, this.millisecond ?? 0);
 
       this.year = tempDate.getUTCFullYear();
-      this.month = tempDate.getUTCMonth();
-      this.day = tempDate.getUTCDay();
+      this.month = tempDate.getUTCMonth() + 1;
+      this.day = tempDate.getUTCDate();
       this.hour = tempDate.getUTCHours();
       this.minute = tempDate.getUTCMinutes();
       this.second = tempDate.getUTCSeconds();

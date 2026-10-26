@@ -94,6 +94,20 @@ describe("GeneralizedTime", () => {
         new asn1js.GeneralizedTime({ value: "2" });
       });
     });
+    it("YYYYMMDDHHMMSS with a time difference", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "20240229123456+0200" });
+      assert.strictEqual(asn.toDate().toISOString(), "2024-02-29T10:34:56.000Z");
+    });
+    it("YYYYMMDDHHMM with a negative time difference", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "202312312130-0500" });
+      assert.strictEqual(asn.toDate().toISOString(), "2024-01-01T02:30:00.000Z");
+    });
+    it("BER with a time difference", () => {
+      const { offset, result } = asn1js.fromBER(new Uint8Array([0x18, 0x13, ...new TextEncoder().encode("20240229123456+0200")]));
+      assert.notStrictEqual(offset, -1);
+      assert.ok(result instanceof asn1js.GeneralizedTime);
+      assert.strictEqual(result.toDate().toISOString(), "2024-02-29T10:34:56.000Z");
+    });
     it("ISO string", () => {
       const asn = new asn1js.GeneralizedTime({ value: "20000102120102.100Z" });
       assert.strictEqual(asn.toString("hex"), "181332303030303130323132303130322e3130305a");
