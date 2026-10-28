@@ -3,13 +3,16 @@ import type { IStringConvertible } from "../types";
 import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
 import * as utils from "./utils";
 import { type LocalSidValueBlockJson, LocalSidValueBlock } from "./LocalSidValueBlock";
-import { getSidValue, MAX_SAFE_SID, parseOidComponents } from "./oidUtils";
+import { getSidValue, MAX_SAFE_SID, parseOidComponents, setOidError, validateOidSids } from "./oidUtils";
 
 export interface ILocalObjectIdentifierValueBlock {
   value: string;
 }
 
-export interface LocalObjectIdentifierValueBlockParams extends ValueBlockParams, Partial<ILocalObjectIdentifierValueBlock> {}
+export interface LocalObjectIdentifierValueBlockParams extends ValueBlockParams, Partial<ILocalObjectIdentifierValueBlock> {
+  /** Throw on invalid value assignment or encoding. Defaults to `false`. */
+  strict?: boolean;
+}
 
 export interface LocalObjectIdentifierValueBlockJson extends ValueBlockJson, ILocalObjectIdentifierValueBlock {
   sidArray: LocalSidValueBlockJson[];
@@ -19,9 +22,11 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
   public static override NAME = "ObjectIdentifierValueBlock";
 
   public value: LocalSidValueBlock[] = [];
+  public strict: boolean;
 
-  constructor({ value, ...parameters }: LocalObjectIdentifierValueBlockParams = {}) {
+  constructor({ value, strict = false, ...parameters }: LocalObjectIdentifierValueBlockParams = {}) {
     super(parameters);
+    this.strict = strict;
 
     if (value !== undefined) {
       this.fromString(value);
@@ -53,12 +58,17 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
   }
 
   public override toBER(sizeOnly?: boolean): ArrayBuffer {
+    if (this.strict) {
+      const error = this.error || validateOidSids(this.value);
+      if (error) setOidError(this, error);
+    }
     const retBuffers: ArrayBuffer[] = [];
 
     for (let i = 0; i < this.value.length; i++) {
       const valueBuf = this.value[i].toBER(sizeOnly);
       if (valueBuf.byteLength === 0) {
         this.error = this.value[i].error;
+        if (this.strict) setOidError(this, this.error || "Error during encoding SID value");
 
         return EMPTY_BUFFER;
       }
@@ -78,13 +88,13 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
 
     const components = parseOidComponents(string);
     if (!components || components.length < 2) {
-      this.error = "Object identifier must contain at least two non-negative decimal components";
+      setOidError(this, "Object identifier must contain at least two non-negative decimal components");
       return;
     }
 
     const [root, second] = components;
     if (root > 2n || (root < 2n && second > 39n)) {
-      this.error = "Invalid first two object identifier components";
+      setOidError(this, "Invalid first two object identifier components");
       return;
     }
 

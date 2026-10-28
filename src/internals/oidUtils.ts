@@ -4,6 +4,10 @@ import { encodeBase128 } from "./integerUtils";
 
 export const MAX_SAFE_SID = BigInt(Number.MAX_SAFE_INTEGER);
 
+// The native getter identifies typed arrays across realms without trusting an
+// instance's constructor or an overridden Symbol.toStringTag.
+const typedArrayName = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(Uint8Array.prototype), Symbol.toStringTag)!.get!;
+
 interface SidValue {
   valueDec: number;
   isHexOnly: boolean;
@@ -11,6 +15,34 @@ interface SidValue {
   blockLength: number;
   error: string;
   warnings: string[];
+}
+
+/** Records a value error and optionally aborts the operation. */
+export function setOidError(block: { error: string; strict: boolean }, error: string): void {
+  block.error = error;
+  if (block.strict) throw new Error(error);
+}
+
+/** Checks the active representation that the SID encoder will actually write. */
+export function validateOidSids(sids: SidValue[]): string {
+  if (!Array.isArray(sids) || !sids.length) return "Object identifier value is empty";
+  for (const sid of sids) {
+    if (!sid || typeof sid.isHexOnly !== "boolean") return "Invalid object identifier SID";
+    if (sid.error) return sid.error;
+    if (!sid.isHexOnly) {
+      if (!Number.isSafeInteger(sid.valueDec) || sid.valueDec < 0) return "SID value must be a non-negative safe integer";
+      continue;
+    }
+
+    const digits = sid.valueHexView;
+    if (typedArrayName.call(digits) !== "Uint8Array" || !digits.length || sid.blockLength !== digits.length) return "Invalid hex-only SID length";
+    if (digits.length > 1 && digits[0] === 0) return "Non-minimal hex-only SID encoding";
+    for (const digit of digits) {
+      if (digit > 0x7f) return "Invalid base-128 SID digit";
+    }
+  }
+
+  return "";
 }
 
 /** Parses complete decimal components, retaining harmless historical normalizations. */
