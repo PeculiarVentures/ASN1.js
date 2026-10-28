@@ -1,9 +1,10 @@
 import type { ViewWriter } from "../ViewWriter";
 import { ValueBlock, type ValueBlockJson, type ValueBlockParams } from "../ValueBlock";
 import type { IStringConvertible } from "../types";
-import { EMPTY_BUFFER, EMPTY_STRING } from "./constants";
+import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
 import * as utils from "./utils";
 import { type LocalRelativeSidValueBlockJson, LocalRelativeSidValueBlock } from "./LocalRelativeSidValueBlock";
+import { getSidValue, MAX_SAFE_SID, parseOidComponents, setSidValue } from "./oidUtils";
 
 export interface ILocalRelativeObjectIdentifierValueBlock {
   value: string;
@@ -20,10 +21,10 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
 
   public value: LocalRelativeSidValueBlock[] = [];
 
-  constructor({ value = EMPTY_STRING, ...parameters }: LocalRelativeObjectIdentifierValueBlockParams = {}) {
+  constructor({ value, ...parameters }: LocalRelativeObjectIdentifierValueBlockParams = {}) {
     super(parameters);
 
-    if (value) {
+    if (value !== undefined) {
       this.fromString(value);
     }
   }
@@ -68,48 +69,29 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
   }
 
   public fromString(string: string): boolean {
-    this.value = []; // Clear existing SID values
+    this.value = [];
+    this.error = "";
+    this.warnings = [];
+    this.blockLength = 0;
+    this.valueBeforeDecodeView = EMPTY_VIEW;
 
-    let pos1 = 0;
-    let pos2 = 0;
+    const components = parseOidComponents(string);
+    if (!components) {
+      this.error = "Relative object identifier must contain non-negative decimal components";
+      return false;
+    }
 
-    let sid = "";
-
-    do {
-      pos2 = string.indexOf(".", pos1);
-      if (pos2 === -1) sid = string.substring(pos1);
-      else sid = string.substring(pos1, pos2);
-
-      pos1 = pos2 + 1;
-
-      const sidBlock = new LocalRelativeSidValueBlock();
-      sidBlock.valueDec = parseInt(sid, 10);
-      if (isNaN(sidBlock.valueDec)) return true;
-
-      this.value.push(sidBlock);
-    } while (pos2 !== -1);
-
+    this.value = components.map((value) => {
+      const sid = new LocalRelativeSidValueBlock();
+      if (value <= MAX_SAFE_SID) sid.valueDec = Number(value);
+      else setSidValue(sid, value);
+      return sid;
+    });
     return true;
   }
 
   public override toString(): string {
-    let result = "";
-    let isHexOnly = false;
-
-    for (let i = 0; i < this.value.length; i++) {
-      isHexOnly = this.value[i].isHexOnly;
-
-      let sidStr = this.value[i].toString();
-
-      if (i !== 0) result = `${result}.`;
-
-      if (isHexOnly) {
-        sidStr = `{${sidStr}}`;
-        result += sidStr;
-      } else result += sidStr;
-    }
-
-    return result;
+    return this.value.map((sid) => getSidValue(sid).toString()).join(".");
   }
 
   public override toJSON(): LocalRelativeObjectIdentifierValueBlockJson {

@@ -3,6 +3,7 @@ import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
 import { ValueBlock, type ValueBlockJson, type ValueBlockParams } from "../ValueBlock";
 import { EMPTY_BUFFER } from "./constants";
 import { decodeBase128, encodeBase128 } from "./integerUtils";
+import { setSidValue } from "./oidUtils";
 import * as utils from "./utils";
 
 export interface ILocalSidValueBlock {
@@ -92,16 +93,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
   }
 
   public set valueBigInt(value: bigint) {
-    const bytes = encodeBase128(BigInt(value));
-    if (!bytes) {
-      this.error = "Error during encoding SID value";
-
-      return;
-    }
-
-    for (let i = 0; i < bytes.length - 1; i++) bytes[i] |= 0x80;
-
-    this.fromBER(bytes, 0, bytes.length);
+    setSidValue(this, BigInt(value));
   }
 
   public override toBER(sizeOnly?: boolean): ArrayBuffer {
