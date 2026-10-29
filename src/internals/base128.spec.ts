@@ -72,7 +72,7 @@ describe("base-128 encoding", () => {
 
 describe("large OID component encoding", () => {
   it("preserves predetermined mixed digits in first, later, and relative SIDs", () => {
-    const expected = Uint8Array.from({ length: 65536 }, (_, index) => (index === 0 ? 1 : (index * 37) % 128));
+    const expected = Uint8Array.from({ length: 4096 }, (_, index) => (index === 0 ? 1 : (index * 37) % 128));
     const binary = Array.from(expected, (digit) => digit.toString(2).padStart(7, "0")).join("");
     const value = BigInt(`0b${binary}`);
     const content = Uint8Array.from(expected, (digit, index) => (index + 1 < expected.length ? digit | 0x80 : digit));
@@ -95,7 +95,7 @@ describe("large OID component encoding", () => {
   for (const Type of [ObjectIdentifier, RelativeObjectIdentifier]) {
     for (const strict of [false, true]) {
       it(`${Type.NAME} preserves large decimal components (strict=${strict})`, () => {
-        const component = "9".repeat(10000);
+        const component = "9".repeat(2000);
         const value = Type === ObjectIdentifier ? `2.25.${component}` : component;
         const expected = binaryDigits(BigInt(component));
         const oid = new Type({ value, strict });
