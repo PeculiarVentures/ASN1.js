@@ -1,8 +1,9 @@
 import { ValueBlock, type ValueBlockJson, type ValueBlockParams } from "../ValueBlock";
 import type { IStringConvertible } from "../types";
-import { EMPTY_BUFFER, EMPTY_STRING } from "./constants";
+import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
 import * as utils from "./utils";
 import { type LocalSidValueBlockJson, LocalSidValueBlock } from "./LocalSidValueBlock";
+import { getSidValue, MAX_SAFE_SID, parseOidComponents } from "./oidUtils";
 
 export interface ILocalObjectIdentifierValueBlock {
   value: string;
@@ -19,10 +20,10 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
 
   public value: LocalSidValueBlock[] = [];
 
-  constructor({ value = EMPTY_STRING, ...parameters }: LocalObjectIdentifierValueBlockParams = {}) {
+  constructor({ value, ...parameters }: LocalObjectIdentifierValueBlockParams = {}) {
     super(parameters);
 
-    if (value) {
+    if (value !== undefined && value !== null && value !== "") {
       this.fromString(value);
     }
   }
@@ -69,93 +70,49 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
   }
 
   public fromString(string: string): void {
-    this.value = []; // Clear existing SID values
+    this.value = [];
+    this.error = "";
+    this.warnings = [];
+    this.blockLength = 0;
+    this.valueBeforeDecodeView = EMPTY_VIEW;
 
-    let pos1 = 0;
-    let pos2 = 0;
+    const components = parseOidComponents(string);
+    if (!components || components.length < 2) {
+      this.error = "Object identifier must contain at least two non-negative decimal components";
+      return;
+    }
 
-    let sid = "";
+    const [root, second] = components;
+    if (root > 2n || (root < 2n && second > 39n)) {
+      this.error = "Invalid first two object identifier components";
+      return;
+    }
 
-    let flag = false;
-
-    // const sids = string.split(".");
-    // for (const sid of sids) {
-
-    // }
-    do {
-      pos2 = string.indexOf(".", pos1);
-      if (pos2 === -1) sid = string.substring(pos1);
-      else sid = string.substring(pos1, pos2);
-
-      pos1 = pos2 + 1;
-
-      if (flag) {
-        const sidBlock = this.value[0];
-
-        let plus = 0;
-
-        switch (sidBlock.valueDec) {
-          case 0:
-            break;
-          case 1:
-            plus = 40;
-            break;
-          case 2:
-            plus = 80;
-            break;
-          default:
-            this.value = []; // clear SID array
-
-            return;
-        }
-
-        const parsedSID = parseInt(sid, 10);
-        if (isNaN(parsedSID)) return;
-
-        sidBlock.valueDec = parsedSID + plus;
-
-        flag = false;
-      } else {
-        const sidBlock = new LocalSidValueBlock();
-        if ((sid as any) > Number.MAX_SAFE_INTEGER) {
-          // TODO remove as any
-          const sidValue = BigInt(sid);
-          sidBlock.valueBigInt = sidValue;
-        } else {
-          sidBlock.valueDec = parseInt(sid, 10);
-          if (isNaN(sidBlock.valueDec)) return;
-        }
-
-        if (!this.value.length) {
-          sidBlock.isFirstSid = true;
-          flag = true;
-        }
-
-        this.value.push(sidBlock);
-      }
-    } while (pos2 !== -1);
+    const values = [root * 40n + second, ...components.slice(2)];
+    this.value = values.map((value, index) => {
+      const sid = new LocalSidValueBlock({ isFirstSid: index === 0 });
+      if (value <= MAX_SAFE_SID) sid.valueDec = Number(value);
+      else sid.valueBigInt = value;
+      return sid;
+    });
   }
 
   public override toString(): string {
-    let result = "";
-    let isHexOnly = false;
+    return this.value
+      .map((sid, index) => {
+        const value = getSidValue(sid);
+        if (index !== 0) return value.toString();
+        if (typeof value === "bigint") {
+          if (value < 40n) return `0.${value}`;
+          if (value < 80n) return `1.${value - 40n}`;
+          return `2.${value - 80n}`;
+        }
 
-    for (let i = 0; i < this.value.length; i++) {
-      isHexOnly = this.value[i].isHexOnly;
-
-      let sidStr = this.value[i].toString();
-
-      if (i !== 0) result = `${result}.`;
-
-      if (isHexOnly) {
-        sidStr = `{${sidStr}}`;
-
-        if (this.value[i].isFirstSid) result = `2.{${sidStr} - 80}`;
-        else result += sidStr;
-      } else result += sidStr;
-    }
-
-    return result;
+        if (value < 40) return `0.${value}`;
+        if (value < 80) return `1.${value - 40}`;
+        return `2.${value - 80}`;
+      })
+      .join(".");
   }
 
   public override toJSON(): LocalObjectIdentifierValueBlockJson {

@@ -97,4 +97,37 @@ describe("LocalSidValueBlock.valueBigInt", () => {
     expect(Array.from(block.valueHexView)).toEqual([2, 44]);
     expect(Array.from(new Uint8Array(block.toBER()))).toEqual([0x82, 0x2c]);
   });
+
+  it("replaces big and small values without accumulating decoder state", () => {
+    const block = new LocalSidValueBlock({ isFirstSid: true });
+    for (const value of [2n ** 70n + 5n, 300n, 0n, 2n ** 70n + 5n]) {
+      block.valueBigInt = value;
+      const expected = new LocalSidValueBlock();
+      expected.valueBigInt = value;
+      expect(block.toBER()).toEqual(expected.toBER());
+      expect(block.toBER(true).byteLength).toBe(block.toBER().byteLength);
+      expect(block.blockLength).toBe(block.valueHexView.length);
+      expect(block.isHexOnly).toBe(value > BigInt(Number.MAX_SAFE_INTEGER));
+      expect(block.isFirstSid).toBe(true);
+      expect(block.error).toBe("");
+      expect(block.warnings.length).toBe(value > BigInt(Number.MAX_SAFE_INTEGER) ? 1 : 0);
+    }
+    block.valueBigInt = 300n;
+    expect(Array.from(new Uint8Array(block.toBER()))).toEqual([0x82, 0x2c]);
+    expect(block.valueHexView).toEqual(bytes(2, 44));
+  });
+
+  it("invalidates previous data on failure and clears the error on recovery", () => {
+    const block = new LocalSidValueBlock();
+    block.valueBigInt = 2n ** 70n;
+    block.valueBigInt = -1n;
+    expect(block.isHexOnly).toBe(false);
+    expect(block.valueHexView.length).toBe(0);
+    expect(block.toBER().byteLength).toBe(0);
+    expect(block.error).toBe("Error during encoding SID value");
+    block.valueBigInt = 300n;
+    expect(block.error).toBe("");
+    expect(block.warnings).toEqual([]);
+    expect(Array.from(new Uint8Array(block.toBER()))).toEqual([0x82, 0x2c]);
+  });
 });

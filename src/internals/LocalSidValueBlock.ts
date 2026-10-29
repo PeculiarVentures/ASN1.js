@@ -1,8 +1,9 @@
-import { hex, toArrayBuffer, toUint8Array } from "@peculiar/utils";
+import { toArrayBuffer, toUint8Array } from "@peculiar/utils";
 import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
 import { ValueBlock, type ValueBlockJson, type ValueBlockParams } from "../ValueBlock";
 import { EMPTY_BUFFER } from "./constants";
 import { decodeBase128, encodeBase128 } from "./integerUtils";
+import { getSidValue, setSidValue } from "./oidUtils";
 import * as utils from "./utils";
 
 export interface ILocalSidValueBlock {
@@ -92,16 +93,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
   }
 
   public set valueBigInt(value: bigint) {
-    const bytes = encodeBase128(BigInt(value));
-    if (!bytes) {
-      this.error = "Error during encoding SID value";
-
-      return;
-    }
-
-    for (let i = 0; i < bytes.length - 1; i++) bytes[i] |= 0x80;
-
-    this.fromBER(bytes, 0, bytes.length);
+    setSidValue(this, BigInt(value));
   }
 
   public override toBER(sizeOnly?: boolean): ArrayBuffer {
@@ -139,29 +131,17 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
   }
 
   public override toString(): string {
-    let result = "";
-
-    if (this.isHexOnly) result = hex.encode(this.valueHexView);
-    else {
-      if (this.isFirstSid) {
-        let sidValue = this.valueDec;
-
-        if (this.valueDec <= 39) result = "0.";
-        else {
-          if (this.valueDec <= 79) {
-            result = "1.";
-            sidValue -= 40;
-          } else {
-            result = "2.";
-            sidValue -= 80;
-          }
-        }
-
-        result += sidValue.toString();
-      } else result = this.valueDec.toString();
+    const value = getSidValue(this);
+    if (!this.isFirstSid) return value.toString();
+    if (typeof value === "bigint") {
+      if (value < 40n) return `0.${value}`;
+      if (value < 80n) return `1.${value - 40n}`;
+      return `2.${value - 80n}`;
     }
 
-    return result;
+    if (value < 40) return `0.${value}`;
+    if (value < 80) return `1.${value - 40}`;
+    return `2.${value - 80}`;
   }
 
   public override toJSON(): LocalSidValueBlockJson {

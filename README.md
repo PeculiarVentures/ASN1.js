@@ -73,6 +73,14 @@ Runnable examples are on the [website](https://asn1js.org/docs/examples/):
 
 For complete PKI structures such as certificates, CMS, and PKCS#10 requests, see [PKIjs], which is built on [ASN1js].
 
+## Object Identifiers
+
+`ObjectIdentifier` and `RelativeObjectIdentifier` preserve large decimal components exactly, including UUID-based OIDs such as `2.25.329800735698586629295641978511506172918`. `getValue()`, ASCII output, and JSON values use decimal notation even when a component is stored internally as hex-only.
+
+String values must contain complete non-negative decimal components. Absolute OIDs need at least two components: the first is 0, 1, or 2, and the second is at most 39 when the first is 0 or 1. Leading zeros, surrounding whitespace in each component, a leading `+`, and negative zero are normalized. Partial numbers, hexadecimal prefixes, and exponent notation are rejected.
+
+Invalid strings clear the value and set both `error` and `valueBlock.error` without throwing. They no longer encode as another OID or as a valid prefix. For compatibility, `toBER()` still returns an empty OID (`0600` or `0d00`) on failure; check the OID's diagnostics before using the output, including when it is nested in a constructed value. Parent blocks do not propagate the child's error. A successful `setValue()` clears previous value errors. Constructors with an omitted value, `undefined`, `null`, or `""` create empty placeholders without errors for schema declarations. An explicit `setValue("")` still records a validation error.
+
 ## Parsing Untrusted Input
 
 `fromBER()` accepts optional parser resource limits for untrusted ASN.1 input.
