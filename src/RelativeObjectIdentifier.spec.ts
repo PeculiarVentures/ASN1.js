@@ -43,6 +43,9 @@ describe("RelativeObjectIdentifier large decimal values", () => {
     ["9007199254740993.9007199254740992", "0d1090808080808080019080808080808000"],
   ])("round-trips %s", (value, expected) => {
     const oid = new asn1js.RelativeObjectIdentifier({ value });
+    const berBeforeRendering = oid.toBER();
+    expect(oid.valueBlock.value.map((sid) => sid.toString()).join(".")).toBe(value);
+    expect(oid.toBER()).toEqual(berBeforeRendering);
     expect(oid.getValue()).toBe(value);
     expect(oid.toString()).toBe(`RelativeObjectIdentifier : ${value}`);
     expect(oid.toString("hex")).toBe(expected);
@@ -54,6 +57,7 @@ describe("RelativeObjectIdentifier large decimal values", () => {
     const parsed = asn1js.fromBER(Buffer.from(expected, "hex"));
     expect(parsed.offset).toBe(expected.length / 2);
     const decoded = parsed.result as asn1js.RelativeObjectIdentifier;
+    expect(decoded.valueBlock.value.map((sid) => sid.toString()).join(".")).toBe(value);
     expect(decoded).toBeInstanceOf(asn1js.RelativeObjectIdentifier);
     expect(decoded.getValue()).toBe(value);
     expect(decoded.toString("hex")).toBe(expected);

@@ -24,7 +24,7 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
   constructor({ value, ...parameters }: LocalRelativeObjectIdentifierValueBlockParams = {}) {
     super(parameters);
 
-    if (value !== undefined) {
+    if (value !== undefined && value !== null && value !== "") {
       this.fromString(value);
     }
   }

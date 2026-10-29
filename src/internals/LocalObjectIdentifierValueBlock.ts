@@ -23,7 +23,7 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
   constructor({ value, ...parameters }: LocalObjectIdentifierValueBlockParams = {}) {
     super(parameters);
 
-    if (value !== undefined) {
+    if (value !== undefined && value !== null && value !== "") {
       this.fromString(value);
     }
   }
