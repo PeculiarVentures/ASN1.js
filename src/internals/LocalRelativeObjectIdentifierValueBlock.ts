@@ -29,7 +29,7 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
     super(parameters);
     this.strict = strict;
 
-    if (value !== undefined) {
+    if (value !== undefined && value !== null && (strict || value !== "")) {
       this.fromString(value);
     }
   }

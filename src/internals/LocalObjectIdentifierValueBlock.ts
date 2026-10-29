@@ -28,7 +28,7 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
     super(parameters);
     this.strict = strict;
 
-    if (value !== undefined) {
+    if (value !== undefined && value !== null && (strict || value !== "")) {
       this.fromString(value);
     }
   }

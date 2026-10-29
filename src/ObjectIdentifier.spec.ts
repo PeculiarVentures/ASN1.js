@@ -87,6 +87,9 @@ function createExtension(oid: string): asn1js.Sequence {
 describe("ObjectIdentifier exact decimal values", () => {
   it.each(oidVectors)("round-trips %s without losing precision", (value, expected) => {
     const oid = new asn1js.ObjectIdentifier({ value });
+    const berBeforeRendering = oid.toBER();
+    expect(oid.valueBlock.value.map((sid) => sid.toString()).join(".")).toBe(value);
+    expect(oid.toBER()).toEqual(berBeforeRendering);
     expect(oid.getValue()).toBe(value);
     expect(oid.valueBlock.toString()).toBe(value);
     expect(oid.toString()).toBe(`OBJECT IDENTIFIER : ${value}`);
@@ -102,6 +105,7 @@ describe("ObjectIdentifier exact decimal values", () => {
     expect(decoded.offset).toBe(expected.length / 2);
     expect(decoded.result).toBeInstanceOf(asn1js.ObjectIdentifier);
     const parsed = decoded.result as asn1js.ObjectIdentifier;
+    expect(parsed.valueBlock.value.map((sid) => sid.toString()).join(".")).toBe(value);
     expect(parsed.getValue()).toBe(value);
     expect(parsed.toString("hex")).toBe(expected);
     expect(new asn1js.ObjectIdentifier({ value: parsed.getValue() }).toString("hex")).toBe(expected);
@@ -128,10 +132,11 @@ describe("ObjectIdentifier exact decimal values", () => {
     expect(oid.toString("hex")).toBe("060980808080808080802a");
   });
 
-  it("keeps a large first SID's storage and low-level string representation", () => {
+  it("renders a large first SID as decimal while keeping its storage", () => {
     const oid = asn1js.fromBER(Buffer.from("0608fce08f9df08cc36f", "hex")).result as asn1js.ObjectIdentifier;
     expect(oid.getValue()).toBe("2.70228530105098655");
-    expect(oid.valueBlock.value[0].toString()).toBe("7c600f1d700c436f");
+    expect(oid.valueBlock.value[0].toString()).toBe("2.70228530105098655");
+    expect(oid.toJSON().valueBlock.sidArray[0].valueHex).toBe("7c600f1d700c436f");
     expect(typeof oid.toJSON().valueBlock.sidArray[0].valueDec).toBe("number");
   });
 
@@ -181,8 +186,8 @@ for (const [Block, sentinel] of [
 ] as const) {
   describe(`${Block.NAME} complete string validation`, () => {
     it.each([
-      "",
       "wrong data",
+      " ",
       "1..2",
       "1.2.",
       "1.2.wrong.4",
@@ -222,14 +227,28 @@ for (const [Block, sentinel] of [
       expect(oid.error).toBe("");
     });
 
-    it("keeps omitted values available for schema declarations", () => {
-      for (const oid of [new Block(), new Block({ value: undefined })]) {
+    it("keeps absent, null, and empty constructor values available for schema declarations", () => {
+      // Preserve runtime compatibility for JavaScript callers passing null.
+      for (const oid of [new Block(), new Block({ value: undefined }), new Block({ value: null as unknown as string }), new Block({ value: "" })]) {
+        expect(oid.getValue()).toBe("");
+        expect(oid.valueBlock.value).toEqual([]);
         expect(oid.error).toBe("");
         expect(oid.valueBlock.error).toBe("");
         expect(oid.toString("hex")).toBe(sentinel);
+        expect(oid.error).toBe("");
         const ber = new Block({ value: "1.2.3" }).toBER();
         expect(asn1js.verifySchema(ber, oid).verified).toBe(true);
       }
+    });
+
+    it("rejects an empty string assigned through setValue", () => {
+      const oid = new Block({ value: "1.2.3" });
+      oid.setValue("");
+      expect(oid.getValue()).toBe("");
+      expect(oid.valueBlock.value).toEqual([]);
+      expect(oid.error).not.toBe("");
+      expect(oid.error).toBe(oid.valueBlock.error);
+      expect(oid.toString("hex")).toBe(sentinel);
     });
 
     it("clears invalid state and diagnostics on a subsequent valid setValue", () => {

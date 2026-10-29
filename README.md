@@ -79,9 +79,9 @@ For complete PKI structures such as certificates, CMS, and PKCS#10 requests, see
 
 String values must contain complete non-negative decimal components. Absolute OIDs need at least two components: the first is 0, 1, or 2, and the second is at most 39 when the first is 0 or 1. Leading zeros, surrounding whitespace in each component, a leading `+`, and negative zero are normalized. Partial numbers, hexadecimal prefixes, and exponent notation are rejected.
 
-By default, invalid strings clear the value and set both `error` and `valueBlock.error` without throwing. They no longer encode as another OID or as a valid prefix. For compatibility, `toBER()` still returns an empty OID (`0600` or `0d00`) on failure; check the OID's diagnostics before using the output, including when it is nested in a constructed value. Parent blocks do not propagate the child's error. A successful `setValue()` clears previous value errors. Constructors without a value remain available for schema declarations.
+By default, invalid strings clear the value and set both `error` and `valueBlock.error` without throwing. They no longer encode as another OID or as a valid prefix. For compatibility, `toBER()` still returns an empty OID (`0600` or `0d00`) on failure; check the OID's diagnostics before using the output, including when it is nested in a constructed value. Parent blocks do not propagate the child's error. A successful `setValue()` clears previous value errors. Constructors with an omitted value, `undefined`, `null`, or `""` create empty placeholders without errors for schema declarations. An explicit `setValue("")` still records a validation error.
 
-Pass `strict: true` to make invalid construction, value assignment, and encoding throw an `Error`. The same decimal input rules and normalizations apply in both modes. `RelativeObjectIdentifier` supports the same option.
+Pass `strict: true` to make invalid construction, value assignment, and encoding throw an `Error`. The same decimal input rules and normalizations apply in both modes. An explicit `value: ""` is invalid in a strict constructor; omit the value to create a strict schema placeholder. `RelativeObjectIdentifier` supports the same option.
 
 ```typescript
 const oid = new asn1js.ObjectIdentifier({

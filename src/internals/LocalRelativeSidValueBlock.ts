@@ -1,9 +1,10 @@
-import { hex, toUint8Array } from "@peculiar/utils";
+import { toUint8Array } from "@peculiar/utils";
 import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
 import type { ValueBlockJson, ValueBlockParams } from "../ValueBlock";
 import { LocalBaseBlock } from "./LocalBaseBlock";
 import { EMPTY_BUFFER } from "./constants";
 import { decodeBase128, encodeBase128 } from "./integerUtils";
+import { getSidValue } from "./oidUtils";
 import { checkBufferParams } from "./utils";
 
 export interface ILocalRelativeSidValueBlock {
@@ -119,14 +120,7 @@ export class LocalRelativeSidValueBlock extends HexBlock(LocalBaseBlock) impleme
   }
 
   public override toString(): string {
-    let result = "";
-
-    if (this.isHexOnly) result = hex.encode(this.valueHexView);
-    else {
-      result = this.valueDec.toString();
-    }
-
-    return result;
+    return getSidValue(this).toString();
   }
 
   public override toJSON(): LocalRelativeSidValueBlockJson {

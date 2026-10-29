@@ -164,7 +164,7 @@ for (const { Block, value, invalid, ber, sentinel } of [
     });
 
     it("allows strict schema declarations without encoding empty placeholders", () => {
-      for (const oid of [new Block({ strict: true }), new Block({ strict: true, value: undefined })]) {
+      for (const oid of [new Block({ strict: true }), new Block({ strict: true, value: undefined }), new Block({ strict: true, value: null as unknown as string })]) {
         expect(oid.error).toBe("");
         expect(asn1js.verifySchema(Buffer.from(ber, "hex"), oid).verified).toBe(true);
         expect(() => oid.toBER()).toThrow(Error);
