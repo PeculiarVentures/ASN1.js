@@ -79,7 +79,26 @@ For complete PKI structures such as certificates, CMS, and PKCS#10 requests, see
 
 String values must contain complete non-negative decimal components. Absolute OIDs need at least two components: the first is 0, 1, or 2, and the second is at most 39 when the first is 0 or 1. Leading zeros, surrounding whitespace in each component, a leading `+`, and negative zero are normalized. Partial numbers, hexadecimal prefixes, and exponent notation are rejected.
 
-Invalid strings clear the value and set both `error` and `valueBlock.error` without throwing. They no longer encode as another OID or as a valid prefix. For compatibility, `toBER()` still returns an empty OID (`0600` or `0d00`) on failure; check the OID's diagnostics before using the output, including when it is nested in a constructed value. Parent blocks do not propagate the child's error. A successful `setValue()` clears previous value errors. Constructors with an omitted value, `undefined`, `null`, or `""` create empty placeholders without errors for schema declarations. An explicit `setValue("")` still records a validation error.
+By default, invalid strings clear the value and set both `error` and `valueBlock.error` without throwing. They no longer encode as another OID or as a valid prefix. For compatibility, `toBER()` still returns an empty OID (`0600` or `0d00`) on failure; check the OID's diagnostics before using the output, including when it is nested in a constructed value. Parent blocks do not propagate the child's error. A successful `setValue()` clears previous value errors. Constructors with an omitted value, `undefined`, `null`, or `""` create empty placeholders without errors for schema declarations. An explicit `setValue("")` still records a validation error.
+
+Pass `strict: true` to make invalid construction, value assignment, and encoding throw an `Error`. The same decimal input rules and normalizations apply in both modes. An explicit `value: ""` is invalid in a strict constructor; omit the value to create a strict schema placeholder. `RelativeObjectIdentifier` supports the same option.
+
+```typescript
+const oid = new asn1js.ObjectIdentifier({
+  value: "1.2.840.113549",
+  strict: true,
+});
+
+oid.setValue("1.40"); // Throws; the object is left invalid with diagnostics.
+```
+
+Strict encoding checks the current SID values on every `toBER()` call, including `toBER(true)`, so later mutations cannot silently produce an empty value. After a failed assignment or encoding, use a successful `setValue()` or decode a complete replacement value to recover; changing the SID array or turning strict mode off does not clear recorded errors. Constructors without a value remain valid strict schema placeholders, but encoding an empty placeholder throws. `toString("hex")` also encodes the value and throws for invalid strict OIDs. `isEqual()` can throw when it needs to encode an invalid strict OID for comparison.
+
+OID instance and value-block `fromBER()` calls replace previous SID values, lengths, and value diagnostics. Failed decoding discards any parsed prefix and reports the error without throwing. The instance method expects content octets and a prepared length block; use the top-level `fromBER()` function to decode a complete BER encoding.
+
+You can also set `oid.strict = true` on an existing or decoded OID. Changing the flag does not validate or modify its value immediately. The flag defaults to `false`, is not serialized in BER or JSON, and does not change the permissive behavior of `fromBER()`.
+
+An error from a strict OID aborts the normal encoding of its enclosing `Sequence`, `Set`, or `Constructed` value. Enable strict mode on each OID that needs this behavior. If encoding throws with an explicit `ViewWriter`, discard that writer: earlier writes are retained and are not rolled back. Strict mode checks OID values; it does not validate arbitrary changes to tag/length blocks or custom serializer implementations.
 
 ## Parsing Untrusted Input
 

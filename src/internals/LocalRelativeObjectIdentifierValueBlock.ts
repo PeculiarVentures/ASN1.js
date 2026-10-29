@@ -1,16 +1,19 @@
 import type { ViewWriter } from "../ViewWriter";
 import { ValueBlock, type ValueBlockJson, type ValueBlockParams } from "../ValueBlock";
 import type { IStringConvertible } from "../types";
-import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
+import { EMPTY_BUFFER } from "./constants";
 import * as utils from "./utils";
 import { type LocalRelativeSidValueBlockJson, LocalRelativeSidValueBlock } from "./LocalRelativeSidValueBlock";
-import { getSidValue, MAX_SAFE_SID, parseOidComponents, setSidValue } from "./oidUtils";
+import { assertStrictOidEncodable, getSidValue, MAX_SAFE_SID, parseOidComponents, resetOidValue, setOidError, setSidValue } from "./oidUtils";
 
 export interface ILocalRelativeObjectIdentifierValueBlock {
   value: string;
 }
 
-export interface LocalRelativeObjectIdentifierValueBlockParams extends ValueBlockParams, Partial<ILocalRelativeObjectIdentifierValueBlock> {}
+export interface LocalRelativeObjectIdentifierValueBlockParams extends ValueBlockParams, Partial<ILocalRelativeObjectIdentifierValueBlock> {
+  /** Throw on invalid value assignment or encoding. Defaults to `false`. */
+  strict?: boolean;
+}
 
 export interface LocalRelativeObjectIdentifierValueBlockJson extends ValueBlockJson, ILocalRelativeObjectIdentifierValueBlock {
   sidArray: LocalRelativeSidValueBlockJson[];
@@ -20,22 +23,26 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
   public static override NAME = "RelativeObjectIdentifierValueBlock";
 
   public value: LocalRelativeSidValueBlock[] = [];
+  public strict: boolean;
 
-  constructor({ value, ...parameters }: LocalRelativeObjectIdentifierValueBlockParams = {}) {
+  constructor({ value, strict = false, ...parameters }: LocalRelativeObjectIdentifierValueBlockParams = {}) {
     super(parameters);
+    this.strict = strict;
 
-    if (value !== undefined && value !== null && value !== "") {
+    if (value !== undefined && value !== null && (strict || value !== "")) {
       this.fromString(value);
     }
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+    resetOidValue(this);
     let resultOffset = inputOffset;
 
     while (inputLength > 0) {
       const sidBlock = new LocalRelativeSidValueBlock();
       resultOffset = sidBlock.fromBER(inputBuffer, resultOffset, inputLength);
       if (resultOffset === -1) {
+        this.value = [];
         this.blockLength = 0;
         this.error = sidBlock.error;
 
@@ -52,12 +59,13 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
   }
 
   public override toBER(sizeOnly?: boolean, _writer?: ViewWriter): ArrayBuffer {
+    assertStrictOidEncodable(this);
     const retBuffers: ArrayBuffer[] = [];
 
     for (let i = 0; i < this.value.length; i++) {
       const valueBuf = this.value[i].toBER(sizeOnly);
       if (valueBuf.byteLength === 0) {
-        this.error = this.value[i].error;
+        setOidError(this, this.value[i].error || (this.strict ? "Error during encoding SID value" : ""));
 
         return EMPTY_BUFFER;
       }
@@ -69,15 +77,11 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
   }
 
   public fromString(string: string): boolean {
-    this.value = [];
-    this.error = "";
-    this.warnings = [];
-    this.blockLength = 0;
-    this.valueBeforeDecodeView = EMPTY_VIEW;
+    resetOidValue(this);
 
     const components = parseOidComponents(string);
     if (!components) {
-      this.error = "Relative object identifier must contain non-negative decimal components";
+      setOidError(this, "Relative object identifier must contain non-negative decimal components");
       return false;
     }
 

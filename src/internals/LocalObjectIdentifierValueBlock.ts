@@ -1,15 +1,18 @@
 import { ValueBlock, type ValueBlockJson, type ValueBlockParams } from "../ValueBlock";
 import type { IStringConvertible } from "../types";
-import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
+import { EMPTY_BUFFER } from "./constants";
 import * as utils from "./utils";
 import { type LocalSidValueBlockJson, LocalSidValueBlock } from "./LocalSidValueBlock";
-import { getSidValue, MAX_SAFE_SID, parseOidComponents } from "./oidUtils";
+import { assertStrictOidEncodable, getSidValue, MAX_SAFE_SID, parseOidComponents, resetOidValue, setOidError } from "./oidUtils";
 
 export interface ILocalObjectIdentifierValueBlock {
   value: string;
 }
 
-export interface LocalObjectIdentifierValueBlockParams extends ValueBlockParams, Partial<ILocalObjectIdentifierValueBlock> {}
+export interface LocalObjectIdentifierValueBlockParams extends ValueBlockParams, Partial<ILocalObjectIdentifierValueBlock> {
+  /** Throw on invalid value assignment or encoding. Defaults to `false`. */
+  strict?: boolean;
+}
 
 export interface LocalObjectIdentifierValueBlockJson extends ValueBlockJson, ILocalObjectIdentifierValueBlock {
   sidArray: LocalSidValueBlockJson[];
@@ -19,22 +22,26 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
   public static override NAME = "ObjectIdentifierValueBlock";
 
   public value: LocalSidValueBlock[] = [];
+  public strict: boolean;
 
-  constructor({ value, ...parameters }: LocalObjectIdentifierValueBlockParams = {}) {
+  constructor({ value, strict = false, ...parameters }: LocalObjectIdentifierValueBlockParams = {}) {
     super(parameters);
+    this.strict = strict;
 
-    if (value !== undefined && value !== null && value !== "") {
+    if (value !== undefined && value !== null && (strict || value !== "")) {
       this.fromString(value);
     }
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+    resetOidValue(this);
     let resultOffset = inputOffset;
 
     while (inputLength > 0) {
       const sidBlock = new LocalSidValueBlock();
       resultOffset = sidBlock.fromBER(inputBuffer, resultOffset, inputLength);
       if (resultOffset === -1) {
+        this.value = [];
         this.blockLength = 0;
         this.error = sidBlock.error;
 
@@ -53,12 +60,13 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
   }
 
   public override toBER(sizeOnly?: boolean): ArrayBuffer {
+    assertStrictOidEncodable(this);
     const retBuffers: ArrayBuffer[] = [];
 
     for (let i = 0; i < this.value.length; i++) {
       const valueBuf = this.value[i].toBER(sizeOnly);
       if (valueBuf.byteLength === 0) {
-        this.error = this.value[i].error;
+        setOidError(this, this.value[i].error || (this.strict ? "Error during encoding SID value" : ""));
 
         return EMPTY_BUFFER;
       }
@@ -70,21 +78,17 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
   }
 
   public fromString(string: string): void {
-    this.value = [];
-    this.error = "";
-    this.warnings = [];
-    this.blockLength = 0;
-    this.valueBeforeDecodeView = EMPTY_VIEW;
+    resetOidValue(this);
 
     const components = parseOidComponents(string);
     if (!components || components.length < 2) {
-      this.error = "Object identifier must contain at least two non-negative decimal components";
+      setOidError(this, "Object identifier must contain at least two non-negative decimal components");
       return;
     }
 
     const [root, second] = components;
     if (root > 2n || (root < 2n && second > 39n)) {
-      this.error = "Invalid first two object identifier components";
+      setOidError(this, "Invalid first two object identifier components");
       return;
     }
 
