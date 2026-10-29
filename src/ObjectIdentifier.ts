@@ -1,7 +1,9 @@
 import { BaseBlock, type BaseBlockJson, type BaseBlockParams } from "./BaseBlock";
 import { type LocalObjectIdentifierValueBlockParams, LocalObjectIdentifierValueBlock, type LocalObjectIdentifierValueBlockJson } from "./internals/LocalObjectIdentifierValueBlock";
+import { syncOidError } from "./internals/oidUtils";
 import { typeStore } from "./TypeStore";
 import type { ViewWriter } from "./ViewWriter";
+import type { FromBerContext } from "./parser";
 
 export interface ObjectIdentifierParams extends BaseBlockParams, LocalObjectIdentifierValueBlockParams {}
 export interface ObjectIdentifierJson extends BaseBlockJson<LocalObjectIdentifierValueBlockJson> {
@@ -46,7 +48,7 @@ export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock,
     try {
       this.valueBlock.fromString(value);
     } finally {
-      this.error = this.idBlock.error || this.lenBlock.error || this.valueBlock.error;
+      syncOidError(this);
     }
   }
 
@@ -55,7 +57,17 @@ export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock,
 
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 6; // OBJECT IDENTIFIER
-    this.error = this.idBlock.error || this.lenBlock.error || this.valueBlock.error;
+    syncOidError(this);
+  }
+
+  /** Replaces decoded value state and refreshes diagnostics using the prepared length block. */
+  public override fromBER(inputBuffer: Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
+    this.blockLength = 0;
+    try {
+      return super.fromBER(inputBuffer, inputOffset, inputLength, context);
+    } finally {
+      syncOidError(this);
+    }
   }
 
   /**
@@ -67,7 +79,7 @@ export class ObjectIdentifier extends BaseBlock<LocalObjectIdentifierValueBlock,
     try {
       return super.toBER(sizeOnly, writer);
     } finally {
-      this.error = this.idBlock.error || this.lenBlock.error || this.valueBlock.error;
+      syncOidError(this);
     }
   }
 

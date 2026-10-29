@@ -17,17 +17,48 @@ interface SidValue {
   warnings: string[];
 }
 
+interface OidValueBlock {
+  value: SidValue[];
+  strict: boolean;
+  blockLength: number;
+  error: string;
+  warnings: string[];
+  valueBeforeDecodeView: Uint8Array;
+}
+
+/** Starts a replacement value without retaining parsed prefixes or diagnostics. */
+export function resetOidValue(block: OidValueBlock): void {
+  block.value = [];
+  block.error = "";
+  block.warnings = [];
+  block.blockLength = 0;
+  block.valueBeforeDecodeView = EMPTY_VIEW;
+}
+
+/** Copies current component errors without clearing independent header diagnostics. */
+export function syncOidError(block: { error: string; idBlock: { error: string }; lenBlock: { error: string }; valueBlock: { error: string } }): void {
+  block.error = block.idBlock.error || block.lenBlock.error || block.valueBlock.error;
+}
+
 /** Records a value error and optionally aborts the operation. */
 export function setOidError(block: { error: string; strict: boolean }, error: string): void {
   block.error = error;
   if (block.strict) throw new Error(error);
 }
 
+/** Revalidates mutable SID state on every strict encoding, including size-only calls. */
+export function assertStrictOidEncodable(block: OidValueBlock): void {
+  if (block.strict) {
+    const error = block.error || validateOidSids(block.value);
+    if (error) setOidError(block, error);
+  }
+}
+
 /** Checks the active representation that the SID encoder will actually write. */
 export function validateOidSids(sids: SidValue[]): string {
-  if (!Array.isArray(sids) || !sids.length) return "Object identifier value is empty";
+  if (!Array.isArray(sids) || !sids.length) return "OID value is empty";
   for (const sid of sids) {
-    if (!sid || typeof sid.isHexOnly !== "boolean") return "Invalid object identifier SID";
+    if (!sid || typeof sid.isHexOnly !== "boolean") return "Invalid SID";
     if (sid.error) return sid.error;
     if (!sid.isHexOnly) {
       if (!Number.isSafeInteger(sid.valueDec) || sid.valueDec < 0) return "SID value must be a non-negative safe integer";

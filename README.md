@@ -92,7 +92,9 @@ const oid = new asn1js.ObjectIdentifier({
 oid.setValue("1.40"); // Throws; the object is left invalid with diagnostics.
 ```
 
-Strict encoding checks the current SID values on every `toBER()` call, including `toBER(true)`, so later mutations cannot silently produce an empty value. After a failed assignment or encoding, use a successful `setValue()` to recover; changing the SID array or turning strict mode off does not clear recorded errors. Constructors without a value remain valid strict schema placeholders, but encoding an empty placeholder throws.
+Strict encoding checks the current SID values on every `toBER()` call, including `toBER(true)`, so later mutations cannot silently produce an empty value. After a failed assignment or encoding, use a successful `setValue()` or decode a complete replacement value to recover; changing the SID array or turning strict mode off does not clear recorded errors. Constructors without a value remain valid strict schema placeholders, but encoding an empty placeholder throws. `toString("hex")` also encodes the value and throws for invalid strict OIDs. `isEqual()` can throw when it needs to encode an invalid strict OID for comparison.
+
+OID instance and value-block `fromBER()` calls replace previous SID values, lengths, and value diagnostics. Failed decoding discards any parsed prefix and reports the error without throwing. The instance method expects content octets and a prepared length block; use the top-level `fromBER()` function to decode a complete BER encoding.
 
 You can also set `oid.strict = true` on an existing or decoded OID. Changing the flag does not validate or modify its value immediately. The flag defaults to `false`, is not serialized in BER or JSON, and does not change the permissive behavior of `fromBER()`.
 

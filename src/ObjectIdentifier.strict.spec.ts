@@ -163,6 +163,98 @@ for (const { Block, value, invalid, ber, sentinel } of [
       expect(oid.toString("hex")).toBe(ber);
     });
 
+    it("recovers from a failed strict encode after decoding a complete value", () => {
+      const oid = new Block({ strict: true });
+      expect(() => oid.toBER(true)).toThrow("OID value is empty");
+      const content = Buffer.from(ber, "hex").subarray(2);
+      oid.lenBlock.length = content.length;
+      expect(oid.fromBER(content, 0, content.length)).toBe(content.length);
+      expect(oid.getValue()).toBe(value);
+      expect(oid.error).toBe("");
+      expect(oid.valueBlock.error).toBe("");
+      expect(oid.toString("hex")).toBe(ber);
+    });
+
+    it.each([false, true])("replaces decoded SID values and lengths on reuse (strict=%s)", (strict) => {
+      const first = Buffer.from(new Block({ value: "1.2.3" }).toBER());
+      const oid = asn1js.fromBER(first).result as Oid;
+      oid.strict = strict;
+      for (const [nextValue, encoded] of [
+        [value, Buffer.from(ber, "hex")],
+        ["1.2.3", first],
+      ] as const) {
+        const content = encoded.subarray(2);
+        oid.lenBlock.length = content.length;
+        oid.valueBlock.warnings.push("old value warning");
+        expect(oid.fromBER(content, 0, content.length)).toBe(content.length);
+        expect(oid.getValue()).toBe(nextValue);
+        expect(oid.valueBlock.blockLength).toBe(content.length);
+        expect(oid.blockLength).toBe(encoded.length);
+        expect(oid.valueBlock.warnings).toEqual([]);
+        expect(oid.error).toBe("");
+        expect(Buffer.from(oid.toBER())).toEqual(encoded);
+      }
+    });
+
+    it("discards failed BER prefixes and requires a complete decode for recovery", () => {
+      const oid = new Block({ value, strict: true });
+      const saved = oid.valueBlock.value;
+      oid.lenBlock.length = 2;
+      expect(oid.fromBER(Uint8Array.of(42, 0x80), 0, 2)).toBe(-1);
+      expect(oid.getValue()).toBe("");
+      expect(oid.valueBlock.blockLength).toBe(0);
+      expect(oid.blockLength).toBe(0);
+      const error = oid.error;
+      expect(error).toBe("End of input reached before message was fully decoded");
+      oid.valueBlock.value = saved;
+      expect(() => oid.toBER()).toThrow(error);
+
+      const content = Buffer.from(ber, "hex").subarray(2);
+      oid.lenBlock.length = content.length;
+      expect(oid.fromBER(content, 0, content.length)).toBe(content.length);
+      expect(oid.getValue()).toBe(value);
+      expect(oid.error).toBe("");
+      expect(oid.toString("hex")).toBe(ber);
+    });
+
+    it("also replaces failed decoding state through the value block", () => {
+      const oid = new Block({ value, strict: true });
+      expect(oid.valueBlock.fromBER(Uint8Array.of(42, 0x80), 0, 2)).toBe(-1);
+      expect(() => oid.toBER()).toThrow(Error);
+      const content = Buffer.from(ber, "hex").subarray(2);
+      expect(oid.valueBlock.fromBER(content, 0, content.length)).toBe(content.length);
+      expect(oid.getValue()).toBe(value);
+      expect(oid.toString("hex")).toBe(ber);
+      expect(oid.error).toBe("");
+      expect(oid.valueBlock.error).toBe("");
+    });
+
+    it("preserves independent header errors when value decoding recovers", () => {
+      const oid = new Block({ strict: true });
+      expect(() => oid.toBER()).toThrow(Error);
+      oid.idBlock.error = "identifier error";
+      oid.lenBlock.error = "length error";
+      const content = Buffer.from(ber, "hex").subarray(2);
+      oid.lenBlock.length = content.length;
+      expect(oid.fromBER(content, 0, content.length)).toBe(content.length);
+      expect(oid.valueBlock.error).toBe("");
+      expect(oid.idBlock.error).toBe("identifier error");
+      expect(oid.lenBlock.error).toBe("length error");
+      expect(oid.error).toBe("identifier error");
+    });
+
+    it("enforces strict encoding in comparisons and hexadecimal output", () => {
+      const oid = new Block({ value, strict: true });
+      expect(oid.isEqual(new Block({ value }))).toBe(true);
+      expect(oid.isEqual(new Block({ value: "1.2.3" }))).toBe(false);
+      const empty = new Block({ strict: true });
+      expect(empty.isEqual(empty)).toBe(true);
+      expect(empty.isEqual({})).toBe(false);
+      expect(() => empty.isEqual(oid)).toThrow("OID value is empty");
+      expect(() => oid.isEqual(empty)).toThrow("OID value is empty");
+      expect(() => empty.toString("hex")).toThrow("OID value is empty");
+    });
+
     it("allows strict schema declarations without encoding empty placeholders", () => {
       for (const oid of [new Block({ strict: true }), new Block({ strict: true, value: undefined }), new Block({ strict: true, value: null as unknown as string })]) {
         expect(oid.error).toBe("");

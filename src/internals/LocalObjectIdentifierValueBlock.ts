@@ -1,9 +1,9 @@
 import { ValueBlock, type ValueBlockJson, type ValueBlockParams } from "../ValueBlock";
 import type { IStringConvertible } from "../types";
-import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
+import { EMPTY_BUFFER } from "./constants";
 import * as utils from "./utils";
 import { type LocalSidValueBlockJson, LocalSidValueBlock } from "./LocalSidValueBlock";
-import { getSidValue, MAX_SAFE_SID, parseOidComponents, setOidError, validateOidSids } from "./oidUtils";
+import { assertStrictOidEncodable, getSidValue, MAX_SAFE_SID, parseOidComponents, resetOidValue, setOidError } from "./oidUtils";
 
 export interface ILocalObjectIdentifierValueBlock {
   value: string;
@@ -34,12 +34,14 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+    resetOidValue(this);
     let resultOffset = inputOffset;
 
     while (inputLength > 0) {
       const sidBlock = new LocalSidValueBlock();
       resultOffset = sidBlock.fromBER(inputBuffer, resultOffset, inputLength);
       if (resultOffset === -1) {
+        this.value = [];
         this.blockLength = 0;
         this.error = sidBlock.error;
 
@@ -58,17 +60,13 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
   }
 
   public override toBER(sizeOnly?: boolean): ArrayBuffer {
-    if (this.strict) {
-      const error = this.error || validateOidSids(this.value);
-      if (error) setOidError(this, error);
-    }
+    assertStrictOidEncodable(this);
     const retBuffers: ArrayBuffer[] = [];
 
     for (let i = 0; i < this.value.length; i++) {
       const valueBuf = this.value[i].toBER(sizeOnly);
       if (valueBuf.byteLength === 0) {
-        this.error = this.value[i].error;
-        if (this.strict) setOidError(this, this.error || "Error during encoding SID value");
+        setOidError(this, this.value[i].error || (this.strict ? "Error during encoding SID value" : ""));
 
         return EMPTY_BUFFER;
       }
@@ -80,11 +78,7 @@ export class LocalObjectIdentifierValueBlock extends ValueBlock implements IStri
   }
 
   public fromString(string: string): void {
-    this.value = [];
-    this.error = "";
-    this.warnings = [];
-    this.blockLength = 0;
-    this.valueBeforeDecodeView = EMPTY_VIEW;
+    resetOidValue(this);
 
     const components = parseOidComponents(string);
     if (!components || components.length < 2) {

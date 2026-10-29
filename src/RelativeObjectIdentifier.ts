@@ -4,8 +4,10 @@ import {
   LocalRelativeObjectIdentifierValueBlock,
   type LocalRelativeObjectIdentifierValueBlockJson,
 } from "./internals/LocalRelativeObjectIdentifierValueBlock";
+import { syncOidError } from "./internals/oidUtils";
 import { typeStore } from "./TypeStore";
 import type { ViewWriter } from "./ViewWriter";
+import type { FromBerContext } from "./parser";
 
 export interface RelativeObjectIdentifierParams extends BaseBlockParams, LocalRelativeObjectIdentifierValueBlockParams {}
 export interface RelativeObjectIdentifierJson extends BaseBlockJson<LocalRelativeObjectIdentifierValueBlockJson> {
@@ -48,7 +50,7 @@ export class RelativeObjectIdentifier extends BaseBlock<LocalRelativeObjectIdent
     try {
       this.valueBlock.fromString(value);
     } finally {
-      this.error = this.idBlock.error || this.lenBlock.error || this.valueBlock.error;
+      syncOidError(this);
     }
   }
 
@@ -59,7 +61,17 @@ export class RelativeObjectIdentifier extends BaseBlock<LocalRelativeObjectIdent
 
     this.idBlock.tagClass = 1; // UNIVERSAL
     this.idBlock.tagNumber = 13; // RELATIVE OBJECT IDENTIFIER
-    this.error = this.idBlock.error || this.lenBlock.error || this.valueBlock.error;
+    syncOidError(this);
+  }
+
+  /** Replaces decoded value state and refreshes diagnostics using the prepared length block. */
+  public override fromBER(inputBuffer: Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
+    this.blockLength = 0;
+    try {
+      return super.fromBER(inputBuffer, inputOffset, inputLength, context);
+    } finally {
+      syncOidError(this);
+    }
   }
 
   /**
@@ -71,7 +83,7 @@ export class RelativeObjectIdentifier extends BaseBlock<LocalRelativeObjectIdent
     try {
       return super.toBER(sizeOnly, writer);
     } finally {
-      this.error = this.idBlock.error || this.lenBlock.error || this.valueBlock.error;
+      syncOidError(this);
     }
   }
 
