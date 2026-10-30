@@ -38,14 +38,28 @@ export class GeneralizedTime extends UTCTime {
     this.millisecond = inputDate.getUTCMilliseconds();
   }
 
+  /**
+   * Converts the value to a JavaScript Date.
+   *
+   * A Date cannot represent a leap second, so for second 60 this returns the last millisecond of second 59 of the same minute:
+   * 20161231235960Z gives 2016-12-31T23:59:59.999Z, not the next minute, day or year.
+   */
   public override toDate(): Date {
+    const isLeapSecond = this.second === 60;
     // Date.UTC() reads the years 0-99 as 1900-1999, the setters do not
     const date = new Date(0);
     date.setUTCFullYear(this.year, this.month - 1, this.day);
-    date.setUTCHours(this.hour, this.minute, this.second, this.millisecond);
+    date.setUTCHours(this.hour, this.minute, isLeapSecond ? 59 : this.second, isLeapSecond ? 999 : this.millisecond);
     return date;
   }
 
+  /**
+   * Parses a GeneralizedTime string and stores its fields in UTC.
+   *
+   * A value with `Z` is UTC, and a value with a time difference is converted to UTC.
+   * A value with neither is local time and is read in the time zone of the host, so the result depends on that time zone.
+   * A leap second (second 60) is accepted and kept as second 60.
+   */
   public override fromString(inputString: string): void {
     // #region Initial variables
     let isUTC = false;
@@ -209,7 +223,7 @@ export class GeneralizedTime extends UTCTime {
     const isLeapYear = (this.year % 4 === 0 && this.year % 100 !== 0) || this.year % 400 === 0;
     const daysInMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][this.month - 1];
 
-    if (this.month < 1 || this.month > 12 || this.day < 1 || this.day > daysInMonth || this.hour > 23 || this.minute > 59 || this.second > 59) {
+    if (this.month < 1 || this.month > 12 || this.day < 1 || this.day > daysInMonth || this.hour > 23 || this.minute > 59 || this.second > 60) {
       throw new Error("Wrong input string for conversion");
     }
     // #endregion
@@ -219,17 +233,21 @@ export class GeneralizedTime extends UTCTime {
       // With a time difference, UTC is the local time minus the difference.
       // Without one, the time is local time, so the result depends on the time zone of the host.
       // Unlike Date.UTC() and the Date constructor, the setters do not read the years 0-99 as 1900-1999.
+      // A leap second is converted as second 59 and set back to 60, so it stays in the converted minute.
+      const isLeapSecond = this.second === 60;
+      const second = isLeapSecond ? 59 : this.second;
       const tempDate = new Date(0);
 
       if (hasTimeDifference) {
         tempDate.setUTCFullYear(this.year, this.month - 1, this.day);
-        tempDate.setUTCHours(this.hour - hourDifference, this.minute - minuteDifference, this.second, this.millisecond);
+        tempDate.setUTCHours(this.hour - hourDifference, this.minute - minuteDifference, second, this.millisecond);
       } else {
         tempDate.setFullYear(this.year, this.month - 1, this.day);
-        tempDate.setHours(this.hour, this.minute, this.second, this.millisecond);
+        tempDate.setHours(this.hour, this.minute, second, this.millisecond);
       }
 
       this.fromDate(tempDate);
+      if (isLeapSecond) this.second = 60;
     }
     // #endregion
   }

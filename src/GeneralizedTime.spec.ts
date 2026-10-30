@@ -147,8 +147,46 @@ describe("GeneralizedTime", () => {
       }
     });
     it("month, hour, minute or second out of range", () => {
-      for (const value of ["20241301123456+0100", "20241301123456Z", "20240001123456Z", "20240229253456+0100", "20240229253456Z", "20240229126056Z", "20240229123460+0100"]) {
+      for (const value of [
+        "20241301123456+0100",
+        "20241301123456Z",
+        "20240001123456Z",
+        "20240229253456+0100",
+        "20240229253456Z",
+        "20240229126056Z",
+        "20240229123461+0100",
+        "20161231235961Z",
+        "20161231235999Z",
+      ]) {
         assert.throws(() => new asn1js.GeneralizedTime({ value }), /Wrong input string for conversion/, value);
+      }
+    });
+    it("leap second in UTC", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "20161231235960Z" });
+      assert.deepStrictEqual([asn.year, asn.month, asn.day, asn.hour, asn.minute, asn.second], [2016, 12, 31, 23, 59, 60]);
+      assert.strictEqual(asn.toString(), "20161231235960Z");
+      assert.strictEqual(asn.toDate().toISOString(), "2016-12-31T23:59:59.999Z");
+    });
+    it("leap second with a fraction", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "20161231235960.5Z" });
+      assert.strictEqual(asn.toString(), "20161231235960.5Z");
+      assert.strictEqual(asn.toDate().toISOString(), "2016-12-31T23:59:59.999Z");
+    });
+    it("leap second with a time difference", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "20170101005960+0100" });
+      assert.deepStrictEqual([asn.year, asn.month, asn.day, asn.hour, asn.minute, asn.second], [2016, 12, 31, 23, 59, 60]);
+      assert.strictEqual(asn.toString(), "20161231235960Z");
+      assert.strictEqual(asn.toDate().toISOString(), "2016-12-31T23:59:59.999Z");
+    });
+    it("leap second in local time", () => {
+      const tz = process.env.TZ;
+      try {
+        process.env.TZ = "Asia/Kolkata";
+        const asn = new asn1js.GeneralizedTime({ value: "20170101052960" });
+        assert.deepStrictEqual([asn.year, asn.month, asn.day, asn.hour, asn.minute, asn.second], [2016, 12, 31, 23, 59, 60]);
+      } finally {
+        if (tz === undefined) delete process.env.TZ;
+        else process.env.TZ = tz;
       }
     });
     it("parsing again resets the fields that the input does not contain", () => {
