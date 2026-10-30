@@ -12,7 +12,26 @@ export function decodeBase128(view: Uint8Array): number | undefined {
 /** Encodes a non-negative safe integer or bigint as base-128 digits, or returns `undefined` when it cannot. */
 export function encodeBase128(value: number | bigint): Uint8Array | undefined {
   try {
-    return uint.encode(value, { bitsPerByte: 7 });
+    if (typeof value !== "bigint") return uint.encode(value, { bitsPerByte: 7 });
+    if (value < 0n) return undefined;
+
+    // Convert once: repeatedly shifting the entire BigInt makes large SIDs quadratic.
+    const hexadecimal = value.toString(16);
+    const bitLength = (hexadecimal.length - 1) * 4 + 32 - Math.clz32(parseInt(hexadecimal[0], 16));
+    const result = new Uint8Array(Math.max(1, Math.ceil(bitLength / 7)));
+    let offset = result.length;
+
+    // Seven hex digits fit in 28 bits and yield exactly four base-128 digits.
+    // Work from the right so only the most significant chunk needs trimming.
+    for (let end = hexadecimal.length; end > 0; end -= 7) {
+      let chunk = parseInt(hexadecimal.slice(Math.max(0, end - 7), end), 16);
+      for (let digit = 0; digit < 4 && offset > 0; digit++) {
+        result[--offset] = chunk & 0x7f;
+        chunk >>>= 7;
+      }
+    }
+
+    return result;
   } catch {
     return undefined;
   }
