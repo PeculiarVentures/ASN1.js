@@ -94,6 +94,108 @@ describe("GeneralizedTime", () => {
         new asn1js.GeneralizedTime({ value: "2" });
       });
     });
+    it("YYYYMMDDHHMMSS with a time difference", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "20240229123456+0200" });
+      assert.strictEqual(asn.toDate().toISOString(), "2024-02-29T10:34:56.000Z");
+    });
+    it("YYYYMMDDHHMM with a negative time difference", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "202312312130-0500" });
+      assert.strictEqual(asn.toDate().toISOString(), "2024-01-01T02:30:00.000Z");
+    });
+    it("BER with a time difference", () => {
+      const { offset, result } = asn1js.fromBER(new Uint8Array([0x18, 0x13, ...new TextEncoder().encode("20240229123456+0200")]));
+      assert.notStrictEqual(offset, -1);
+      assert.ok(result instanceof asn1js.GeneralizedTime);
+      assert.strictEqual(result.toDate().toISOString(), "2024-02-29T10:34:56.000Z");
+    });
+    it("YYYYMMDDHHMMSS without a time difference is local time", () => {
+      assert.strictEqual(new asn1js.GeneralizedTime({ value: "20240131120000" }).toDate().toISOString(), new Date(2024, 0, 31, 12).toISOString());
+      assert.strictEqual(new asn1js.GeneralizedTime({ value: "20240229123456" }).toDate().toISOString(), new Date(2024, 1, 29, 12, 34, 56).toISOString());
+    });
+    it("local time uses the time zone of the host", () => {
+      const tz = process.env.TZ;
+      try {
+        process.env.TZ = "Asia/Kolkata";
+        assert.strictEqual(new asn1js.GeneralizedTime({ value: "20240131120000" }).toDate().toISOString(), "2024-01-31T06:30:00.000Z");
+        process.env.TZ = "America/New_York";
+        assert.strictEqual(new asn1js.GeneralizedTime({ value: "20240131120000" }).toDate().toISOString(), "2024-01-31T17:00:00.000Z");
+      } finally {
+        if (tz === undefined) delete process.env.TZ;
+        else process.env.TZ = tz;
+      }
+    });
+    it("year 0050 in UTC", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "00500101120000Z" });
+      assert.strictEqual(asn.toDate().toISOString(), "0050-01-01T12:00:00.000Z");
+    });
+    it("year 0050 with a time difference", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "00500101120000+0100" });
+      assert.strictEqual(asn.year, 50);
+      assert.strictEqual(asn.toDate().toISOString(), "0050-01-01T11:00:00.000Z");
+      assert.strictEqual(new asn1js.GeneralizedTime({ value: "00500101003000+0100" }).toDate().toISOString(), "0049-12-31T23:30:00.000Z");
+    });
+    it("time difference out of range or not digits", () => {
+      assert.strictEqual(new asn1js.GeneralizedTime({ value: "20240229123456+2359" }).toDate().toISOString(), "2024-02-28T12:35:56.000Z");
+      for (const value of ["20240229123456+9999", "20240229123456+2400", "20240229123456+0060", "20240229123456+2a", "20240229123456+2a00", "20240229123456+ 200", "20240229123456+-100"]) {
+        assert.throws(() => new asn1js.GeneralizedTime({ value }), /Wrong input string for conversion/, value);
+      }
+    });
+    it("day out of range for the month", () => {
+      assert.strictEqual(new asn1js.GeneralizedTime({ value: "20000229120000Z" }).toDate().toISOString(), "2000-02-29T12:00:00.000Z");
+      for (const value of ["20240230123456+0100", "20240230123456Z", "20230229123456Z", "19000229123456Z", "20240431123456Z", "20240100123456Z"]) {
+        assert.throws(() => new asn1js.GeneralizedTime({ value }), /Wrong input string for conversion/, value);
+      }
+    });
+    it("month, hour, minute or second out of range", () => {
+      for (const value of [
+        "20241301123456+0100",
+        "20241301123456Z",
+        "20240001123456Z",
+        "20240229253456+0100",
+        "20240229253456Z",
+        "20240229126056Z",
+        "20240229123461+0100",
+        "20161231235961Z",
+        "20161231235999Z",
+      ]) {
+        assert.throws(() => new asn1js.GeneralizedTime({ value }), /Wrong input string for conversion/, value);
+      }
+    });
+    it("leap second in UTC", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "20161231235960Z" });
+      assert.deepStrictEqual([asn.year, asn.month, asn.day, asn.hour, asn.minute, asn.second], [2016, 12, 31, 23, 59, 60]);
+      assert.strictEqual(asn.toString(), "20161231235960Z");
+      assert.strictEqual(asn.toDate().toISOString(), "2016-12-31T23:59:59.999Z");
+    });
+    it("leap second with a fraction", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "20161231235960.5Z" });
+      assert.strictEqual(asn.toString(), "20161231235960.5Z");
+      assert.strictEqual(asn.toDate().toISOString(), "2016-12-31T23:59:59.999Z");
+    });
+    it("leap second with a time difference", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "20170101005960+0100" });
+      assert.deepStrictEqual([asn.year, asn.month, asn.day, asn.hour, asn.minute, asn.second], [2016, 12, 31, 23, 59, 60]);
+      assert.strictEqual(asn.toString(), "20161231235960Z");
+      assert.strictEqual(asn.toDate().toISOString(), "2016-12-31T23:59:59.999Z");
+    });
+    it("leap second in local time", () => {
+      const tz = process.env.TZ;
+      try {
+        process.env.TZ = "Asia/Kolkata";
+        const asn = new asn1js.GeneralizedTime({ value: "20170101052960" });
+        assert.deepStrictEqual([asn.year, asn.month, asn.day, asn.hour, asn.minute, asn.second], [2016, 12, 31, 23, 59, 60]);
+      } finally {
+        if (tz === undefined) delete process.env.TZ;
+        else process.env.TZ = tz;
+      }
+    });
+    it("parsing again resets the fields that the input does not contain", () => {
+      const asn = new asn1js.GeneralizedTime({ value: "20000102120102.100Z" });
+      asn.fromString("2000010213Z");
+      assert.strictEqual(asn.toDate().toISOString(), "2000-01-02T13:00:00.000Z");
+      asn.fromString("20000103Z");
+      assert.strictEqual(asn.toDate().toISOString(), "2000-01-03T00:00:00.000Z");
+    });
     it("ISO string", () => {
       const asn = new asn1js.GeneralizedTime({ value: "20000102120102.100Z" });
       assert.strictEqual(asn.toString("hex"), "181332303030303130323132303130322e3130305a");
