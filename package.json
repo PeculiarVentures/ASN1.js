@@ -1,6 +1,6 @@
 {
   "name": "asn1js",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Pure JavaScript ASN.1 BER/DER encoder and decoder with schema validation, for browsers and Node.js. ASN.1 is the basis of X.509 certificates and many other protocols used on the web.",
   "keywords": [
     "asn1",
