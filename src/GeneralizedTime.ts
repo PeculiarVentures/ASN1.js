@@ -38,11 +38,28 @@ export class GeneralizedTime extends UTCTime {
     this.millisecond = inputDate.getUTCMilliseconds();
   }
 
+  /**
+   * Converts the value to a JavaScript Date.
+   *
+   * A Date cannot represent a leap second, so for second 60 this returns the last millisecond of second 59 of the same minute:
+   * 20161231235960Z gives 2016-12-31T23:59:59.999Z, not the next minute, day or year.
+   */
   public override toDate(): Date {
-    const utcDate = Date.UTC(this.year, this.month - 1, this.day, this.hour, this.minute, this.second, this.millisecond);
-    return new Date(utcDate);
+    const isLeapSecond = this.second === 60;
+    // Date.UTC() reads the years 0-99 as 1900-1999, the setters do not
+    const date = new Date(0);
+    date.setUTCFullYear(this.year, this.month - 1, this.day);
+    date.setUTCHours(this.hour, this.minute, isLeapSecond ? 59 : this.second, isLeapSecond ? 999 : this.millisecond);
+    return date;
   }
 
+  /**
+   * Parses a GeneralizedTime string and stores its fields in UTC.
+   *
+   * A value with `Z` is UTC, and a value with a time difference is converted to UTC.
+   * A value with neither is local time and is read in the time zone of the host, so the result depends on that time zone.
+   * A leap second (second 60) is accepted and kept as second 60.
+   */
   public override fromString(inputString: string): void {
     // #region Initial variables
     let isUTC = false;
@@ -53,8 +70,15 @@ export class GeneralizedTime extends UTCTime {
 
     let parser;
 
+    let hasTimeDifference = false;
     let hourDifference = 0;
     let minuteDifference = 0;
+
+    // Fields that the input string does not contain are zero, also when an instance is parsed again
+    this.hour = 0;
+    this.minute = 0;
+    this.second = 0;
+    this.millisecond = 0;
     // #endregion
 
     if (inputString[inputString.length - 1] === "Z") {
@@ -88,24 +112,19 @@ export class GeneralizedTime extends UTCTime {
       }
 
       if (differencePosition !== -1) {
+        hasTimeDifference = true;
         differenceString = timeString.substring(differencePosition + 1);
         timeString = timeString.substring(0, differencePosition);
 
-        if (differenceString.length !== 2 && differenceString.length !== 4) throw new Error("Wrong input string for conversion");
+        if (!/^\d{2}(\d{2})?$/.test(differenceString)) throw new Error("Wrong input string for conversion");
 
-        let number = parseInt(differenceString.substring(0, 2), 10);
+        const hours = parseInt(differenceString.substring(0, 2), 10);
+        const minutes = differenceString.length === 4 ? parseInt(differenceString.substring(2, 4), 10) : 0;
 
-        if (isNaN(number.valueOf())) throw new Error("Wrong input string for conversion");
+        if (hours > 23 || minutes > 59) throw new Error("Wrong input string for conversion");
 
-        hourDifference = multiplier * number;
-
-        if (differenceString.length === 4) {
-          number = parseInt(differenceString.substring(2, 4), 10);
-
-          if (isNaN(number.valueOf())) throw new Error("Wrong input string for conversion");
-
-          minuteDifference = multiplier * number;
-        }
+        hourDifference = multiplier * hours;
+        minuteDifference = multiplier * minutes;
       }
     }
 
@@ -186,10 +205,10 @@ export class GeneralizedTime extends UTCTime {
           this.day = parseInt(parserArray[j], 10);
           break;
         case 4:
-          this.hour = parseInt(parserArray[j], 10) + hourDifference;
+          this.hour = parseInt(parserArray[j], 10);
           break;
         case 5:
-          this.minute = parseInt(parserArray[j], 10) + minuteDifference;
+          this.minute = parseInt(parserArray[j], 10);
           break;
         case 6:
           this.second = parseInt(parserArray[j], 10);
@@ -200,17 +219,35 @@ export class GeneralizedTime extends UTCTime {
     }
     // #endregion
 
+    // #region Check field ranges
+    const isLeapYear = (this.year % 4 === 0 && this.year % 100 !== 0) || this.year % 400 === 0;
+    const daysInMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][this.month - 1];
+
+    if (this.month < 1 || this.month > 12 || this.day < 1 || this.day > daysInMonth || this.hour > 23 || this.minute > 59 || this.second > 60) {
+      throw new Error("Wrong input string for conversion");
+    }
+    // #endregion
+
     // #region Get final date
     if (isUTC === false) {
-      const tempDate = new Date(this.year, this.month, this.day, this.hour, this.minute, this.second, this.millisecond);
+      // With a time difference, UTC is the local time minus the difference.
+      // Without one, the time is local time, so the result depends on the time zone of the host.
+      // Unlike Date.UTC() and the Date constructor, the setters do not read the years 0-99 as 1900-1999.
+      // A leap second is converted as second 59 and set back to 60, so it stays in the converted minute.
+      const isLeapSecond = this.second === 60;
+      const second = isLeapSecond ? 59 : this.second;
+      const tempDate = new Date(0);
 
-      this.year = tempDate.getUTCFullYear();
-      this.month = tempDate.getUTCMonth();
-      this.day = tempDate.getUTCDay();
-      this.hour = tempDate.getUTCHours();
-      this.minute = tempDate.getUTCMinutes();
-      this.second = tempDate.getUTCSeconds();
-      this.millisecond = tempDate.getUTCMilliseconds();
+      if (hasTimeDifference) {
+        tempDate.setUTCFullYear(this.year, this.month - 1, this.day);
+        tempDate.setUTCHours(this.hour - hourDifference, this.minute - minuteDifference, second, this.millisecond);
+      } else {
+        tempDate.setFullYear(this.year, this.month - 1, this.day);
+        tempDate.setHours(this.hour, this.minute, second, this.millisecond);
+      }
+
+      this.fromDate(tempDate);
+      if (isLeapSecond) this.second = 60;
     }
     // #endregion
   }
