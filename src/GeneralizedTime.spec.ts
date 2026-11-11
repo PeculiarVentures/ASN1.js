@@ -189,6 +189,29 @@ describe("GeneralizedTime", () => {
         else process.env.TZ = tz;
       }
     });
+    it("leap second only at 23:59 UTC", () => {
+      for (const value of ["20240229123460Z", "20161231225960Z", "20170101015960+0100", "20161231235960+0100"]) {
+        assert.throws(() => new asn1js.GeneralizedTime({ value }), /Wrong input string for conversion/, value);
+      }
+    });
+    it("leap second in local time with an offset that has seconds", () => {
+      const tz = process.env.TZ;
+      try {
+        // Monrovia Mean Time was -00:44:30 until 1972, so 23:14:60 local would be 23:59:29 UTC, not a leap second
+        process.env.TZ = "Africa/Monrovia";
+        assert.strictEqual(new asn1js.GeneralizedTime({ value: "19600101231529" }).toDate().toISOString(), "1960-01-01T23:59:59.000Z");
+        assert.throws(() => new asn1js.GeneralizedTime({ value: "19600101231460" }), /Wrong input string for conversion/);
+      } finally {
+        if (tz === undefined) delete process.env.TZ;
+        else process.env.TZ = tz;
+      }
+    });
+    it("fraction with only digits", () => {
+      assert.strictEqual(new asn1js.GeneralizedTime({ value: "20240229123456,5Z" }).toDate().toISOString(), "2024-02-29T12:34:56.500Z");
+      for (const value of ["20240229123456.5e3Z", "20240229123456.5E1Z", "20240229123456.Z", "20240229123456.+5Z", "20240229123456. 5Z", "202402291234.1e1Z"]) {
+        assert.throws(() => new asn1js.GeneralizedTime({ value }), /Wrong input string for conversion/, value);
+      }
+    });
     it("parsing again resets the fields that the input does not contain", () => {
       const asn = new asn1js.GeneralizedTime({ value: "20000102120102.100Z" });
       asn.fromString("2000010213Z");

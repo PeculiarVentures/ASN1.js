@@ -58,7 +58,7 @@ export class GeneralizedTime extends UTCTime {
    *
    * A value with `Z` is UTC, and a value with a time difference is converted to UTC.
    * A value with neither is local time and is read in the time zone of the host, so the result depends on that time zone.
-   * A leap second (second 60) is accepted and kept as second 60.
+   * A leap second (second 60) is accepted only at 23:59 UTC and kept as second 60.
    */
   public override fromString(inputString: string): void {
     // #region Initial variables
@@ -135,11 +135,11 @@ export class GeneralizedTime extends UTCTime {
 
     // #region Get fraction part
     if (fractionPointPosition !== -1) {
-      const fractionPartCheck = new Number(`0${timeString.substring(fractionPointPosition)}`);
+      // Only digits may follow the decimal sign, so that Number() cannot read an exponent such as ".5e3"
+      const fractionDigits = timeString.substring(fractionPointPosition + 1);
+      if (!/^\d+$/.test(fractionDigits)) throw new Error("Wrong input string for conversion");
 
-      if (isNaN(fractionPartCheck.valueOf())) throw new Error("Wrong input string for conversion");
-
-      fractionPart = fractionPartCheck.valueOf();
+      fractionPart = Number(`0.${fractionDigits}`);
 
       dateTimeString = timeString.substring(0, fractionPointPosition);
     } else dateTimeString = timeString;
@@ -220,12 +220,7 @@ export class GeneralizedTime extends UTCTime {
     // #endregion
 
     // #region Check field ranges
-    const isLeapYear = (this.year % 4 === 0 && this.year % 100 !== 0) || this.year % 400 === 0;
-    const daysInMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][this.month - 1];
-
-    if (this.month < 1 || this.month > 12 || this.day < 1 || this.day > daysInMonth || this.hour > 23 || this.minute > 59 || this.second > 60) {
-      throw new Error("Wrong input string for conversion");
-    }
+    if (!this.isFieldRangeValid(60)) throw new Error("Wrong input string for conversion");
     // #endregion
 
     // #region Get final date
@@ -247,9 +242,16 @@ export class GeneralizedTime extends UTCTime {
       }
 
       this.fromDate(tempDate);
-      if (isLeapSecond) this.second = 60;
+      if (isLeapSecond) {
+        // An offset with seconds (such as an old local mean time) does not move the leap second to second 59
+        if (this.second !== 59) throw new Error("Wrong input string for conversion");
+        this.second = 60;
+      }
     }
     // #endregion
+
+    // A leap second is inserted at the end of a UTC day
+    if (this.second === 60 && (this.hour !== 23 || this.minute !== 59)) throw new Error("Wrong input string for conversion");
   }
 
   public override toString(encoding: DateStringEncoding = "iso"): string {
