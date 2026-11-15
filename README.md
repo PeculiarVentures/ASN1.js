@@ -133,8 +133,9 @@ const asn1 = asn1js.fromBER(inputBuffer, {
 ## Strict DER Parsing
 
 Use `fromDER()` to parse exactly one DER element, or pass `encodingRules: "DER"` to
-`fromBER()` or `verifySchema()`. BER remains the default and keeps its permissive
-encoding behavior and first-element parsing.
+`fromBER()` or `verifySchema()`. BER remains the default, and `fromBER()` still
+parses the first element unless full input consumption is requested. See the
+compatibility notes below for changes that also affect BER callers.
 
 ```typescript
 import { fromBER, fromDER, verifySchema } from "asn1js";
@@ -196,6 +197,35 @@ certificate signatures or verify application-level constraints.
 Integration tests validate and round-trip every root certificate bundled with the
 Node.js test runtime, alongside a generated legacy T61 certificate and a CRL with
 5,000 revoked entries.
+
+### Compatibility Notes
+
+Mandatory `primitiveSchema` parsing now requires exactly one complete embedded
+element in both `verifySchema()` and `compareSchema()`, including in BER mode.
+For example, `04 05 02 01 01 de ad` previously matched an OCTET STRING with an
+INTEGER `primitiveSchema`; it now fails because `de ad` remains after the INTEGER.
+The outer BER parse still permits trailing data by default.
+
+`verifySchema()` now copies the supplied input range by default (`copyInput: true`);
+previously its returned tree borrowed the input storage. Set `copyInput: false`
+to retain that behavior. The input ownership and mutation requirements described
+under [Parsing Untrusted Input](#parsing-untrusted-input) apply to the returned
+tree and named schema captures: borrowed byte views reflect later mutations,
+decoded fields may then disagree with those bytes, and the entire backing buffer
+stays retained.
+
+DER PrintableString validation enforces the exact X.680 repertoire: letters
+`A`–`Z` and `a`–`z`, digits `0`–`9`, space, and `' ( ) + , - . / : = ?`.
+It rejects `*`, `&`, and `@`, so a certificate with a wildcard CN encoded as
+PrintableString can fail strict parsing. For new values, use `Utf8String` for
+these characters, or `IA5String` for DNS names where the schema allows it.
+DER checks are not relaxed for legacy certificates; changing the tag in an
+existing signed certificate is not a valid repair.
+
+BER UTCTime accepts optional seconds and either `Z` or a signed `hhmm` offset
+(`YYMMDDhhmm[ss](Z|+hhmm|-hhmm)`). DER still requires `YYMMDDHHMMSSZ`.
+Invalid UTCTime decoder errors now fail the parse (`offset: -1`) in BER as well
+as DER, rather than returning a successful result with an error set.
 
 ### Diagnostics
 
