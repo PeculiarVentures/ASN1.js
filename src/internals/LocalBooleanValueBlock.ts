@@ -2,6 +2,9 @@ import { int, toUint8Array } from "@peculiar/utils";
 import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
 import { ValueBlock, type ValueBlockJson, type ValueBlockParams } from "../ValueBlock";
 import { checkBufferParams } from "./utils";
+import type { FromBerContext } from "../parser";
+import { checkPrimitiveEncoding } from "../der";
+import { report } from "./der";
 
 export interface ILocalBooleanValueBlock {
   value: boolean;
@@ -42,7 +45,7 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
     }
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
     const inputView = toUint8Array(inputBuffer);
     // Basic check for parameters
     if (!checkBufferParams(this, inputView, inputOffset, inputLength)) {
@@ -51,6 +54,14 @@ export class LocalBooleanValueBlock extends HexBlock(ValueBlock) implements ILoc
 
     // Getting Uint8Array
     this.valueHexView = inputView.subarray(inputOffset, inputOffset + inputLength);
+
+    if (context?.encodingRules === "DER") {
+      const issue = checkPrimitiveEncoding(1, false, this.valueHexView);
+      if (issue) {
+        this.error = report(context, issue);
+        return -1;
+      }
+    }
 
     if (inputLength > 1) this.warnings.push("Boolean value encoded in more then 1 octet");
 

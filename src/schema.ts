@@ -3,7 +3,7 @@ import { IS_CONSTRUCTED, EMPTY_STRING, NAME, ID_BLOCK, FROM_BER, TO_BER, TAG_CLA
 import { Any } from "./Any";
 import { Choice } from "./Choice";
 import { Repeated } from "./Repeated";
-import { createFromBerContext, fromBERWithContext, localFromBER, type FromBerOptions } from "./parser";
+import { createFromBerContext, fromBERWithContext, type FromBerContext, type FromBerOptions } from "./parser";
 import { type AsnType, typeStore } from "./TypeStore";
 import type { ParseDiagnostic } from "./diagnostics";
 
@@ -28,6 +28,11 @@ export interface CompareSchemaFail {
 
 export type CompareSchemaResult = CompareSchemaSuccess | CompareSchemaFail;
 
+interface CompareSchemaContext {
+  parse: FromBerContext;
+  failure?: CompareSchemaFail;
+}
+
 /**
  * Compare of two ASN.1 object trees
  * @param root Root of input ASN.1 object tree
@@ -36,12 +41,33 @@ export type CompareSchemaResult = CompareSchemaSuccess | CompareSchemaFail;
  * @return Returns result of comparison
  */
 export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: AsnSchemaType): CompareSchemaResult {
+  return compareSchemaWithContext(root, inputData, inputSchema, { parse: createFromBerContext() });
+}
+
+function compareSchemaWithContext(root: AsnType, inputData: AsnType, inputSchema: AsnSchemaType, context: CompareSchemaContext): CompareSchemaResult {
+  if (context.failure) return context.failure;
+  const { node, depth } = context.parse;
+  const position = context.parse.positions?.get(inputData);
+  if (position) {
+    context.parse.node = position;
+    context.parse.depth = position.depth;
+  }
+  try {
+    return compareSchemaInternal(root, inputData, inputSchema, context);
+  } finally {
+    context.parse.node = node;
+    context.parse.depth = depth;
+  }
+}
+
+function compareSchemaInternal(root: AsnType, inputData: AsnType, inputSchema: AsnSchemaType, context: CompareSchemaContext): CompareSchemaResult {
   // #region Special case for Choice schema element type
   if (inputSchema instanceof Choice) {
     const choiceResult = false;
 
     for (const element of inputSchema.value) {
-      const result = compareSchema(root, inputData, element);
+      const result = compareSchemaWithContext(root, inputData, element, context);
+      if (context.failure) return context.failure;
       if (result.verified) {
         return {
           verified: true,
@@ -320,7 +346,8 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
         // Special case for Repeated type of ASN.1 schema element
         if (inputSchema.valueBlock.value[0] instanceof Repeated) {
           // @ts-ignore
-          result = compareSchema(root, inputData.valueBlock.value[i], inputSchema.valueBlock.value[0].value);
+          result = compareSchemaWithContext(root, inputData.valueBlock.value[i], inputSchema.valueBlock.value[0].value, context);
+          if (context.failure) return context.failure;
           if (result.verified === false) {
             if (inputSchema.valueBlock.value[0].optional) admission++;
             else {
@@ -348,7 +375,8 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
           }
         } else {
           // @ts-ignore
-          result = compareSchema(root, inputData.valueBlock.value[i - admission], inputSchema.valueBlock.value[i]);
+          result = compareSchemaWithContext(root, inputData.valueBlock.value[i - admission], inputSchema.valueBlock.value[i], context);
+          if (context.failure) return context.failure;
           if (result.verified === false) {
             if (inputSchema.valueBlock.value[i].optional) admission++;
             else {
@@ -395,11 +423,24 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
   // #region Ability to parse internal value for primitive-encoded value (value of OctetString, for example)
   if (inputSchema.primitiveSchema && VALUE_HEX_VIEW in inputData.valueBlock) {
     // #region Decoding of raw ASN.1 data
-    const asn1 = localFromBER(inputData.valueBlock.valueHexView);
+    const raw = inputData.valueBlock.valueHexView;
+    const baseOffset = context.parse.baseOffset;
+    const position = context.parse.node;
+    if (position) {
+      const skippedUnusedBits = inputData.idBlock.tagClass === 1 && inputData.idBlock.tagNumber === 3 ? 1 : 0;
+      context.parse.baseOffset = position.contentOffset + skippedUnusedBits;
+    }
+    let asn1;
+    try {
+      asn1 = fromBERWithContext(raw, { requireFullInput: true, copyInput: false }, context.parse, true);
+    } finally {
+      context.parse.baseOffset = baseOffset;
+    }
     if (asn1.offset === -1) {
       const _result: CompareSchemaResult = {
         verified: false,
         result: asn1.result,
+        ...(asn1.diagnostic ? { diagnostic: asn1.diagnostic } : {}),
       };
 
       // #region Delete early added name of block
@@ -412,11 +453,12 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
       }
       // #endregion
 
+      context.failure = _result;
       return _result;
     }
     // #endregion
 
-    return compareSchema(root, asn1.result, inputSchema.primitiveSchema);
+    return compareSchemaWithContext(root, asn1.result, inputSchema.primitiveSchema, context);
   }
 
   return {
@@ -443,7 +485,9 @@ export function verifySchema(inputBuffer: BufferSource, inputSchema: AsnSchemaTy
   }
   // #endregion
   // #region Decoding of raw ASN.1 data
-  const asn1 = fromBERWithContext(inputBuffer, options, createFromBerContext(options));
+  const context = createFromBerContext(options);
+  context.positions = new WeakMap();
+  const asn1 = fromBERWithContext(inputBuffer, options, context);
   if (asn1.offset === -1) {
     return {
       verified: false,
@@ -454,6 +498,6 @@ export function verifySchema(inputBuffer: BufferSource, inputSchema: AsnSchemaTy
   // #endregion
   // #region Compare ASN.1 struct with input schema
 
-  return compareSchema(asn1.result, asn1.result, inputSchema);
+  return compareSchemaWithContext(asn1.result, asn1.result, inputSchema, { parse: context });
   // #endregion
 }

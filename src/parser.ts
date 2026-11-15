@@ -22,6 +22,13 @@ export interface NodePosition {
   depth: number;
 }
 
+/** @internal */
+export interface HeuristicState {
+  nodesSpent: number;
+  maxNodes: number;
+  active: boolean;
+}
+
 export interface FromBerResult {
   offset: number;
   result: AsnType;
@@ -58,6 +65,8 @@ export interface FromBerContext {
   diagnostic?: ParseDiagnostic;
   /** @internal */
   positions?: WeakMap<AsnType, NodePosition>;
+  /** @internal */
+  heuristic?: HeuristicState;
 }
 
 interface FastParserRegistry {
@@ -110,6 +119,7 @@ function fastParserType(store: typeof typeStore, name: "Integer" | "Null" | "Seq
 }
 
 function tryFastFromBER(inputBuffer: Uint8Array, inputOffset: number, inputLength: number, context: FromBerContext): FromBerResult | undefined {
+  if (context.encodingRules === "DER" && context.heuristic?.active) return undefined;
   const registry = fastParserRegistry;
   if (!registry) return undefined;
 
@@ -204,12 +214,40 @@ function createErrorResult(error: string): FromBerResult {
 }
 
 function checkNodesLimit(context: FromBerContext): string | undefined {
+  if (context.encodingRules === "DER" && context.heuristic?.active) {
+    if (context.heuristic.nodesSpent >= context.heuristic.maxNodes) return MAX_NODES_EXCEEDED_ERROR;
+    context.heuristic.nodesSpent += 1;
+    return undefined;
+  }
+
   context.nodesCount += 1;
   if (context.nodesCount > context.maxNodes) {
     return MAX_NODES_EXCEEDED_ERROR;
   }
 
   return undefined;
+}
+
+/** @internal */
+export function withHeuristic<T>(context: FromBerContext, callback: () => T): T | undefined {
+  if (context.encodingRules !== "DER") return callback();
+
+  const heuristic = (context.heuristic ??= { nodesSpent: 0, maxNodes: context.maxNodes, active: false });
+  if (heuristic.nodesSpent >= heuristic.maxNodes) return undefined;
+
+  const { node, diagnostic, depth, baseOffset } = context;
+  const active = heuristic.active;
+  heuristic.active = true;
+  context.diagnostic = undefined;
+  try {
+    return callback();
+  } finally {
+    context.node = node;
+    context.diagnostic = diagnostic;
+    context.depth = depth;
+    context.baseOffset = baseOffset;
+    heuristic.active = active;
+  }
 }
 
 function checkContentLengthLimit(inputLength: number, context: FromBerContext): string | undefined {
@@ -558,7 +596,7 @@ export function fromBER(inputBuffer: BufferSource, options: FromBerOptions = {})
 }
 
 /** @internal */
-export function fromBERWithContext(inputBuffer: BufferSource, options: FromBerOptions, context: FromBerContext): FromBerResult {
+export function fromBERWithContext(inputBuffer: BufferSource, options: FromBerOptions, context: FromBerContext, child = false): FromBerResult {
   if (context.encodingRules === "DER" && options.requireFullInput === false) {
     throw new TypeError("DER requires full input consumption");
   }
@@ -575,10 +613,11 @@ export function fromBERWithContext(inputBuffer: BufferSource, options: FromBerOp
   const inputView = toUint8Array(inputBuffer);
   const normalizedInput = options.copyInput === false ? inputView : inputView.slice();
 
-  const decoded = localFromBER(normalizedInput, 0, normalizedInput.byteLength, context);
+  const decoded = child ? localFromBERWithChildContext(normalizedInput, 0, normalizedInput.byteLength, context) : localFromBER(normalizedInput, 0, normalizedInput.byteLength, context);
   if (decoded.offset !== -1 && (options.requireFullInput || context.encodingRules === "DER") && decoded.offset !== normalizedInput.byteLength) {
     const message = "Unexpected data after the first ASN.1 element";
-    const diagnostic: ParseDiagnostic = { code: "TRAILING_DATA", message, offset: decoded.offset, depth: 0 };
+    const diagnostic: ParseDiagnostic = { code: "TRAILING_DATA", message, offset: (context.baseOffset ?? 0) + decoded.offset, depth: context.depth + (child ? 1 : 0) };
+    context.diagnostic = diagnostic;
     decoded.result.error = message;
     return { offset: -1, result: decoded.result, diagnostic };
   }

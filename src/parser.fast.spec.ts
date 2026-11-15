@@ -4,9 +4,21 @@ import { Integer, Null, Sequence, fromBER } from "./index";
 import { DEFAULT_MAX_CONTENT_LENGTH, createFromBerContext, localFromBER, registerFastParser } from "./parser";
 import { typeStore } from "./TypeStore";
 import { LocalIdentificationBlock } from "./internals/LocalIdentificationBlock";
+import type { DerViolationCode } from "./diagnostics";
 
 function parse(input: number[], options = {}) {
   return fromBER(Uint8Array.from(input), options);
+}
+
+function derSummary(input: number[]) {
+  const decoded = parse(input, { encodingRules: "DER" });
+  return {
+    accepted: decoded.offset !== -1,
+    offset: decoded.offset,
+    code: decoded.diagnostic?.code,
+    tlvOffset: decoded.diagnostic?.offset,
+    depth: decoded.diagnostic?.depth,
+  };
 }
 
 describe("short built-in parser path", () => {
@@ -155,6 +167,59 @@ describe("short built-in parser path", () => {
     } finally {
       Object.defineProperty(LocalIdentificationBlock.prototype, "fromBER", descriptor);
       registerFastParser({ Integer, Null, Sequence });
+    }
+  });
+
+  it("matches DER value failures and successful large INTEGERs at root and nested depths", () => {
+    const vectors: Array<{ input: number[]; code?: DerViolationCode }> = [
+      { input: [0x02, 0x00], code: "EMPTY_VALUE" },
+      { input: [0x02, 0x02, 0x00, 0x01], code: "NON_MINIMAL_INTEGER" },
+      { input: [0x02, 0x05, 0x00, 0x00, 0x00, 0x00, 0x01], code: "NON_MINIMAL_INTEGER" },
+      { input: [0x02, 0x05, 0x00, 0x80, 0x00, 0x00, 0x0a] },
+      { input: [0x01, 0x01, 0x01], code: "INVALID_BOOLEAN" },
+      { input: [0x0c, 0x01, 0xff], code: "INVALID_STRING" },
+      { input: [0x06, 0x02, 0x80, 0x01], code: "INVALID_OID" },
+      { input: [0x03, 0x02, 0x07, 0x81], code: "BIT_STRING_PADDING" },
+    ];
+    const cases = vectors.flatMap(({ input, code }) => {
+      const nested = input.slice();
+      for (let depth = 0; depth < 3; depth++) nested.unshift(0x30, nested.length);
+      return [
+        { input, code, tlvOffset: 0, depth: 0 },
+        { input: nested, code, tlvOffset: 6, depth: 3 },
+      ];
+    });
+    const baseline = cases.map(({ input, code, tlvOffset, depth }) => {
+      const result = derSummary(input);
+      assert.deepStrictEqual(result, {
+        accepted: !code,
+        offset: code ? -1 : input.length,
+        code,
+        tlvOffset: code ? tlvOffset : undefined,
+        depth: code ? depth : undefined,
+      });
+      return result;
+    });
+
+    const descriptor = Object.getOwnPropertyDescriptor(LocalIdentificationBlock.prototype, "fromBER");
+    assert.ok(descriptor && "value" in descriptor);
+    const original = descriptor.value as LocalIdentificationBlock["fromBER"];
+    let calls = 0;
+    Object.defineProperty(LocalIdentificationBlock.prototype, "fromBER", {
+      ...descriptor,
+      value: function (this: LocalIdentificationBlock, ...args: Parameters<LocalIdentificationBlock["fromBER"]>) {
+        calls += 1;
+        return Reflect.apply(original, this, args);
+      },
+    });
+    try {
+      assert.deepStrictEqual(
+        cases.map(({ input }) => derSummary(input)),
+        baseline,
+      );
+      assert.ok(calls > 0);
+    } finally {
+      Object.defineProperty(LocalIdentificationBlock.prototype, "fromBER", descriptor);
     }
   });
 

@@ -4,6 +4,7 @@ import type { LocalSimpleStringValueBlockJson } from "./internals/LocalSimpleStr
 import type { IDateConvertible } from "./types";
 import { typeStore } from "./TypeStore";
 import { type VisibleStringParams, VisibleString } from "./VisibleString";
+import { bytesToString } from "./internals/stringUtils";
 
 export interface IUTCTime {
   year: number;
@@ -66,7 +67,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
-    this.fromString(String.fromCharCode.apply(null, toUint8Array(inputBuffer) as unknown as number[]));
+    this.fromString(bytesToString(toUint8Array(inputBuffer)));
   }
 
   protected override fromBufferForBER(view: Uint8Array): void {

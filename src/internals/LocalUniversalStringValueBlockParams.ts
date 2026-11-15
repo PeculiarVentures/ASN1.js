@@ -1,5 +1,6 @@
 import { toUint8Array, uint } from "@peculiar/utils";
 import { LocalSimpleStringBlock, type LocalSimpleStringBlockJson, type LocalSimpleStringBlockParams } from "./LocalSimpleStringBlock";
+import type { FromBerContext } from "../parser";
 
 export type LocalUniversalStringValueBlockParams = LocalSimpleStringBlockParams;
 export type LocalUniversalStringValueBlockJson = LocalSimpleStringBlockJson;
@@ -10,7 +11,12 @@ const REPLACEMENT_CODE_POINT = 0xfffd;
 export class LocalUniversalStringValueBlock extends LocalSimpleStringBlock {
   public static override NAME = "UniversalStringValueBlock";
 
-  protected override checkValue(view: Uint8Array): string {
+  protected override checkValue(view: Uint8Array, context?: FromBerContext): string {
+    if (context?.encodingRules === "DER") {
+      const error = super.checkValue(view, context);
+      if (error) return error;
+    }
+
     return view.length % 4 !== 0 ? "UniversalString value length must be a multiple of 4" : "";
   }
 

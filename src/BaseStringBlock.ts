@@ -2,6 +2,9 @@ import { BaseBlock, type BaseBlockParams } from "./BaseBlock";
 import type { IStringConvertible } from "./types";
 import { EMPTY_STRING } from "./internals/constants";
 import type { LocalStringValueBlock, LocalStringValueBlockJson, LocalStringValueBlockParams } from "./internals/LocalStringValueBlock";
+import type { FromBerContext } from "./parser";
+import { checkPrimitiveEncoding } from "./der";
+import { report } from "./internals/der";
 
 export interface BaseStringBlockParams extends BaseBlockParams, LocalStringValueBlockParams {}
 export type BaseStringBlockJson = LocalStringValueBlockJson;
@@ -38,15 +41,15 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
     }
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
-    const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, this.lenBlock.isIndefiniteForm ? inputLength : this.lenBlock.length);
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
+    const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, this.lenBlock.isIndefiniteForm ? inputLength : this.lenBlock.length, context);
     if (resultOffset === -1) {
       this.error = this.valueBlock.error;
 
       return resultOffset;
     }
 
-    const valueError = this.checkValue(this.valueBlock.valueHexView);
+    const valueError = this.checkValue(this.valueBlock.valueHexView, context);
     if (valueError) {
       this.error = valueError;
 
@@ -69,10 +72,16 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
 
   /**
    * Validates the raw value bytes before they are decoded
-   * @param _view Value bytes read from BER
+   * @param view Value bytes read from BER
+   * @param context Parser state, including the requested encoding rules
    * @returns Error message, or an empty string if the value is valid
    */
-  protected checkValue(_view: Uint8Array): string {
+  protected checkValue(view: Uint8Array, context?: FromBerContext): string {
+    if (context?.encodingRules === "DER") {
+      const issue = checkPrimitiveEncoding(this.idBlock.tagNumber, this.idBlock.isConstructed, view);
+      if (issue) return report(context, issue);
+    }
+
     return EMPTY_STRING;
   }
 

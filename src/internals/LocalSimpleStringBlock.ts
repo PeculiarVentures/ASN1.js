@@ -2,6 +2,7 @@ import { toUint8Array } from "@peculiar/utils";
 import type { BaseBlockParams } from "../BaseBlock";
 import { BaseStringBlock } from "../BaseStringBlock";
 import { LocalSimpleStringValueBlock, type LocalSimpleStringValueBlockJson, type LocalSimpleStringValueBlockParams } from "./LocalSimpleStringValueBlock";
+import { bytesToString } from "./stringUtils";
 
 export interface LocalSimpleStringBlockParams extends BaseBlockParams, LocalSimpleStringValueBlockParams {}
 export type LocalSimpleStringBlockJson = LocalSimpleStringValueBlockJson;
@@ -14,7 +15,7 @@ export class LocalSimpleStringBlock extends BaseStringBlock<LocalSimpleStringVal
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
-    this.valueBlock.value = String.fromCharCode.apply(null, toUint8Array(inputBuffer) as unknown as number[]);
+    this.valueBlock.value = bytesToString(toUint8Array(inputBuffer));
   }
 
   public fromString(inputString: string): void {

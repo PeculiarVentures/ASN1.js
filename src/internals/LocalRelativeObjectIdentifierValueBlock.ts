@@ -5,6 +5,10 @@ import { EMPTY_BUFFER } from "./constants";
 import * as utils from "./utils";
 import { type LocalRelativeSidValueBlockJson, LocalRelativeSidValueBlock } from "./LocalRelativeSidValueBlock";
 import { assertStrictOidEncodable, getSidValue, MAX_SAFE_SID, parseOidComponents, resetOidValue, setOidError, setSidValue } from "./oidUtils";
+import { toUint8Array } from "@peculiar/utils";
+import type { FromBerContext } from "../parser";
+import { checkPrimitiveEncoding } from "../der";
+import { report } from "./der";
 
 export interface ILocalRelativeObjectIdentifierValueBlock {
   value: string;
@@ -34,8 +38,18 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
     }
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
     resetOidValue(this);
+    if (context?.encodingRules === "DER") {
+      const inputView = toUint8Array(inputBuffer);
+      if (!utils.checkBufferParams(this, inputView, inputOffset, inputLength)) return -1;
+      const issue = checkPrimitiveEncoding(13, false, inputView.subarray(inputOffset, inputOffset + inputLength));
+      if (issue) {
+        this.error = report(context, issue);
+        return -1;
+      }
+    }
+
     let resultOffset = inputOffset;
 
     while (inputLength > 0) {
