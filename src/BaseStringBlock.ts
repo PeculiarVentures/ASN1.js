@@ -53,7 +53,10 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
       return -1;
     }
 
-    this.fromBuffer(this.valueBlock.valueHexView);
+    this.fromBufferForBER(this.valueBlock.valueHexView);
+    if (this.error) {
+      return -1;
+    }
 
     if (!this.idBlock.error.length) this.blockLength += this.idBlock.blockLength;
 
@@ -71,6 +74,13 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
    */
   protected checkValue(_view: Uint8Array): string {
     return EMPTY_STRING;
+  }
+
+  /**
+   * Decodes value bytes read from BER
+   */
+  protected fromBufferForBER(view: Uint8Array): void {
+    this.fromBuffer(view);
   }
 
   /**

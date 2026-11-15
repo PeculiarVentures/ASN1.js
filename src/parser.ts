@@ -269,7 +269,7 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
   // console.time("idBlock");
   let resultOffset = returnObject.idBlock.fromBER(inputBuffer, inputOffset, inputLength);
   if (returnObject.idBlock.warnings.length) {
-    returnObject.warnings.concat(returnObject.idBlock.warnings);
+    returnObject.warnings.push(...returnObject.idBlock.warnings);
   }
   if (resultOffset === -1) {
     returnObject.error = returnObject.idBlock.error;
@@ -288,7 +288,7 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
   // console.time("lengthBlock");
   resultOffset = returnObject.lenBlock.fromBER(inputBuffer, inputOffset, inputLength);
   if (returnObject.lenBlock.warnings.length) {
-    returnObject.warnings.concat(returnObject.lenBlock.warnings);
+    returnObject.warnings.push(...returnObject.lenBlock.warnings);
   }
   if (resultOffset === -1) {
     returnObject.error = returnObject.lenBlock.error;

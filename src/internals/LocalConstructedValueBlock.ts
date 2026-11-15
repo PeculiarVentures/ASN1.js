@@ -67,7 +67,7 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
       const returnObject = localFromBERWithChildContext(view, currentOffset, inputLength, parseContext);
       if (returnObject.offset === -1) {
         this.error = returnObject.result.error;
-        this.warnings.concat(returnObject.result.warnings);
+        this.warnings.push(...returnObject.result.warnings);
 
         return -1;
       }
