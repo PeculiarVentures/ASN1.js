@@ -12,7 +12,7 @@ import type { ParseDiagnostic } from "./diagnostics";
 import { checkDerForm, checkDerHeader } from "./der";
 import { report } from "./internals/der";
 
-/** @internal */
+/** Encoding rules used to validate the input bytes. */
 export type EncodingRules = "BER" | "DER";
 
 /** @internal */
@@ -29,22 +29,31 @@ export interface HeuristicState {
   active: boolean;
 }
 
+/** A decoded ASN.1 element or a parser failure. */
 export interface FromBerResult {
+  /** First unconsumed byte, or -1 when decoding fails. */
   offset: number;
+  /** Decoded element, including its error message on failure. */
   result: AsnType;
   /** A structured input validation failure, when available. */
   diagnostic?: ParseDiagnostic;
 }
 
+/** Encoding, input ownership, and resource limits for ASN.1 decoding. */
 export interface FromBerOptions {
+  /** Maximum nesting depth, with the root at depth zero. @defaultValue 100 */
   maxDepth?: number;
+  /** Maximum number of decoded nodes. @defaultValue 10000 */
   maxNodes?: number;
+  /** Maximum content length of one element in bytes. @defaultValue 16777216 */
   maxContentLength?: number;
+  /** Try decoding embedded OCTET STRING and BIT STRING content. Defaults to true for BER and false for DER. */
   parseEmbedded?: boolean;
+  /** Copy the input bytes before decoding. @defaultValue true */
   copyInput?: boolean;
-  /** Require the input to contain exactly one ASN.1 element. */
+  /** Require exactly one input element. Always true for DER; explicitly setting false with DER throws TypeError. @defaultValue false */
   requireFullInput?: boolean;
-  /** @internal */
+  /** Encoding rules to validate. @defaultValue "BER" */
   encodingRules?: EncodingRules;
 }
 
@@ -587,9 +596,10 @@ function localFromBERInternal(inputBuffer: Uint8Array, inputOffset: number, inpu
 }
 
 /**
- * Major function for decoding ASN.1 BER array into internal library structures
- * @param inputBuffer ASN.1 BER encoded array of bytes
- * @param options Parser resource limits for untrusted input
+ * Decodes an ASN.1 element using BER or strict DER validation.
+ * @param inputBuffer Encoded ASN.1 bytes
+ * @param options Encoding rules, input ownership, and parser resource limits
+ * @throws {TypeError} If DER is combined with requireFullInput: false
  */
 export function fromBER(inputBuffer: BufferSource, options: FromBerOptions = {}): FromBerResult {
   return fromBERWithContext(inputBuffer, options, createFromBerContext(options));

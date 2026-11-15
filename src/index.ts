@@ -54,10 +54,19 @@ export * from "./Repeated";
 // special
 export * from "./RawData";
 
-export { DEFAULT_MAX_CONTENT_LENGTH, DEFAULT_MAX_DEPTH, DEFAULT_MAX_NODES, type FromBerOptions, type FromBerResult, fromBER } from "./parser";
-export type { DerViolationCode, ParseDiagnostic } from "./diagnostics";
+export { DEFAULT_MAX_CONTENT_LENGTH, DEFAULT_MAX_DEPTH, DEFAULT_MAX_NODES, type EncodingRules, type FromBerOptions, type FromBerResult, fromBER } from "./parser";
+export { fromDER, type FromDerOptions } from "./fromDER";
+export type { DerIssue, DerViolationCode, ParseDiagnostic } from "./diagnostics";
 export * from "./schema";
 export type { AsnType } from "./TypeStore";
+
+import { checkPrimitiveEncoding, checkSetOfOrder, checkSetOrder, compareSetOfElements } from "./der";
+
+/**
+ * Pure DER validators for schema-aware checks of primitive encodings and SET ordering.
+ * These functions inspect the supplied bytes without parsing or changing them.
+ */
+export const der = { checkPrimitiveEncoding, checkSetOfOrder, checkSetOrder, compareSetOfElements };
 
 import { registerBuiltinEncoder } from "./internals/BEREncoder";
 import { registerFastParser } from "./parser";
