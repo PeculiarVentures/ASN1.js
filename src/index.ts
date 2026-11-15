@@ -55,6 +55,7 @@ export * from "./Repeated";
 export * from "./RawData";
 
 export { DEFAULT_MAX_CONTENT_LENGTH, DEFAULT_MAX_DEPTH, DEFAULT_MAX_NODES, type FromBerOptions, type FromBerResult, fromBER } from "./parser";
+export type { DerViolationCode, ParseDiagnostic } from "./diagnostics";
 export * from "./schema";
 export type { AsnType } from "./TypeStore";
 

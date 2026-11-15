@@ -1,10 +1,11 @@
-import { toUint8Array, type BufferSource } from "@peculiar/utils";
+import type { BufferSource } from "@peculiar/utils";
 import { IS_CONSTRUCTED, EMPTY_STRING, NAME, ID_BLOCK, FROM_BER, TO_BER, TAG_CLASS, TAG_NUMBER, IS_HEX_ONLY, LOCAL, VALUE_HEX_VIEW } from "./internals/constants";
 import { Any } from "./Any";
 import { Choice } from "./Choice";
 import { Repeated } from "./Repeated";
-import { localFromBER } from "./parser";
+import { createFromBerContext, fromBERWithContext, localFromBER, type FromBerOptions } from "./parser";
 import { type AsnType, typeStore } from "./TypeStore";
+import type { ParseDiagnostic } from "./diagnostics";
 
 export type AsnSchemaType = AsnType | Any | Choice | Repeated;
 
@@ -16,6 +17,8 @@ export interface CompareSchemaSuccess {
 export interface CompareSchemaFail {
   verified: false;
   name?: string;
+  /** A structured input validation failure, when available. */
+  diagnostic?: ParseDiagnostic;
   result:
     | AsnType
     | {
@@ -426,10 +429,11 @@ export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: As
  * ASN.1 schema verification for ArrayBuffer data
  * @param  inputBuffer Input BER-encoded ASN.1 data
  * @param  inputSchema Input ASN.1 schema to verify against to
+ * @param  options Parser options applied to the input
  * @return
  */
 
-export function verifySchema(inputBuffer: BufferSource, inputSchema: AsnSchemaType): CompareSchemaResult {
+export function verifySchema(inputBuffer: BufferSource, inputSchema: AsnSchemaType, options: FromBerOptions = {}): CompareSchemaResult {
   // #region Initial check
   if (inputSchema instanceof Object === false) {
     return {
@@ -439,11 +443,12 @@ export function verifySchema(inputBuffer: BufferSource, inputSchema: AsnSchemaTy
   }
   // #endregion
   // #region Decoding of raw ASN.1 data
-  const asn1 = localFromBER(toUint8Array(inputBuffer));
+  const asn1 = fromBERWithContext(inputBuffer, options, createFromBerContext(options));
   if (asn1.offset === -1) {
     return {
       verified: false,
       result: asn1.result,
+      ...(asn1.diagnostic ? { diagnostic: asn1.diagnostic } : {}),
     };
   }
   // #endregion

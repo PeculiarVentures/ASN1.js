@@ -8,10 +8,13 @@ import { LocalLengthBlock, ORIGINAL_LOCAL_LENGTH_FROM_BER } from "./internals/Lo
 import type { Integer } from "./Integer";
 import type { Null } from "./Null";
 import type { Sequence } from "./Sequence";
+import type { ParseDiagnostic } from "./diagnostics";
 
 export interface FromBerResult {
   offset: number;
   result: AsnType;
+  /** A structured input validation failure, when available. */
+  diagnostic?: ParseDiagnostic;
 }
 
 export interface FromBerOptions {
@@ -20,6 +23,8 @@ export interface FromBerOptions {
   maxContentLength?: number;
   parseEmbedded?: boolean;
   copyInput?: boolean;
+  /** Require the input to contain exactly one ASN.1 element. */
+  requireFullInput?: boolean;
 }
 
 export interface FromBerContext {
@@ -489,6 +494,11 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
  * @param options Parser resource limits for untrusted input
  */
 export function fromBER(inputBuffer: BufferSource, options: FromBerOptions = {}): FromBerResult {
+  return fromBERWithContext(inputBuffer, options, createFromBerContext(options));
+}
+
+/** @internal */
+export function fromBERWithContext(inputBuffer: BufferSource, options: FromBerOptions, context: FromBerContext): FromBerResult {
   if (!inputBuffer.byteLength) {
     const result = new BaseBlock({}, ValueBlock);
     result.error = "Input buffer has zero length";
@@ -502,5 +512,13 @@ export function fromBER(inputBuffer: BufferSource, options: FromBerOptions = {})
   const inputView = toUint8Array(inputBuffer);
   const normalizedInput = options.copyInput === false ? inputView : inputView.slice();
 
-  return localFromBER(normalizedInput, 0, inputBuffer.byteLength, createFromBerContext(options));
+  const decoded = localFromBER(normalizedInput, 0, normalizedInput.byteLength, context);
+  if (decoded.offset !== -1 && options.requireFullInput && decoded.offset !== normalizedInput.byteLength) {
+    const message = "Unexpected data after the first ASN.1 element";
+    const diagnostic: ParseDiagnostic = { code: "TRAILING_DATA", message, offset: decoded.offset, depth: 0 };
+    decoded.result.error = message;
+    return { offset: -1, result: decoded.result, diagnostic };
+  }
+
+  return decoded;
 }
