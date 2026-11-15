@@ -124,9 +124,17 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
 
   public override fromString(inputString: string): void {
     // #region Parse input string
-    const parser = /(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/gi;
-    const parserArray = parser.exec(inputString);
+    // Keep the legacy tolerance for canonical values while accepting the other BER forms.
+    const parserArray = /(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/i.exec(inputString) ?? /^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?(Z|([+-])(\d{2})(\d{2}))$/i.exec(inputString);
     if (parserArray === null) {
+      this.error = "Wrong input string for conversion";
+
+      return;
+    }
+
+    const offsetHour = parseInt(parserArray[9] ?? "0", 10);
+    const offsetMinute = parseInt(parserArray[10] ?? "0", 10);
+    if (offsetHour > 23 || offsetMinute > 59) {
       this.error = "Wrong input string for conversion";
 
       return;
@@ -141,7 +149,15 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     this.day = parseInt(parserArray[3], 10);
     this.hour = parseInt(parserArray[4], 10);
     this.minute = parseInt(parserArray[5], 10);
-    this.second = parseInt(parserArray[6], 10);
+    this.second = parseInt(parserArray[6] ?? "0", 10);
+
+    if (parserArray[8]) {
+      // X.680 defines the signed zone as local time minus UTC.
+      const offset = (offsetHour * 60 + offsetMinute) * (parserArray[8] === "+" ? 1 : -1);
+      this.fromDate(new Date(Date.UTC(this.year, this.month - 1, this.day, this.hour, this.minute - offset, this.second)));
+    }
+
+    this.error = "";
     // #endregion
   }
 
