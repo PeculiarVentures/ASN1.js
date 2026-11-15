@@ -4,6 +4,7 @@ import { EMPTY_BUFFER, EMPTY_VIEW } from "./constants";
 import { decodeBase128, encodeBase128 } from "./integerUtils";
 import { LocalBaseBlock, type LocalBaseBlockJson } from "./LocalBaseBlock";
 import { checkBufferParams } from "./utils";
+import type { FromBerContext } from "../parser";
 
 export interface ILocalIdentificationBlock {
   tagClass: number;
@@ -115,7 +116,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
     return retView.buffer;
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
     const inputView = toUint8Array(inputBuffer);
 
     // Basic check for parameters
@@ -200,7 +201,7 @@ export class LocalIdentificationBlock extends HexBlock(LocalBaseBlock) implement
       }
     }
     // Check if constructed encoding was using for primitive type
-    if (this.tagClass === 1 && this.isConstructed) {
+    if (context?.encodingRules !== "DER" && this.tagClass === 1 && this.isConstructed) {
       switch (this.tagNumber) {
         case 1: // Boolean
         case 2: // REAL
