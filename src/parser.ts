@@ -441,6 +441,11 @@ function localFromBERInternal(inputBuffer: Uint8Array, inputOffset: number, inpu
       returnObject.error = report(context, issue);
       return { offset: -1, result: returnObject };
     }
+    // A child must fit its parent range, even when the backing view has more bytes.
+    if (valueLength > inputLength) {
+      returnObject.error = "End of input reached before message was fully decoded (inconsistent content length)";
+      return { offset: -1, result: returnObject };
+    }
   }
 
   // Check for using indefinite length form in encoding for primitive types
