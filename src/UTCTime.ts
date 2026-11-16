@@ -70,14 +70,6 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     this.fromString(bytesToString(toUint8Array(inputBuffer)));
   }
 
-  protected override fromBufferForBER(view: Uint8Array): void {
-    try {
-      this.fromBuffer(view);
-    } catch (error) {
-      this.error = error instanceof Error ? error.message : String(error);
-    }
-  }
-
   /**
    * Function converting ASN.1 internal string into ArrayBuffer
    * @returns

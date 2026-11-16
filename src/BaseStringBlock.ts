@@ -42,6 +42,7 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
+    this.error = EMPTY_STRING;
     const resultOffset = this.valueBlock.fromBER(inputBuffer, inputOffset, this.lenBlock.isIndefiniteForm ? inputLength : this.lenBlock.length, context);
     if (resultOffset === -1) {
       this.error = this.valueBlock.error;
@@ -56,8 +57,8 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
       return -1;
     }
 
-    this.fromBufferForBER(this.valueBlock.valueHexView);
-    if (this.error) {
+    this.fromBuffer(this.valueBlock.valueHexView);
+    if (context?.encodingRules === "DER" && this.error) {
       return -1;
     }
 
@@ -83,13 +84,6 @@ export abstract class BaseStringBlock<T extends LocalStringValueBlock = LocalStr
     }
 
     return EMPTY_STRING;
-  }
-
-  /**
-   * Decodes value bytes read from BER
-   */
-  protected fromBufferForBER(view: Uint8Array): void {
-    this.fromBuffer(view);
   }
 
   /**

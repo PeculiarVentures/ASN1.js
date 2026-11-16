@@ -1,31 +1,42 @@
 import { describe, expect, it } from "vitest";
-import { fromBER, GeneralizedTime, ObjectIdentifier, RelativeObjectIdentifier, UTCTime, VisibleString } from "./index";
+import { BmpString, fromBER, fromDER, GeneralizedTime, Integer, ObjectIdentifier, RelativeObjectIdentifier, Sequence, UTCTime, VisibleString } from "./index";
+import { createFromBerContext } from "./parser";
 
 const timeBytes = (tag: number, value: string): Uint8Array => new Uint8Array([tag, value.length, ...Array.from(value, (character) => character.charCodeAt(0))]);
 
 describe("BER time decoder errors", () => {
-  it("fails when UTCTime decoding sets an error", () => {
+  it("keeps a BER UTCTime conversion error on the decoded field without failing the structure", () => {
     const input = timeBytes(0x17, "invalid");
     const parsed = fromBER(input);
-    expect(parsed.offset).toBe(-1);
+    expect(parsed.offset).toBe(input.length);
     expect(parsed.result).toBeInstanceOf(UTCTime);
     expect(parsed.result.error).toBe("Wrong input string for conversion");
 
     const block = new UTCTime({ lenBlock: { length: input.length - 2 } });
-    expect(block.fromBER(input, 2, input.length - 2)).toBe(-1);
+    expect(block.fromBER(input, 2, input.length - 2)).toBe(input.length);
     expect(block.error).toBe("Wrong input string for conversion");
+
+    const nested = new Uint8Array([0x30, input.length + 3, ...input, 0x02, 0x01, 0x07]);
+    const sequence = fromBER(nested);
+    expect(sequence.offset).toBe(nested.length);
+    expect(sequence.result).toBeInstanceOf(Sequence);
+    const children = (sequence.result as Sequence).valueBlock.value;
+    expect(children[0].error).toBe("Wrong input string for conversion");
+    expect(children[1]).toBeInstanceOf(Integer);
+    expect((children[1] as Integer).valueBlock.valueDec).toBe(7);
+    expect(fromDER(nested).diagnostic?.code).toBe("INVALID_TIME");
   });
 
-  it("returns an error when GeneralizedTime decoding throws", () => {
+  it("preserves BER GeneralizedTime decoder exceptions while DER returns a validation failure", () => {
     const input = timeBytes(0x18, "invalid");
-    const parsed = fromBER(input);
+    expect(() => fromBER(input)).toThrow("Wrong input string for conversion");
+    const parsed = fromDER(input);
     expect(parsed.offset).toBe(-1);
     expect(parsed.result).toBeInstanceOf(GeneralizedTime);
-    expect(parsed.result.error).toBe("Wrong input string for conversion");
+    expect(parsed.diagnostic?.code).toBe("INVALID_TIME");
 
     const block = new GeneralizedTime({ lenBlock: { length: input.length - 2 } });
-    expect(block.fromBER(input, 2, input.length - 2)).toBe(-1);
-    expect(block.error).toBe("Wrong input string for conversion");
+    expect(() => block.fromBER(input, 2, input.length - 2)).toThrow("Wrong input string for conversion");
   });
 
   it.each([
@@ -56,6 +67,25 @@ describe("BER time decoder errors", () => {
     }
     const block = new CustomString({ lenBlock: { length: 1 } });
     expect(() => block.fromBER(new Uint8Array([0x41]), 0, 1)).toThrow(failure);
+  });
+
+  it("clears stale string errors before decoding a valid replacement value", () => {
+    const bmp = new BmpString({ lenBlock: { length: 1 } });
+    expect(bmp.fromBER(Uint8Array.of(0x41), 0, 1)).toBe(-1);
+    expect(bmp.error).not.toBe("");
+    bmp.lenBlock.length = 2;
+    expect(bmp.fromBER(Uint8Array.of(0x00, 0x41), 0, 2)).toBe(2);
+    expect(bmp.error).toBe("");
+    expect(bmp.getValue()).toBe("A");
+
+    const generalized = new GeneralizedTime({ lenBlock: { length: 1 } });
+    expect(generalized.fromBER(Uint8Array.of(0x41), 0, 1, createFromBerContext({ encodingRules: "DER" }))).toBe(-1);
+    expect(generalized.error).not.toBe("");
+    const valid = timeBytes(0x18, "20250101000000Z");
+    generalized.lenBlock.length = valid.length - 2;
+    expect(generalized.fromBER(valid, 2, valid.length - 2)).toBe(valid.length);
+    expect(generalized.error).toBe("");
+    expect(generalized.toDate().toISOString()).toBe("2025-01-01T00:00:00.000Z");
   });
 });
 

@@ -200,15 +200,15 @@ Node.js test runtime, alongside a generated legacy T61 certificate and a CRL wit
 
 ### Compatibility Notes
 
-Mandatory `primitiveSchema` parsing now requires exactly one complete embedded
-element in both `verifySchema()` and `compareSchema()`, including in BER mode.
-For example, `04 05 02 01 01 de ad` previously matched an OCTET STRING with an
-INTEGER `primitiveSchema`; it now fails because `de ad` remains after the INTEGER.
-The outer BER parse still permits trailing data by default.
+BER keeps prefix parsing for both the outer element and `primitiveSchema` contents.
+For example, `04 05 02 01 01 de ad` still matches an OCTET STRING with an INTEGER
+`primitiveSchema` through `verifySchema()` or `compareSchema()`. Pass
+`requireFullInput: true` to `verifySchema()` to require complete outer and embedded
+values, or select DER, which always requires full consumption.
 
-`verifySchema()` now copies the supplied input range by default (`copyInput: true`);
-previously its returned tree borrowed the input storage. Set `copyInput: false`
-to retain that behavior. The input ownership and mutation requirements described
+`verifySchema()` keeps borrowing the supplied input range by default. Set
+`copyInput: true` to copy it; `fromBER()` and `fromDER()` still copy by default.
+The input ownership and mutation requirements described
 under [Parsing Untrusted Input](#parsing-untrusted-input) apply to the returned
 tree and named schema captures: borrowed byte views reflect later mutations,
 decoded fields may then disagree with those bytes, and the entire backing buffer
@@ -224,8 +224,10 @@ existing signed certificate is not a valid repair.
 
 BER UTCTime accepts optional seconds and either `Z` or a signed `hhmm` offset
 (`YYMMDDhhmm[ss](Z|+hhmm|-hhmm)`). DER still requires `YYMMDDHHMMSSZ`.
-Invalid UTCTime decoder errors now fail the parse (`offset: -1`) in BER as well
-as DER, rather than returning a successful result with an error set.
+BER keeps the legacy UTCTime conversion-error behavior: a decoded field can carry
+an error while the parser returns its end offset and continues to later siblings.
+Malformed GeneralizedTime conversions keep throwing in BER. DER rejects malformed
+times with a validation failure before conversion.
 
 ### Diagnostics
 
@@ -261,10 +263,19 @@ required parse. A failed attempt cannot replace the required parse's diagnostic.
 Successful heuristic `valueBlock.value` children passed the DER checks supported by
 the core; schema-dependent constraints are still outside that guarantee.
 
-A schema's `primitiveSchema` requests mandatory parsing, so its contents must be
-fully consumed and any DER violation fails `verifySchema()` with the same mode,
-resource context, and diagnostic. For example, an OCTET STRING containing
-`02 02 00 01` fails with `NON_MINIMAL_INTEGER` when its `primitiveSchema` is INTEGER.
+A schema's `primitiveSchema` requests parsing of its contents with the selected
+encoding rules. Under DER it uses the same resource context, requires full
+consumption, and reports DER violations. For example, an OCTET STRING containing
+`02 02 00 01` fails with `NON_MINIMAL_INTEGER` when its required `primitiveSchema`
+is INTEGER. A failed `Choice` alternative or optional field does not prevent a
+different schema alternative from matching; resource-limit failures remain fatal.
+
+Legacy BER gives each `primitiveSchema` parse an independent default resource
+budget. Passing `maxNodes`, `maxDepth`, or `maxContentLength` explicitly to
+`verifySchema()` instead shares the resource context across the outer parse and
+embedded schema attempts, including failed alternatives. DER always shares that
+context. `requireFullInput: true` alone changes completeness checks without
+changing the legacy BER resource-budget scope.
 
 The core cannot infer SET versus SET OF ordering, omitted DEFAULT values, the last
 significant bit of a NamedBitList, or the underlying type of IMPLICIT contents.

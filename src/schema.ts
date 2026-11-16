@@ -30,7 +30,13 @@ export type CompareSchemaResult = CompareSchemaSuccess | CompareSchemaFail;
 
 interface CompareSchemaContext {
   parse: FromBerContext;
+  options: FromBerOptions;
+  /** Only resource exhaustion is fatal across schema alternatives. */
   failure?: CompareSchemaFail;
+}
+
+function hasExplicitResourceLimits(options: FromBerOptions): boolean {
+  return options.maxDepth !== undefined || options.maxNodes !== undefined || options.maxContentLength !== undefined;
 }
 
 /**
@@ -41,7 +47,7 @@ interface CompareSchemaContext {
  * @return Returns result of comparison
  */
 export function compareSchema(root: AsnType, inputData: AsnType, inputSchema: AsnSchemaType): CompareSchemaResult {
-  return compareSchemaWithContext(root, inputData, inputSchema, { parse: createFromBerContext() });
+  return compareSchemaWithContext(root, inputData, inputSchema, { parse: createFromBerContext(), options: {} });
 }
 
 function compareSchemaWithContext(root: AsnType, inputData: AsnType, inputSchema: AsnSchemaType, context: CompareSchemaContext): CompareSchemaResult {
@@ -64,6 +70,7 @@ function compareSchemaInternal(root: AsnType, inputData: AsnType, inputSchema: A
   // #region Special case for Choice schema element type
   if (inputSchema instanceof Choice) {
     const choiceResult = false;
+    let diagnosticFailure: CompareSchemaFail | undefined;
 
     for (const element of inputSchema.value) {
       const result = compareSchemaWithContext(root, inputData, element, context);
@@ -74,9 +81,11 @@ function compareSchemaInternal(root: AsnType, inputData: AsnType, inputSchema: A
           result: root,
         };
       }
+      if (result.diagnostic) diagnosticFailure = result;
     }
 
     if (choiceResult === false) {
+      if (diagnosticFailure) return diagnosticFailure;
       const _result: CompareSchemaResult = {
         verified: false,
         result: { error: "Wrong values for Choice type" },
@@ -424,17 +433,29 @@ function compareSchemaInternal(root: AsnType, inputData: AsnType, inputSchema: A
   if (inputSchema.primitiveSchema && VALUE_HEX_VIEW in inputData.valueBlock) {
     // #region Decoding of raw ASN.1 data
     const raw = inputData.valueBlock.valueHexView;
-    const baseOffset = context.parse.baseOffset;
+    // Legacy BER gives each embedded parse its own resource budget. Explicit
+    // limits and DER share the required parse budget, including failed choices.
+    const shared = context.parse.encodingRules === "DER" || hasExplicitResourceLimits(context.options);
+    const parse = shared ? context.parse : createFromBerContext(context.options);
+    parse.positions = context.parse.positions;
+    const { baseOffset, diagnostic } = parse;
     const position = context.parse.node;
     if (position) {
       const skippedUnusedBits = inputData.idBlock.tagClass === 1 && inputData.idBlock.tagNumber === 3 ? 1 : 0;
-      context.parse.baseOffset = position.contentOffset + skippedUnusedBits;
+      parse.baseOffset = position.contentOffset + skippedUnusedBits;
+      if (!shared) {
+        // Keep independent BER depth limits while reporting root-relative depth.
+        parse.depth = position.depth + 1;
+        parse.maxDepth += parse.depth;
+      }
     }
+    parse.diagnostic = undefined;
     let asn1;
     try {
-      asn1 = fromBERWithContext(raw, { requireFullInput: true, copyInput: false }, context.parse, true);
+      asn1 = fromBERWithContext(raw, { requireFullInput: context.options.requireFullInput, copyInput: false }, parse, shared);
     } finally {
-      context.parse.baseOffset = baseOffset;
+      parse.baseOffset = baseOffset;
+      parse.diagnostic = diagnostic;
     }
     if (asn1.offset === -1) {
       const _result: CompareSchemaResult = {
@@ -453,7 +474,7 @@ function compareSchemaInternal(root: AsnType, inputData: AsnType, inputSchema: A
       }
       // #endregion
 
-      context.failure = _result;
+      if (shared && parse.resourceLimitExceeded) context.failure = _result;
       return _result;
     }
     // #endregion
@@ -472,6 +493,8 @@ function compareSchemaInternal(root: AsnType, inputData: AsnType, inputSchema: A
  * @param  inputBuffer Input BER-encoded ASN.1 data
  * @param  inputSchema Input ASN.1 schema to verify against to
  * @param  options Parser options applied to the input
+ * Input is borrowed by default; pass copyInput: true for an owned copy.
+ * DER or explicit resource limits share the budget with embedded schema parsing.
  * @return
  */
 
@@ -486,8 +509,8 @@ export function verifySchema(inputBuffer: BufferSource, inputSchema: AsnSchemaTy
   // #endregion
   // #region Decoding of raw ASN.1 data
   const context = createFromBerContext(options);
-  context.positions = new WeakMap();
-  const asn1 = fromBERWithContext(inputBuffer, options, context);
+  if (context.encodingRules === "DER" || options.requireFullInput || hasExplicitResourceLimits(options)) context.positions = new WeakMap();
+  const asn1 = fromBERWithContext(inputBuffer, { ...options, copyInput: options.copyInput ?? false }, context);
   if (asn1.offset === -1) {
     return {
       verified: false,
@@ -498,6 +521,6 @@ export function verifySchema(inputBuffer: BufferSource, inputSchema: AsnSchemaTy
   // #endregion
   // #region Compare ASN.1 struct with input schema
 
-  return compareSchemaWithContext(asn1.result, asn1.result, inputSchema, { parse: context });
+  return compareSchemaWithContext(asn1.result, asn1.result, inputSchema, { parse: context, options });
   // #endregion
 }

@@ -136,7 +136,7 @@ describe("BER UTCTime", () => {
       const time = new UTCTime({ value });
       expect(time.error).toBe("Wrong input string for conversion");
       const parsed = fromBER(encodedTime(value));
-      expect(parsed.offset).toBe(-1);
+      expect(parsed.offset).toBe(encodedTime(value).length);
       expect(parsed.result.error).toBe("Wrong input string for conversion");
     },
   );
@@ -152,7 +152,7 @@ describe("BER UTCTime", () => {
     expectUtcTime(time, "2025-01-01T00:00:00.000Z");
 
     time.lenBlock.length = 1;
-    expect(time.fromBER(ascii("x"), 0, 1)).toBe(-1);
+    expect(time.fromBER(ascii("x"), 0, 1)).toBe(1);
     const value = ascii("2501010000Z");
     time.lenBlock.length = value.length;
     expect(time.fromBER(value, 0, value.length)).toBe(value.length);

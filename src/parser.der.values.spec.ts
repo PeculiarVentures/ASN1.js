@@ -15,6 +15,7 @@ interface InvalidValueCase {
   input: Uint8Array;
   code: DerViolationCode;
   berAccepts: boolean;
+  berThrows?: boolean;
 }
 
 const invalidValues: InvalidValueCase[] = [
@@ -56,7 +57,7 @@ const invalidValues: InvalidValueCase[] = [
   { name: "UTC trailing garbage", input: time(0x17, "000102121110Zx"), code: "INVALID_TIME", berAccepts: true },
   { name: "UTC invalid calendar date", input: time(0x17, "000230121110Z"), code: "INVALID_TIME", berAccepts: true },
   { name: "GeneralizedTime trailing fractional zero", input: time(0x18, "20000102121110.50Z"), code: "INVALID_TIME", berAccepts: true },
-  { name: "GeneralizedTime comma fraction", input: time(0x18, "20000102121110,5Z"), code: "INVALID_TIME", berAccepts: false },
+  { name: "GeneralizedTime comma fraction", input: time(0x18, "20000102121110,5Z"), code: "INVALID_TIME", berAccepts: false, berThrows: true },
   { name: "GeneralizedTime empty fraction", input: time(0x18, "20000102121110.Z"), code: "INVALID_TIME", berAccepts: true },
   { name: "GeneralizedTime local time", input: time(0x18, "20000102121110"), code: "INVALID_TIME", berAccepts: true },
   { name: "GeneralizedTime omitted seconds", input: time(0x18, "200001021211Z"), code: "INVALID_TIME", berAccepts: true },
@@ -109,8 +110,12 @@ describe("DER primitive value parsing", () => {
     expect(parsed.diagnostic).toMatchObject({ code, offset: 6, depth: 3 });
   });
 
-  it.each(invalidValues)("preserves BER behavior for $name with either completeness option", ({ input, berAccepts }) => {
+  it.each(invalidValues)("preserves BER behavior for $name with either completeness option", ({ input, berAccepts, berThrows }) => {
     for (const options of [{}, { requireFullInput: true }]) {
+      if (berThrows) {
+        expect(() => fromBER(input, options)).toThrow("Wrong input string for conversion");
+        continue;
+      }
       const parsed = fromBER(input, options);
       expect(parsed.offset).toBe(berAccepts ? input.length : -1);
       expect(parsed.diagnostic).toBeUndefined();

@@ -76,6 +76,8 @@ export interface FromBerContext {
   positions?: WeakMap<AsnType, NodePosition>;
   /** @internal */
   heuristic?: HeuristicState;
+  /** @internal */
+  resourceLimitExceeded?: boolean;
 }
 
 interface FastParserRegistry {
@@ -224,13 +226,17 @@ function createErrorResult(error: string): FromBerResult {
 
 function checkNodesLimit(context: FromBerContext): string | undefined {
   if (context.encodingRules === "DER" && context.heuristic?.active) {
-    if (context.heuristic.nodesSpent >= context.heuristic.maxNodes) return MAX_NODES_EXCEEDED_ERROR;
+    if (context.heuristic.nodesSpent >= context.heuristic.maxNodes) {
+      context.resourceLimitExceeded = true;
+      return MAX_NODES_EXCEEDED_ERROR;
+    }
     context.heuristic.nodesSpent += 1;
     return undefined;
   }
 
   context.nodesCount += 1;
   if (context.nodesCount > context.maxNodes) {
+    context.resourceLimitExceeded = true;
     return MAX_NODES_EXCEEDED_ERROR;
   }
 
@@ -239,12 +245,19 @@ function checkNodesLimit(context: FromBerContext): string | undefined {
 
 /** @internal */
 export function withHeuristic<T>(context: FromBerContext, callback: () => T): T | undefined {
-  if (context.encodingRules !== "DER") return callback();
+  if (context.encodingRules !== "DER") {
+    const resourceLimitExceeded = context.resourceLimitExceeded;
+    try {
+      return callback();
+    } finally {
+      context.resourceLimitExceeded = resourceLimitExceeded;
+    }
+  }
 
   const heuristic = (context.heuristic ??= { nodesSpent: 0, maxNodes: context.maxNodes, active: false });
   if (heuristic.nodesSpent >= heuristic.maxNodes) return undefined;
 
-  const { node, diagnostic, depth, baseOffset } = context;
+  const { node, diagnostic, depth, baseOffset, resourceLimitExceeded } = context;
   const active = heuristic.active;
   heuristic.active = true;
   context.diagnostic = undefined;
@@ -255,12 +268,14 @@ export function withHeuristic<T>(context: FromBerContext, callback: () => T): T 
     context.diagnostic = diagnostic;
     context.depth = depth;
     context.baseOffset = baseOffset;
+    context.resourceLimitExceeded = resourceLimitExceeded;
     heuristic.active = active;
   }
 }
 
 function checkContentLengthLimit(inputLength: number, context: FromBerContext): string | undefined {
   if (inputLength > context.maxContentLength) {
+    context.resourceLimitExceeded = true;
     return MAX_CONTENT_LENGTH_EXCEEDED_ERROR;
   }
 
@@ -270,6 +285,7 @@ function checkContentLengthLimit(inputLength: number, context: FromBerContext): 
 export function localFromBERWithChildContext(inputBuffer: Uint8Array, inputOffset: number, inputLength: number, context: FromBerContext): FromBerResult {
   const childDepth = context.depth + 1;
   if (childDepth > context.maxDepth) {
+    context.resourceLimitExceeded = true;
     return createErrorResult(MAX_DEPTH_EXCEEDED_ERROR);
   }
 

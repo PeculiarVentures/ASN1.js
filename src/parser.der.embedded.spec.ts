@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import { describe, it } from "vitest";
-import { type BaseBlock, BitString, Choice, Integer, OctetString, Repeated, Sequence, fromBER, verifySchema } from "./index";
+import { type BaseBlock, BitString, Boolean, Choice, Integer, OctetString, Repeated, Sequence, fromBER, verifySchema } from "./index";
 import { createFromBerContext, localFromBER, withHeuristic } from "./parser";
 import type { ParseDiagnostic } from "./diagnostics";
 
@@ -151,9 +151,9 @@ describe("primitiveSchema parser context", () => {
     }
   });
 
-  it("requires full consumption of primitive schema content in BER and DER", () => {
-    for (const encodingRules of ["BER", "DER"] as const) {
-      const decoded = verifySchema(bytes("0404020101ff"), new OctetString({ primitiveSchema: new Integer() }), { encodingRules });
+  it("requires full consumption in DER and explicitly complete BER schema parsing", () => {
+    for (const options of [{ encodingRules: "DER" as const }, { encodingRules: "BER" as const, requireFullInput: true }]) {
+      const decoded = verifySchema(bytes("0404020101ff"), new OctetString({ primitiveSchema: new Integer() }), options);
       assert.strictEqual(decoded.verified, false);
       if (!decoded.verified) {
         assert.strictEqual(decoded.diagnostic?.code, "TRAILING_DATA");
@@ -176,21 +176,53 @@ describe("primitiveSchema parser context", () => {
     assert.strictEqual(permitted.verified, true);
   });
 
-  it("keeps required parse failures fatal through Choice, optional, and Repeated branches", () => {
+  it("allows schema alternatives after invalid embedded DER but keeps resource failures fatal", () => {
     const schemas = [
       new Choice({ value: [requiredInteger(), new OctetString()] }),
       new Sequence({ value: [new OctetString({ primitiveSchema: new Integer(), optional: true }), new OctetString()] }),
       new Sequence({ value: [new Repeated({ value: requiredInteger(), optional: true })] }),
     ];
-    const inputs = [bytes("040402020001"), bytes("3006040402020001"), bytes("3006040402020001")];
+    const inputs = [bytes("040402020001"), bytes("3006040402020001"), bytes("300b0404020200010403020101")];
     schemas.forEach((schema, index) => {
       const decoded = verifySchema(inputs[index], schema, { encodingRules: "DER" });
-      assert.strictEqual(decoded.verified, false);
-      if (!decoded.verified) assert.strictEqual(decoded.diagnostic?.code, "NON_MINIMAL_INTEGER");
+      assert.strictEqual(decoded.verified, true);
     });
+
+    const required = verifySchema(inputs[2], new Sequence({ value: [new Repeated({ value: requiredInteger() })] }), { encodingRules: "DER" });
+    assert.strictEqual(required.verified, false);
+    if (!required.verified) assert.strictEqual(required.diagnostic?.code, "NON_MINIMAL_INTEGER");
 
     const limited = verifySchema(bytes("0403020101"), new Choice({ value: [requiredInteger(), new OctetString()] }), { encodingRules: "DER", maxNodes: 1 });
     assert.strictEqual(limited.verified, false);
     if (!limited.verified) assert.match(limited.result.error, /Maximum ASN.1 node count/);
+  });
+
+  it("counts failed schema attempts against explicitly shared resource limits", () => {
+    for (const encodingRules of ["BER", "DER"] as const) {
+      const schema = new Choice({ value: [new OctetString({ primitiveSchema: new Boolean() }), requiredInteger(), new OctetString()] });
+      const limited = verifySchema(bytes("0403020101"), schema, { encodingRules, parseEmbedded: false, maxNodes: 2 });
+      assert.strictEqual(limited.verified, false);
+      if (!limited.verified) assert.match(limited.result.error, /Maximum ASN.1 node count/);
+    }
+  });
+
+  it("enforces an explicit depth limit across nested BER and DER primitive schemas", () => {
+    for (const encodingRules of ["BER", "DER"] as const) {
+      const schema = new OctetString({ primitiveSchema: new OctetString({ primitiveSchema: new Integer() }) });
+      const limited = verifySchema(bytes("04050403020101"), schema, { encodingRules, parseEmbedded: false, maxDepth: 1 });
+      assert.strictEqual(limited.verified, false);
+      if (!limited.verified) assert.match(limited.result.error, /Maximum ASN.1 nesting depth/);
+    }
+  });
+
+  it("does not leak diagnostics from an unsuccessful alternative to a later mandatory value", () => {
+    const schema = new Sequence({ value: [new Choice({ value: [requiredInteger(), new OctetString()] }), requiredInteger()] });
+    const decoded = verifySchema(bytes("300c040402020001040402020002"), schema, { encodingRules: "DER" });
+    assert.strictEqual(decoded.verified, false);
+    if (!decoded.verified) {
+      assert.strictEqual(decoded.diagnostic?.code, "NON_MINIMAL_INTEGER");
+      assert.strictEqual(decoded.diagnostic?.offset, 10);
+      assert.strictEqual(decoded.diagnostic?.depth, 2);
+    }
   });
 });
