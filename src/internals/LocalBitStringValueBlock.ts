@@ -112,7 +112,7 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
         if (buf.byteLength) {
           const parseContext = context ?? createFromBerContext();
           const asn = withHeuristic(parseContext, () => {
-            if (parseContext.encodingRules === "DER") parseContext.baseOffset = (parseContext.node?.contentOffset ?? (parseContext.baseOffset ?? 0) + inputOffset) + 1;
+            parseContext.baseOffset = (parseContext.node?.contentOffset ?? (parseContext.baseOffset ?? 0) + inputOffset) + 1;
             return localFromBERWithChildContext(buf, 0, buf.byteLength, parseContext);
           });
           if (asn && asn.offset !== -1 && asn.offset === inputLength - 1) {

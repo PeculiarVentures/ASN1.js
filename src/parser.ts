@@ -246,10 +246,11 @@ function checkNodesLimit(context: FromBerContext): string | undefined {
 /** @internal */
 export function withHeuristic<T>(context: FromBerContext, callback: () => T): T | undefined {
   if (context.encodingRules !== "DER") {
-    const resourceLimitExceeded = context.resourceLimitExceeded;
+    const { baseOffset, resourceLimitExceeded } = context;
     try {
       return callback();
     } finally {
+      context.baseOffset = baseOffset;
       context.resourceLimitExceeded = resourceLimitExceeded;
     }
   }
