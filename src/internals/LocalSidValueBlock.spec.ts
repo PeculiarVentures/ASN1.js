@@ -51,7 +51,7 @@ describe("Local SID value block performance contract", () => {
       expect(Array.from(block.valueHexView)).toEqual([1, 0, 1]);
       expect(block.fromBER(bytes(0), 0, 0)).toBe(0);
       const leading = new Block();
-      expect(leading.fromBER(bytes(0x00, 1), 0, 2)).toBe(1);
+      expect(leading.fromBER(bytes(0x80, 0x00), 0, 2)).toBe(2);
       expect(leading.warnings[0]).toBe("Needlessly long format of SID encoding");
       const truncated = new Block();
       expect(truncated.fromBER(bytes(0x81), 0, 1)).toBe(-1);

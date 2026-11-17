@@ -3,6 +3,9 @@ import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
 import type { IDerConvertible } from "../types";
 import { ValueBlock, type ValueBlockJson, type ValueBlockParams } from "../ValueBlock";
 import { bytesToSignedBigInt } from "./integerUtils";
+import type { FromBerContext } from "../parser";
+import { checkPrimitiveEncoding } from "../der";
+import { report } from "./der";
 
 export interface ILocalIntegerValueBlock {
   value: number;
@@ -117,10 +120,18 @@ export class LocalIntegerValueBlock extends HexBlock(ValueBlock) implements IDer
     return this.toBER(sizeOnly);
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer, inputOffset: number, inputLength: number): number {
-    const resultOffset = super.fromBER(inputBuffer, inputOffset, inputLength);
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
+    const resultOffset = super.fromBER(inputBuffer, inputOffset, inputLength, context);
     if (resultOffset === -1) {
       return resultOffset;
+    }
+
+    if (context?.encodingRules === "DER") {
+      const issue = checkPrimitiveEncoding(2, false, this.valueHexView);
+      if (issue) {
+        this.error = report(context, issue);
+        return -1;
+      }
     }
 
     this.setValueHex();

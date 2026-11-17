@@ -4,7 +4,7 @@ import { Constructed } from "./Constructed";
 import { type LocalOctetStringValueBlockParams, LocalOctetStringValueBlock, type LocalOctetStringValueBlockJson } from "./internals/LocalOctetStringValueBlock";
 import { OCTET_STRING_NAME } from "./internals/constants";
 import * as utils from "./internals/utils";
-import { createFromBerContext, localFromBERWithChildContext } from "./parser";
+import { createFromBerContext, localFromBERWithChildContext, withHeuristic } from "./parser";
 import { typeStore } from "./TypeStore";
 import type { FromBerContext } from "./parser";
 
@@ -58,8 +58,11 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
       try {
         if (buf.byteLength) {
           const parseContext = context ?? createFromBerContext();
-          const asn = localFromBERWithChildContext(buf, 0, buf.byteLength, parseContext);
-          if (asn.offset !== -1 && asn.offset === inputLength) {
+          const asn = withHeuristic(parseContext, () => {
+            parseContext.baseOffset = parseContext.node?.contentOffset ?? (parseContext.baseOffset ?? 0) + inputOffset;
+            return localFromBERWithChildContext(buf, 0, buf.byteLength, parseContext);
+          });
+          if (asn && asn.offset !== -1 && asn.offset === inputLength) {
             this.valueBlock.value = [asn.result as OctetString];
           }
         }

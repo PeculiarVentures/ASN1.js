@@ -1,12 +1,14 @@
 import { toUint8Array } from "@peculiar/utils";
 import { ViewWriter } from "../ViewWriter";
 import { type HexBlockJson, type HexBlockParams, HexBlock } from "../HexBlock";
-import { createFromBerContext, localFromBERWithChildContext } from "../parser";
+import { createFromBerContext, localFromBERWithChildContext, withHeuristic } from "../parser";
 import type { BitString } from "../BitString";
 import type { FromBerContext } from "../parser";
 import { BIT_STRING_NAME, END_OF_CONTENT_NAME } from "./constants";
 import { type LocalConstructedValueBlockParams, type LocalConstructedValueBlockJson, LocalConstructedValueBlock } from "./LocalConstructedValueBlock";
 import { checkBufferParams } from "./utils";
+import { checkPrimitiveEncoding } from "../der";
+import { report } from "./der";
 
 export interface ILocalBitStringValueBlock {
   unusedBits: number;
@@ -34,6 +36,16 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
   }
 
   public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
+    if (context?.encodingRules === "DER") {
+      const inputView = toUint8Array(inputBuffer);
+      if (!checkBufferParams(this, inputView, inputOffset, inputLength)) return -1;
+      const issue = checkPrimitiveEncoding(3, this.isConstructed, inputView.subarray(inputOffset, inputOffset + inputLength));
+      if (issue) {
+        this.error = report(context, issue);
+        return -1;
+      }
+    }
+
     // Ability to decode zero-length BitString value
     if (!inputLength) {
       return inputOffset;
@@ -99,8 +111,11 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
       try {
         if (buf.byteLength) {
           const parseContext = context ?? createFromBerContext();
-          const asn = localFromBERWithChildContext(buf, 0, buf.byteLength, parseContext);
-          if (asn.offset !== -1 && asn.offset === inputLength - 1) {
+          const asn = withHeuristic(parseContext, () => {
+            parseContext.baseOffset = (parseContext.node?.contentOffset ?? (parseContext.baseOffset ?? 0) + inputOffset) + 1;
+            return localFromBERWithChildContext(buf, 0, buf.byteLength, parseContext);
+          });
+          if (asn && asn.offset !== -1 && asn.offset === inputLength - 1) {
             this.value = [asn.result as BitString];
           }
         }

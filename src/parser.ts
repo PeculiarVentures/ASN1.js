@@ -8,18 +8,53 @@ import { LocalLengthBlock, ORIGINAL_LOCAL_LENGTH_FROM_BER } from "./internals/Lo
 import type { Integer } from "./Integer";
 import type { Null } from "./Null";
 import type { Sequence } from "./Sequence";
+import type { ParseDiagnostic } from "./diagnostics";
+import { checkDerForm, checkDerHeader } from "./der";
+import { report } from "./internals/der";
 
-export interface FromBerResult {
-  offset: number;
-  result: AsnType;
+/** Encoding rules used to validate the input bytes. */
+export type EncodingRules = "BER" | "DER";
+
+/** @internal */
+export interface NodePosition {
+  tlvOffset: number;
+  contentOffset: number;
+  depth: number;
 }
 
+/** @internal */
+export interface HeuristicState {
+  nodesSpent: number;
+  maxNodes: number;
+  active: boolean;
+}
+
+/** A decoded ASN.1 element or a parser failure. */
+export interface FromBerResult {
+  /** First unconsumed byte, or -1 when decoding fails. */
+  offset: number;
+  /** Decoded element, including its error message on failure. */
+  result: AsnType;
+  /** A structured input validation failure, when available. */
+  diagnostic?: ParseDiagnostic;
+}
+
+/** Encoding, input ownership, and resource limits for ASN.1 decoding. */
 export interface FromBerOptions {
+  /** Maximum nesting depth, with the root at depth zero. @defaultValue 100 */
   maxDepth?: number;
+  /** Maximum number of decoded nodes. @defaultValue 10000 */
   maxNodes?: number;
+  /** Maximum content length of one element in bytes. @defaultValue 16777216 */
   maxContentLength?: number;
+  /** Try decoding embedded OCTET STRING and BIT STRING content. Defaults to true for BER and false for DER. */
   parseEmbedded?: boolean;
+  /** Copy the input bytes before decoding. Defaults to true for fromBER/fromDER and false for verifySchema in both BER and DER. */
   copyInput?: boolean;
+  /** Require exactly one input element. Always true for DER; explicitly setting false with DER throws TypeError. @defaultValue false */
+  requireFullInput?: boolean;
+  /** Encoding rules to validate. @defaultValue "BER" */
+  encodingRules?: EncodingRules;
 }
 
 export interface FromBerContext {
@@ -29,6 +64,20 @@ export interface FromBerContext {
   maxNodes: number;
   maxContentLength: number;
   parseEmbedded?: boolean;
+  /** @internal */
+  encodingRules?: EncodingRules;
+  /** @internal */
+  baseOffset?: number;
+  /** @internal */
+  node?: NodePosition;
+  /** @internal */
+  diagnostic?: ParseDiagnostic;
+  /** @internal */
+  positions?: WeakMap<AsnType, NodePosition>;
+  /** @internal */
+  heuristic?: HeuristicState;
+  /** @internal */
+  resourceLimitExceeded?: boolean;
 }
 
 interface FastParserRegistry {
@@ -81,6 +130,7 @@ function fastParserType(store: typeof typeStore, name: "Integer" | "Null" | "Seq
 }
 
 function tryFastFromBER(inputBuffer: Uint8Array, inputOffset: number, inputLength: number, context: FromBerContext): FromBerResult | undefined {
+  if (context.encodingRules === "DER" && context.heuristic?.active) return undefined;
   const registry = fastParserRegistry;
   if (!registry) return undefined;
 
@@ -132,6 +182,7 @@ function tryFastFromBER(inputBuffer: Uint8Array, inputOffset: number, inputLengt
   result.lenBlock.longFormUsed = false;
   result.lenBlock.length = length;
   result.lenBlock.blockLength = 1;
+  if (context.node) context.node.contentOffset = (context.baseOffset ?? 0) + inputOffset + 2;
   context.nodesCount += 1;
   const resultOffset = result.fromBER(inputBuffer, inputOffset + 2, length, context);
   result.valueBeforeDecodeView = inputBuffer.subarray(inputOffset, inputOffset + result.blockLength);
@@ -148,13 +199,18 @@ export const MAX_NODES_EXCEEDED_ERROR = "Maximum ASN.1 node count exceeded";
 export const MAX_CONTENT_LENGTH_EXCEEDED_ERROR = "Maximum ASN.1 content length exceeded";
 
 export function createFromBerContext(options: FromBerOptions = {}): FromBerContext {
+  if (options.encodingRules === "DER" && options.requireFullInput === false) {
+    throw new TypeError("DER requires full input consumption");
+  }
+
   return {
     depth: 0,
     maxDepth: options.maxDepth ?? DEFAULT_MAX_DEPTH,
     nodesCount: 0,
     maxNodes: options.maxNodes ?? DEFAULT_MAX_NODES,
     maxContentLength: options.maxContentLength ?? DEFAULT_MAX_CONTENT_LENGTH,
-    parseEmbedded: options.parseEmbedded ?? true,
+    parseEmbedded: options.parseEmbedded ?? options.encodingRules !== "DER",
+    ...(options.encodingRules ? { encodingRules: options.encodingRules } : {}),
   };
 }
 
@@ -169,16 +225,58 @@ function createErrorResult(error: string): FromBerResult {
 }
 
 function checkNodesLimit(context: FromBerContext): string | undefined {
+  if (context.encodingRules === "DER" && context.heuristic?.active) {
+    if (context.heuristic.nodesSpent >= context.heuristic.maxNodes) {
+      context.resourceLimitExceeded = true;
+      return MAX_NODES_EXCEEDED_ERROR;
+    }
+    context.heuristic.nodesSpent += 1;
+    return undefined;
+  }
+
   context.nodesCount += 1;
   if (context.nodesCount > context.maxNodes) {
+    context.resourceLimitExceeded = true;
     return MAX_NODES_EXCEEDED_ERROR;
   }
 
   return undefined;
 }
 
+/** @internal */
+export function withHeuristic<T>(context: FromBerContext, callback: () => T): T | undefined {
+  if (context.encodingRules !== "DER") {
+    const { baseOffset, resourceLimitExceeded } = context;
+    try {
+      return callback();
+    } finally {
+      context.baseOffset = baseOffset;
+      context.resourceLimitExceeded = resourceLimitExceeded;
+    }
+  }
+
+  const heuristic = (context.heuristic ??= { nodesSpent: 0, maxNodes: context.maxNodes, active: false });
+  if (heuristic.nodesSpent >= heuristic.maxNodes) return undefined;
+
+  const { node, diagnostic, depth, baseOffset, resourceLimitExceeded } = context;
+  const active = heuristic.active;
+  heuristic.active = true;
+  context.diagnostic = undefined;
+  try {
+    return callback();
+  } finally {
+    context.node = node;
+    context.diagnostic = diagnostic;
+    context.depth = depth;
+    context.baseOffset = baseOffset;
+    context.resourceLimitExceeded = resourceLimitExceeded;
+    heuristic.active = active;
+  }
+}
+
 function checkContentLengthLimit(inputLength: number, context: FromBerContext): string | undefined {
   if (inputLength > context.maxContentLength) {
+    context.resourceLimitExceeded = true;
     return MAX_CONTENT_LENGTH_EXCEEDED_ERROR;
   }
 
@@ -188,6 +286,7 @@ function checkContentLengthLimit(inputLength: number, context: FromBerContext): 
 export function localFromBERWithChildContext(inputBuffer: Uint8Array, inputOffset: number, inputLength: number, context: FromBerContext): FromBerResult {
   const childDepth = context.depth + 1;
   if (childDepth > context.maxDepth) {
+    context.resourceLimitExceeded = true;
     return createErrorResult(MAX_DEPTH_EXCEEDED_ERROR);
   }
 
@@ -228,6 +327,24 @@ function localChangeType<T extends BaseBlock>(inputObject: BaseBlock, newType: n
  * @returns
  */
 export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLength = inputBuffer.length, context: FromBerContext = createFromBerContext()): FromBerResult {
+  const previousNode = context.node;
+  const position =
+    context.encodingRules === "DER" || context.positions
+      ? { tlvOffset: (context.baseOffset ?? 0) + inputOffset, contentOffset: (context.baseOffset ?? 0) + inputOffset, depth: context.depth }
+      : undefined;
+  if (position) context.node = position;
+
+  try {
+    const decoded = localFromBERInternal(inputBuffer, inputOffset, inputLength, context);
+    if (position) context.positions?.set(decoded.result, position);
+    if (decoded.offset === -1 && context.diagnostic) return { ...decoded, diagnostic: context.diagnostic };
+    return decoded;
+  } finally {
+    if (position) context.node = previousNode;
+  }
+}
+
+function localFromBERInternal(inputBuffer: Uint8Array, inputOffset: number, inputLength: number, context: FromBerContext): FromBerResult {
   const fastResult = tryFastFromBER(inputBuffer, inputOffset, inputLength, context);
   if (fastResult) return fastResult;
 
@@ -267,9 +384,9 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
 
   // Decode identification block of ASN.1 BER structure
   // console.time("idBlock");
-  let resultOffset = returnObject.idBlock.fromBER(inputBuffer, inputOffset, inputLength);
+  let resultOffset = returnObject.idBlock.fromBER(inputBuffer, inputOffset, inputLength, context);
   if (returnObject.idBlock.warnings.length) {
-    returnObject.warnings.concat(returnObject.idBlock.warnings);
+    returnObject.warnings.push(...returnObject.idBlock.warnings);
   }
   if (resultOffset === -1) {
     returnObject.error = returnObject.idBlock.error;
@@ -288,7 +405,7 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
   // console.time("lengthBlock");
   resultOffset = returnObject.lenBlock.fromBER(inputBuffer, inputOffset, inputLength);
   if (returnObject.lenBlock.warnings.length) {
-    returnObject.warnings.concat(returnObject.lenBlock.warnings);
+    returnObject.warnings.push(...returnObject.lenBlock.warnings);
   }
   if (resultOffset === -1) {
     returnObject.error = returnObject.lenBlock.error;
@@ -302,6 +419,7 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
 
   inputOffset = resultOffset;
   inputLength -= returnObject.lenBlock.blockLength;
+  if (context.node) context.node.contentOffset = (context.baseOffset ?? 0) + inputOffset;
 
   const valueLength = returnObject.lenBlock.isIndefiniteForm ? inputLength : returnObject.lenBlock.length;
   const contentLengthError = checkContentLengthLimit(valueLength, context);
@@ -312,6 +430,22 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
       offset: -1,
       result: returnObject,
     };
+  }
+
+  if (context.encodingRules === "DER") {
+    const identifierEnd = incomingOffset + returnObject.idBlock.blockLength;
+    const issue =
+      checkDerHeader(inputBuffer.subarray(incomingOffset, identifierEnd), inputBuffer.subarray(identifierEnd, inputOffset)) ??
+      (returnObject.idBlock.tagClass === 1 ? checkDerForm(returnObject.idBlock.isHexOnly ? Number.POSITIVE_INFINITY : returnObject.idBlock.tagNumber, returnObject.idBlock.isConstructed) : undefined);
+    if (issue) {
+      returnObject.error = report(context, issue);
+      return { offset: -1, result: returnObject };
+    }
+    // A child must fit its parent range, even when the backing view has more bytes.
+    if (valueLength > inputLength) {
+      returnObject.error = "End of input reached before message was fully decoded (inconsistent content length)";
+      return { offset: -1, result: returnObject };
+    }
   }
 
   // Check for using indefinite length form in encoding for primitive types
@@ -484,11 +618,20 @@ export function localFromBER(inputBuffer: Uint8Array, inputOffset = 0, inputLeng
 }
 
 /**
- * Major function for decoding ASN.1 BER array into internal library structures
- * @param inputBuffer ASN.1 BER encoded array of bytes
- * @param options Parser resource limits for untrusted input
+ * Decodes an ASN.1 element using BER or strict DER validation.
+ * @param inputBuffer Encoded ASN.1 bytes
+ * @param options Encoding rules, input ownership, and parser resource limits
+ * @throws {TypeError} If DER is combined with requireFullInput: false
  */
 export function fromBER(inputBuffer: BufferSource, options: FromBerOptions = {}): FromBerResult {
+  return fromBERWithContext(inputBuffer, options, createFromBerContext(options));
+}
+
+/** @internal */
+export function fromBERWithContext(inputBuffer: BufferSource, options: FromBerOptions, context: FromBerContext, child = false): FromBerResult {
+  if (context.encodingRules === "DER" && options.requireFullInput === false) {
+    throw new TypeError("DER requires full input consumption");
+  }
   if (!inputBuffer.byteLength) {
     const result = new BaseBlock({}, ValueBlock);
     result.error = "Input buffer has zero length";
@@ -502,5 +645,14 @@ export function fromBER(inputBuffer: BufferSource, options: FromBerOptions = {})
   const inputView = toUint8Array(inputBuffer);
   const normalizedInput = options.copyInput === false ? inputView : inputView.slice();
 
-  return localFromBER(normalizedInput, 0, inputBuffer.byteLength, createFromBerContext(options));
+  const decoded = child ? localFromBERWithChildContext(normalizedInput, 0, normalizedInput.byteLength, context) : localFromBER(normalizedInput, 0, normalizedInput.byteLength, context);
+  if (decoded.offset !== -1 && (options.requireFullInput || context.encodingRules === "DER") && decoded.offset !== normalizedInput.byteLength) {
+    const message = "Unexpected data after the first ASN.1 element";
+    const diagnostic: ParseDiagnostic = { code: "TRAILING_DATA", message, offset: (context.baseOffset ?? 0) + decoded.offset, depth: context.depth + (child ? 1 : 0) };
+    context.diagnostic = diagnostic;
+    decoded.result.error = message;
+    return { offset: -1, result: decoded.result, diagnostic };
+  }
+
+  return decoded;
 }

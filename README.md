@@ -24,7 +24,7 @@ Documentation, the API reference, and runnable examples are at [asn1js.org](http
 
 ## Breaking Changes In v4
 
-v4 is ESM-only and requires Node.js `^20.19.0 || >=22.12.0` (was `>=12.0.0`). CommonJS code can still `require("asn1js")` on these versions; Node.js 22.0–22.11 can't. The exported API is unchanged, but some encoding and validation behavior changed (last three items).
+v4 is ESM-only and requires Node.js `^20.19.0 || >=22.12.0` (was `>=12.0.0`). CommonJS code can still `require("asn1js")` on these versions; Node.js 22.0–22.11 can't. The existing exported API remains compatible, but some encoding and validation behavior changed (last three items).
 
 - **TypeScript compiling to CommonJS:** use `"module": "node20"` or `"nodenext"` (`node16` fails with TS1479). ESM and bundler setups need no changes.
 - **Jest in CommonJS mode:** switch to ESM mode or Vitest, or configure an ESM-to-CommonJS transformer and make sure `transformIgnorePatterns` doesn't exclude `asn1js` and its ESM dependencies, such as `@peculiar/utils`.
@@ -114,7 +114,7 @@ const asn1 = asn1js.fromBER(inputBuffer, {
 
 When any limit is exceeded the parser returns a normal `FromBerResult` error instead of exhausting the JavaScript stack or continuing to parse excessive input. See the [untrusted input example](https://asn1js.org/docs/examples/real-world/untrusted-input).
 
-By default, primitive OCTET STRING values and primitive BIT STRING values with zero unused bits are also checked for a complete embedded ASN.1 value. Set `parseEmbedded: false` to keep those values as raw bytes without that heuristic interpretation; constructed children continue to be parsed normally.
+In the default BER mode, primitive OCTET STRING values and primitive BIT STRING values with zero unused bits are also checked for a complete embedded ASN.1 value. Set `parseEmbedded: false` to keep those values as raw bytes without that heuristic interpretation; constructed children continue to be parsed normally.
 
 Input is copied by default. Set `copyInput: false` to retain a normalized view over the exact input range without copying. The caller must keep the backing storage unchanged and must not detach it while the parsed tree is in use: mutations are visible through parsed byte views and can make them inconsistent with decoded fields. The entire backing buffer remains retained. This option provides no protection against shared-memory races.
 
@@ -129,6 +129,199 @@ const asn1 = asn1js.fromBER(inputBuffer, {
   copyInput: false,
 });
 ```
+
+## Strict DER Parsing
+
+Use `fromDER()` to parse exactly one DER element, or pass `encodingRules: "DER"` to
+`fromBER()` or `verifySchema()`. BER remains the default, and `fromBER()` still
+parses the first element unless full input consumption is requested. See the
+compatibility notes below for changes that also affect BER callers.
+
+```typescript
+import { fromBER, fromDER, verifySchema } from "asn1js";
+
+const parsed = fromDER(inputBuffer, { maxNodes: 10000 });
+if (parsed.offset === -1) {
+  console.error(parsed.result.error, parsed.diagnostic);
+}
+
+// Equivalent encoding checks:
+const strict = fromBER(inputBuffer, { encodingRules: "DER" });
+const checked = verifySchema(inputBuffer, schema, { encodingRules: "DER" });
+
+// BER encodings, including indefinite lengths, with no trailing data:
+const completeBer = fromBER(inputBuffer, { requireFullInput: true });
+```
+
+| Options                                    | Behavior                                                      |
+| ------------------------------------------ | ------------------------------------------------------------- |
+| BER defaults, or `requireFullInput: false` | Parse the first element and return its end offset.            |
+| BER with `requireFullInput: true`          | Require exactly one complete BER element.                     |
+| `encodingRules: "DER"`                     | Require exactly one element and validate supported DER rules. |
+| DER with `requireFullInput: false`         | Throw `TypeError` for incompatible options.                   |
+
+`FromBerOptions` remains an extensible interface. `EncodingRules` is `"BER" | "DER"`.
+`FromDerOptions` is `Omit<FromBerOptions, "encodingRules" | "requireFullInput">`, since
+`fromDER()` always selects DER and requires full input consumption. Both APIs accept
+ArrayBuffer and buffer views; offsets are relative to the exact supplied view.
+Direct calls to a block's `fromBER()` method without a parser context keep BER behavior.
+
+Successful DER parsing checks the input bytes **at the time of the call**: one TLV,
+minimal identifiers and definite lengths, required UNIVERSAL forms, supported
+primitive contents, and recursively parsed constructed children. It does not give
+an enduring certificate of validity to a mutable tree or backing buffer. The
+`copyInput` option and resource limits work as described above.
+
+| UNIVERSAL types                                                                                                                                                     | DER validation                                                                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| BOOLEAN, INTEGER, ENUMERATED, BIT STRING, OCTET STRING, NULL, OBJECT IDENTIFIER, RELATIVE-OID                                                                       | Canonical form and contents, including minimal integers/OID groups and zero BIT STRING padding.                                      |
+| UTF8String, NumericString, PrintableString, IA5String, VisibleString, BMPString, UniversalString                                                                    | Primitive form, valid encoding and character repertoire. BMPString and UniversalString reject surrogates and values outside Unicode. |
+| UTCTime, GeneralizedTime                                                                                                                                            | Complete UTC form with seconds and uppercase `Z`, valid calendar/clock fields, canonical fractional seconds.                         |
+| SEQUENCE, SET                                                                                                                                                       | Constructed form and recursively validated children. Ordering needs schema information.                                              |
+| TeletexString, VideotexString, GraphicString, GeneralString                                                                                                         | Primitive form only; ISO 2022 contents remain opaque, allowing legacy T61 certificate names.                                         |
+| ObjectDescriptor (7), EXTERNAL (8), REAL (9), EMBEDDED PDV (11), TIME (14), CHARACTER STRING (29), DATE/TIME-OF-DAY/DATE-TIME/DURATION (31–34), unknown types 35–36 | `UNSUPPORTED_DER_TYPE`: the core cannot validate the type.                                                                           |
+| EOC (0), reserved 15 and tags 37 or higher                                                                                                                          | Rejected with `UNEXPECTED_EOC` or `INVALID_FORM`.                                                                                    |
+
+Time validation examines the original octets, preserving arbitrary fractional
+precision. GeneralizedTime fractions use `.` and omit all trailing zeros; a zero
+fraction is omitted entirely. UTCTime does not allow fractions. Converting the
+result with `toDate()` can lose precision. GeneralizedTime permits a leap second
+only at 23:59 on the final day of a UTC month; UTCTime seconds are restricted to
+00–59. No historical leap-second table is consulted.
+JavaScript `Date` cannot represent a leap second: `toDate()` normalizes it to the
+following minute. This does not mutate the parsed fields or original bytes;
+`toBER()` still preserves the original encoding.
+
+APPLICATION, CONTEXT-SPECIFIC, and PRIVATE elements receive the same header checks,
+and their constructed children are validated recursively. Primitive contents stay
+opaque until a schema resolves their type. DER validation does not authenticate
+certificate signatures or verify application-level constraints.
+
+Integration tests validate and round-trip every root certificate bundled with the
+Node.js test runtime, alongside a generated legacy T61 certificate and a CRL with
+5,000 revoked entries.
+
+### Compatibility Notes
+
+BER keeps prefix parsing for both the outer element and `primitiveSchema` contents.
+For example, `04 05 02 01 01 de ad` still matches an OCTET STRING with an INTEGER
+`primitiveSchema` through `verifySchema()` or `compareSchema()`. Pass
+`requireFullInput: true` to `verifySchema()` to require complete outer and embedded
+values, or select DER, which always requires full consumption.
+
+`verifySchema()` keeps borrowing the supplied input range by default. Set
+`copyInput: true` to copy it; `fromBER()` and `fromDER()` still copy by default.
+The input ownership and mutation requirements described
+under [Parsing Untrusted Input](#parsing-untrusted-input) apply to the returned
+tree and named schema captures: borrowed byte views reflect later mutations,
+decoded fields may then disagree with those bytes, and the entire backing buffer
+stays retained.
+
+DER PrintableString validation enforces the exact X.680 repertoire: letters
+`A`–`Z` and `a`–`z`, digits `0`–`9`, space, and `' ( ) + , - . / : = ?`.
+It rejects `*`, `&`, and `@`, so a certificate with a wildcard CN encoded as
+PrintableString can fail strict parsing. For new values, use `Utf8String` for
+these characters, or `IA5String` for DNS names where the schema allows it.
+DER checks are not relaxed for legacy certificates; changing the tag in an
+existing signed certificate is not a valid repair.
+
+BER UTCTime accepts optional seconds and either `Z` or a signed `hhmm` offset
+(`YYMMDDhhmm[ss](Z|+hhmm|-hhmm)`). DER still requires `YYMMDDHHMMSSZ`.
+The new 10-digit `Z` and signed-offset forms validate their calendar and clock
+fields before UTC normalization. The original 12-digit `Z` form keeps its legacy
+BER calendar/clock, lowercase `z`, and unanchored matching tolerance.
+BER keeps the legacy UTCTime conversion-error behavior: a decoded field can carry
+an error while the parser returns its end offset and continues to later siblings.
+Malformed GeneralizedTime conversions keep throwing in BER. DER rejects malformed
+times with a validation failure before conversion.
+An offset can normalize a BER UTCTime into UTC year 1949 or 2050. The parsed fields
+and `toDate()` reflect that UTC time, and `toBER()` preserves the original bytes.
+`toBuffer()` produces a UTC representation and throws when that year is outside
+1950–2049; use GeneralizedTime when creating a value outside that UTC year range.
+
+### Diagnostics
+
+An input validation failure returns `offset: -1`, sets `result.error`, and provides
+`diagnostic` when a structured code is available. Its stable contract is `code`,
+`offset`, and `depth`: `offset` identifies the start of the failing TLV, and root
+`depth` is zero. For `TRAILING_DATA`, `offset` identifies the first extra byte.
+`byteOffset` optionally locates an exact byte. Message text may change. Resource
+limit and ordinary structural decoder failures can have no diagnostic.
+`verifySchema()` carries the same diagnostic into its failed result, including
+failures in mandatory `primitiveSchema` parsing.
+When all `Choice` alternatives fail, the result keeps the Choice's name and the
+`Wrong values for Choice type` error. The diagnostic from the last alternative
+that supplied one is retained separately. With a shared resource budget (DER or
+explicit parser limits), resource-limit failures remain fatal and are returned
+directly instead of being wrapped as a Choice mismatch.
+
+The exported `DerViolationCode` values are:
+
+- Document/header: `TRAILING_DATA`, `INDEFINITE_LENGTH`, `NON_MINIMAL_LENGTH`, `NON_MINIMAL_TAG`.
+- Form/support: `INVALID_FORM`, `UNEXPECTED_EOC`, `UNSUPPORTED_DER_TYPE`.
+- Primitive contents: `EMPTY_VALUE`, `NON_MINIMAL_INTEGER`, `INVALID_BOOLEAN`, `INVALID_NULL`,
+  `BIT_STRING_UNUSED_BITS`, `BIT_STRING_PADDING`, `INVALID_OID`, `INVALID_STRING`, `INVALID_TIME`.
+- Schema ordering helpers: `SET_ORDER`, `SET_OF_ORDER`.
+
+`UNSUPPORTED_DER_TYPE` means validation is unavailable; it does not assert that the
+encoding is invalid. `DerIssue` describes a local helper result with optional
+`contentOffset` or `elementIndex`; `ParseDiagnostic` adds document position and depth.
+
+### Embedded Values and Schema Rules
+
+DER defaults to `parseEmbedded: false`. With explicit `parseEmbedded: true`, the
+OCTET STRING and BIT STRING heuristic uses a separate, monotonic budget of
+`maxNodes`, alongside the required parse's `maxNodes` budget. Failed attempts still
+consume heuristic work, giving a combined bound of twice `maxNodes`. Exhausting
+that budget stops further attempts and retains raw contents without failing the
+required parse. A failed attempt cannot replace the required parse's diagnostic.
+Successful heuristic `valueBlock.value` children passed the DER checks supported by
+the core; schema-dependent constraints are still outside that guarantee.
+
+A schema's `primitiveSchema` requests parsing of its contents with the selected
+encoding rules. Under DER it uses the same resource context, requires full
+consumption, and reports DER violations. For example, an OCTET STRING containing
+`02 02 00 01` fails with `NON_MINIMAL_INTEGER` when its required `primitiveSchema`
+is INTEGER. A failed `Choice` alternative or optional field does not prevent a
+different schema alternative from matching; failures of a shared resource budget
+remain fatal.
+
+Legacy BER gives each `primitiveSchema` parse an independent default resource
+budget. Passing `maxNodes`, `maxDepth`, or `maxContentLength` explicitly to
+`verifySchema()` instead shares the resource context across the outer parse and
+embedded schema attempts, including failed alternatives. DER always shares that
+context. `requireFullInput: true` alone changes completeness checks without
+changing the legacy BER resource-budget scope.
+In legacy BER, a failed independent embedded parse can still fall back to another
+`Choice` alternative, including after that embedded parse reaches its own limit.
+
+The core cannot infer SET versus SET OF ordering, omitted DEFAULT values, the last
+significant bit of a NamedBitList, or the underlying type of IMPLICIT contents.
+Schema-aware consumers can use the pure `der` helpers on original bytes:
+
+```typescript
+import { der } from "asn1js";
+
+// [0] IMPLICIT INTEGER: validate contents before rebuilding the typed object.
+const issue = der.checkPrimitiveEncoding(2, block.idBlock.isConstructed, block.valueBlock.valueHexView);
+const setOfIssue = der.checkSetOfOrder(children.map((child) => child.valueBeforeDecodeView));
+const setIssue = der.checkSetOrder(identifierOctets);
+const comparison = der.compareSetOfElements(firstEncoding, secondEncoding);
+```
+
+`checkPrimitiveEncoding()` returns `undefined` for supported valid contents or a
+`DerIssue`. SEQUENCE, SET, and unsupported types return `UNSUPPORTED_DER_TYPE`.
+`checkSetOrder()` compares the actual encoded tag class and numeric tag, ignoring
+the constructed flag and supporting arbitrarily large tags. For an untagged CHOICE,
+use the selected alternative's identifier. Its identifiers must already be complete
+and minimally encoded. `checkSetOfOrder()` and `compareSetOfElements()` compare full,
+already validated encodings as octet strings with conceptual trailing zero padding
+(X.690 11.6). Ordering alone does not establish element validity.
+
+DEFAULT omission requires comparing ASN.1 values rather than arbitrary TLVs:
+`80 01 00` ([0] IMPLICIT INTEGER zero) and `02 01 00` represent the same value despite
+different bytes. Validation of an existing object tree cannot establish the original
+encoding; strict schema parsing starts from the original bytes within one call.
 
 ## Related source code
 

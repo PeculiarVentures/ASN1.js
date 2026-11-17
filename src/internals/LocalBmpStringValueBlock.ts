@@ -1,5 +1,6 @@
 import { toUint8Array, utf16 } from "@peculiar/utils";
 import { LocalSimpleStringBlock, type LocalSimpleStringBlockJson, type LocalSimpleStringBlockParams } from "./LocalSimpleStringBlock";
+import type { FromBerContext } from "../parser";
 
 export type LocalBmpStringValueBlockParams = LocalSimpleStringBlockParams;
 export type LocalBmpStringValueBlockJson = LocalSimpleStringBlockJson;
@@ -7,7 +8,12 @@ export type LocalBmpStringValueBlockJson = LocalSimpleStringBlockJson;
 export class LocalBmpStringValueBlock extends LocalSimpleStringBlock {
   public static override NAME = "BmpStringValueBlock";
 
-  protected override checkValue(view: Uint8Array): string {
+  protected override checkValue(view: Uint8Array, context?: FromBerContext): string {
+    if (context?.encodingRules === "DER") {
+      const error = super.checkValue(view, context);
+      if (error) return error;
+    }
+
     return view.length % 2 !== 0 ? "BMPString value length must be a multiple of 2" : "";
   }
 

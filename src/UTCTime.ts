@@ -4,6 +4,8 @@ import type { LocalSimpleStringValueBlockJson } from "./internals/LocalSimpleStr
 import type { IDateConvertible } from "./types";
 import { typeStore } from "./TypeStore";
 import { type VisibleStringParams, VisibleString } from "./VisibleString";
+import { bytesToString } from "./internals/stringUtils";
+import { checkCalendarTime } from "./internals/calendar";
 
 export interface IUTCTime {
   year: number;
@@ -66,7 +68,7 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
   }
 
   public override fromBuffer(inputBuffer: ArrayBuffer | Uint8Array): void {
-    this.fromString(String.fromCharCode.apply(null, toUint8Array(inputBuffer) as unknown as number[]));
+    this.fromString(bytesToString(toUint8Array(inputBuffer)));
   }
 
   /**
@@ -115,9 +117,18 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
 
   public override fromString(inputString: string): void {
     // #region Parse input string
-    const parser = /(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/gi;
-    const parserArray = parser.exec(inputString);
+    // Keep the legacy tolerance for 12-digit Z values while validating the other BER forms.
+    const legacyMatch = /(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/i.exec(inputString);
+    const parserArray = legacyMatch ?? /^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?(Z|([+-])(\d{2})(\d{2}))$/i.exec(inputString);
     if (parserArray === null) {
+      this.error = "Wrong input string for conversion";
+
+      return;
+    }
+
+    const offsetHour = parseInt(parserArray[9] ?? "0", 10);
+    const offsetMinute = parseInt(parserArray[10] ?? "0", 10);
+    if (offsetHour > 23 || offsetMinute > 59) {
       this.error = "Wrong input string for conversion";
 
       return;
@@ -125,14 +136,33 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     // #endregion
     // #region Store parsed values
     const year = parseInt(parserArray[1], 10);
-    if (year >= 50) this.year = 1900 + year;
-    else this.year = 2000 + year;
+    const fullYear = year >= 50 ? 1900 + year : 2000 + year;
+    const month = parseInt(parserArray[2], 10);
+    const day = parseInt(parserArray[3], 10);
+    const hour = parseInt(parserArray[4], 10);
+    const minute = parseInt(parserArray[5], 10);
+    const second = parseInt(parserArray[6] ?? "0", 10);
 
-    this.month = parseInt(parserArray[2], 10);
-    this.day = parseInt(parserArray[3], 10);
-    this.hour = parseInt(parserArray[4], 10);
-    this.minute = parseInt(parserArray[5], 10);
-    this.second = parseInt(parserArray[6], 10);
+    if (!legacyMatch && checkCalendarTime(fullYear, month, day, hour, minute, second)) {
+      this.error = "Wrong input string for conversion";
+
+      return;
+    }
+
+    this.year = fullYear;
+    this.month = month;
+    this.day = day;
+    this.hour = hour;
+    this.minute = minute;
+    this.second = second;
+
+    if (parserArray[8]) {
+      // X.680 defines the signed zone as local time minus UTC.
+      const offset = (offsetHour * 60 + offsetMinute) * (parserArray[8] === "+" ? 1 : -1);
+      this.fromDate(new Date(Date.UTC(this.year, this.month - 1, this.day, this.hour, this.minute - offset, this.second)));
+    }
+
+    this.error = "";
     // #endregion
   }
 

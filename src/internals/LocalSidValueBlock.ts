@@ -80,7 +80,7 @@ export class LocalSidValueBlock extends HexBlock(ValueBlock) implements ILocalSi
       return -1;
     }
 
-    if (this.valueHexView[0] === 0x00) this.warnings.push("Needlessly long format of SID encoding");
+    if (this.blockLength > 1 && this.valueHexView[0] === 0x00) this.warnings.push("Needlessly long format of SID encoding");
 
     const valueDec = this.blockLength <= 8 ? decodeBase128(this.valueHexView) : undefined;
     if (valueDec !== undefined) this.valueDec = valueDec;

@@ -129,7 +129,9 @@ describe("public API", () => {
       "ViewWriter",
       "VisibleString",
       "compareSchema",
+      "der",
       "fromBER",
+      "fromDER",
       "verifySchema",
     ]);
   });

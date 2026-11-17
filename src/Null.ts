@@ -2,6 +2,11 @@ import type { ViewWriter } from "./ViewWriter";
 import { ValueBlock, type ValueBlockJson } from "./ValueBlock";
 import { BaseBlock, type BaseBlockJson, type BaseBlockParams } from "./BaseBlock";
 import { typeStore } from "./TypeStore";
+import { toUint8Array } from "@peculiar/utils";
+import type { FromBerContext } from "./parser";
+import { checkPrimitiveEncoding } from "./der";
+import { report } from "./internals/der";
+import { checkBufferParams } from "./internals/utils";
 
 export type NullParams = BaseBlockParams;
 export type NullJson = BaseBlockJson<ValueBlockJson>;
@@ -21,7 +26,17 @@ export class Null extends BaseBlock<ValueBlock, ValueBlockJson> {
     this.idBlock.tagNumber = 5; // Null
   }
 
-  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number): number {
+  public override fromBER(inputBuffer: ArrayBuffer | Uint8Array, inputOffset: number, inputLength: number, context?: FromBerContext): number {
+    if (context?.encodingRules === "DER") {
+      const inputView = toUint8Array(inputBuffer);
+      if (!checkBufferParams(this, inputView, inputOffset, inputLength)) return -1;
+      const issue = checkPrimitiveEncoding(5, false, inputView.subarray(inputOffset, inputOffset + inputLength));
+      if (issue) {
+        this.error = report(context, issue);
+        return -1;
+      }
+    }
+
     if (this.lenBlock.length > 0) this.warnings.push("Non-zero length of value block for Null type");
 
     if (!this.idBlock.error.length) this.blockLength += this.idBlock.blockLength;
