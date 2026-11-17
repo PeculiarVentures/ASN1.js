@@ -22,9 +22,28 @@ const berTimes = [
   { value: "2402292345-0030", utc: "2024-03-01T00:15:00.000Z" },
   { value: "9912312330-0100", utc: "2000-01-01T00:30:00.000Z" },
   { value: "0001010030+0100", utc: "1999-12-31T23:30:00.000Z" },
+  { value: "000229120000+0000", utc: "2000-02-29T12:00:00.000Z" },
+  { value: "500101000000+0100", utc: "1949-12-31T23:00:00.000Z" },
+  { value: "491231233000-0100", utc: "2050-01-01T00:30:00.000Z" },
   { value: "5001010000+0001", utc: "1949-12-31T23:59:00.000Z" },
   { value: "491231235959-0001", utc: "2050-01-01T00:00:59.000Z" },
   { value: "2501020000+2359", utc: "2025-01-01T00:01:00.000Z" },
+];
+
+const invalidOffsetTimes = [
+  "991340120000+0100",
+  "2500010000+0000",
+  "251301000000-0000",
+  "250100120000+0100",
+  "2501321200-0100",
+  "250431120000+0100",
+  "2502291200+0000",
+  "010229120000-0100",
+  "000230120000+0000",
+  "2501012400+0000",
+  "250101236000-0100",
+  "250101235960+0100",
+  "250101000099-0000",
 ];
 
 function expectUtcTime(time: UTCTime, utc: string): void {
@@ -140,6 +159,65 @@ describe("BER UTCTime", () => {
       expect(parsed.result.error).toBe("Wrong input string for conversion");
     },
   );
+
+  it.each(invalidOffsetTimes)("reports invalid source fields in %s without normalizing them", (value) => {
+    const input = encodedTime(value);
+    const constructed = new UTCTime({ value });
+    expect(constructed.error).toBe("Wrong input string for conversion");
+    expect(constructed.year).toBe(0);
+    expect(new Uint8Array(constructed.toBER())).toEqual(input);
+    for (const options of [{}, { requireFullInput: true }, { copyInput: false }]) {
+      const parsed = fromBER(input, options);
+      expect(parsed.offset).toBe(input.length);
+      expect(parsed.diagnostic).toBeUndefined();
+      assert.ok(parsed.result instanceof UTCTime);
+      expect(parsed.result.error).toBe("Wrong input string for conversion");
+      expect(parsed.result.year).toBe(0);
+      expect(parsed.result.valueBeforeDecodeView).toEqual(input);
+      expect(new Uint8Array(parsed.result.toBER())).toEqual(input);
+    }
+
+    const nested = sequence(input);
+    const parsed = fromBER(nested);
+    expect(parsed.offset).toBe(nested.length);
+    expect(parsed.result.error).toBe("");
+    assert.ok(parsed.result instanceof Sequence);
+    const [, decoded, after] = parsed.result.valueBlock.value;
+    assert.ok(decoded instanceof UTCTime);
+    expect(decoded.error).toBe("Wrong input string for conversion");
+    assert.ok(after instanceof Integer);
+    expect(after.valueBlock.valueDec).toBe(2);
+    expect(new Uint8Array(parsed.result.toBER())).toEqual(nested);
+    expect(fromDER(input).diagnostic?.code).toBe("INVALID_TIME");
+  });
+
+  it("keeps the existing BER calendar and clock tolerance for the corresponding Z forms", () => {
+    for (const offsetValue of invalidOffsetTimes) {
+      const value = offsetValue.replace(/[+-]\d{4}$/, "Z");
+      const input = encodedTime(value);
+      const parsed = fromBER(input);
+      expect(parsed.offset).toBe(input.length);
+      assert.ok(parsed.result instanceof UTCTime);
+      expect(parsed.result.error).toBe("");
+      expect(new Uint8Array(parsed.result.toBER())).toEqual(input);
+      expect(parsed.result.month).toBe(parseInt(value.slice(2, 4), 10));
+      expect(parsed.result.day).toBe(parseInt(value.slice(4, 6), 10));
+      expect(parsed.result.hour).toBe(parseInt(value.slice(6, 8), 10));
+      expect(parsed.result.minute).toBe(parseInt(value.slice(8, 10), 10));
+    }
+  });
+
+  it("leaves previous fields intact on an invalid offset and clears the error after a valid replacement", () => {
+    const time = new UTCTime({ value: "250101000000Z" });
+    time.fromString("991340120000+0100");
+    expect(time.error).toBe("Wrong input string for conversion");
+    expect(time.toDate().toISOString()).toBe("2025-01-01T00:00:00.000Z");
+    time.fromBuffer(ascii("250101235960+0000"));
+    expect(time.error).toBe("Wrong input string for conversion");
+    expect(time.toDate().toISOString()).toBe("2025-01-01T00:00:00.000Z");
+    time.fromString("240229233045+0030");
+    expectUtcTime(time, "2024-02-29T23:00:45.000Z");
+  });
 
   it("clears conversion errors when a reused instance receives a valid value", () => {
     const time = new UTCTime({ value: "invalid" });

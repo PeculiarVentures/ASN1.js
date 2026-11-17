@@ -134,14 +134,30 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     // #endregion
     // #region Store parsed values
     const year = parseInt(parserArray[1], 10);
-    if (year >= 50) this.year = 1900 + year;
-    else this.year = 2000 + year;
+    const fullYear = year >= 50 ? 1900 + year : 2000 + year;
+    const month = parseInt(parserArray[2], 10);
+    const day = parseInt(parserArray[3], 10);
+    const hour = parseInt(parserArray[4], 10);
+    const minute = parseInt(parserArray[5], 10);
+    const second = parseInt(parserArray[6] ?? "0", 10);
 
-    this.month = parseInt(parserArray[2], 10);
-    this.day = parseInt(parserArray[3], 10);
-    this.hour = parseInt(parserArray[4], 10);
-    this.minute = parseInt(parserArray[5], 10);
-    this.second = parseInt(parserArray[6] ?? "0", 10);
+    if (parserArray[8]) {
+      // Validate only the new signed-offset form before UTC normalization.
+      const leapYear = fullYear % 4 === 0 && (fullYear % 100 !== 0 || fullYear % 400 === 0);
+      const monthDays = month === 2 ? (leapYear ? 29 : 28) : [4, 6, 9, 11].includes(month) ? 30 : 31;
+      if (month < 1 || month > 12 || day < 1 || day > monthDays || hour > 23 || minute > 59 || second > 59) {
+        this.error = "Wrong input string for conversion";
+
+        return;
+      }
+    }
+
+    this.year = fullYear;
+    this.month = month;
+    this.day = day;
+    this.hour = hour;
+    this.minute = minute;
+    this.second = second;
 
     if (parserArray[8]) {
       // X.680 defines the signed zone as local time minus UTC.

@@ -227,6 +227,8 @@ existing signed certificate is not a valid repair.
 
 BER UTCTime accepts optional seconds and either `Z` or a signed `hhmm` offset
 (`YYMMDDhhmm[ss](Z|+hhmm|-hhmm)`). DER still requires `YYMMDDHHMMSSZ`.
+Signed-offset forms validate their calendar and clock fields before UTC
+normalization; the existing BER range tolerance for `Z` forms is unchanged.
 BER keeps the legacy UTCTime conversion-error behavior: a decoded field can carry
 an error while the parser returns its end offset and continues to later siblings.
 Malformed GeneralizedTime conversions keep throwing in BER. DER rejects malformed
