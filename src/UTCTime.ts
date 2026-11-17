@@ -5,6 +5,7 @@ import type { IDateConvertible } from "./types";
 import { typeStore } from "./TypeStore";
 import { type VisibleStringParams, VisibleString } from "./VisibleString";
 import { bytesToString } from "./internals/stringUtils";
+import { checkCalendarTime } from "./internals/calendar";
 
 export interface IUTCTime {
   year: number;
@@ -116,8 +117,9 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
 
   public override fromString(inputString: string): void {
     // #region Parse input string
-    // Keep the legacy tolerance for canonical values while accepting the other BER forms.
-    const parserArray = /(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/i.exec(inputString) ?? /^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?(Z|([+-])(\d{2})(\d{2}))$/i.exec(inputString);
+    // Keep the legacy tolerance for 12-digit Z values while validating the other BER forms.
+    const legacyMatch = /(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})Z/i.exec(inputString);
+    const parserArray = legacyMatch ?? /^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})?(Z|([+-])(\d{2})(\d{2}))$/i.exec(inputString);
     if (parserArray === null) {
       this.error = "Wrong input string for conversion";
 
@@ -141,15 +143,10 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
     const minute = parseInt(parserArray[5], 10);
     const second = parseInt(parserArray[6] ?? "0", 10);
 
-    if (parserArray[8]) {
-      // Validate only the new signed-offset form before UTC normalization.
-      const leapYear = fullYear % 4 === 0 && (fullYear % 100 !== 0 || fullYear % 400 === 0);
-      const monthDays = month === 2 ? (leapYear ? 29 : 28) : [4, 6, 9, 11].includes(month) ? 30 : 31;
-      if (month < 1 || month > 12 || day < 1 || day > monthDays || hour > 23 || minute > 59 || second > 59) {
-        this.error = "Wrong input string for conversion";
+    if (!legacyMatch && checkCalendarTime(fullYear, month, day, hour, minute, second)) {
+      this.error = "Wrong input string for conversion";
 
-        return;
-      }
+      return;
     }
 
     this.year = fullYear;

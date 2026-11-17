@@ -49,7 +49,7 @@ export interface FromBerOptions {
   maxContentLength?: number;
   /** Try decoding embedded OCTET STRING and BIT STRING content. Defaults to true for BER and false for DER. */
   parseEmbedded?: boolean;
-  /** Copy the input bytes before decoding. @defaultValue true */
+  /** Copy the input bytes before decoding. Defaults to true for fromBER/fromDER and false for verifySchema in both BER and DER. */
   copyInput?: boolean;
   /** Require exactly one input element. Always true for DER; explicitly setting false with DER throws TypeError. @defaultValue false */
   requireFullInput?: boolean;
