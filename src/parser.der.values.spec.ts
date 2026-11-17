@@ -1,3 +1,4 @@
+import * as assert from "assert";
 import { describe, expect, it } from "vitest";
 import { hex } from "@peculiar/utils";
 import { fromBER, GeneralizedTime, IA5String, TeletexString } from "./index";
@@ -157,7 +158,7 @@ describe("DER primitive value parsing", () => {
       expect(parsed.offset).toBe(encoded.length);
       expect(parsed.result.error).toBe("");
       expect(parsed.diagnostic).toBeUndefined();
-      expect(new Uint8Array(parsed.result.toBER())).toEqual(encoded);
+      assert.deepStrictEqual(new Uint8Array(parsed.result.toBER()), encoded);
     }
   });
 
@@ -185,7 +186,7 @@ describe("DER primitive value parsing", () => {
       expect(parsed.offset).toBe(encoded.length);
       expect(parsed.result.error).toBe("");
       expect((parsed.result as IA5String).getValue()).toBe(value);
-      expect(new Uint8Array(parsed.result.toBER())).toEqual(encoded);
+      assert.deepStrictEqual(new Uint8Array(parsed.result.toBER()), encoded);
     }
   });
 
@@ -197,7 +198,7 @@ describe("DER primitive value parsing", () => {
       expect(parsed.offset).toBe(encoded.length);
       expect(parsed.result.error).toBe("");
       expect((parsed.result as TeletexString).getValue()).toBe(value);
-      expect(new Uint8Array(parsed.result.toBER())).toEqual(encoded);
+      assert.deepStrictEqual(new Uint8Array(parsed.result.toBER()), encoded);
     }
   });
 });
