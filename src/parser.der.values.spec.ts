@@ -161,6 +161,22 @@ describe("DER primitive value parsing", () => {
     }
   });
 
+  it.each([
+    { value: "20161231235960Z", date: "2017-01-01T00:00:00.000Z" },
+    { value: "20150630235960.5Z", date: "2015-07-01T00:00:00.500Z" },
+  ])("preserves $value when its Date conversion normalizes the leap second", ({ value, date }) => {
+    const encoded = time(0x18, value);
+    const parsed = fromBER(encoded, { encodingRules: "DER" });
+    expect(parsed.offset).toBe(encoded.length);
+    expect(parsed.result).toBeInstanceOf(GeneralizedTime);
+    const generalized = parsed.result as GeneralizedTime;
+    expect(generalized.toDate().toISOString()).toBe(date);
+    expect(generalized.second).toBe(60);
+    expect(generalized.toString()).toBe(value);
+    expect(new Uint8Array(generalized.toBuffer())).toEqual(encoded.subarray(2));
+    expect(new Uint8Array(generalized.toBER())).toEqual(encoded);
+  });
+
   it("decodes long IA5String values without exceeding argument limits", () => {
     const value = "A".repeat(200000);
     const encoded = new Uint8Array(new IA5String({ value }).toBER());

@@ -70,7 +70,7 @@ function compareSchemaInternal(root: AsnType, inputData: AsnType, inputSchema: A
   // #region Special case for Choice schema element type
   if (inputSchema instanceof Choice) {
     const choiceResult = false;
-    let diagnosticFailure: CompareSchemaFail | undefined;
+    let diagnostic: ParseDiagnostic | undefined;
 
     for (const element of inputSchema.value) {
       const result = compareSchemaWithContext(root, inputData, element, context);
@@ -81,14 +81,14 @@ function compareSchemaInternal(root: AsnType, inputData: AsnType, inputSchema: A
           result: root,
         };
       }
-      if (result.diagnostic) diagnosticFailure = result;
+      if (result.diagnostic) diagnostic = result.diagnostic;
     }
 
     if (choiceResult === false) {
-      if (diagnosticFailure) return diagnosticFailure;
       const _result: CompareSchemaResult = {
         verified: false,
         result: { error: "Wrong values for Choice type" },
+        ...(diagnostic ? { diagnostic } : {}),
       };
 
       if (inputSchema.hasOwnProperty(NAME)) _result.name = inputSchema.name;

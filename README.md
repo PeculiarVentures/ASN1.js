@@ -188,6 +188,9 @@ fraction is omitted entirely. UTCTime does not allow fractions. Converting the
 result with `toDate()` can lose precision. GeneralizedTime permits a leap second
 only at 23:59 on the final day of a UTC month; UTCTime seconds are restricted to
 00–59. No historical leap-second table is consulted.
+JavaScript `Date` cannot represent a leap second: `toDate()` normalizes it to the
+following minute. This does not mutate the parsed fields or original bytes;
+`toBER()` still preserves the original encoding.
 
 APPLICATION, CONTEXT-SPECIFIC, and PRIVATE elements receive the same header checks,
 and their constructed children are validated recursively. Primitive contents stay
@@ -228,6 +231,10 @@ BER keeps the legacy UTCTime conversion-error behavior: a decoded field can carr
 an error while the parser returns its end offset and continues to later siblings.
 Malformed GeneralizedTime conversions keep throwing in BER. DER rejects malformed
 times with a validation failure before conversion.
+An offset can normalize a BER UTCTime into UTC year 1949 or 2050. The parsed fields
+and `toDate()` reflect that UTC time, and `toBER()` preserves the original bytes.
+`toBuffer()` produces a UTC representation and throws when that year is outside
+1950–2049; use GeneralizedTime when creating a value outside that UTC year range.
 
 ### Diagnostics
 
@@ -239,6 +246,11 @@ An input validation failure returns `offset: -1`, sets `result.error`, and provi
 limit and ordinary structural decoder failures can have no diagnostic.
 `verifySchema()` carries the same diagnostic into its failed result, including
 failures in mandatory `primitiveSchema` parsing.
+When all `Choice` alternatives fail, the result keeps the Choice's name and the
+`Wrong values for Choice type` error. The diagnostic from the last alternative
+that supplied one is retained separately. With a shared resource budget (DER or
+explicit parser limits), resource-limit failures remain fatal and are returned
+directly instead of being wrapped as a Choice mismatch.
 
 The exported `DerViolationCode` values are:
 
@@ -268,7 +280,8 @@ encoding rules. Under DER it uses the same resource context, requires full
 consumption, and reports DER violations. For example, an OCTET STRING containing
 `02 02 00 01` fails with `NON_MINIMAL_INTEGER` when its required `primitiveSchema`
 is INTEGER. A failed `Choice` alternative or optional field does not prevent a
-different schema alternative from matching; resource-limit failures remain fatal.
+different schema alternative from matching; failures of a shared resource budget
+remain fatal.
 
 Legacy BER gives each `primitiveSchema` parse an independent default resource
 budget. Passing `maxNodes`, `maxDepth`, or `maxContentLength` explicitly to
@@ -276,6 +289,8 @@ budget. Passing `maxNodes`, `maxDepth`, or `maxContentLength` explicitly to
 embedded schema attempts, including failed alternatives. DER always shares that
 context. `requireFullInput: true` alone changes completeness checks without
 changing the legacy BER resource-budget scope.
+In legacy BER, a failed independent embedded parse can still fall back to another
+`Choice` alternative, including after that embedded parse reaches its own limit.
 
 The core cannot infer SET versus SET OF ordering, omitted DEFAULT values, the last
 significant bit of a NamedBitList, or the underlying type of IMPLICIT contents.
