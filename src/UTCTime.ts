@@ -99,6 +99,17 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
   }
 
   /**
+   * Returns false if a date or time field is out of range
+   * @param maxSecond Largest allowed second, 60 where a leap second is allowed
+   */
+  protected isFieldRangeValid(maxSecond = 59): boolean {
+    const isLeapYear = (this.year % 4 === 0 && this.year % 100 !== 0) || this.year % 400 === 0;
+    const daysInMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][this.month - 1];
+
+    return this.month >= 1 && this.month <= 12 && this.day >= 1 && this.day <= daysInMonth && this.hour <= 23 && this.minute <= 59 && this.second <= maxSecond;
+  }
+
+  /**
    * Function converting "Date" object into ASN.1 internal string
    * @param {!Date} inputDate JavaScript "Date" object
    */
@@ -164,6 +175,9 @@ export class UTCTime extends VisibleString implements IUTCTime, IDateConvertible
 
     this.error = "";
     // #endregion
+
+    // Date.UTC() in toDate() would roll an out-of-range field over into the next one
+    if (!this.isFieldRangeValid()) this.error = "Wrong input string for conversion";
   }
 
   public override toString(encoding: DateStringEncoding = "iso"): string {

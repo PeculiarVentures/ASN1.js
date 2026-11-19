@@ -21,6 +21,13 @@ describe("UTCTime", () => {
     assert.strictEqual(asn.toDate().getUTCFullYear(), 2150);
   });
 
+  it("rejects fields out of range instead of rolling them over", () => {
+    assert.strictEqual(new asn1js.UTCTime({ value: "240229123456Z" }).error, "");
+    for (const value of ["241301123456Z", "240001123456Z", "240230123456Z", "230229123456Z", "240431123456Z", "240100123456Z", "240229243456Z", "240229126056Z", "240229123460Z"]) {
+      assert.strictEqual(new asn1js.UTCTime({ value }).error, "Wrong input string for conversion", value);
+    }
+  });
+
   it("stringifies without throwing when no date is set", () => {
     assert.strictEqual(new asn1js.UTCTime().toString(), "000000000000Z");
 
