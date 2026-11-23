@@ -55,6 +55,8 @@ export interface FromBerOptions {
   requireFullInput?: boolean;
   /** Encoding rules to validate. @defaultValue "BER" */
   encodingRules?: EncodingRules;
+  /** Enforce X.690 BER container boundaries, constructed SEQUENCE/SET forms, and end-of-contents placement. @defaultValue false */
+  strictBer?: boolean;
 }
 
 export interface FromBerContext {
@@ -66,6 +68,10 @@ export interface FromBerContext {
   parseEmbedded?: boolean;
   /** @internal */
   encodingRules?: EncodingRules;
+  /** @internal */
+  strictBer?: boolean;
+  /** @internal */
+  allowEoc?: boolean;
   /** @internal */
   baseOffset?: number;
   /** @internal */
@@ -211,6 +217,7 @@ export function createFromBerContext(options: FromBerOptions = {}): FromBerConte
     maxContentLength: options.maxContentLength ?? DEFAULT_MAX_CONTENT_LENGTH,
     parseEmbedded: options.parseEmbedded ?? options.encodingRules !== "DER",
     ...(options.encodingRules ? { encodingRules: options.encodingRules } : {}),
+    ...(options.strictBer ? { strictBer: true } : {}),
   };
 }
 
@@ -224,7 +231,8 @@ function createErrorResult(error: string): FromBerResult {
   };
 }
 
-function checkNodesLimit(context: FromBerContext): string | undefined {
+/** @internal */
+export function checkNodesLimit(context: FromBerContext): string | undefined {
   if (context.encodingRules === "DER" && context.heuristic?.active) {
     if (context.heuristic.nodesSpent >= context.heuristic.maxNodes) {
       context.resourceLimitExceeded = true;
@@ -246,22 +254,25 @@ function checkNodesLimit(context: FromBerContext): string | undefined {
 /** @internal */
 export function withHeuristic<T>(context: FromBerContext, callback: () => T): T | undefined {
   if (context.encodingRules !== "DER") {
-    const { baseOffset, resourceLimitExceeded } = context;
+    const { baseOffset, resourceLimitExceeded, allowEoc } = context;
+    context.allowEoc = false;
     try {
       return callback();
     } finally {
       context.baseOffset = baseOffset;
       context.resourceLimitExceeded = resourceLimitExceeded;
+      context.allowEoc = allowEoc;
     }
   }
 
   const heuristic = (context.heuristic ??= { nodesSpent: 0, maxNodes: context.maxNodes, active: false });
   if (heuristic.nodesSpent >= heuristic.maxNodes) return undefined;
 
-  const { node, diagnostic, depth, baseOffset, resourceLimitExceeded } = context;
+  const { node, diagnostic, depth, baseOffset, resourceLimitExceeded, allowEoc } = context;
   const active = heuristic.active;
   heuristic.active = true;
   context.diagnostic = undefined;
+  context.allowEoc = false;
   try {
     return callback();
   } finally {
@@ -270,6 +281,7 @@ export function withHeuristic<T>(context: FromBerContext, callback: () => T): T 
     context.depth = depth;
     context.baseOffset = baseOffset;
     context.resourceLimitExceeded = resourceLimitExceeded;
+    context.allowEoc = allowEoc;
     heuristic.active = active;
   }
 }
@@ -441,16 +453,26 @@ function localFromBERInternal(inputBuffer: Uint8Array, inputOffset: number, inpu
       returnObject.error = report(context, issue);
       return { offset: -1, result: returnObject };
     }
+  }
+
+  if ((context.encodingRules === "DER" || context.strictBer) && valueLength > inputLength) {
     // A child must fit its parent range, even when the backing view has more bytes.
-    if (valueLength > inputLength) {
-      returnObject.error = "End of input reached before message was fully decoded (inconsistent content length)";
-      return { offset: -1, result: returnObject };
-    }
+    returnObject.error = "End of input reached before message was fully decoded (inconsistent content length)";
+    return { offset: -1, result: returnObject };
   }
 
   // Check for using indefinite length form in encoding for primitive types
   if (!returnObject.idBlock.isConstructed && returnObject.lenBlock.isIndefiniteForm) {
     returnObject.error = "Indefinite length form used for primitive encoding form";
+
+    return {
+      offset: -1,
+      result: returnObject,
+    };
+  }
+
+  if (context.strictBer && returnObject.idBlock.tagClass === 1 && !returnObject.idBlock.isConstructed && (returnObject.idBlock.tagNumber === 16 || returnObject.idBlock.tagNumber === 17)) {
+    returnObject.error = "Primitive encoding used for constructed type";
 
     return {
       offset: -1,
@@ -476,7 +498,12 @@ function localFromBERInternal(inputBuffer: Uint8Array, inputOffset: number, inpu
       switch (returnObject.idBlock.tagNumber) {
         case 0: // EndOfContent
           // Check for EndOfContent type
-          if (returnObject.idBlock.isConstructed && returnObject.lenBlock.length > 0) {
+          if (
+            returnObject.lenBlock.length > 0 ||
+            returnObject.lenBlock.isIndefiniteForm ||
+            (context.strictBer &&
+              (!context.allowEoc || returnObject.idBlock.blockLength !== 1 || returnObject.idBlock.isConstructed || returnObject.idBlock.isHexOnly || returnObject.lenBlock.longFormUsed))
+          ) {
             returnObject.error = "Type [UNIVERSAL 0] is reserved";
 
             return {
@@ -645,7 +672,14 @@ export function fromBERWithContext(inputBuffer: BufferSource, options: FromBerOp
   const inputView = toUint8Array(inputBuffer);
   const normalizedInput = options.copyInput === false ? inputView : inputView.slice();
 
-  const decoded = child ? localFromBERWithChildContext(normalizedInput, 0, normalizedInput.byteLength, context) : localFromBER(normalizedInput, 0, normalizedInput.byteLength, context);
+  const previousAllowEoc = context.allowEoc;
+  context.allowEoc = false;
+  let decoded: FromBerResult;
+  try {
+    decoded = child ? localFromBERWithChildContext(normalizedInput, 0, normalizedInput.byteLength, context) : localFromBER(normalizedInput, 0, normalizedInput.byteLength, context);
+  } finally {
+    context.allowEoc = previousAllowEoc;
+  }
   if (decoded.offset !== -1 && (options.requireFullInput || context.encodingRules === "DER") && decoded.offset !== normalizedInput.byteLength) {
     const message = "Unexpected data after the first ASN.1 element";
     const diagnostic: ParseDiagnostic = { code: "TRAILING_DATA", message, offset: (context.baseOffset ?? 0) + decoded.offset, depth: context.depth + (child ? 1 : 0) };

@@ -30,6 +30,10 @@ function checkLen(indefiniteLength: boolean, length: number): number {
   return length;
 }
 
+function isCanonicalEndOfContent(block: BaseBlock): boolean {
+  return !block.idBlock.isConstructed && !block.idBlock.isHexOnly && block.idBlock.blockLength === 1 && !block.lenBlock.isIndefiniteForm && !block.lenBlock.longFormUsed && block.lenBlock.length === 0;
+}
+
 export class LocalConstructedValueBlock extends ValueBlock implements ILocalConstructedValueBlock {
   public static override NAME = "ConstructedValueBlock";
 
@@ -56,6 +60,12 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
 
     // Initial checks
     if (this.valueBeforeDecodeView.length === 0) {
+      if (this.isIndefiniteForm) {
+        this.error = "No EndOfContent block encoded";
+
+        return -1;
+      }
+
       this.warnings.push("Zero buffer length");
 
       return inputOffset;
@@ -64,7 +74,14 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
     let currentOffset = inputOffset;
 
     while (checkLen(this.isIndefiniteForm, inputLength) > 0) {
-      const returnObject = localFromBERWithChildContext(view, currentOffset, inputLength, parseContext);
+      const previousAllowEoc = parseContext.allowEoc;
+      parseContext.allowEoc = this.isIndefiniteForm;
+      let returnObject;
+      try {
+        returnObject = localFromBERWithChildContext(view, currentOffset, inputLength, parseContext);
+      } finally {
+        parseContext.allowEoc = previousAllowEoc;
+      }
       if (returnObject.offset === -1) {
         this.error = returnObject.result.error;
         this.warnings.push(...returnObject.result.warnings);
@@ -80,15 +97,23 @@ export class LocalConstructedValueBlock extends ValueBlock implements ILocalCons
       this.value.push(returnObject.result);
 
       if (this.isIndefiniteForm && (returnObject.result.constructor as typeof BaseBlock).NAME === END_OF_CONTENT_NAME) {
+        if (!isCanonicalEndOfContent(returnObject.result)) {
+          this.error = "Type [UNIVERSAL 0] is reserved";
+
+          return -1;
+        }
+
         break;
       }
     }
 
     if (this.isIndefiniteForm) {
-      if ((this.value[this.value.length - 1].constructor as typeof BaseBlock).NAME === END_OF_CONTENT_NAME) {
+      if ((this.value[this.value.length - 1]?.constructor as typeof BaseBlock | undefined)?.NAME === END_OF_CONTENT_NAME) {
         this.value.pop();
       } else {
-        this.warnings.push("No EndOfContent block encoded");
+        this.error = "No EndOfContent block encoded";
+
+        return -1;
       }
     }
 

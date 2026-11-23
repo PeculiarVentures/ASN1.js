@@ -47,7 +47,7 @@ export class LocalBitStringValueBlock extends HexBlock(LocalConstructedValueBloc
     }
 
     // Ability to decode zero-length BitString value
-    if (!inputLength) {
+    if (!inputLength && !this.isIndefiniteForm) {
       return inputOffset;
     }
 
