@@ -6,9 +6,11 @@ import * as utils from "./utils";
 import { type LocalRelativeSidValueBlockJson, LocalRelativeSidValueBlock } from "./LocalRelativeSidValueBlock";
 import { assertStrictOidEncodable, getSidValue, MAX_SAFE_SID, parseOidComponents, resetOidValue, setOidError, setSidValue } from "./oidUtils";
 import { toUint8Array } from "@peculiar/utils";
-import type { FromBerContext } from "../parser";
+import { checkNodesLimit, type FromBerContext } from "../parser";
 import { checkPrimitiveEncoding } from "../der";
 import { report } from "./der";
+
+const SIDS_PER_NODE = 16;
 
 export interface ILocalRelativeObjectIdentifierValueBlock {
   value: string;
@@ -53,6 +55,17 @@ export class LocalRelativeObjectIdentifierValueBlock extends ValueBlock implemen
     let resultOffset = inputOffset;
 
     while (inputLength > 0) {
+      if (context && this.value.length > 0 && this.value.length % SIDS_PER_NODE === 0) {
+        const nodesLimitError = checkNodesLimit(context);
+        if (nodesLimitError) {
+          this.value = [];
+          this.blockLength = 0;
+          this.error = nodesLimitError;
+
+          return -1;
+        }
+      }
+
       const sidBlock = new LocalRelativeSidValueBlock();
       resultOffset = sidBlock.fromBER(inputBuffer, resultOffset, inputLength);
       if (resultOffset === -1) {

@@ -153,12 +153,13 @@ const checked = verifySchema(inputBuffer, schema, { encodingRules: "DER" });
 const completeBer = fromBER(inputBuffer, { requireFullInput: true });
 ```
 
-| Options                                    | Behavior                                                      |
-| ------------------------------------------ | ------------------------------------------------------------- |
-| BER defaults, or `requireFullInput: false` | Parse the first element and return its end offset.            |
-| BER with `requireFullInput: true`          | Require exactly one complete BER element.                     |
-| `encodingRules: "DER"`                     | Require exactly one element and validate supported DER rules. |
-| DER with `requireFullInput: false`         | Throw `TypeError` for incompatible options.                   |
+| Options                                    | Behavior                                                                                         |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| BER defaults, or `requireFullInput: false` | Parse the first element and return its end offset.                                               |
+| BER with `requireFullInput: true`          | Require exactly one complete BER element.                                                        |
+| BER with `strictBer: true`                 | Enforce BER container boundaries, constructed SEQUENCE/SET forms, and end-of-contents placement. |
+| `encodingRules: "DER"`                     | Require exactly one element and validate supported DER rules.                                    |
+| DER with `requireFullInput: false`         | Throw `TypeError` for incompatible options.                                                      |
 
 `FromBerOptions` remains an extensible interface. `EncodingRules` is `"BER" | "DER"`.
 `FromDerOptions` is `Omit<FromBerOptions, "encodingRules" | "requireFullInput">`, since

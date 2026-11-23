@@ -7,6 +7,7 @@ export type LocalUniversalStringValueBlockJson = LocalSimpleStringBlockJson;
 
 const MAX_CODE_POINT = 0x10ffff;
 const REPLACEMENT_CODE_POINT = 0xfffd;
+const MAX_STRING_WARNINGS = 100;
 
 export class LocalUniversalStringValueBlock extends LocalSimpleStringBlock {
   public static override NAME = "UniversalStringValueBlock";
@@ -29,7 +30,9 @@ export class LocalUniversalStringValueBlock extends LocalSimpleStringBlock {
     for (let i = 0; i < count; i++) {
       const codePoint = data.getUint32(i * 4);
       if (codePoint > MAX_CODE_POINT) {
-        this.warnings.push(`Code point 0x${codePoint.toString(16)} is outside the Unicode range, using U+FFFD`);
+        if (this.warnings.length < MAX_STRING_WARNINGS) {
+          this.warnings.push(`Code point 0x${codePoint.toString(16)} is outside the Unicode range, using U+FFFD`);
+        }
         codePoints.push(REPLACEMENT_CODE_POINT);
       } else if (codePoint >= 0xd800 && codePoint <= 0xdfff) {
         // Older versions wrote characters outside the BMP as two UTF-16 surrogates, so keep a valid pair
@@ -38,7 +41,9 @@ export class LocalUniversalStringValueBlock extends LocalSimpleStringBlock {
           codePoints.push(0x10000 + ((codePoint - 0xd800) << 10) + (next - 0xdc00));
           i++;
         } else {
-          this.warnings.push(`Code point 0x${codePoint.toString(16)} is a lone surrogate, using U+FFFD`);
+          if (this.warnings.length < MAX_STRING_WARNINGS) {
+            this.warnings.push(`Code point 0x${codePoint.toString(16)} is a lone surrogate, using U+FFFD`);
+          }
           codePoints.push(REPLACEMENT_CODE_POINT);
         }
       } else {

@@ -44,7 +44,7 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
     this.valueBlock.isIndefiniteForm = this.lenBlock.isIndefiniteForm;
 
     // Ability to encode empty OCTET STRING
-    if (inputLength === 0) {
+    if (inputLength === 0 && !this.lenBlock.isIndefiniteForm) {
       if (this.idBlock.error.length === 0) this.blockLength += this.idBlock.blockLength;
 
       if (this.lenBlock.error.length === 0) this.blockLength += this.lenBlock.blockLength;
@@ -94,12 +94,16 @@ export class OctetString extends BaseBlock<LocalOctetStringValueBlock, LocalOcte
       return this.valueBlock.valueHexView.slice().buffer;
     }
 
-    const array: (ArrayBuffer | Uint8Array)[] = [];
-    for (const content of this.valueBlock.value) {
-      if (content instanceof OctetString) {
-        array.push(content.valueBlock.valueHexView);
+    const array: Uint8Array[] = [];
+    const collect = (items: BaseBlock[]): void => {
+      for (const content of items) {
+        if (content instanceof OctetString) {
+          if (content.idBlock.isConstructed) collect(content.valueBlock.value);
+          else array.push(content.valueBlock.valueHexView);
+        }
       }
-    }
+    };
+    collect(this.valueBlock.value);
 
     return utils.concat(array);
   }
